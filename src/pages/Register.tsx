@@ -4,14 +4,16 @@ import { Link, Navigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { Globe, UserCheck } from 'lucide-react';
+import { Globe, UserPlus } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState<'patient' | 'doctor' | 'nurse' | 'caregiver'>('patient');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, login, isAuthenticated, language, setLanguage } = useAuth();
+  const { user, signUp, isAuthenticated, language, setLanguage } = useAuth();
   const { t } = useTranslation();
   const { toast } = useToast();
 
@@ -20,15 +22,15 @@ const Login = () => {
     setIsSubmitting(true);
     
     try {
-      await login(email, password);
+      await signUp(email, password, name, role);
       toast({
-        title: "Welcome back",
-        description: "You have successfully logged in.",
+        title: "Account created",
+        description: "Your account has been created successfully. Please check your email for verification.",
       });
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || t('invalidCredentials'),
+        description: error.message || "Failed to create account",
         variant: "destructive",
       });
     } finally {
@@ -46,7 +48,7 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">{t('appName')}</h1>
-          <p className="text-muted-foreground">{t('signIn')}</p>
+          <p className="text-muted-foreground">Create a new account</p>
         </div>
         
         <div className="glass-card p-8">
@@ -69,6 +71,20 @@ const Login = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium">
+                Full Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 {t('email')}
               </label>
@@ -79,7 +95,6 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="admin@medcare.com"
               />
             </div>
             
@@ -94,8 +109,26 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="••••••••"
+                minLength={6}
               />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="role" className="text-sm font-medium">
+                Role
+              </label>
+              <select
+                id="role"
+                className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                value={role}
+                onChange={(e) => setRole(e.target.value as 'patient' | 'doctor' | 'nurse' | 'caregiver')}
+                required
+              >
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+                <option value="nurse">Nurse</option>
+                <option value="caregiver">Caregiver</option>
+              </select>
             </div>
             
             <Button 
@@ -103,25 +136,17 @@ const Login = () => {
               className="w-full mt-6" 
               disabled={isSubmitting}
             >
-              <UserCheck className="mr-2 h-4 w-4" />
-              {t('signIn')}
+              <UserPlus className="mr-2 h-4 w-4" />
+              Register
             </Button>
             
             <div className="pt-4 text-center text-sm">
               <p className="text-muted-foreground">
-                Don't have an account?{" "}
-                <Link to="/register" className="text-primary hover:underline">
-                  Register
+                Already have an account?{" "}
+                <Link to="/login" className="text-primary hover:underline">
+                  Sign in
                 </Link>
               </p>
-              
-              <div className="mt-4 pt-4 border-t border-border">
-                <p>Demo accounts:</p>
-                <p>admin@medcare.com</p>
-                <p>doctor@medcare.com</p>
-                <p>nurse@medcare.com</p>
-                <p className="mt-1">Password: any</p>
-              </div>
             </div>
           </form>
         </div>
@@ -130,4 +155,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
