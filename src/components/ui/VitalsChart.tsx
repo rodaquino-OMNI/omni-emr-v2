@@ -1,107 +1,137 @@
 
-import React, { useEffect, useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { cn } from '@/lib/utils';
-
-export type VitalType = 'heartRate' | 'bloodPressure' | 'temperature' | 'oxygenSaturation';
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 type VitalsChartProps = {
-  data?: any[];
-  type?: VitalType;
-  patientId?: string;
-  className?: string;
+  patientId: string;
+  type: 'heartRate' | 'bloodPressure' | 'temperature' | 'oxygenSaturation';
 };
 
-const vitalConfig = {
-  heartRate: {
-    name: 'Heart Rate',
-    unit: 'bpm',
-    dataKey: 'value',
-    color: 'rgba(220, 48, 48, 1)',
-    gradient: ['rgba(220, 48, 48, 0.2)', 'rgba(220, 48, 48, 0)'],
-    domain: [40, 160]
-  },
-  bloodPressure: {
-    name: 'Blood Pressure',
-    unit: 'mmHg',
-    dataKey: 'value',
-    color: 'rgba(30, 64, 175, 1)',
-    gradient: ['rgba(30, 64, 175, 0.2)', 'rgba(30, 64, 175, 0)'],
-    domain: [60, 200]
-  },
-  temperature: {
-    name: 'Temperature',
-    unit: '°F',
-    dataKey: 'value',
-    color: 'rgba(236, 72, 153, 1)',
-    gradient: ['rgba(236, 72, 153, 0.2)', 'rgba(236, 72, 153, 0)'],
-    domain: [95, 105]
-  },
-  oxygenSaturation: {
-    name: 'Oxygen Saturation',
-    unit: '%',
-    dataKey: 'value',
-    color: 'rgba(16, 185, 129, 1)',
-    gradient: ['rgba(16, 185, 129, 0.2)', 'rgba(16, 185, 129, 0)'],
-    domain: [80, 100]
-  }
-};
-
-// Generate mock vitals data for a patient
-const generateMockVitalsData = (patientId: string, type: VitalType) => {
-  const config = vitalConfig[type];
-  const [min, max] = config.domain;
-  const range = max - min;
-  
-  const now = new Date();
+// Generate mock data for vitals
+const generateMockVitalsData = (type: string, patientId: string) => {
+  const today = new Date();
   const data = [];
   
-  // Generate 12 data points, one for each hour
-  for (let i = 11; i >= 0; i--) {
-    const time = new Date(now);
-    time.setHours(time.getHours() - i);
+  // Generate data for the last 7 days
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
     
-    // Generate a value that's somewhat realistic and doesn't change too dramatically
-    // We use the patientId as a seed to get consistent results for the same patient
-    const seed = parseInt(patientId.slice(-2), 16) / 255; // Get last 2 chars as hex and normalize to 0-1
-    const randomFactor = 0.2; // How much random fluctuation
+    let value;
     
-    // Base value is determined by patient id for consistency
-    const baseValue = min + range * (0.4 + seed * 0.3); // Something in the middle range
+    // Generate realistic-looking vital signs based on patient ID and type
+    const patientSeed = parseInt(patientId) || 1;
+    const daySeed = i + 1;
+    const randomFactor = Math.sin(patientSeed * daySeed) * 10;
     
-    // Add some random fluctuation and a slight trend over time
-    const trendFactor = (i / 11) * range * 0.1; // Small trend over time
-    const randomVariation = (Math.random() - 0.5) * range * randomFactor;
-    const value = baseValue + trendFactor + randomVariation;
+    switch (type) {
+      case 'heartRate':
+        // Normal heart rate: 60-100 bpm
+        value = Math.floor(80 + randomFactor);
+        break;
+      case 'bloodPressure':
+        // Return both systolic and diastolic
+        const systolic = Math.floor(120 + randomFactor);
+        const diastolic = Math.floor(80 + randomFactor * 0.5);
+        value = { systolic, diastolic };
+        break;
+      case 'temperature':
+        // Normal body temperature: ~98.6°F (37°C)
+        value = (98.6 + randomFactor * 0.1).toFixed(1);
+        break;
+      case 'oxygenSaturation':
+        // Normal O2 sat: 95-100%
+        value = Math.min(100, Math.floor(97 + randomFactor * 0.3));
+        break;
+      default:
+        value = 0;
+    }
     
     data.push({
-      time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      value: Math.round(value * 10) / 10 // Round to 1 decimal place
+      date: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      value
     });
   }
   
   return data;
 };
 
-const VitalsChart = ({ data, type = 'heartRate', patientId, className }: VitalsChartProps) => {
-  const [chartData, setChartData] = useState<any[]>([]);
-  const config = vitalConfig[type];
+const VitalsChart = ({ patientId, type }: VitalsChartProps) => {
+  const [data, setData] = useState<any[]>([]);
   
   useEffect(() => {
-    // If data is provided, use it, otherwise generate mock data
-    if (data && data.length > 0) {
-      setChartData(data);
-    } else if (patientId) {
-      setChartData(generateMockVitalsData(patientId, type));
-    }
-  }, [patientId, type, data]);
+    // Generate mock data when component mounts
+    const mockData = generateMockVitalsData(type, patientId);
+    setData(mockData);
+  }, [type, patientId]);
   
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+  // Configuration based on vital type
+  const getChartConfig = () => {
+    switch (type) {
+      case 'heartRate':
+        return {
+          label: 'Heart Rate',
+          unit: 'bpm',
+          color: '#f43f5e',
+          domain: [40, 160]
+        };
+      case 'bloodPressure':
+        return {
+          label: 'Blood Pressure',
+          unit: 'mmHg',
+          color: '#0ea5e9',
+          colorSecondary: '#6366f1',
+          domain: [40, 200]
+        };
+      case 'temperature':
+        return {
+          label: 'Temperature',
+          unit: '°F',
+          color: '#f97316',
+          domain: [97, 103]
+        };
+      case 'oxygenSaturation':
+        return {
+          label: 'Oxygen Saturation',
+          unit: '%',
+          color: '#10b981',
+          domain: [85, 100]
+        };
+      default:
+        return {
+          label: '',
+          unit: '',
+          color: '#9ca3af',
+          domain: [0, 100]
+        };
+    }
+  };
+  
+  const config = getChartConfig();
+  
+  const formatYAxis = (value: number) => {
+    return `${value}${config.unit}`;
+  };
+  
+  const formatTooltip = (value: any) => {
+    if (type === 'bloodPressure' && typeof value === 'object') {
+      return `${value.systolic}/${value.diastolic} mmHg`;
+    }
+    return `${value} ${config.unit}`;
+  };
+
+  const renderTooltipContent = (props: any) => {
+    const { payload, label } = props;
+    if (payload && payload.length > 0) {
+      const data = payload[0].payload;
       return (
-        <div className="bg-white p-2 border border-border rounded shadow-sm">
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="text-sm font-medium">{`${payload[0].value} ${config.unit}`}</p>
+        <div className="bg-white p-2 border border-gray-200 shadow-sm rounded-md text-sm">
+          <p className="font-medium">{label}</p>
+          {type === 'bloodPressure' ? (
+            <p className="text-gray-600">{`${data.value.systolic}/${data.value.diastolic} mmHg`}</p>
+          ) : (
+            <p className="text-gray-600">{`${data.value} ${config.unit}`}</p>
+          )}
         </div>
       );
     }
@@ -109,45 +139,58 @@ const VitalsChart = ({ data, type = 'heartRate', patientId, className }: VitalsC
   };
 
   return (
-    <div className={cn("w-full h-[120px]", className)}>
-      <div className="flex justify-between items-baseline mb-2">
-        <h4 className="text-sm font-medium">{config.name}</h4>
-        <span className="text-xs text-muted-foreground">{config.unit}</span>
+    <div className="h-60">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-sm font-medium">{config.label}</h3>
       </div>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={chartData}
-          margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
+        <LineChart
+          data={data}
+          margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
         >
-          <defs>
-            <linearGradient id={`gradient-${type}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={config.gradient[0]} />
-              <stop offset="100%" stopColor={config.gradient[1]} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
           <XAxis 
-            dataKey="time" 
-            axisLine={false}
+            dataKey="date"
+            tick={{ fontSize: 12 }}
             tickLine={false}
-            tick={{ fontSize: 10, fill: 'rgba(0, 0, 0, 0.4)' }}
           />
           <YAxis 
+            tickFormatter={formatYAxis}
             domain={config.domain}
-            axisLine={false}
+            tick={{ fontSize: 12 }}
             tickLine={false}
-            tick={{ fontSize: 10, fill: 'rgba(0, 0, 0, 0.4)' }}
           />
-          <Tooltip content={<CustomTooltip />} />
-          <Area 
-            type="monotone" 
-            dataKey={config.dataKey} 
-            stroke={config.color} 
-            strokeWidth={2}
-            fill={`url(#gradient-${type})`}
-            animationDuration={500}
-          />
-        </AreaChart>
+          <Tooltip content={renderTooltipContent} />
+          {type === 'bloodPressure' ? (
+            <>
+              <Line 
+                type="monotone" 
+                dataKey={(dataPoint) => dataPoint.value.systolic} 
+                stroke={config.color} 
+                strokeWidth={2}
+                activeDot={{ r: 6 }}
+                dot={{ r: 4 }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey={(dataPoint) => dataPoint.value.diastolic} 
+                stroke={config.colorSecondary} 
+                strokeWidth={2}
+                activeDot={{ r: 6 }}
+                dot={{ r: 4 }}
+              />
+            </>
+          ) : (
+            <Line 
+              type="monotone" 
+              dataKey="value" 
+              stroke={config.color} 
+              strokeWidth={2}
+              activeDot={{ r: 6 }}
+              dot={{ r: 4 }}
+            />
+          )}
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
