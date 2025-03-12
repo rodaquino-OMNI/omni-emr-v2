@@ -3,6 +3,7 @@ import React from 'react';
 import { Activity, Users, Calendar, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PatientList from '../patients/PatientList';
+import { useTranslation } from '../../hooks/useTranslation';
 
 type DashboardProps = {
   className?: string;
@@ -19,51 +20,66 @@ type StatCardProps = {
   className?: string;
 };
 
-const StatCard = ({ title, value, icon, trend, className }: StatCardProps) => (
-  <div className={cn("glass-card p-6", className)}>
-    <div className="flex justify-between items-start">
-      <div>
-        <p className="text-sm text-muted-foreground">{title}</p>
-        <h3 className="text-2xl font-semibold mt-1">{value}</h3>
-        {trend && (
-          <p className={cn(
-            "text-xs mt-1 flex items-center",
-            trend.positive ? "text-medical-green" : "text-medical-red"
-          )}>
-            {trend.positive ? '↑' : '↓'} {trend.value}
-          </p>
-        )}
-      </div>
-      <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-        {icon}
+const StatCard = ({ title, value, icon, trend, className }: StatCardProps) => {
+  const { language } = useTranslation();
+  
+  return (
+    <div className={cn("glass-card p-6", className)}>
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-sm text-muted-foreground">{title}</p>
+          <h3 className="text-2xl font-semibold mt-1">{value}</h3>
+          {trend && (
+            <p className={cn(
+              "text-xs mt-1 flex items-center",
+              trend.positive ? "text-medical-green" : "text-medical-red"
+            )}>
+              {trend.positive ? '↑' : '↓'} {trend.value}
+            </p>
+          )}
+        </div>
+        <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+          {icon}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Dashboard = ({ className }: DashboardProps) => {
-  // Sample data
+  const { language } = useTranslation();
+  
+  // Sample data with translations
   const stats = [
     { 
-      title: "Total Patients", 
+      title: language === 'pt' ? "Total de Pacientes" : "Total Patients", 
       value: 248, 
       icon: <Users className="h-5 w-5" />,
-      trend: { value: "3.2% from last month", positive: true }
+      trend: { 
+        value: language === 'pt' ? "3.2% do último mês" : "3.2% from last month", 
+        positive: true 
+      }
     },
     { 
-      title: "Hospital Patients", 
+      title: language === 'pt' ? "Pacientes no Hospital" : "Hospital Patients", 
       value: 86, 
       icon: <Activity className="h-5 w-5" />,
-      trend: { value: "2.1% from last week", positive: false }
+      trend: { 
+        value: language === 'pt' ? "2.1% da última semana" : "2.1% from last week", 
+        positive: false 
+      }
     },
     { 
-      title: "Home Care Patients", 
+      title: language === 'pt' ? "Pacientes em Casa" : "Home Care Patients", 
       value: 162, 
       icon: <ClipboardList className="h-5 w-5" />,
-      trend: { value: "5.3% from last month", positive: true }
+      trend: { 
+        value: language === 'pt' ? "5.3% do último mês" : "5.3% from last month", 
+        positive: true 
+      }
     },
     { 
-      title: "Scheduled Today", 
+      title: language === 'pt' ? "Agendados Hoje" : "Scheduled Today", 
       value: 24, 
       icon: <Calendar className="h-5 w-5" /> 
     }
@@ -84,7 +100,9 @@ const Dashboard = ({ className }: DashboardProps) => {
       </div>
       
       <div className="glass-card p-6">
-        <h2 className="text-lg font-semibold mb-4">Recent Patients</h2>
+        <h2 className="text-lg font-semibold mb-4">
+          {language === 'pt' ? 'Pacientes Recentes' : 'Recent Patients'}
+        </h2>
         <PatientList limit={5} showViewAll />
       </div>
     </div>

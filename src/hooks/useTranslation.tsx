@@ -19,11 +19,25 @@ export const useTranslation = () => {
     }
     
     // For English translation from Portuguese
-    // This is a very simple implementation
-    // You would normally use a more sophisticated translation service
-    
-    // Common translations for frequently used text
+    // This is a simple implementation with common dashboard terms
     const ptToEnMap: Record<string, string> = {
+      // Dashboard terms
+      'Painel': 'Dashboard',
+      'Total de Pacientes': 'Total Patients',
+      'Pacientes no Hospital': 'Hospital Patients',
+      'Pacientes em Casa': 'Home Care Patients',
+      'Agendados Hoje': 'Scheduled Today',
+      'do último mês': 'from last month',
+      'da última semana': 'from last week',
+      'Pacientes Recentes': 'Recent Patients',
+      'Ver todos os pacientes': 'View all patients',
+      'Recuperação pós-operatória': 'Post-op recovery',
+      'Pneumonia': 'Pneumonia',
+      'Insuficiência cardíaca crônica': 'Chronic heart failure',
+      'Gerenciamento de diabetes': 'Diabetes management',
+      'Substituição de quadril': 'Hip replacement',
+      
+      // Original entries
       'Paciente': 'Patient',
       'Pacientes': 'Patients',
       'Médico': 'Doctor',
@@ -52,12 +66,32 @@ export const useTranslation = () => {
       'Usuário': 'User',
       'Senha': 'Password',
       'Entrar': 'Sign In',
-      'Sair': 'Logout'
+      'Sair': 'Logout',
+      'Hospital': 'Hospital',
+      'Casa': 'Home',
+      'Crítico': 'Critical',
+      'Estável': 'Stable',
+      'Melhorando': 'Improving',
+      'anos': 'yrs',
+      'Masculino': 'Male',
+      'Feminino': 'Female',
+      'Quarto': 'Room',
+      'UTI': 'ICU'
     };
     
+    // English to Portuguese map for reverse lookup
+    const enToPtMap: Record<string, string> = {};
+    Object.entries(ptToEnMap).forEach(([pt, en]) => {
+      enToPtMap[en] = pt;
+    });
+    
     // Try to find a direct translation
-    if (ptToEnMap[text]) {
-      return ptToEnMap[text];
+    if (language === 'en' && enToPtMap[text]) {
+      return text; // Keep English text when in English mode
+    } else if (language === 'pt' && ptToEnMap[text]) {
+      return text; // Already in Portuguese
+    } else if (language === 'en' && ptToEnMap[text]) {
+      return ptToEnMap[text]; // Translate Portuguese to English
     }
     
     // If no direct translation is found, return the original text
