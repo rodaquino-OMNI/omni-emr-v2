@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -99,23 +100,25 @@ const PatientList = ({ limit, showViewAll }: PatientListProps) => {
     <div>
       <div className="divide-y divide-border">
         {patients.map((patient) => (
-          <div key={patient.id} className="py-4 flex items-center gap-4">
-            <Avatar>
-              <AvatarImage src={patient.image} alt={patient.name} />
-              <AvatarFallback>{patient.name.substring(0, 2)}</AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-foreground">{patient.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {patient.age} {language === 'pt' ? 'anos' : 'yrs'}, {patient.gender === 'male' ? (language === 'pt' ? 'Masculino' : 'Male') : (language === 'pt' ? 'Feminino' : 'Female')}
-                {patient.room && <>, {language === 'pt' ? 'Quarto' : 'Room'} {patient.room}</>}
-                {patient.room && patient.room === 'ICU' && <>, {language === 'pt' ? 'UTI' : 'ICU'}</>}
+          <Link key={patient.id} to={`/patients/${patient.id}`} className="block py-4">
+            <div className="flex items-center gap-4">
+              <Avatar>
+                <AvatarImage src={patient.image} alt={patient.name} />
+                <AvatarFallback>{patient.name.substring(0, 2)}</AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-foreground">{patient.name}</div>
+                <div className="text-sm text-muted-foreground">
+                  {patient.age} {language === 'pt' ? 'anos' : 'yrs'}, {patient.gender === 'male' ? (language === 'pt' ? 'Masculino' : 'Male') : (language === 'pt' ? 'Feminino' : 'Female')}
+                  {patient.room && <>, {language === 'pt' ? 'Quarto' : 'Room'} {patient.room}</>}
+                  {patient.room && patient.room === 'ICU' && <>, {language === 'pt' ? 'UTI' : 'ICU'}</>}
+                </div>
               </div>
+              
+              <StatusBadge status={patient.status} />
             </div>
-            
-            <StatusBadge status={patient.status} />
-          </div>
+          </Link>
         ))}
       </div>
       
