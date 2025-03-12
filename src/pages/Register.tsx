@@ -24,13 +24,15 @@ const Register = () => {
     try {
       await signUp(email, password, name, role);
       toast({
-        title: "Account created",
-        description: "Your account has been created successfully. Please check your email for verification.",
+        title: language === 'pt' ? "Conta criada" : "Account created",
+        description: language === 'pt' 
+          ? "Sua conta foi criada com sucesso. Por favor, verifique seu email." 
+          : "Your account has been created successfully. Please check your email for verification.",
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to create account",
+        title: language === 'pt' ? "Erro" : "Error",
+        description: error.message || (language === 'pt' ? "Falha ao criar conta" : "Failed to create account"),
         variant: "destructive",
       });
     } finally {
@@ -48,7 +50,9 @@ const Register = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">{t('appName')}</h1>
-          <p className="text-muted-foreground">Create a new account</p>
+          <p className="text-muted-foreground">
+            {language === 'pt' ? 'Criar uma nova conta' : 'Create a new account'}
+          </p>
         </div>
         
         <div className="glass-card p-8">
@@ -59,12 +63,13 @@ const Register = () => {
                 size="sm" 
                 className="flex items-center gap-2"
                 onClick={() => {
-                  const nextLang = language === 'en' ? 'pt' : language === 'pt' ? 'es' : 'en';
+                  // Toggle between Portuguese and English only
+                  const nextLang = language === 'pt' ? 'en' : 'pt';
                   setLanguage(nextLang);
                 }}
               >
                 <Globe className="h-4 w-4" />
-                {language === 'en' ? 'English' : language === 'pt' ? 'Português' : 'Español'}
+                {language === 'pt' ? 'Português' : 'English'}
               </Button>
             </div>
           </div>
@@ -72,7 +77,7 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">
-                Full Name
+                {language === 'pt' ? 'Nome Completo' : 'Full Name'}
               </label>
               <input
                 id="name"
@@ -115,7 +120,7 @@ const Register = () => {
             
             <div className="space-y-2">
               <label htmlFor="role" className="text-sm font-medium">
-                Role
+                {language === 'pt' ? 'Função' : 'Role'}
               </label>
               <select
                 id="role"
@@ -124,10 +129,10 @@ const Register = () => {
                 onChange={(e) => setRole(e.target.value as 'patient' | 'doctor' | 'nurse' | 'caregiver')}
                 required
               >
-                <option value="patient">Patient</option>
-                <option value="doctor">Doctor</option>
-                <option value="nurse">Nurse</option>
-                <option value="caregiver">Caregiver</option>
+                <option value="patient">{language === 'pt' ? 'Paciente' : 'Patient'}</option>
+                <option value="doctor">{language === 'pt' ? 'Médico' : 'Doctor'}</option>
+                <option value="nurse">{language === 'pt' ? 'Enfermeiro' : 'Nurse'}</option>
+                <option value="caregiver">{language === 'pt' ? 'Cuidador' : 'Caregiver'}</option>
               </select>
             </div>
             
@@ -137,14 +142,14 @@ const Register = () => {
               disabled={isSubmitting}
             >
               <UserPlus className="mr-2 h-4 w-4" />
-              Register
+              {language === 'pt' ? 'Registrar' : 'Register'}
             </Button>
             
             <div className="pt-4 text-center text-sm">
               <p className="text-muted-foreground">
-                Already have an account?{" "}
+                {language === 'pt' ? 'Já tem uma conta?' : 'Already have an account?'}{" "}
                 <Link to="/login" className="text-primary hover:underline">
-                  Sign in
+                  {language === 'pt' ? 'Entrar' : 'Sign in'}
                 </Link>
               </p>
             </div>

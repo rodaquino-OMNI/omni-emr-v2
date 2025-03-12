@@ -72,12 +72,13 @@ const Login = () => {
                 size="sm" 
                 className="flex items-center gap-2"
                 onClick={() => {
-                  const nextLang = language === 'en' ? 'pt' : language === 'pt' ? 'es' : 'en';
+                  // Toggle between Portuguese and English only
+                  const nextLang = language === 'pt' ? 'en' : 'pt';
                   setLanguage(nextLang);
                 }}
               >
                 <Globe className="h-4 w-4" />
-                {language === 'en' ? 'English' : language === 'pt' ? 'Português' : 'Español'}
+                {language === 'pt' ? 'Português' : 'English'}
               </Button>
             </div>
           </div>
@@ -124,7 +125,7 @@ const Login = () => {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {language === 'pt' ? 'Ou continue com' : 'Or continue with'}
               </span>
             </div>
           </div>
@@ -171,18 +172,18 @@ const Login = () => {
             
             <div className="pt-4 text-center text-sm">
               <p className="text-muted-foreground">
-                Don't have an account?{" "}
-                <Link to="/register" className="text-primary hover:underline">
-                  Register
+                {language === 'pt' ? 'Não tem uma conta?' : "Don't have an account?"}
+                <Link to="/register" className="text-primary hover:underline ml-1">
+                  {language === 'pt' ? 'Registrar' : 'Register'}
                 </Link>
               </p>
               
               <div className="mt-4 pt-4 border-t border-border">
-                <p>Demo accounts:</p>
+                <p>{language === 'pt' ? 'Contas de demonstração:' : 'Demo accounts:'}</p>
                 <p>admin@omnicare.com</p>
                 <p>doctor@omnicare.com</p>
                 <p>nurse@omnicare.com</p>
-                <p className="mt-1">Password: any</p>
+                <p className="mt-1">{language === 'pt' ? 'Senha: qualquer' : 'Password: any'}</p>
               </div>
             </div>
           </form>
