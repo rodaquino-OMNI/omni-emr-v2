@@ -1,13 +1,14 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { cn } from '@/lib/utils';
 
 export type VitalType = 'heartRate' | 'bloodPressure' | 'temperature' | 'oxygenSaturation';
 
 type VitalsChartProps = {
-  data: any[];
-  type: VitalType;
+  data?: any[];
+  type?: VitalType;
+  patientId?: string;
   className?: string;
 };
 
@@ -46,8 +47,54 @@ const vitalConfig = {
   }
 };
 
-const VitalsChart = ({ data, type, className }: VitalsChartProps) => {
+// Generate mock vitals data for a patient
+const generateMockVitalsData = (patientId: string, type: VitalType) => {
   const config = vitalConfig[type];
+  const [min, max] = config.domain;
+  const range = max - min;
+  
+  const now = new Date();
+  const data = [];
+  
+  // Generate 12 data points, one for each hour
+  for (let i = 11; i >= 0; i--) {
+    const time = new Date(now);
+    time.setHours(time.getHours() - i);
+    
+    // Generate a value that's somewhat realistic and doesn't change too dramatically
+    // We use the patientId as a seed to get consistent results for the same patient
+    const seed = parseInt(patientId.slice(-2), 16) / 255; // Get last 2 chars as hex and normalize to 0-1
+    const randomFactor = 0.2; // How much random fluctuation
+    
+    // Base value is determined by patient id for consistency
+    const baseValue = min + range * (0.4 + seed * 0.3); // Something in the middle range
+    
+    // Add some random fluctuation and a slight trend over time
+    const trendFactor = (i / 11) * range * 0.1; // Small trend over time
+    const randomVariation = (Math.random() - 0.5) * range * randomFactor;
+    const value = baseValue + trendFactor + randomVariation;
+    
+    data.push({
+      time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      value: Math.round(value * 10) / 10 // Round to 1 decimal place
+    });
+  }
+  
+  return data;
+};
+
+const VitalsChart = ({ data, type = 'heartRate', patientId, className }: VitalsChartProps) => {
+  const [chartData, setChartData] = useState<any[]>([]);
+  const config = vitalConfig[type];
+  
+  useEffect(() => {
+    // If data is provided, use it, otherwise generate mock data
+    if (data && data.length > 0) {
+      setChartData(data);
+    } else if (patientId) {
+      setChartData(generateMockVitalsData(patientId, type));
+    }
+  }, [patientId, type, data]);
   
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -69,7 +116,7 @@ const VitalsChart = ({ data, type, className }: VitalsChartProps) => {
       </div>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
-          data={data}
+          data={chartData}
           margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
         >
           <defs>

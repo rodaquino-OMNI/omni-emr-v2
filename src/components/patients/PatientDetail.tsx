@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Patient } from './PatientCard';
 import StatusBadge from '../ui/StatusBadge';
-import VitalsChart from '../ui/VitalsChart';
+import PatientVitals from './PatientVitals';
 import { PrescriptionsList } from '../prescriptions';
 import { getPatientPrescriptions } from '../../services/prescriptionService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -155,7 +154,7 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
         <TabsContent value="overview" className="space-y-6">
           <div className="glass-card p-6">
             <h2 className="text-xl font-medium mb-4">Vitals</h2>
-            <VitalsChart patientId={patientId} />
+            <PatientVitals patientId={patientId} />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -253,7 +252,6 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
         <TabsContent value="records" className="space-y-6">
           <div className="glass-card p-6">
             <h2 className="text-xl font-medium mb-4">Medical Records</h2>
-            {/* Records list component would go here */}
             <div className="text-center py-8 text-muted-foreground">
               Coming soon: Medical records for this patient
             </div>
