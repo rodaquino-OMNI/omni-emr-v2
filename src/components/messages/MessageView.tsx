@@ -92,7 +92,7 @@ const mockThreads: Record<string, MessageThread> = {
           image: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZmlsZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60',
           role: 'Nurse'
         },
-        content: 'Patient in room 302 needs assistance with medication. He's experiencing some discomfort with the current dosage.',
+        content: 'Patient in room 302 needs assistance with medication. He\'s experiencing some discomfort with the current dosage.',
         timestamp: '2023-12-01T11:15:00Z'
       }
     ]
