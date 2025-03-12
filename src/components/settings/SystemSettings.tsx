@@ -20,8 +20,8 @@ const SystemSettings = () => {
     
     // Handle system settings update logic
     toast({
-      title: "System settings updated",
-      description: "Your preferences have been saved successfully.",
+      title: language === 'pt' ? "Configurações do sistema atualizadas" : "System settings updated",
+      description: language === 'pt' ? "Suas preferências foram salvas com sucesso." : "Your preferences have been saved successfully.",
     });
   };
 
@@ -30,7 +30,7 @@ const SystemSettings = () => {
       <div>
         <h2 className="text-lg font-medium mb-4">{t('system')} {t('settings')}</h2>
         <p className="text-muted-foreground mb-6">
-          Customize your system settings and preferences.
+          {language === 'pt' ? 'Personalize suas configurações e preferências do sistema.' : 'Customize your system settings and preferences.'}
         </p>
         
         <form onSubmit={handleSubmit}>
@@ -43,17 +43,16 @@ const SystemSettings = () => {
                 id="language"
                 className="w-full h-10 px-3 rounded-md border border-border bg-background"
                 value={language}
-                onChange={(e) => setLanguage(e.target.value as 'en' | 'pt' | 'es')}
+                onChange={(e) => setLanguage(e.target.value as 'en' | 'pt')}
               >
-                <option value="en">{t('english')}</option>
                 <option value="pt">{t('portuguese')}</option>
-                <option value="es">{t('spanish')}</option>
+                <option value="en">{t('english')}</option>
               </select>
             </div>
             
             <div className="space-y-2">
               <label htmlFor="timezone" className="text-sm font-medium">
-                Timezone
+                {language === 'pt' ? 'Fuso Horário' : 'Timezone'}
               </label>
               <select
                 id="timezone"
@@ -66,12 +65,13 @@ const SystemSettings = () => {
                 <option value="America/Denver">Mountain Time (MT)</option>
                 <option value="America/Los_Angeles">Pacific Time (PT)</option>
                 <option value="Europe/London">Greenwich Mean Time (GMT)</option>
+                <option value="America/Sao_Paulo">Horário de Brasília (BRT)</option>
               </select>
             </div>
             
             <div className="space-y-2">
               <label htmlFor="dateFormat" className="text-sm font-medium">
-                Date Format
+                {language === 'pt' ? 'Formato de Data' : 'Date Format'}
               </label>
               <select
                 id="dateFormat"
@@ -79,15 +79,15 @@ const SystemSettings = () => {
                 value={dateFormat}
                 onChange={(e) => setDateFormat(e.target.value)}
               >
-                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                 <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                 <option value="YYYY-MM-DD">YYYY-MM-DD</option>
               </select>
             </div>
             
             <div className="space-y-2">
               <label htmlFor="timeFormat" className="text-sm font-medium">
-                Time Format
+                {language === 'pt' ? 'Formato de Hora' : 'Time Format'}
               </label>
               <select
                 id="timeFormat"
@@ -95,14 +95,14 @@ const SystemSettings = () => {
                 value={timeFormat}
                 onChange={(e) => setTimeFormat(e.target.value)}
               >
-                <option value="12hour">12-hour (AM/PM)</option>
-                <option value="24hour">24-hour</option>
+                <option value="24hour">{language === 'pt' ? '24 horas' : '24-hour'}</option>
+                <option value="12hour">{language === 'pt' ? '12 horas (AM/PM)' : '12-hour (AM/PM)'}</option>
               </select>
             </div>
             
             <div className="space-y-2">
               <label htmlFor="theme" className="text-sm font-medium">
-                Theme
+                {language === 'pt' ? 'Tema' : 'Theme'}
               </label>
               <select
                 id="theme"
@@ -110,9 +110,9 @@ const SystemSettings = () => {
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
               >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="system">System Default</option>
+                <option value="light">{language === 'pt' ? 'Claro' : 'Light'}</option>
+                <option value="dark">{language === 'pt' ? 'Escuro' : 'Dark'}</option>
+                <option value="system">{language === 'pt' ? 'Padrão do Sistema' : 'System Default'}</option>
               </select>
             </div>
             
@@ -122,7 +122,7 @@ const SystemSettings = () => {
                 className="h-10 bg-primary text-white rounded-md px-4 text-sm font-medium flex items-center gap-1 mt-2"
               >
                 <Save className="h-4 w-4" />
-                {t('save')} {t('settings')}
+                {language === 'pt' ? 'Salvar Configurações' : 'Save Settings'}
               </button>
             </div>
           </div>
