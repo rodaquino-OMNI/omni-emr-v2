@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import PrescriptionCard from './PrescriptionCard';
+import EmptyPrescriptionsState from './EmptyPrescriptionsState';
 import { Prescription } from '@/services/prescriptionService';
 import { ChevronRight, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -62,20 +63,7 @@ const PrescriptionsList = ({
           </div>
         </>
       ) : (
-        <div className="text-center py-8 text-muted-foreground">
-          No prescriptions found.
-          
-          {isDoctor && patientId && (
-            <div className="mt-4">
-              <Link to={`/prescribe/${patientId}`}>
-                <Button size="sm" className="flex items-center gap-1">
-                  <PlusCircle className="h-4 w-4" />
-                  New Prescription
-                </Button>
-              </Link>
-            </div>
-          )}
-        </div>
+        <EmptyPrescriptionsState patientId={patientId} />
       )}
     </div>
   );

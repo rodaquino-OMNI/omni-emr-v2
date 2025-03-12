@@ -29,7 +29,7 @@ const Header = ({ className }: HeaderProps) => {
     <header className={cn("w-full h-16 px-6 flex items-center justify-between border-b border-border glass-morphism z-10 sticky top-0", className)}>
       <div className="flex items-center gap-2">
         <h1 className="text-xl font-semibold tracking-tight text-primary">
-          {t('appName')}
+          OmniCare
         </h1>
       </div>
       

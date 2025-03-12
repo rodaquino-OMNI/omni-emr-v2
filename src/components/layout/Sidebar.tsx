@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   LucideIcon, 
   Home, 
@@ -100,7 +100,7 @@ const Sidebar = () => {
   const { pathname } = useLocation();
   const { user } = useAuth();
   const { t } = useTranslation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   
   const toggleSidebar = () => {
@@ -122,9 +122,9 @@ const Sidebar = () => {
       <div className="px-3 py-4">
         <Link to="/" className="flex items-center gap-2 px-3 py-2">
           <div className="bg-primary rounded-md w-8 h-8 flex items-center justify-center text-white font-bold">
-            MC
+            OC
           </div>
-          <span className="text-xl font-semibold tracking-tight">MedCare</span>
+          <span className="text-xl font-semibold tracking-tight">OmniCare</span>
         </Link>
       </div>
       

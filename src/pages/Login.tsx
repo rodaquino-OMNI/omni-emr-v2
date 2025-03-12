@@ -179,9 +179,9 @@ const Login = () => {
               
               <div className="mt-4 pt-4 border-t border-border">
                 <p>Demo accounts:</p>
-                <p>admin@medcare.com</p>
-                <p>doctor@medcare.com</p>
-                <p>nurse@medcare.com</p>
+                <p>admin@omnicare.com</p>
+                <p>doctor@omnicare.com</p>
+                <p>nurse@omnicare.com</p>
                 <p className="mt-1">Password: any</p>
               </div>
             </div>

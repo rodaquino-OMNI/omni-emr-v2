@@ -1,4 +1,3 @@
-
 export type TranslationKey = 
   | 'appName'
   | 'dashboard'
@@ -52,7 +51,7 @@ type Translations = {
 
 export const translations: Record<'en' | 'pt' | 'es', Translations> = {
   en: {
-    appName: 'MedCare',
+    appName: 'OmniCare',
     dashboard: 'Dashboard',
     patients: 'Patients',
     records: 'Medical Records',
@@ -99,7 +98,7 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     joinCall: 'Join Call'
   },
   pt: {
-    appName: 'MedCare',
+    appName: 'OmniCare',
     dashboard: 'Painel',
     patients: 'Pacientes',
     records: 'Registros Médicos',
@@ -146,7 +145,7 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     joinCall: 'Entrar na Chamada'
   },
   es: {
-    appName: 'MedCare',
+    appName: 'OmniCare',
     dashboard: 'Panel',
     patients: 'Pacientes',
     records: 'Registros Médicos',
