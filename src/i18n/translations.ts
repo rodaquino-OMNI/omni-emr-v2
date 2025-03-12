@@ -31,7 +31,19 @@ export type TranslationKey =
   | 'addUser'
   | 'userRole'
   | 'permissions'
-  | 'back';
+  | 'back'
+  | 'english'
+  | 'portuguese'
+  | 'spanish'
+  | 'system'
+  | 'language'
+  | 'prescribeMedication'
+  | 'medicationName'
+  | 'dosage'
+  | 'frequency'
+  | 'startDate'
+  | 'endDate'
+  | 'joinCall';
 
 type Translations = {
   [key in TranslationKey]: string;
@@ -70,7 +82,19 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     addUser: 'Add User',
     userRole: 'Role',
     permissions: 'Permissions',
-    back: 'Back'
+    back: 'Back',
+    english: 'English',
+    portuguese: 'Portuguese',
+    spanish: 'Spanish',
+    system: 'System',
+    language: 'Language',
+    prescribeMedication: 'Prescribe Medication',
+    medicationName: 'Medication Name',
+    dosage: 'Dosage',
+    frequency: 'Frequency',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    joinCall: 'Join Call'
   },
   pt: {
     appName: 'MedCare',
@@ -104,7 +128,19 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     addUser: 'Adicionar Usuário',
     userRole: 'Função',
     permissions: 'Permissões',
-    back: 'Voltar'
+    back: 'Voltar',
+    english: 'Inglês',
+    portuguese: 'Português',
+    spanish: 'Espanhol',
+    system: 'Sistema',
+    language: 'Idioma',
+    prescribeMedication: 'Prescrever Medicamento',
+    medicationName: 'Nome do Medicamento',
+    dosage: 'Dosagem',
+    frequency: 'Frequência',
+    startDate: 'Data de Início',
+    endDate: 'Data de Término',
+    joinCall: 'Entrar na Chamada'
   },
   es: {
     appName: 'MedCare',
@@ -138,6 +174,18 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     addUser: 'Añadir Usuario',
     userRole: 'Rol',
     permissions: 'Permisos',
-    back: 'Regresar'
+    back: 'Regresar',
+    english: 'Inglés',
+    portuguese: 'Portugués',
+    spanish: 'Español',
+    system: 'Sistema',
+    language: 'Idioma',
+    prescribeMedication: 'Prescribir Medicamento',
+    medicationName: 'Nombre del Medicamento',
+    dosage: 'Dosis',
+    frequency: 'Frecuencia',
+    startDate: 'Fecha de Inicio',
+    endDate: 'Fecha de Finalización',
+    joinCall: 'Unirse a la Llamada'
   }
 };
