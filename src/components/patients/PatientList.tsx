@@ -100,7 +100,11 @@ const PatientList = ({ limit, showViewAll }: PatientListProps) => {
     <div>
       <div className="divide-y divide-border">
         {patients.map((patient) => (
-          <Link key={patient.id} to={`/patients/${patient.id}`} className="block py-4">
+          <Link 
+            key={patient.id} 
+            to={`/patients/${patient.id}`} 
+            className="block py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-md px-2 -mx-2"
+          >
             <div className="flex items-center gap-4">
               <Avatar>
                 <AvatarImage src={patient.image} alt={patient.name} />
