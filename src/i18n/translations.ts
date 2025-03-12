@@ -5,6 +5,7 @@ export type TranslationKey =
   | 'patients'
   | 'records'
   | 'medications'
+  | 'prescriptions'
   | 'schedule'
   | 'messages'
   | 'settings'
@@ -56,6 +57,7 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     patients: 'Patients',
     records: 'Medical Records',
     medications: 'Medications',
+    prescriptions: 'Prescriptions',
     schedule: 'Schedule',
     messages: 'Messages',
     settings: 'Settings',
@@ -102,6 +104,7 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     patients: 'Pacientes',
     records: 'Registros Médicos',
     medications: 'Medicamentos',
+    prescriptions: 'Prescrições',
     schedule: 'Agenda',
     messages: 'Mensagens',
     settings: 'Configurações',
@@ -148,6 +151,7 @@ export const translations: Record<'en' | 'pt' | 'es', Translations> = {
     patients: 'Pacientes',
     records: 'Registros Médicos',
     medications: 'Medicamentos',
+    prescriptions: 'Prescripciones',
     schedule: 'Agenda',
     messages: 'Mensajes',
     settings: 'Configuración',

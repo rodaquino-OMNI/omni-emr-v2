@@ -23,5 +23,12 @@ export const mockUsers: User[] = [
     name: 'Nurse Johnson',
     role: 'nurse',
     permissions: ['view_patients', 'edit_patients', 'view_medications', 'view_records', 'schedule_appointments']
+  },
+  {
+    id: '4',
+    email: 'patient@medcare.com',
+    name: 'John Patient',
+    role: 'patient',
+    permissions: ['view_own_records', 'view_own_medications', 'view_own_appointments']
   }
 ];

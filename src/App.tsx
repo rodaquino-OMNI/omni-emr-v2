@@ -19,6 +19,8 @@ import RecordView from "./pages/RecordView";
 import Medications from "./pages/Medications";
 import MedicationView from "./pages/MedicationView";
 import PrescribeMedication from "./pages/PrescribeMedication";
+import Prescriptions from "./pages/Prescriptions";
+import PrescriptionView from "./pages/PrescriptionView";
 import Schedule from "./pages/Schedule";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
@@ -54,6 +56,9 @@ const App = () => (
               
               <Route path="/medications" element={<Medications />} />
               <Route path="/medications/:id" element={<MedicationView />} />
+              
+              <Route path="/prescriptions" element={<Prescriptions />} />
+              <Route path="/prescriptions/:id" element={<PrescriptionView />} />
               
               <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
                 <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
