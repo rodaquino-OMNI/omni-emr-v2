@@ -86,12 +86,10 @@ export const useTranslation = () => {
     });
     
     // Try to find a direct translation
-    if (language === 'en' && enToPtMap[text]) {
-      return text; // Keep English text when in English mode
-    } else if (language === 'pt' && ptToEnMap[text]) {
-      return text; // Already in Portuguese
-    } else if (language === 'en' && ptToEnMap[text]) {
+    if (language === 'en' && ptToEnMap[text]) {
       return ptToEnMap[text]; // Translate Portuguese to English
+    } else if (language === 'pt' && enToPtMap[text]) {
+      return text; // Keep Portuguese text when in Portuguese mode
     }
     
     // If no direct translation is found, return the original text
