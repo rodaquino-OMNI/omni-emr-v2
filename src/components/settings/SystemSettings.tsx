@@ -10,9 +10,9 @@ const SystemSettings = () => {
   const { t } = useTranslation();
   const { toast } = useToast();
   
-  const [timezone, setTimezone] = useState('America/New_York');
-  const [dateFormat, setDateFormat] = useState('MM/DD/YYYY');
-  const [timeFormat, setTimeFormat] = useState('12hour');
+  const [timezone, setTimezone] = useState('America/Sao_Paulo');
+  const [dateFormat, setDateFormat] = useState('DD/MM/YYYY');
+  const [timeFormat, setTimeFormat] = useState('24hour');
   const [theme, setTheme] = useState('light');
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,7 +28,7 @@ const SystemSettings = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium mb-4">{t('system')} {t('settings')}</h2>
+        <h2 className="text-lg font-medium mb-4">{language === 'pt' ? 'Configurações do Sistema' : 'System Settings'}</h2>
         <p className="text-muted-foreground mb-6">
           {language === 'pt' ? 'Personalize suas configurações e preferências do sistema.' : 'Customize your system settings and preferences.'}
         </p>
@@ -37,7 +37,7 @@ const SystemSettings = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label htmlFor="language" className="text-sm font-medium">
-                {t('language')}
+                {language === 'pt' ? 'Idioma' : 'Language'}
               </label>
               <select
                 id="language"
@@ -45,8 +45,8 @@ const SystemSettings = () => {
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as 'en' | 'pt')}
               >
-                <option value="pt">{t('portuguese')}</option>
-                <option value="en">{t('english')}</option>
+                <option value="pt">{language === 'pt' ? 'Português' : 'Portuguese'}</option>
+                <option value="en">{language === 'pt' ? 'Inglês' : 'English'}</option>
               </select>
             </div>
             
@@ -60,12 +60,12 @@ const SystemSettings = () => {
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
               >
+                <option value="America/Sao_Paulo">Horário de Brasília (BRT)</option>
                 <option value="America/New_York">Eastern Time (ET)</option>
                 <option value="America/Chicago">Central Time (CT)</option>
                 <option value="America/Denver">Mountain Time (MT)</option>
                 <option value="America/Los_Angeles">Pacific Time (PT)</option>
                 <option value="Europe/London">Greenwich Mean Time (GMT)</option>
-                <option value="America/Sao_Paulo">Horário de Brasília (BRT)</option>
               </select>
             </div>
             

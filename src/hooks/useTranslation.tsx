@@ -7,21 +7,60 @@ export const useTranslation = () => {
   
   // Function to translate a key
   const t = (key: TranslationKey): string => {
-    // Try to get translation in current language
-    const translation = translations[language]?.[key];
-    
-    // Return the translation or fallback to Portuguese (now default)
-    return translation || translations.pt[key] || key;
+    // Get translation in current language or fallback to Portuguese
+    const translation = translations[language]?.[key] || translations.pt[key] || key;
+    return translation;
   };
   
   // Function to translate a plain text (not from translation keys)
   const translateContent = (text: string): string => {
-    // This is a simple implementation - in a real app you might use a more 
-    // sophisticated translation service or dictionary approach
-    if (language === 'pt') return text; // Already in Portuguese
+    if (language === 'pt') {
+      return text; // Already in Portuguese (our default)
+    }
     
-    // For English, we would need a dictionary of common phrases
-    // This is simplified for the example
+    // For English translation from Portuguese
+    // This is a very simple implementation
+    // You would normally use a more sophisticated translation service
+    
+    // Common translations for frequently used text
+    const ptToEnMap: Record<string, string> = {
+      'Paciente': 'Patient',
+      'Pacientes': 'Patients',
+      'Médico': 'Doctor',
+      'Médicos': 'Doctors',
+      'Consulta': 'Appointment',
+      'Consultas': 'Appointments',
+      'Prescrição': 'Prescription',
+      'Prescrições': 'Prescriptions',
+      'Medicamento': 'Medication',
+      'Medicamentos': 'Medications',
+      'Nome': 'Name',
+      'Status': 'Status',
+      'Ativo': 'Active',
+      'Inativo': 'Inactive',
+      'Salvar': 'Save',
+      'Cancelar': 'Cancel',
+      'Configurações': 'Settings',
+      'Última Visita': 'Last Visit',
+      'Próxima Consulta': 'Next Appointment',
+      'Ver Perfil': 'View Profile',
+      'Adicionar': 'Add',
+      'Editar': 'Edit',
+      'Excluir': 'Delete',
+      'Imprimir': 'Print',
+      'Voltar': 'Back',
+      'Usuário': 'User',
+      'Senha': 'Password',
+      'Entrar': 'Sign In',
+      'Sair': 'Logout'
+    };
+    
+    // Try to find a direct translation
+    if (ptToEnMap[text]) {
+      return ptToEnMap[text];
+    }
+    
+    // If no direct translation is found, return the original text
     return text;
   };
   

@@ -18,8 +18,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  language: 'en' | 'pt' | 'es';
-  setLanguage: (lang: 'en' | 'pt' | 'es') => void;
+  language: 'en' | 'pt';
+  setLanguage: (lang: 'en' | 'pt') => void;
   login: (email: string, password: string) => Promise<void>;
   loginWithSocial: (provider: Provider) => Promise<void>;
   signUp: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
@@ -33,11 +33,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [language, setLanguage] = useState<'en' | 'pt' | 'es'>('en');
+  const [language, setLanguage] = useState<'en' | 'pt'>('pt'); // Changed default to 'pt'
 
   useEffect(() => {
     // Check for saved language preference
-    const savedLanguage = localStorage.getItem('language') as 'en' | 'pt' | 'es' | null;
+    const savedLanguage = localStorage.getItem('language') as 'en' | 'pt' | null;
     
     if (savedLanguage) {
       setLanguage(savedLanguage);
