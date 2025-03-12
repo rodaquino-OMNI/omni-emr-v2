@@ -1,6 +1,8 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
+import { Session, Provider } from '@supabase/supabase-js';
+import { signInWithProvider, signInWithEmail, signUpWithEmail, signOut, mapSupabaseUserToUser } from '../utils/authUtils';
 
 export type UserRole = 'admin' | 'doctor' | 'nurse' | 'caregiver' | 'patient';
 
@@ -19,37 +21,13 @@ interface AuthContextType {
   language: 'en' | 'pt' | 'es';
   setLanguage: (lang: 'en' | 'pt' | 'es') => void;
   login: (email: string, password: string) => Promise<void>;
+  loginWithSocial: (provider: Provider) => Promise<void>;
   signUp: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
   logout: () => Promise<void>;
   session: Session | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Mock users for demo purposes
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'admin@medcare.com',
-    name: 'Admin User',
-    role: 'admin',
-    permissions: ['all']
-  },
-  {
-    id: '2',
-    email: 'doctor@medcare.com',
-    name: 'Dr. Sarah Chen',
-    role: 'doctor',
-    permissions: ['view_patients', 'edit_patients', 'prescribe_medications', 'view_records', 'edit_records', 'schedule_appointments', 'telemedicine']
-  },
-  {
-    id: '3',
-    email: 'nurse@medcare.com',
-    name: 'Nurse Johnson',
-    role: 'nurse',
-    permissions: ['view_patients', 'edit_patients', 'view_medications', 'view_records', 'schedule_appointments']
-  }
-];
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -72,22 +50,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         setIsLoading(true);
         
         if (sessionData?.user) {
-          // For demo, map to mock users based on email
-          // In a real app, you would fetch the user profile from your database
-          const mockUser = mockUsers.find(u => u.email === sessionData.user?.email);
-          
-          if (mockUser) {
-            setUser(mockUser);
-          } else {
-            // Default user if no mock user matches
-            setUser({
-              id: sessionData.user.id,
-              email: sessionData.user.email || '',
-              name: sessionData.user.user_metadata.name || 'User',
-              role: (sessionData.user.user_metadata.role as UserRole) || 'patient',
-              permissions: []
-            });
-          }
+          const mappedUser = mapSupabaseUserToUser(sessionData.user);
+          setUser(mappedUser);
         } else {
           setUser(null);
         }
@@ -104,21 +68,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       setSession(initialSession);
       
       if (initialSession?.user) {
-        // For demo, map to mock users based on email
-        const mockUser = mockUsers.find(u => u.email === initialSession.user.email);
-        
-        if (mockUser) {
-          setUser(mockUser);
-        } else {
-          // Default user if no mock user matches
-          setUser({
-            id: initialSession.user.id,
-            email: initialSession.user.email || '',
-            name: initialSession.user.user_metadata.name || 'User',
-            role: (initialSession.user.user_metadata.role as UserRole) || 'patient',
-            permissions: []
-          });
-        }
+        const mappedUser = mapSupabaseUserToUser(initialSession.user);
+        setUser(mappedUser);
       }
       
       setIsLoading(false);
@@ -140,38 +91,32 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     setIsLoading(true);
     
     try {
-      // Check if this is a mock user - for demo purposes
-      const mockUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      const { user: authUser, session: authSession } = await signInWithEmail(email, password);
       
-      if (mockUser) {
-        // For mock users, we'll set them directly without actual Supabase auth
-        // This is ONLY for demo purposes - in a real app, ALWAYS use proper authentication
-        setUser(mockUser);
-        // Create a demo session object to maintain consistency
-        const demoSession = { 
-          user: { 
-            id: mockUser.id, 
-            email: mockUser.email,
-            user_metadata: {
-              name: mockUser.name,
-              role: mockUser.role
-            }
-          }
-        } as Session;
-        setSession(demoSession);
-        setIsLoading(false);
-        return;
+      if (authUser) {
+        // For mock users, authUser will already be our User type
+        if ('role' in authUser) {
+          setUser(authUser as unknown as User);
+        } else {
+          const mappedUser = mapSupabaseUserToUser(authUser);
+          setUser(mappedUser);
+        }
+        
+        setSession(authSession);
       }
-      
-      // For non-mock users, use Supabase authentication
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (error) throw error;
     } catch (error) {
       setIsLoading(false);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithSocial = async (provider: Provider) => {
+    try {
+      await signInWithProvider(provider);
+      // No need to set user or session here, the auth state change listener will handle it
+    } catch (error) {
       throw error;
     }
   };
@@ -180,18 +125,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            role
-          }
-        }
-      });
-      
-      if (error) throw error;
+      await signUpWithEmail(email, password, name, role);
     } catch (error) {
       setIsLoading(false);
       throw error;
@@ -200,8 +134,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
+      await signOut();
       setUser(null);
+      setSession(null);
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -216,6 +151,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         language,
         setLanguage,
         login, 
+        loginWithSocial,
         signUp,
         logout,
         session
