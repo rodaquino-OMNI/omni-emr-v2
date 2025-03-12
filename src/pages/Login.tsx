@@ -26,6 +26,7 @@ const Login = () => {
         description: "You have successfully logged in.",
       });
     } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         title: "Error",
         description: error.message || t('invalidCredentials'),

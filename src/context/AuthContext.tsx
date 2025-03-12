@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
@@ -141,6 +140,30 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     setIsLoading(true);
     
     try {
+      // Check if this is a mock user - for demo purposes
+      const mockUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      
+      if (mockUser) {
+        // For mock users, we'll set them directly without actual Supabase auth
+        // This is ONLY for demo purposes - in a real app, ALWAYS use proper authentication
+        setUser(mockUser);
+        // Create a demo session object to maintain consistency
+        const demoSession = { 
+          user: { 
+            id: mockUser.id, 
+            email: mockUser.email,
+            user_metadata: {
+              name: mockUser.name,
+              role: mockUser.role
+            }
+          }
+        } as Session;
+        setSession(demoSession);
+        setIsLoading(false);
+        return;
+      }
+      
+      // For non-mock users, use Supabase authentication
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
