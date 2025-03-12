@@ -1,4 +1,3 @@
-
 import { useAuth } from "../context/AuthContext";
 import { translations, TranslationKey } from "../i18n/translations";
 
@@ -85,14 +84,14 @@ export const useTranslation = () => {
       enToPtMap[en] = pt;
     });
     
-    // Try to find a direct translation
-    if (language === 'en' && ptToEnMap[text]) {
-      return ptToEnMap[text]; // Translate Portuguese to English
-    } else if (language === 'pt' && enToPtMap[text]) {
-      return text; // Keep Portuguese text when in Portuguese mode
+    // Try to find a direct translation for the current language context
+    if (language === 'en') {
+      // When in English mode, if we find the text in our Portuguese-to-English map,
+      // return the English translation
+      return ptToEnMap[text] || text;
     }
     
-    // If no direct translation is found, return the original text
+    // If no direct translation is found or we're not in English mode, return the original text
     return text;
   };
   
