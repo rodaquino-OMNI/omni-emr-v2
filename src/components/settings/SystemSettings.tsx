@@ -1,9 +1,15 @@
 
 import React, { useState } from 'react';
 import { Save } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../hooks/useTranslation';
+import { useToast } from '@/components/ui/use-toast';
 
 const SystemSettings = () => {
-  const [language, setLanguage] = useState('english');
+  const { language, setLanguage } = useAuth();
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  
   const [timezone, setTimezone] = useState('America/New_York');
   const [dateFormat, setDateFormat] = useState('MM/DD/YYYY');
   const [timeFormat, setTimeFormat] = useState('12hour');
@@ -11,14 +17,18 @@ const SystemSettings = () => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     // Handle system settings update logic
-    console.log('System settings updated');
+    toast({
+      title: "System settings updated",
+      description: "Your preferences have been saved successfully.",
+    });
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium mb-4">System Preferences</h2>
+        <h2 className="text-lg font-medium mb-4">{t('system')} {t('settings')}</h2>
         <p className="text-muted-foreground mb-6">
           Customize your system settings and preferences.
         </p>
@@ -27,19 +37,17 @@ const SystemSettings = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label htmlFor="language" className="text-sm font-medium">
-                Language
+                {t('language')}
               </label>
               <select
                 id="language"
                 className="w-full h-10 px-3 rounded-md border border-border bg-background"
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => setLanguage(e.target.value as 'en' | 'pt' | 'es')}
               >
-                <option value="english">English</option>
-                <option value="spanish">Spanish</option>
-                <option value="french">French</option>
-                <option value="german">German</option>
-                <option value="chinese">Chinese</option>
+                <option value="en">{t('english')}</option>
+                <option value="pt">{t('portuguese')}</option>
+                <option value="es">{t('spanish')}</option>
               </select>
             </div>
             
@@ -114,7 +122,7 @@ const SystemSettings = () => {
                 className="h-10 bg-primary text-white rounded-md px-4 text-sm font-medium flex items-center gap-1 mt-2"
               >
                 <Save className="h-4 w-4" />
-                Save Preferences
+                {t('save')} {t('settings')}
               </button>
             </div>
           </div>
