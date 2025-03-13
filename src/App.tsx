@@ -31,6 +31,7 @@ import NotFound from "./pages/NotFound";
 import Messages from "./pages/Messages";
 import Tasks from "./pages/Tasks";
 import TaskDetail from "./pages/TaskDetail";
+import MedicalHistory from "./pages/MedicalHistory";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
               
               <Route path="/patients" element={<Patients />} />
               <Route path="/patients/:id" element={<PatientProfile />} />
+              <Route path="/patients/:id/medical-history" element={<MedicalHistory />} />
               
               <Route path="/records" element={<Records />} />
               <Route path="/records/:id" element={<RecordView />} />

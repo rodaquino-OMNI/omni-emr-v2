@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAIInsights } from '@/hooks/useAIInsights';
 import AIInsights from '../ai/AIInsights';
-import { FileText, Calendar, Download } from 'lucide-react';
+import { FileText, Calendar, Download, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -129,7 +129,15 @@ const PatientRecords = ({ patientId }: PatientRecordsProps) => {
       )}
       
       <div className="glass-card p-6">
-        <h2 className="text-xl font-medium mb-4">Medical Records</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-medium">Medical Records</h2>
+          <Link to={`/patients/${patientId}/medical-history`}>
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <ClipboardList className="h-4 w-4" />
+              Medical History
+            </Button>
+          </Link>
+        </div>
         
         {loading ? (
           <div className="text-center py-8">
