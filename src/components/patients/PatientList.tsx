@@ -3,9 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import StatusBadge from '../ui/StatusBadge';
 import { useTranslation } from '../../hooks/useTranslation';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 type Patient = {
   id: string;
@@ -24,6 +25,8 @@ type PatientListProps = {
   limit?: number;
   showViewAll?: boolean;
   className?: string;
+  statusFilter?: string;
+  searchTerm?: string;
 };
 
 const mockPatients: Patient[] = [
@@ -91,13 +94,39 @@ const mockPatients: Patient[] = [
   },
 ];
 
-const PatientList = ({ limit, showViewAll }: PatientListProps) => {
+const PatientList = ({ limit, showViewAll, className, statusFilter = 'all', searchTerm = '' }: PatientListProps) => {
   const { language } = useTranslation();
   
-  const patients = mockPatients.slice(0, limit);
+  // Filter patients based on status and search term
+  const filteredPatients = mockPatients.filter(patient => {
+    // Filter by status
+    if (statusFilter !== 'all' && patient.status !== statusFilter) {
+      return false;
+    }
+    
+    // Filter by search term (case insensitive)
+    if (searchTerm && !patient.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  // Limit the number of patients shown
+  const patients = limit ? filteredPatients.slice(0, limit) : filteredPatients;
+  
+  if (patients.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">
+          {language === 'pt' ? 'Nenhum paciente encontrado' : 'No patients found'}
+        </p>
+      </div>
+    );
+  }
   
   return (
-    <div>
+    <div className={className}>
       <div className="divide-y divide-border">
         {patients.map((patient) => (
           <Link 
@@ -126,14 +155,17 @@ const PatientList = ({ limit, showViewAll }: PatientListProps) => {
         ))}
       </div>
       
-      {showViewAll && (
+      {showViewAll && patients.length > 0 && (
         <div className="mt-4 text-center">
-          <Link 
-            to="/patients" 
-            className="text-primary hover:underline text-sm inline-flex items-center"
-          >
-            {language === 'pt' ? 'Ver todos os pacientes' : 'View all patients'} →
-          </Link>
+          <Button variant="outline" size="sm" asChild>
+            <Link 
+              to="/patients" 
+              className="inline-flex items-center gap-1"
+            >
+              {language === 'pt' ? 'Ver todos os pacientes' : 'View all patients'}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       )}
     </div>

@@ -8,9 +8,10 @@ import { SidebarItem as SidebarItemType } from '@/config/sidebarConfig';
 interface SidebarItemProps {
   item: SidebarItemType;
   onClick?: () => void;
+  badge?: number;
 }
 
-const SidebarItem = ({ item, onClick }: SidebarItemProps) => {
+const SidebarItem = ({ item, onClick, badge }: SidebarItemProps) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const Icon = item.icon;
@@ -29,6 +30,11 @@ const SidebarItem = ({ item, onClick }: SidebarItemProps) => {
     >
       <Icon className="h-5 w-5" />
       <span>{t(item.translationKey as any)}</span>
+      {badge ? (
+        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+          {badge}
+        </span>
+      ) : null}
     </Link>
   );
 };
