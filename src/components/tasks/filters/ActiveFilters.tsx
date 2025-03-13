@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { X } from 'lucide-react';
-import { TaskFilter } from '@/services/taskService';
+import { TaskFilter } from '@/services/tasks';
 
 interface ActiveFiltersProps {
   filter: TaskFilter;

@@ -1,9 +1,8 @@
-
 import React from 'react';
-import { Task } from './TaskCard';
+import { Task } from './card/TaskCardTypes';
 import TaskList from './TaskList';
 import TaskFilters from './TaskFilters';
-import { TaskFilter } from '@/services/taskService';
+import { TaskFilter } from '@/services/tasks';
 
 interface TaskTabContentProps {
   filter: TaskFilter;

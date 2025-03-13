@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -13,8 +12,8 @@ import SectorFilter from './SectorFilter';
 import PriorityFilter from './PriorityFilter';
 import StatusFilter from './StatusFilter';
 import DelayedFilter from './DelayedFilter';
-import { TaskFilter } from '@/services/taskService';
-import { TaskPriority, TaskStatus } from '../TaskCard';
+import { TaskFilter } from '@/services/tasks';
+import { TaskPriority, TaskStatus } from '../card/TaskCardTypes';
 
 interface FilterPopoverProps {
   filter: TaskFilter;

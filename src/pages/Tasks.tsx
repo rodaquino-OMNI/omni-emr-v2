@@ -6,13 +6,13 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/components/tasks/card/TaskCardTypes';
 import TaskCompletionForm from '@/components/tasks/TaskCompletionForm';
 import { 
   filterTasks, 
   TaskFilter,
   getTaskCompletionStats
-} from '@/services/taskService';
+} from '@/services/tasks';
 import TaskPageHeader from '@/components/tasks/TaskPageHeader';
 import TaskTabs from '@/components/tasks/TaskTabs';
 

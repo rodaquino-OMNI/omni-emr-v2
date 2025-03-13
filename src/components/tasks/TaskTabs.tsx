@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TaskTabContent from './TaskTabContent';
-import { Task } from './TaskCard';
-import { TaskFilter } from '@/services/taskService';
+import { Task } from './card/TaskCardTypes';
+import { TaskFilter } from '@/services/tasks';
 
 interface TaskTabsProps {
   activeTab: 'all' | 'delayed' | 'completed';

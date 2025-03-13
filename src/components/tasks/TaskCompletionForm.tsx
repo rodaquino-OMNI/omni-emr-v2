@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,8 +7,8 @@ import { Clock, ClipboardCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
-import { completeTask } from '@/services/taskService';
-import { Task } from '@/components/tasks/TaskCard';
+import { completeTask } from '@/services/tasks';
+import { Task } from '@/components/tasks/card/TaskCardTypes';
 
 import {
   Form,
@@ -30,7 +29,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-// Define the completion form schema
 const completionFormSchema = z.object({
   notes: z.string().optional(),
 });
@@ -55,7 +53,6 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Set up the form with default values
   const form = useForm<CompletionFormValues>({
     resolver: zodResolver(completionFormSchema),
     defaultValues: {
@@ -63,7 +60,6 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
     },
   });
   
-  // Handle form submission
   const onSubmit = async (data: CompletionFormValues) => {
     if (!user) {
       toast({

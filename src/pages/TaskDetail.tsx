@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Clock, Package2, User, Building } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { getTaskById, updateTaskStatus } from '@/services/taskService';
+import { getTaskById, updateTaskStatus } from '@/services/tasks';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
