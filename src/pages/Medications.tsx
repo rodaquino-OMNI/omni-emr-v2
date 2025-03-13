@@ -7,10 +7,18 @@ import { PlusCircle } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { 
   Sheet, 
   SheetContent, 
   SheetHeader, 
-  SheetTitle, 
+  SheetTitle,
+
   SheetTrigger 
 } from '@/components/ui/sheet';
 import NewMedicationForm from '../components/medications/NewMedicationForm';
@@ -31,6 +39,10 @@ const MedicationsPage = () => {
   const handleMedicationCreated = () => {
     setIsNewMedicationOpen(false);
     // We could refresh the medications list here
+  };
+
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
   };
 
   return (
@@ -56,17 +68,21 @@ const MedicationsPage = () => {
                   />
                 </div>
                 
-                <select
-                  className="h-9 rounded-md border border-border bg-background pl-3 pr-8 text-sm"
+                <Select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onValueChange={handleStatusFilterChange}
                 >
-                  {statuses.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-9 w-[180px]">
+                    <SelectValue placeholder={language === 'pt' ? "Filtrar por status" : "Filter by status"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 
                 <Sheet open={isNewMedicationOpen} onOpenChange={setIsNewMedicationOpen}>
                   <SheetTrigger asChild>

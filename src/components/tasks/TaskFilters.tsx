@@ -119,15 +119,15 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">{t('taskType')}</h4>
                 <Select
-                  value={filter.type || ''}
-                  onValueChange={(value) => handleFilterChange('type', value || undefined)}
+                  value={filter.type || 'all'}
+                  onValueChange={(value) => handleFilterChange('type', value === 'all' ? undefined : value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="All types" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="">All types</SelectItem>
+                      <SelectItem value="all">All types</SelectItem>
                       <SelectItem value="medication">
                         <div className="flex items-center gap-2">
                           <Pill className="h-4 w-4" />
@@ -166,15 +166,15 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">{t('sector')}</h4>
                 <Select
-                  value={filter.sector || ''}
-                  onValueChange={(value) => handleFilterChange('sector', value || undefined)}
+                  value={filter.sector || 'all'}
+                  onValueChange={(value) => handleFilterChange('sector', value === 'all' ? undefined : value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="All sectors" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="">All sectors</SelectItem>
+                      <SelectItem value="all">All sectors</SelectItem>
                       {hospitalSectors.map((sector) => (
                         <SelectItem key={sector.id} value={sector.name}>
                           <div className="flex items-center gap-2">
@@ -191,15 +191,15 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">{t('priority')}</h4>
                 <Select
-                  value={filter.priority || ''}
-                  onValueChange={(value) => handleFilterChange('priority', value as TaskPriority || undefined)}
+                  value={filter.priority || 'all'}
+                  onValueChange={(value) => handleFilterChange('priority', value === 'all' ? undefined : value as TaskPriority)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="All priorities" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="">All priorities</SelectItem>
+                      <SelectItem value="all">All priorities</SelectItem>
                       <SelectItem value="low">Low</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
                       <SelectItem value="high">High</SelectItem>
@@ -212,15 +212,15 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">{t('status')}</h4>
                 <Select
-                  value={filter.status || ''}
-                  onValueChange={(value) => handleFilterChange('status', value as TaskStatus || undefined)}
+                  value={filter.status || 'all'}
+                  onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value as TaskStatus)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="">All statuses</SelectItem>
+                      <SelectItem value="all">All statuses</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                       <SelectItem value="cancelled">Cancelled</SelectItem>
