@@ -1,5 +1,4 @@
-
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Settings, Video, HelpCircle, ClipboardList, Bell } from 'lucide-react';
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Settings, Video, HelpCircle, ClipboardList, Bell, ListChecks } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -34,39 +33,46 @@ export const sidebarItems: SidebarItem[] = [
     priority: 3
   },
   {
+    name: 'Tasks',
+    path: '/tasks',
+    icon: ListChecks,
+    translationKey: 'tasks',
+    priority: 4
+  },
+  {
     name: 'Records',
     path: '/records',
     icon: FileText,
     translationKey: 'records',
-    priority: 4
+    priority: 5
   },
   {
     name: 'Medications',
     path: '/medications',
     icon: Pill,
     translationKey: 'medications',
-    priority: 5
+    priority: 6
   },
   {
     name: 'Prescriptions',
     path: '/prescriptions',
     icon: ClipboardList,
     translationKey: 'prescriptions',
-    priority: 6
+    priority: 7
   },
   {
     name: 'Messages',
     path: '/messages',
     icon: MessageSquare,
     translationKey: 'messages',
-    priority: 7
+    priority: 8
   },
   {
     name: 'Notifications',
     path: '/notifications',
     icon: Bell,
     translationKey: 'notifications',
-    priority: 8
+    priority: 9
   },
   {
     name: 'Telemedicine',
@@ -74,20 +80,20 @@ export const sidebarItems: SidebarItem[] = [
     icon: Video,
     translationKey: 'telemedicine',
     permissionRequired: 'telemedicine',
-    priority: 9
+    priority: 10
   },
   {
     name: 'Settings',
     path: '/settings',
     icon: Settings,
     translationKey: 'settings',
-    priority: 10
+    priority: 11
   },
   {
     name: 'Help & Support',
     path: '/help',
     icon: HelpCircle,
     translationKey: 'help',
-    priority: 11
+    priority: 12
   }
 ];

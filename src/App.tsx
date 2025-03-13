@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,6 +29,8 @@ import Admin from "./pages/Admin";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 import Messages from "./pages/Messages";
+import Tasks from "./pages/Tasks";
+import TaskDetail from "./pages/TaskDetail";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +65,9 @@ const App = () => (
               
               <Route path="/messages" element={<Messages />} />
               <Route path="/notifications" element={<Messages />} />
+              
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/tasks/:id" element={<TaskDetail />} />
               
               <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
                 <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />

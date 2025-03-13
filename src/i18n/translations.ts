@@ -1,4 +1,3 @@
-
 export type TranslationKey = 
   | 'appName'
   | 'dashboard'
@@ -44,7 +43,20 @@ export type TranslationKey =
   | 'frequency'
   | 'startDate'
   | 'endDate'
-  | 'joinCall';
+  | 'joinCall'
+  | 'tasks'
+  | 'allTasks'
+  | 'taskType'
+  | 'dueDate'
+  | 'patient'
+  | 'sector'
+  | 'priority'
+  | 'delayed'
+  | 'onTime'
+  | 'filterBy'
+  | 'clearFilters'
+  | 'markAsComplete'
+  | 'taskDetails';
 
 type Translations = {
   [key in TranslationKey]: string;
@@ -96,7 +108,20 @@ export const translations: Record<'en' | 'pt', Translations> = {
     frequency: 'Frequência',
     startDate: 'Data de Início',
     endDate: 'Data de Término',
-    joinCall: 'Entrar na Chamada'
+    joinCall: 'Entrar na Chamada',
+    tasks: 'Tarefas',
+    allTasks: 'Todas as Tarefas',
+    taskType: 'Tipo de Tarefa',
+    dueDate: 'Data de Vencimento',
+    patient: 'Paciente',
+    sector: 'Setor',
+    priority: 'Prioridade',
+    delayed: 'Atrasado',
+    onTime: 'Em Dia',
+    filterBy: 'Filtrar por',
+    clearFilters: 'Limpar Filtros',
+    markAsComplete: 'Marcar como Concluído',
+    taskDetails: 'Detalhes da Tarefa'
   },
   en: {
     appName: 'OmniCare',
@@ -143,6 +168,19 @@ export const translations: Record<'en' | 'pt', Translations> = {
     frequency: 'Frequency',
     startDate: 'Start Date',
     endDate: 'End Date',
-    joinCall: 'Join Call'
+    joinCall: 'Join Call',
+    tasks: 'Tasks',
+    allTasks: 'All Tasks',
+    taskType: 'Task Type',
+    dueDate: 'Due Date',
+    patient: 'Patient',
+    sector: 'Sector',
+    priority: 'Priority',
+    delayed: 'Delayed',
+    onTime: 'On Time',
+    filterBy: 'Filter By',
+    clearFilters: 'Clear Filters',
+    markAsComplete: 'Mark as Complete',
+    taskDetails: 'Task Details'
   }
 };
