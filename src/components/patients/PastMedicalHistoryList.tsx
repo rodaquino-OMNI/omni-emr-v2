@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Calendar, User } from 'lucide-react';
 
 type PastMedicalHistoryListProps = {
@@ -12,33 +12,60 @@ type HistoryEntry = {
   provider: string;
   title: string;
   sections: string[];
+  notes?: string;
 };
 
 const PastMedicalHistoryList = ({ patientId }: PastMedicalHistoryListProps) => {
-  // Mock data - in a real application, this would be fetched from an API
-  const historyEntries: HistoryEntry[] = [
-    {
-      id: '1',
-      date: '2023-11-15T14:30:00',
-      provider: 'Dr. Sarah Chen',
-      title: 'Annual Check-up Update',
-      sections: ['Past Medical History', 'Allergies', 'Social History']
-    },
-    {
-      id: '2',
-      date: '2023-06-22T10:15:00',
-      provider: 'Dr. Michael Johnson',
-      title: 'Follow-up Visit Update',
-      sections: ['Chief Complaint', 'Present Illness', 'Review of Systems']
-    },
-    {
-      id: '3',
-      date: '2022-09-08T09:45:00',
-      provider: 'Nurse David Brown',
-      title: 'Initial Assessment',
-      sections: ['Family History', 'Social History', 'Past Medical History']
-    }
-  ];
+  const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistoryEntries = async () => {
+      setLoading(true);
+      
+      try {
+        // In a real app, this would be a fetch from Supabase or other backend
+        // Mock data for now
+        const mockEntries: HistoryEntry[] = [
+          {
+            id: '1',
+            date: '2023-11-15T14:30:00',
+            provider: 'Dr. Sarah Chen',
+            title: 'Annual Check-up Update',
+            sections: ['Past Medical History', 'Allergies', 'Social History'],
+            notes: 'Patient reports feeling well overall. Blood pressure has improved since last visit.'
+          },
+          {
+            id: '2',
+            date: '2023-06-22T10:15:00',
+            provider: 'Dr. Michael Johnson',
+            title: 'Follow-up Visit Update',
+            sections: ['Chief Complaint', 'Present Illness', 'Review of Systems'],
+            notes: 'Patient reports resolution of symptoms after completing antibiotic course.'
+          },
+          {
+            id: '3',
+            date: '2022-09-08T09:45:00',
+            provider: 'Nurse David Brown',
+            title: 'Initial Assessment',
+            sections: ['Family History', 'Social History', 'Past Medical History'],
+            notes: 'Comprehensive initial assessment completed. Patient established care with our practice.'
+          }
+        ];
+        
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        setHistoryEntries(mockEntries);
+      } catch (error) {
+        console.error('Error fetching history entries:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchHistoryEntries();
+  }, [patientId]);
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { 
@@ -50,6 +77,15 @@ const PastMedicalHistoryList = ({ patientId }: PastMedicalHistoryListProps) => {
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="h-6 w-6 border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+        <span className="ml-2 text-muted-foreground">Loading history...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -74,6 +110,12 @@ const PastMedicalHistoryList = ({ patientId }: PastMedicalHistoryListProps) => {
                     {entry.provider}
                   </div>
                 </div>
+                
+                {entry.notes && (
+                  <div className="mt-3 text-sm text-muted-foreground border-l-2 border-muted pl-3">
+                    {entry.notes}
+                  </div>
+                )}
                 
                 <div className="mt-2 text-sm">
                   <span className="text-muted-foreground">Sections updated: </span>

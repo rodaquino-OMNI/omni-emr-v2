@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PlusCircle, Save, History, FileText } from 'lucide-react';
 import MedicalHistoryForm from './MedicalHistoryForm';
 import PastMedicalHistoryList from './PastMedicalHistoryList';
+import NewEntryForm from './medical-history/NewEntryForm';
 
 type PatientMedicalHistoryProps = {
   patientId: string;
@@ -16,6 +17,15 @@ type PatientMedicalHistoryProps = {
 const PatientMedicalHistory = ({ patientId, className }: PatientMedicalHistoryProps) => {
   const [activeTab, setActiveTab] = useState<string>('current');
   const [editMode, setEditMode] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleEntryAdded = () => {
+    // Reload the past history list by incrementing the refresh key
+    setRefreshKey(prev => prev + 1);
+    
+    // Switch to the past tab to show the new entry
+    setActiveTab('past');
+  };
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -43,6 +53,12 @@ const PatientMedicalHistory = ({ patientId, className }: PatientMedicalHistoryPr
               Save Changes
             </Button>
           )}
+          {activeTab === 'past' && (
+            <NewEntryForm 
+              patientId={patientId}
+              onEntryAdded={handleEntryAdded}
+            />
+          )}
         </div>
       </div>
       
@@ -66,7 +82,7 @@ const PatientMedicalHistory = ({ patientId, className }: PatientMedicalHistoryPr
             <MedicalHistoryForm patientId={patientId} editMode={editMode} />
           </TabsContent>
           <TabsContent value="past">
-            <PastMedicalHistoryList patientId={patientId} />
+            <PastMedicalHistoryList patientId={patientId} key={refreshKey} />
           </TabsContent>
         </CardContent>
       </Card>
