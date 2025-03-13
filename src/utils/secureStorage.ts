@@ -1,7 +1,6 @@
 
 import CryptoJS from 'crypto-js';
 import { toast } from 'sonner';
-import { AlertTriangle } from 'lucide-react';
 
 // Use a secret that comes from a secure source in a production app
 // For simplicity, we're using a hardcoded key here, but ideally this would 
@@ -21,8 +20,7 @@ export const secureStorage = {
       const userRole = secureStorage.getItem<string>('user_role', '');
       if (userRole === 'admin') {
         toast.error('Storage encryption error', {
-          description: 'Failed to securely store data. This may affect application security.',
-          icon: <AlertTriangle className="h-5 w-5" />
+          description: 'Failed to securely store data. This may affect application security.'
         });
       }
     }
@@ -45,8 +43,7 @@ export const secureStorage = {
       const userRole = secureStorage.getItem<string>('user_role', '');
       if (userRole === 'admin') {
         toast.error('Storage decryption error', {
-          description: 'Failed to retrieve securely stored data. This may affect application security.',
-          icon: <AlertTriangle className="h-5 w-5" />
+          description: 'Failed to retrieve securely stored data. This may affect application security.'
         });
       }
       

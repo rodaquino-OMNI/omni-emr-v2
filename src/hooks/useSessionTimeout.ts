@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Clock } from 'lucide-react';
 import { Language } from '../types/auth';
 
 interface UseSessionTimeoutProps {
@@ -81,7 +80,6 @@ export const useSessionTimeout = ({
         toast.warning(warningMessage, {
           id: 'session-timeout-warning',
           duration: Infinity,
-          icon: <Clock className="h-5 w-5" />,
           action: {
             label: language === 'pt' ? 'Continuar sessão' : 'Stay logged in',
             onClick: () => {

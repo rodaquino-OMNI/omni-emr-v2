@@ -1,7 +1,6 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { AlertTriangle } from 'lucide-react';
 import { secureStorage } from '../utils/secureStorage';
 import { Language } from '../types/auth';
 
@@ -38,7 +37,6 @@ export const useAuthRateLimiting = (language: Language) => {
         : `Too many login attempts. Try again in ${remainingSeconds} seconds.`;
       
       toast.error(message, {
-        icon: <AlertTriangle className="h-5 w-5" />,
         duration: 5000
       });
       
@@ -61,7 +59,6 @@ export const useAuthRateLimiting = (language: Language) => {
         : 'Too many login attempts. Account temporarily locked for 15 minutes.';
       
       toast.error(message, {
-        icon: <AlertTriangle className="h-5 w-5" />,
         duration: 8000
       });
       

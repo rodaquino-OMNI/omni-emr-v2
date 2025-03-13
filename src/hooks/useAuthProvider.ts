@@ -9,7 +9,6 @@ import { useSessionTimeout } from './useSessionTimeout';
 import { useAuthRateLimiting } from './useAuthRateLimiting';
 import { usePermissions } from './usePermissions';
 import { toast } from 'sonner';
-import { AlertTriangle } from 'lucide-react';
 
 // CSRF protection token
 const generateCSRFToken = (): string => {
@@ -71,8 +70,7 @@ export const useAuthProvider = () => {
       toast.error(language === 'pt' ? 'Erro ao sair' : 'Logout error', {
         description: language === 'pt' 
           ? 'Ocorreu um erro ao tentar sair. Tente novamente.'
-          : 'An error occurred while trying to log out. Please try again.',
-        icon: <AlertTriangle className="h-5 w-5" />
+          : 'An error occurred while trying to log out. Please try again.'
       });
       
       // Still attempt to clear session on frontend even if server logout fails
@@ -171,9 +169,7 @@ export const useAuthProvider = () => {
         
         toast.error(language === 'pt' 
           ? 'Erro ao inicializar autenticação' 
-          : 'Authentication initialization error', {
-          icon: <AlertTriangle className="h-5 w-5" />
-        });
+          : 'Authentication initialization error');
       } finally {
         setIsLoading(false);
       }
@@ -243,8 +239,7 @@ export const useAuthProvider = () => {
         : 'Social login error', {
         description: language === 'pt' 
           ? `Não foi possível fazer login com ${provider}.`
-          : `Could not sign in with ${provider}.`,
-        icon: <AlertTriangle className="h-5 w-5" />
+          : `Could not sign in with ${provider}.`
       });
       
       throw error;
@@ -269,9 +264,7 @@ export const useAuthProvider = () => {
       console.error('Signup error:', error);
       
       // Show error to user via toast (component will also display the error)
-      toast.error(language === 'pt' ? 'Erro de registro' : 'Registration error', {
-        icon: <AlertTriangle className="h-5 w-5" />
-      });
+      toast.error(language === 'pt' ? 'Erro de registro' : 'Registration error');
       
       setIsLoading(false);
       throw error;
