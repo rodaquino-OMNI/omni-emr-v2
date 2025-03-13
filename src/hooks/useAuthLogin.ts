@@ -80,7 +80,10 @@ export const useAuthLogin = (
     }
   };
 
-  const signUp = async (email: string, password: string, name: string, role: UserRole) => {
+  const signUp = async (email: string, password: string, name: string, role: UserRole): Promise<{
+    user: User | null;
+    session: Session | null;
+  }> => {
     setIsLoading(true);
     
     try {
@@ -97,7 +100,12 @@ export const useAuthLogin = (
           : 'Your account has been created. Please check your email to confirm.'
       });
       
-      return result;
+      return {
+        user: result.user ? (typeof result.user === 'object' && 'role' in result.user 
+          ? result.user as User 
+          : null) : null,
+        session: result.session
+      };
     } catch (error: any) {
       console.error('Signup error:', error);
       

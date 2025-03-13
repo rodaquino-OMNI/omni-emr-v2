@@ -1,4 +1,3 @@
-
 import { Session, Provider } from '@supabase/supabase-js';
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 import { User, UserRole } from '../context/AuthContext';
@@ -187,7 +186,21 @@ export const signUpWithEmail = async (email: string, password: string, name: str
     }
   }
   
-  return data;
+  // Attempt to map the user to our application's User type if possible
+  let mappedUser = null;
+  if (data.user) {
+    try {
+      mappedUser = await mapSupabaseUserToUser(data.user);
+    } catch (mappingError) {
+      console.error('Error mapping user:', mappingError);
+      // Continue with registration even if mapping fails
+    }
+  }
+  
+  return { 
+    user: mappedUser, 
+    session: data.session 
+  };
 };
 
 export const signOut = async () => {
