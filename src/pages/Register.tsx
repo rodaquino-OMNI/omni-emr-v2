@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { Globe, UserPlus } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
+import { Globe, UserPlus, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -15,25 +15,42 @@ const Register = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, signUp, isAuthenticated, language, setLanguage } = useAuth();
   const { t } = useTranslation();
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
+      console.log('Starting registration process...');
+      console.log('Form data:', { email, name, role });
+      
       await signUp(email, password, name, role);
-      toast({
-        title: language === 'pt' ? "Conta criada" : "Account created",
+      
+      console.log('Registration successful');
+      toast.success(language === 'pt' ? "Conta criada" : "Account created", {
         description: language === 'pt' 
           ? "Sua conta foi criada com sucesso. Por favor, verifique seu email." 
           : "Your account has been created successfully. Please check your email for verification.",
       });
+      
+      // Redirect to login page after successful registration
+      navigate('/login');
     } catch (error: any) {
-      toast({
-        title: language === 'pt' ? "Erro" : "Error",
-        description: error.message || (language === 'pt' ? "Falha ao criar conta" : "Failed to create account"),
-        variant: "destructive",
+      console.error('Registration error:', error);
+      
+      // More specific error messages
+      let errorMessage = error.message || (language === 'pt' ? "Falha ao criar conta" : "Failed to create account");
+      
+      // Check for common Supabase errors
+      if (error.message?.includes('User already registered')) {
+        errorMessage = language === 'pt' 
+          ? "Este email já está registrado. Tente fazer login." 
+          : "This email is already registered. Try logging in instead.";
+      }
+      
+      toast.error(language === 'pt' ? "Erro" : "Error", {
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -141,8 +158,17 @@ const Register = () => {
               className="w-full mt-6" 
               disabled={isSubmitting}
             >
-              <UserPlus className="mr-2 h-4 w-4" />
-              {language === 'pt' ? 'Registrar' : 'Register'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {language === 'pt' ? 'Processando...' : 'Processing...'}
+                </>
+              ) : (
+                <>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  {language === 'pt' ? 'Registrar' : 'Register'}
+                </>
+              )}
             </Button>
             
             <div className="pt-4 text-center text-sm">

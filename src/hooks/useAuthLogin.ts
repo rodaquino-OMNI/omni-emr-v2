@@ -21,15 +21,20 @@ export const useAuthLogin = (
       // Check rate limiting
       handleLoginRateLimit();
       
+      console.log('Attempting login with email:', email);
       const { user: authUser, session: authSession } = await signInWithEmail(email, password);
+      console.log('Login response:', { authUser, authSession });
       
       if (authUser) {
         // For mock users, authUser will already be our User type
         if ('role' in authUser) {
+          console.log('Setting mock user:', authUser);
           setUser(authUser as unknown as User);
         } else {
           // Need to await since mapSupabaseUserToUser returns a Promise<User>
+          console.log('Mapping Supabase user to our User type');
           const mappedUser = await mapSupabaseUserToUser(authUser);
+          console.log('Mapped user:', mappedUser);
           setUser(mappedUser);
         }
         
@@ -38,6 +43,7 @@ export const useAuthLogin = (
         // Reset login attempts on successful login
         resetLoginAttempts();
       } else {
+        console.error('No user returned from login');
         throw new Error(language === 'pt' 
           ? 'Falha ao fazer login: Credenciais inválidas' 
           : 'Login failed: Invalid credentials');
@@ -78,7 +84,9 @@ export const useAuthLogin = (
     setIsLoading(true);
     
     try {
-      await signUpWithEmail(email, password, name, role);
+      console.log('Starting signup process in useAuthLogin:', { email, name, role });
+      const result = await signUpWithEmail(email, password, name, role);
+      console.log('Signup result:', result);
       
       // Show success message
       toast.success(language === 'pt' 
@@ -88,13 +96,26 @@ export const useAuthLogin = (
           ? 'Sua conta foi criada. Verifique seu email para confirmar.'
           : 'Your account has been created. Please check your email to confirm.'
       });
-    } catch (error) {
+      
+      return result;
+    } catch (error: any) {
       console.error('Signup error:', error);
       
-      // Show error to user via toast (component will also display the error)
-      toast.error(language === 'pt' ? 'Erro de registro' : 'Registration error', {});
+      let errorMessage = error.message || 
+        (language === 'pt' ? 'Falha ao criar conta' : 'Failed to create account');
+        
+      // Handle specific Supabase errors
+      if (error.message?.includes('User already registered')) {
+        errorMessage = language === 'pt' 
+          ? 'Este email já está registrado' 
+          : 'This email is already registered';
+      }
       
-      setIsLoading(false);
+      // Show error to user via toast (component will also display the error)
+      toast.error(language === 'pt' ? 'Erro de registro' : 'Registration error', {
+        description: errorMessage
+      });
+      
       throw error;
     } finally {
       setIsLoading(false);
