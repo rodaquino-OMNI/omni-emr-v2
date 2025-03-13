@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Calendar, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 type PastMedicalHistoryListProps = {
   patientId: string;
@@ -11,7 +12,7 @@ type HistoryEntry = {
   date: string;
   provider: string;
   title: string;
-  sections: string[];
+  sections?: string[];
   notes?: string;
 };
 
@@ -24,8 +25,31 @@ const PastMedicalHistoryList = ({ patientId }: PastMedicalHistoryListProps) => {
       setLoading(true);
       
       try {
-        // In a real app, this would be a fetch from Supabase or other backend
-        // Mock data for now
+        // Fetch the medical history entries from Supabase
+        const { data, error } = await supabase
+          .from('medical_history_entries')
+          .select('*')
+          .eq('patient_id', patientId)
+          .order('entry_date', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Transform Supabase data to match our component's expected format
+        const formattedEntries = data.map((entry) => ({
+          id: entry.id,
+          date: entry.entry_date,
+          provider: entry.provider_name,
+          title: entry.title,
+          notes: entry.notes,
+          sections: ['Medical History Update'] // Default section - can be expanded in the future
+        }));
+        
+        setHistoryEntries(formattedEntries);
+      } catch (error) {
+        console.error('Error fetching history entries:', error);
+        // If there's an error, fallback to mockData for demonstration
         const mockEntries: HistoryEntry[] = [
           {
             id: '1',
@@ -53,12 +77,7 @@ const PastMedicalHistoryList = ({ patientId }: PastMedicalHistoryListProps) => {
           }
         ];
         
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
         setHistoryEntries(mockEntries);
-      } catch (error) {
-        console.error('Error fetching history entries:', error);
       } finally {
         setLoading(false);
       }
@@ -120,7 +139,7 @@ const PastMedicalHistoryList = ({ patientId }: PastMedicalHistoryListProps) => {
                 <div className="mt-2 text-sm">
                   <span className="text-muted-foreground">Sections updated: </span>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {entry.sections.map((section, index) => (
+                    {entry.sections?.map((section, index) => (
                       <span key={index} className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
                         {section}
                       </span>

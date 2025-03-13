@@ -1,30 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { 
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ReviewOfSystemsProps = {
   reviewOfSystems: Record<string, string>;
   editMode: boolean;
   onUpdateSystem?: (system: string, value: string) => void;
 };
-
-const bodySystems = [
-  "constitutional",
-  "respiratory",
-  "cardiovascular",
-  "gastrointestinal",
-  "musculoskeletal",
-  "neurological",
-  "psychiatric"
-];
 
 const findingsOptions = {
   constitutional: ["No fever", "No fatigue", "No weight changes", "Fever", "Fatigue", "Recent weight loss", "Recent weight gain"],
@@ -42,6 +29,22 @@ const ReviewOfSystemsSection = ({
   onUpdateSystem 
 }: ReviewOfSystemsProps) => {
   const [selectedFindings, setSelectedFindings] = useState<Record<string, string[]>>({});
+
+  // Initialize selected findings based on current values
+  useEffect(() => {
+    const initialSelectedFindings: Record<string, string[]> = {};
+    
+    Object.entries(reviewOfSystems).forEach(([system, findings]) => {
+      // Parse the comma-separated findings string into an array
+      if (findings && findings.trim() !== '') {
+        initialSelectedFindings[system] = findings.split(', ').map(finding => finding.trim());
+      } else {
+        initialSelectedFindings[system] = [];
+      }
+    });
+    
+    setSelectedFindings(initialSelectedFindings);
+  }, [reviewOfSystems]);
 
   const handleFindingChange = (system: string, value: string) => {
     if (onUpdateSystem) {

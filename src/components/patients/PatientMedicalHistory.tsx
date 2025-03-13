@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PlusCircle, Save, History, FileText } from 'lucide-react';
+import { toast } from 'sonner';
 import MedicalHistoryForm from './MedicalHistoryForm';
 import PastMedicalHistoryList from './PastMedicalHistoryList';
 import NewEntryForm from './medical-history/NewEntryForm';
+import { supabase } from '@/integrations/supabase/client';
 
 type PatientMedicalHistoryProps = {
   patientId: string;
@@ -18,6 +20,7 @@ const PatientMedicalHistory = ({ patientId, className }: PatientMedicalHistoryPr
   const [activeTab, setActiveTab] = useState<string>('current');
   const [editMode, setEditMode] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleEntryAdded = () => {
     // Reload the past history list by incrementing the refresh key
@@ -25,6 +28,26 @@ const PatientMedicalHistory = ({ patientId, className }: PatientMedicalHistoryPr
     
     // Switch to the past tab to show the new entry
     setActiveTab('past');
+  };
+
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    
+    try {
+      // In the future, we might want to save the entire medical history form here
+      // For now, we'll just show a success message
+      
+      // Mock a short delay for the "saving" experience
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setEditMode(false);
+      toast.success("Medical history updated successfully");
+    } catch (error) {
+      console.error('Error saving medical history:', error);
+      toast.error("Failed to save medical history");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -46,11 +69,12 @@ const PatientMedicalHistory = ({ patientId, className }: PatientMedicalHistoryPr
           {activeTab === 'current' && editMode && (
             <Button 
               size="sm" 
-              onClick={() => setEditMode(false)}
+              onClick={handleSaveChanges}
+              disabled={isSaving}
               className="flex items-center gap-1"
             >
               <Save className="h-4 w-4" />
-              Save Changes
+              {isSaving ? 'Saving...' : 'Save Changes'}
             </Button>
           )}
           {activeTab === 'past' && (

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { MedicalHistoryData } from './MedicalHistoryData';
+import { toast } from 'sonner';
 import { 
   Dialog,
   DialogContent,
@@ -32,6 +32,7 @@ const NewEntryForm = ({ patientId, onEntryAdded }: NewEntryFormProps) => {
   const [error, setError] = useState<string | null>(null);
   
   const providerName = user?.name || 'Unknown Provider';
+  const providerId = user?.id || 'unknown';
   const currentDate = new Date().toISOString().split('T')[0];
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,26 +41,37 @@ const NewEntryForm = ({ patientId, onEntryAdded }: NewEntryFormProps) => {
     setIsSubmitting(true);
     
     try {
-      // In a real application, this would save to Supabase or another backend
-      console.log('Saving new entry:', {
-        patientId,
-        title,
-        notes,
-        provider: providerName,
-        date: currentDate
-      });
-      
-      // Simulate an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save to Supabase
+      const { data, error: insertError } = await supabase
+        .from('medical_history_entries')
+        .insert({
+          patient_id: patientId,
+          provider_id: providerId,
+          provider_name: providerName,
+          title,
+          notes,
+          entry_date: new Date().toISOString()
+        })
+        .select();
+        
+      if (insertError) {
+        throw insertError;
+      }
       
       // Reset form
       setTitle('');
       setNotes('');
       setIsOpen(false);
+      
+      // Notify parent component
       onEntryAdded();
+      
+      // Show success message
+      toast.success('Medical history entry added successfully');
     } catch (err) {
       console.error('Error saving entry:', err);
       setError('Failed to save entry. Please try again.');
+      toast.error('Failed to save medical history entry');
     } finally {
       setIsSubmitting(false);
     }
