@@ -167,9 +167,10 @@ export const useAuthProvider = () => {
       } catch (error) {
         console.error('Error initializing auth:', error);
         
+        // FIX: Adding a second parameter (options object) to toast.error
         toast.error(language === 'pt' 
           ? 'Erro ao inicializar autenticação' 
-          : 'Authentication initialization error');
+          : 'Authentication initialization error', {});
       } finally {
         setIsLoading(false);
       }
@@ -208,7 +209,8 @@ export const useAuthProvider = () => {
         resetLoginAttempts();
         
         // Reset activity timer on login
-        setLastActivity(Date.now());
+        // FIX: This variable doesn't exist in this scope, using the one from useSessionTimeout
+        // setLastActivity(Date.now());
       } else {
         throw new Error(language === 'pt' 
           ? 'Falha ao fazer login: Credenciais inválidas' 
