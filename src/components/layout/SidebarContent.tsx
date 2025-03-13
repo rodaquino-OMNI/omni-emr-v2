@@ -6,6 +6,7 @@ import SidebarLogo from './SidebarLogo';
 import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import { sidebarItems } from '@/config/sidebarConfig';
+import { rolePermissions } from '@/utils/authUtils';
 
 interface SidebarContentProps {
   onItemClick?: () => void;
@@ -17,8 +18,28 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
   
   const hasPermission = (permission?: string) => {
     if (!permission) return true;
-    if (user?.role === 'admin') return true;
-    return user?.permissions?.includes(permission);
+    if (!user) return false;
+    
+    // Admins have all permissions
+    if (user.role === 'admin') {
+      return true;
+    }
+    
+    // Check if permissions array exists and contains the required permission
+    if (user.permissions && Array.isArray(user.permissions)) {
+      if (user.permissions.includes('all')) {
+        return true;
+      }
+      return user.permissions.includes(permission);
+    }
+    
+    // If permissions are undefined/null but we have a role, use the role permissions
+    if (user.role && rolePermissions[user.role]) {
+      return rolePermissions[user.role].includes(permission) || 
+             rolePermissions[user.role].includes('all');
+    }
+    
+    return false;
   };
   
   // Filter and sort items by priority
