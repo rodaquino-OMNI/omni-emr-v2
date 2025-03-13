@@ -126,7 +126,22 @@ export type TranslationKey =
   | 'completing'
   | 'noTasksFound'
   | 'total'
-  | 'pending';
+  | 'pending'
+  // Error handling and session related
+  | 'errorTitle'
+  | 'errorDescription'
+  | 'retryButton'
+  | 'goToDashboard'
+  | 'sessionExpiredTitle'
+  | 'sessionExpiredDescription'
+  | 'sessionExpiringTitle'
+  | 'sessionExpiringDescription'
+  | 'stayLoggedIn'
+  | 'loginRequired'
+  | 'loginRequiredDescription'
+  | 'unexpectedError'
+  | 'loadingData'
+  | 'loadingResources';
 
 type Translations = {
   [key in TranslationKey]: string;
@@ -259,7 +274,22 @@ export const translations: Record<'en' | 'pt', Translations> = {
     completing: 'Concluindo',
     noTasksFound: 'Nenhuma tarefa encontrada',
     total: 'Total',
-    pending: 'Pendente'
+    pending: 'Pendente',
+    // Error handling and session related
+    errorTitle: 'Ocorreu um erro',
+    errorDescription: 'Não foi possível completar a operação solicitada',
+    retryButton: 'Tentar novamente',
+    goToDashboard: 'Ir para o Painel',
+    sessionExpiredTitle: 'Sessão expirada',
+    sessionExpiredDescription: 'Sua sessão expirou devido a inatividade. Por favor, faça login novamente.',
+    sessionExpiringTitle: 'Sessão prestes a expirar',
+    sessionExpiringDescription: 'Sua sessão expirará em breve devido a inatividade. Clique em qualquer lugar para continuar.',
+    stayLoggedIn: 'Continuar sessão',
+    loginRequired: 'Login necessário',
+    loginRequiredDescription: 'Por favor, faça login para acessar esta página',
+    unexpectedError: 'Ocorreu um erro inesperado',
+    loadingData: 'Carregando dados',
+    loadingResources: 'Carregando recursos'
   },
   en: {
     appName: 'OmniCare',
@@ -387,6 +417,21 @@ export const translations: Record<'en' | 'pt', Translations> = {
     completing: 'Completing',
     noTasksFound: 'No tasks found',
     total: 'Total',
-    pending: 'Pending'
+    pending: 'Pending',
+    // Error handling and session related
+    errorTitle: 'An error occurred',
+    errorDescription: 'We could not complete the requested operation',
+    retryButton: 'Try again',
+    goToDashboard: 'Go to Dashboard',
+    sessionExpiredTitle: 'Session expired',
+    sessionExpiredDescription: 'Your session has expired due to inactivity. Please log in again.',
+    sessionExpiringTitle: 'Session expiring soon',
+    sessionExpiringDescription: 'Your session will expire soon due to inactivity. Click anywhere to stay logged in.',
+    stayLoggedIn: 'Stay logged in',
+    loginRequired: 'Login required',
+    loginRequiredDescription: 'Please log in to access this page',
+    unexpectedError: 'An unexpected error occurred',
+    loadingData: 'Loading data',
+    loadingResources: 'Loading resources'
   }
 };

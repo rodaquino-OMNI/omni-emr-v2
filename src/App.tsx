@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -33,70 +34,81 @@ import Tasks from "./pages/Tasks";
 import TaskDetail from "./pages/TaskDetail";
 import MedicalHistory from "./pages/MedicalHistory";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner closeButton position="top-right" />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
               
-              <Route path="/patients" element={<Patients />} />
-              <Route path="/patients/:id" element={<PatientProfile />} />
-              <Route path="/patients/:id/medical-history" element={<MedicalHistory />} />
-              
-              <Route path="/records" element={<Records />} />
-              <Route path="/records/:id" element={<RecordView />} />
-              
-              <Route path="/medications" element={<Medications />} />
-              <Route path="/medications/:id" element={<MedicationView />} />
-              
-              <Route path="/prescriptions" element={<Prescriptions />} />
-              <Route path="/prescriptions/:id" element={<PrescriptionView />} />
-              
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/notifications" element={<Messages />} />
-              
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/tasks/:id" element={<TaskDetail />} />
-              
-              <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
-                <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                
+                <Route path="/patients" element={<Patients />} />
+                <Route path="/patients/:id" element={<PatientProfile />} />
+                <Route path="/patients/:id/medical-history" element={<MedicalHistory />} />
+                
+                <Route path="/records" element={<Records />} />
+                <Route path="/records/:id" element={<RecordView />} />
+                
+                <Route path="/medications" element={<Medications />} />
+                <Route path="/medications/:id" element={<MedicationView />} />
+                
+                <Route path="/prescriptions" element={<Prescriptions />} />
+                <Route path="/prescriptions/:id" element={<PrescriptionView />} />
+                
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/notifications" element={<Messages />} />
+                
+                <Route path="/tasks" element={<Tasks />} />
+                <Route path="/tasks/:id" element={<TaskDetail />} />
+                
+                <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
+                  <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="telemedicine" />}>
+                  <Route path="/telemedicine" element={<Telemedicine />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="view_schedule" />}>
+                  <Route path="/schedule" element={<Schedule />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="all" />}>
+                  <Route path="/admin" element={<Admin />} />
+                </Route>
+                
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/help" element={<Help />} />
               </Route>
               
-              <Route element={<ProtectedRoute requiredPermission="telemedicine" />}>
-                <Route path="/telemedicine" element={<Telemedicine />} />
-              </Route>
-              
-              <Route element={<ProtectedRoute requiredPermission="view_schedule" />}>
-                <Route path="/schedule" element={<Schedule />} />
-              </Route>
-              
-              <Route element={<ProtectedRoute requiredPermission="all" />}>
-                <Route path="/admin" element={<Admin />} />
-              </Route>
-              
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/help" element={<Help />} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
