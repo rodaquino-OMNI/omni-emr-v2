@@ -1,5 +1,5 @@
 
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Settings, Video, HelpCircle, ClipboardList, Bell, ListChecks } from 'lucide-react';
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -84,17 +84,10 @@ export const sidebarItems: SidebarItem[] = [
     priority: 10
   },
   {
-    name: 'Settings',
-    path: '/settings',
-    icon: Settings,
-    translationKey: 'settings',
-    priority: 11
-  },
-  {
     name: 'Help & Support',
     path: '/help',
     icon: HelpCircle,
     translationKey: 'help',
-    priority: 12
+    priority: 11
   }
 ];

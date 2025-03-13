@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User } from 'lucide-react';
+import { User, Settings } from 'lucide-react';
 import { User as UserType } from '@/context/AuthContext';
 
 interface SidebarUserProfileProps {
@@ -26,6 +26,7 @@ const SidebarUserProfile = ({ user, onClick }: SidebarUserProfileProps) => {
           <div className="font-medium truncate">{user.name}</div>
           <div className="text-xs capitalize">{user.role}</div>
         </div>
+        <Settings className="h-4 w-4 text-muted-foreground" />
       </Link>
     </div>
   );
