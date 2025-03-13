@@ -33,6 +33,7 @@ import Messages from "./pages/Messages";
 import Tasks from "./pages/Tasks";
 import TaskDetail from "./pages/TaskDetail";
 import MedicalHistory from "./pages/MedicalHistory";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,7 +78,7 @@ const App = () => (
                 <Route path="/prescriptions/:id" element={<PrescriptionView />} />
                 
                 <Route path="/messages" element={<Messages />} />
-                <Route path="/notifications" element={<Messages />} />
+                <Route path="/notifications" element={<Notifications />} />
                 
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/tasks/:id" element={<TaskDetail />} />
