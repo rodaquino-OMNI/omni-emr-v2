@@ -1,12 +1,12 @@
 
 import React from "react";
-import { Bell, Search, Settings, User } from "lucide-react";
+import { Bell, Search, Settings, User, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useAuth } from "../../context/AuthContext";
 import LanguageSwitcher from "../language/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,9 +28,9 @@ const Header = ({ className }: HeaderProps) => {
   return (
     <header className={cn("w-full h-16 px-6 flex items-center justify-between border-b border-border glass-morphism z-10 sticky top-0", className)}>
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-semibold tracking-tight text-primary">
+        <Link to="/" className="text-xl font-semibold tracking-tight text-primary hover:opacity-90 transition-opacity">
           OmniCare
-        </h1>
+        </Link>
       </div>
       
       <div className="flex-1 max-w-md mx-4 lg:mx-8">
@@ -47,9 +47,10 @@ const Header = ({ className }: HeaderProps) => {
       <div className="flex items-center gap-4">
         <LanguageSwitcher />
         
-        <button className="p-2 rounded-full hover:bg-secondary transition-colors">
+        <Link to="/messages" className="p-2 rounded-full hover:bg-secondary transition-colors relative">
           <Bell className="h-5 w-5 text-muted-foreground" />
-        </button>
+          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+        </Link>
         
         <button 
           className="p-2 rounded-full hover:bg-secondary transition-colors"
@@ -72,6 +73,10 @@ const Header = ({ className }: HeaderProps) => {
               </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+              <Home className="h-4 w-4 mr-2" />
+              {t('dashboard')}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/settings')}>
               {t('profile')}
             </DropdownMenuItem>

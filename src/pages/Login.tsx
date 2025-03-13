@@ -4,7 +4,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { Globe, UserCheck, Github, Mail } from 'lucide-react';
+import { Globe, UserCheck, Github, Mail, ArrowLeft } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
 
@@ -62,6 +62,13 @@ const Login = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">{t('appName')}</h1>
           <p className="text-muted-foreground">{t('signIn')}</p>
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mt-2"
+          >
+            <ArrowLeft className="h-3 w-3 mr-1" />
+            {language === 'pt' ? 'Voltar para página inicial' : 'Back to home page'}
+          </Link>
         </div>
         
         <div className="glass-card p-8">

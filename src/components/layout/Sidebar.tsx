@@ -29,6 +29,7 @@ type SidebarItem = {
   icon: LucideIcon;
   translationKey: string;
   permissionRequired?: string;
+  priority: number; // Added priority for sorting
 };
 
 const sidebarItems: SidebarItem[] = [
@@ -36,63 +37,73 @@ const sidebarItems: SidebarItem[] = [
     name: 'Dashboard',
     path: '/dashboard',
     icon: Home,
-    translationKey: 'dashboard'
+    translationKey: 'dashboard',
+    priority: 1
   },
   {
     name: 'Patients',
     path: '/patients',
     icon: Users,
-    translationKey: 'patients'
-  },
-  {
-    name: 'Records',
-    path: '/records',
-    icon: FileText,
-    translationKey: 'records'
-  },
-  {
-    name: 'Medications',
-    path: '/medications',
-    icon: Pill,
-    translationKey: 'medications'
-  },
-  {
-    name: 'Prescriptions',
-    path: '/prescriptions',
-    icon: ClipboardList,
-    translationKey: 'prescriptions'
+    translationKey: 'patients',
+    priority: 2
   },
   {
     name: 'Schedule',
     path: '/schedule',
     icon: Calendar,
     translationKey: 'schedule',
-    permissionRequired: 'view_schedule'
+    permissionRequired: 'view_schedule',
+    priority: 3
+  },
+  {
+    name: 'Records',
+    path: '/records',
+    icon: FileText,
+    translationKey: 'records',
+    priority: 4
+  },
+  {
+    name: 'Medications',
+    path: '/medications',
+    icon: Pill,
+    translationKey: 'medications',
+    priority: 5
+  },
+  {
+    name: 'Prescriptions',
+    path: '/prescriptions',
+    icon: ClipboardList,
+    translationKey: 'prescriptions',
+    priority: 6
   },
   {
     name: 'Messages',
     path: '/messages',
     icon: MessageSquare,
-    translationKey: 'messages'
+    translationKey: 'messages',
+    priority: 7
   },
   {
     name: 'Telemedicine',
     path: '/telemedicine',
     icon: Video,
     translationKey: 'telemedicine',
-    permissionRequired: 'telemedicine'
+    permissionRequired: 'telemedicine',
+    priority: 8
   },
   {
     name: 'Settings',
     path: '/settings',
     icon: Settings,
-    translationKey: 'settings'
+    translationKey: 'settings',
+    priority: 9
   },
   {
     name: 'Help & Support',
     path: '/help',
     icon: HelpCircle,
-    translationKey: 'help'
+    translationKey: 'help',
+    priority: 10
   }
 ];
 
@@ -115,7 +126,10 @@ const Sidebar = () => {
     return user?.permissions?.includes(permission);
   };
   
-  const visibleItems = sidebarItems.filter(item => hasPermission(item.permissionRequired));
+  // Filter and sort items by priority
+  const visibleItems = sidebarItems
+    .filter(item => hasPermission(item.permissionRequired))
+    .sort((a, b) => a.priority - b.priority);
   
   const renderSidebarContent = () => (
     <>
