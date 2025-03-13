@@ -3,7 +3,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AlarmClock, ChevronRight, Pill, FileText, Stethoscope, UserRound } from 'lucide-react';
+import { 
+  AlarmClock, 
+  ChevronRight, 
+  Pill, 
+  FileText, 
+  Stethoscope, 
+  UserRound, 
+  Clock,
+  CheckCircle2
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,15 +40,25 @@ export interface Task {
   status: TaskStatus;
   createdAt: Date | string;
   updatedAt: Date | string;
+  completedAt?: Date | string;
+  completedBy?: string;
+  completedByName?: string;
+  completionNotes?: string;
 }
 
 interface TaskCardProps {
   task: Task;
-  onMarkComplete?: (taskId: string) => void;
+  onMarkComplete?: () => void;
   className?: string;
+  showCompletionInfo?: boolean;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onMarkComplete, className }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ 
+  task, 
+  onMarkComplete, 
+  className,
+  showCompletionInfo = false
+}) => {
   const { t } = useTranslation();
   const now = new Date();
   const dueDate = new Date(task.dueDate);
@@ -88,13 +107,21 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onMarkComplete, className }) 
   return (
     <div className={cn(
       "glass-card p-4 border-l-4 transition-all",
-      isDelayed ? "border-l-red-500" : "border-l-blue-500",
+      task.status === 'completed' 
+        ? "border-l-green-500" 
+        : isDelayed 
+          ? "border-l-red-500" 
+          : "border-l-blue-500",
       className
     )}>
       <div className="flex items-start gap-3">
         <div className={cn(
           "p-2 rounded-md",
-          isDelayed ? "bg-red-100" : "bg-blue-100"
+          task.status === 'completed' 
+            ? "bg-green-100" 
+            : isDelayed 
+              ? "bg-red-100" 
+              : "bg-blue-100"
         )}>
           {getTaskIcon()}
         </div>
@@ -102,10 +129,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onMarkComplete, className }) 
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1">
             <h3 className="font-medium">{task.title}</h3>
-            <Badge variant={isDelayed ? "destructive" : "outline"} className="gap-1">
-              {isDelayed && <AlarmClock className="h-3 w-3" />}
-              {isDelayed ? t('delayed') : t('onTime')}
-            </Badge>
+            {task.status === 'completed' ? (
+              <Badge variant="success" className="gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                {t('completed')}
+              </Badge>
+            ) : (
+              <Badge variant={isDelayed ? "destructive" : "outline"} className="gap-1">
+                {isDelayed && <AlarmClock className="h-3 w-3" />}
+                {isDelayed ? t('delayed') : t('onTime')}
+              </Badge>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 text-sm">
@@ -136,6 +170,27 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onMarkComplete, className }) 
             </div>
           </div>
 
+          {/* Display completion information when task is completed and showCompletionInfo is true */}
+          {task.status === 'completed' && showCompletionInfo && task.completedAt && (
+            <div className="mt-3 p-2 bg-green-50 rounded-md">
+              <div className="text-sm text-green-800">
+                <div className="flex items-center gap-1">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span className="font-medium">{t('completedBy')}:</span> {task.completedByName}
+                </div>
+                <div className="flex items-center gap-1 mt-1">
+                  <Clock className="h-4 w-4" />
+                  <span className="font-medium">{t('completedAt')}:</span> {formatTaskDate(task.completedAt)}
+                </div>
+                {task.completionNotes && (
+                  <div className="mt-1">
+                    <span className="font-medium">{t('notes')}:</span> {task.completionNotes}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-3">
             <TooltipProvider>
               <Tooltip>
@@ -148,18 +203,19 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onMarkComplete, className }) 
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>View task details</p>
+                  <p>{t('viewTaskDetails')}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
-            {task.status === 'pending' && (
+            {task.status === 'pending' && onMarkComplete && (
               <Button 
                 variant="outline" 
                 size="sm" 
                 className="gap-1"
-                onClick={() => onMarkComplete && onMarkComplete(task.id)}
+                onClick={onMarkComplete}
               >
+                <CheckCircle2 className="h-4 w-4" />
                 {t('markAsComplete')}
               </Button>
             )}
