@@ -6,11 +6,23 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion';
+import { Shield } from 'lucide-react';
 
 type ReviewOfSystemsProps = {
   reviewOfSystems: Record<string, string>;
   editMode: boolean;
   onUpdateSystem?: (system: string, value: string) => void;
+};
+
+// FHIR SNOMED-CT code map for review of systems
+const snomedCodeMap = {
+  constitutional: "118430007",    // Constitutional symptom (finding)
+  respiratory: "267036007",       // Respiratory symptom (finding)
+  cardiovascular: "267038008",    // Cardiovascular symptom (finding)
+  gastrointestinal: "267031002", // Gastrointestinal symptom (finding)
+  musculoskeletal: "267016001",  // Musculoskeletal symptom (finding)
+  neurological: "118230007",     // Neurological symptom (finding)
+  psychiatric: "116680003"       // Psychiatric symptom (finding)
 };
 
 const findingsOptions = {
@@ -78,10 +90,22 @@ const ReviewOfSystemsSection = ({
     <AccordionItem value="review-systems">
       <AccordionTrigger className="text-base font-medium">Review of Systems</AccordionTrigger>
       <AccordionContent>
+        <div className="flex items-center gap-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full mb-4 w-fit">
+          <Shield className="h-3 w-3" />
+          FHIR Observation
+        </div>
+        
         <div className="space-y-4 pt-2">
           {Object.entries(reviewOfSystems).map(([system, findings], index) => (
             <div key={index} className="border p-3 rounded-md">
-              <label className="block text-sm font-medium mb-1 capitalize">{system}</label>
+              <div className="flex justify-between items-center">
+                <label className="block text-sm font-medium mb-1 capitalize">{system}</label>
+                {snomedCodeMap[system as keyof typeof snomedCodeMap] && (
+                  <span className="text-xs text-muted-foreground">
+                    SNOMED-CT: {snomedCodeMap[system as keyof typeof snomedCodeMap]}
+                  </span>
+                )}
+              </div>
               
               {editMode ? (
                 <div className="space-y-2">
