@@ -12,7 +12,10 @@ interface AuthContextType {
   setLanguage: (lang: Language) => void;
   login: (email: string, password: string) => Promise<void>;
   loginWithSocial: (provider: Provider) => Promise<void>;
-  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
+  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{
+    user: User | null;
+    session: Session | null;
+  }>;
   logout: () => Promise<void>;
   session: Session | null;
   hasPermission: (permission: string) => boolean;

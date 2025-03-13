@@ -25,9 +25,9 @@ const Register = () => {
       console.log('Starting registration process...');
       console.log('Form data:', { email, name, role });
       
-      await signUp(email, password, name, role);
+      const result = await signUp(email, password, name, role);
       
-      console.log('Registration successful');
+      console.log('Registration successful, result:', result);
       toast.success(language === 'pt' ? "Conta criada" : "Account created", {
         description: language === 'pt' 
           ? "Sua conta foi criada com sucesso. Por favor, verifique seu email." 
