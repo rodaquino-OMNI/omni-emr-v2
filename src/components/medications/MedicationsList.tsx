@@ -10,6 +10,8 @@ type MedicationsListProps = {
   limit?: number;
   showViewAll?: boolean;
   patientId?: string;
+  searchTerm?: string;
+  statusFilter?: string;
 };
 
 // Sample medications data
@@ -90,11 +92,33 @@ const sampleMedications: Medication[] = [
   }
 ];
 
-const MedicationsList = ({ className, limit, showViewAll = false, patientId }: MedicationsListProps) => {
-  // Filter medications by patientId if provided
-  const filteredMedications = patientId 
-    ? sampleMedications.filter(medication => medication.patientId === patientId)
-    : sampleMedications;
+const MedicationsList = ({ 
+  className, 
+  limit, 
+  showViewAll = false, 
+  patientId,
+  searchTerm = '',
+  statusFilter = 'all'
+}: MedicationsListProps) => {
+  // Filter medications by patientId, searchTerm, and statusFilter
+  let filteredMedications = sampleMedications;
+  
+  if (patientId) {
+    filteredMedications = filteredMedications.filter(medication => medication.patientId === patientId);
+  }
+  
+  if (searchTerm) {
+    const search = searchTerm.toLowerCase();
+    filteredMedications = filteredMedications.filter(medication => 
+      medication.name.toLowerCase().includes(search) || 
+      medication.prescribedBy.toLowerCase().includes(search) ||
+      medication.dosage.toLowerCase().includes(search)
+    );
+  }
+  
+  if (statusFilter && statusFilter !== 'all') {
+    filteredMedications = filteredMedications.filter(medication => medication.status === statusFilter);
+  }
   
   const medications = limit ? filteredMedications.slice(0, limit) : filteredMedications;
   

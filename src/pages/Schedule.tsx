@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar } from '@/components/ui/calendar';
@@ -29,7 +28,6 @@ const SchedulePage = () => {
   const [month, setMonth] = React.useState<Date>(new Date());
   const [isScheduleFormOpen, setIsScheduleFormOpen] = useState(false);
   
-  // Fetch appointments for the selected date
   const { 
     data: appointments = [], 
     isLoading, 
@@ -40,7 +38,6 @@ const SchedulePage = () => {
     enabled: !!date,
   });
   
-  // Handle month navigation
   const handlePreviousMonth = () => {
     const previousMonth = new Date(month);
     previousMonth.setMonth(previousMonth.getMonth() - 1);
@@ -57,7 +54,6 @@ const SchedulePage = () => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
   
-  // Handle successful appointment creation
   const handleScheduleSuccess = () => {
     setIsScheduleFormOpen(false);
     refetch();
@@ -90,7 +86,7 @@ const SchedulePage = () => {
                 
                 <Sheet open={isScheduleFormOpen} onOpenChange={setIsScheduleFormOpen}>
                   <SheetTrigger asChild>
-                    <Button className="h-9 text-white rounded-md px-4 text-sm font-medium flex items-center gap-1 w-fit">
+                    <Button className="h-9 flex items-center gap-1 w-fit">
                       <CalendarPlus className="h-4 w-4" />
                       {t('newAppointment')}
                     </Button>
@@ -161,7 +157,6 @@ const SchedulePage = () => {
                   </TabsContent>
                   
                   <TabsContent value="reminders" className="mt-0">
-                    {/* Reminders tab content - would contain scheduled reminders */}
                     <div className="text-center py-8 text-muted-foreground">
                       <p>{t('noRemindersScheduled')}</p>
                     </div>
