@@ -1,6 +1,6 @@
 
 import { User } from '../types/auth';
-import { rolePermissions } from '../utils/authUtils';
+import { rolePermissions } from '../utils/permissions';
 
 export const usePermissions = (user: User | null) => {
   // Function to check if the current user has a specific permission
