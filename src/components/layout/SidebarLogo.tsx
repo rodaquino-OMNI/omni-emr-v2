@@ -1,11 +1,15 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const SidebarLogo = () => {
+  const { isAuthenticated } = useAuth();
+  const homePath = isAuthenticated ? "/dashboard" : "/";
+  
   return (
     <div className="px-3 py-4">
-      <Link to="/" className="flex items-center gap-2 px-3 py-2">
+      <Link to={homePath} className="flex items-center gap-2 px-3 py-2">
         <div className="bg-primary rounded-md w-8 h-8 flex items-center justify-center text-white font-bold">
           OC
         </div>
