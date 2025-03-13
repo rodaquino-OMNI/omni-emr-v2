@@ -40,7 +40,7 @@ const EmailLoginForm = ({
           id="email"
           type="email"
           className={`w-full h-10 px-3 rounded-md border ${
-            validationErrors.email ? 'border-destructive' : 'border-border'
+            validationErrors.email ? 'border-destructive' : 'border-input'
           } bg-background`}
           value={email}
           onChange={(e) => {
@@ -68,7 +68,7 @@ const EmailLoginForm = ({
           id="password"
           type="password"
           className={`w-full h-10 px-3 rounded-md border ${
-            validationErrors.password ? 'border-destructive' : 'border-border'
+            validationErrors.password ? 'border-destructive' : 'border-input'
           } bg-background`}
           value={password}
           onChange={(e) => {
@@ -95,12 +95,12 @@ const EmailLoginForm = ({
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
             {language === 'pt' ? 'Entrando...' : 'Signing in...'}
           </>
         ) : (
           <>
-            <UserCheck className="mr-2 h-4 w-4" />
+            <UserCheck className="h-4 w-4" />
             {t('signIn')}
           </>
         )}
@@ -114,7 +114,7 @@ const EmailLoginForm = ({
           </Link>
         </p>
         
-        <div className="mt-4 pt-4 border-t border-border">
+        <div className="mt-4 pt-4 border-t border-input">
           <p>{language === 'pt' ? 'Contas de demonstração:' : 'Demo accounts:'}</p>
           <p>admin@omnicare.com</p>
           <p>doctor@omnicare.com</p>

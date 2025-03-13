@@ -83,6 +83,7 @@ export const useLoginForm = () => {
 
   const handleSocialLogin = async (provider: 'google' | 'facebook' | 'twitter') => {
     try {
+      setIsSubmitting(true);
       await loginWithSocial(provider);
     } catch (error: any) {
       console.error(`${provider} login error:`, error);
@@ -95,6 +96,8 @@ export const useLoginForm = () => {
               : `Could not sign in with ${provider}`)
         }
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

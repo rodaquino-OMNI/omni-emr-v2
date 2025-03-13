@@ -4,12 +4,12 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from 'sonner';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 import { secureStorage } from '@/utils/secureStorage';
 
-// Import our new components
+// Import our components
 import LoginHeader from '@/components/auth/LoginHeader';
 import LanguageToggle from '@/components/auth/LanguageToggle';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
@@ -19,7 +19,6 @@ import { useLoginForm } from '@/hooks/useLoginForm';
 const Login = () => {
   const { user, isAuthenticated, isLoading, language, setLanguage } = useAuth();
   const { t } = useTranslation();
-  const { toast } = useToast();
   const location = useLocation();
   
   const {
@@ -38,12 +37,10 @@ const Login = () => {
   useEffect(() => {
     const { state } = location;
     if (state && state.timeout) {
-      toast({
-        title: language === 'pt' ? "Sessão expirada" : "Session expired",
+      toast.error(language === 'pt' ? "Sessão expirada" : "Session expired", {
         description: language === 'pt' 
           ? "Sua sessão expirou devido a inatividade. Por favor, faça login novamente."
-          : "Your session has expired due to inactivity. Please log in again.",
-        variant: "destructive",
+          : "Your session has expired due to inactivity. Please log in again."
       });
     }
     
@@ -52,7 +49,7 @@ const Login = () => {
       // Store the return URL in secure storage to redirect after login
       secureStorage.setItem('returnUrl', state.returnUrl);
     }
-  }, [location, toast, language]);
+  }, [location, language]);
   
   // If already authenticated, redirect to dashboard
   if (isAuthenticated && !isLoading) {
@@ -66,7 +63,7 @@ const Login = () => {
           <div className="w-full max-w-md">
             <LoginHeader t={t} language={language} />
             
-            <div className="glass-card p-8">
+            <div className="glass-card p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
               <LanguageToggle language={language} setLanguage={setLanguage} />
 
               <SocialLoginButtons 
