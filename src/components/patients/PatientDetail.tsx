@@ -7,9 +7,11 @@ import PatientVitals from './PatientVitals';
 import { PrescriptionsList } from '../prescriptions';
 import { getPatientPrescriptions } from '../../services/prescriptionService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, ChevronRight, CalendarDays, ClipboardList } from 'lucide-react';
+import { FileText, ChevronRight, CalendarDays, ClipboardList, AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import AIInsights from '../ai/AIInsights';
+import { useAIInsights } from '@/hooks/useAIInsights';
 
 type PatientDetailProps = {
   patientId: string;
@@ -87,8 +89,12 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
   
   const patient = samplePatients.find(p => p.id === patientId);
   
+  const { insights, loading: insightsLoading } = useAIInsights(
+    patientId, 
+    ['vitals', 'labs', 'medications', 'tasks', 'general']
+  );
+  
   useEffect(() => {
-    // Fetch patient prescriptions when the component mounts
     const fetchPrescriptions = async () => {
       setLoading(true);
       try {
@@ -112,6 +118,9 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
     );
   }
 
+  const criticalInsights = insights.filter(insight => insight.type === 'critical');
+  const hasCriticalInsights = criticalInsights.length > 0;
+
   return (
     <div className={cn("space-y-6", className)}>
       <div className="glass-card p-6">
@@ -124,6 +133,13 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
               <h1 className="text-2xl font-semibold">{patient.name}</h1>
               <StatusBadge status={patient.status} size="lg" />
+              
+              {hasCriticalInsights && (
+                <div className="flex items-center gap-1 text-red-500 animate-pulse-subtle">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Critical alerts</span>
+                </div>
+              )}
             </div>
             
             <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-muted-foreground">
@@ -144,14 +160,30 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
         </div>
       </div>
       
+      {hasCriticalInsights && (
+        <AIInsights 
+          insights={criticalInsights}
+          className="animate-pulse-subtle"
+        />
+      )}
+      
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 mb-4">
+        <TabsList className="grid grid-cols-4 mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="records">Records</TabsTrigger>
           <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
+          {insights.filter(i => i.type !== 'critical').length > 0 && (
+            <AIInsights 
+              insights={insights.filter(i => i.type !== 'critical')} 
+              maxItems={3}
+              compact
+            />
+          )}
+          
           <div className="glass-card p-6">
             <h2 className="text-xl font-medium mb-4">Vitals</h2>
             <PatientVitals patientId={patientId} />
@@ -282,6 +314,25 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
                 patientId={patientId}
                 showAddNew={false}
               />
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="ai-insights" className="space-y-6">
+          <div className="glass-card p-6">
+            <h2 className="text-xl font-medium mb-4">AI Clinical Insights</h2>
+            
+            {insightsLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                <p className="mt-2 text-muted-foreground">Analyzing patient data...</p>
+              </div>
+            ) : insights.length > 0 ? (
+              <AIInsights insights={insights} />
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No insights available for this patient at this time.
+              </div>
             )}
           </div>
         </TabsContent>

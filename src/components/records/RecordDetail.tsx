@@ -1,7 +1,10 @@
+
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { FileText, FileImage, Stethoscope, Activity, ClipboardCheck } from 'lucide-react';
 import { MedicalRecord } from './RecordCard';
+import AIInsights from '../ai/AIInsights';
+import { useAIInsights } from '@/hooks/useAIInsights';
 
 // Sample records data
 const sampleRecords: MedicalRecord[] = [
@@ -80,6 +83,19 @@ const RecordDetail = ({ recordId }: RecordDetailProps) => {
   
   const record = sampleRecords.find(r => r.id === id);
   
+  // Get AI insights specifically for this record
+  const { insights } = useAIInsights(
+    record?.patientId, 
+    ['labs', 'general']
+  );
+  
+  // Filter insights to only show those relevant to this type of record
+  const filteredInsights = insights.filter(insight => {
+    if (record?.type === 'lab' && insight.source === 'labs') return true;
+    if (record?.type === 'imaging' && insight.source === 'labs') return true;
+    return false;
+  });
+  
   if (!record) {
     return (
       <div className="text-center py-8">
@@ -147,6 +163,13 @@ const RecordDetail = ({ recordId }: RecordDetailProps) => {
             </span>
           </div>
         </div>
+
+        {/* Display AI insights if available */}
+        {filteredInsights.length > 0 && (
+          <div className="mb-6">
+            <AIInsights insights={filteredInsights} />
+          </div>
+        )}
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">

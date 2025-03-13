@@ -1,7 +1,10 @@
+
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Pill, Calendar, Clock, AlertCircle } from 'lucide-react';
 import { Medication } from './MedicationCard';
+import AIInsights from '../ai/AIInsights';
+import { useAIInsights } from '@/hooks/useAIInsights';
 
 // Sample medications data
 const sampleMedications: Medication[] = [
@@ -91,6 +94,18 @@ const MedicationDetail = ({ medicationId }: MedicationDetailProps) => {
   
   const medication = sampleMedications.find(m => m.id === id);
   
+  // Get AI insights related to medications for this patient
+  const { insights } = useAIInsights(
+    medication?.patientId, 
+    ['medications']
+  );
+  
+  // Only show relevant insights about this specific medication
+  const relevantInsights = insights.filter(insight => 
+    insight.source === 'medications' && 
+    (!insight.relatedTo || insight.relatedTo.type === 'medication')
+  );
+  
   if (!medication) {
     return (
       <div className="text-center py-8">
@@ -140,6 +155,13 @@ const MedicationDetail = ({ medicationId }: MedicationDetailProps) => {
             </span>
           </div>
         </div>
+        
+        {/* Display AI insights if available */}
+        {relevantInsights.length > 0 && (
+          <div className="mb-6">
+            <AIInsights insights={relevantInsights} />
+          </div>
+        )}
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
