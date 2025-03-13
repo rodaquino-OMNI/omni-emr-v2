@@ -37,7 +37,7 @@ export const logAuditEvent = async (
       resource_id: resourceId,
       details,
       user_agent: userAgent,
-      // IP address would typically be captured on the server side
+      // IP address is collected by Supabase automatically server-side
     });
   } catch (error) {
     console.error('Failed to log audit event:', error);

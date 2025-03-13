@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Shield, Clock, User, FileText, AlertCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 interface AuditLogEntry {
   id: string;
@@ -23,7 +23,6 @@ const SecurityAuditLog = () => {
   const [filter, setFilter] = useState<string>('all');
   const [userMap, setUserMap] = useState<Record<string, string>>({});
   const { user } = useAuth();
-  const { toast } = useToast();
 
   // Only admins should be able to access this component
   if (user?.role !== 'admin') {
@@ -43,48 +42,55 @@ const SecurityAuditLog = () => {
         const { data, error } = await supabase
           .from('audit_logs')
           .select('*')
-          .order('timestamp', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(100);
 
         if (error) {
           throw error;
         }
 
-        setAuditLogs(data || []);
+        // Transform data to match our interface
+        const transformedLogs = data?.map(log => ({
+          id: log.id,
+          timestamp: log.created_at,
+          user_id: log.user_id,
+          action: log.action,
+          resource_type: log.resource_type,
+          resource_id: log.resource_id,
+          details: log.details,
+          ip_address: log.ip_address,
+          user_agent: log.user_agent
+        })) || [];
+
+        setAuditLogs(transformedLogs);
         
         // Collect unique user IDs
-        const userIds = [...new Set(data?.map(log => log.user_id) || [])];
+        const userIds = [...new Set(transformedLogs.map(log => log.user_id))];
         
         // Build a map of user IDs to names
         const userNameMap: Record<string, string> = {};
         for (const id of userIds) {
-          // For mock users, check the mockUsers
-          const mockUser = mockUsers.find(u => u.id === id);
-          if (mockUser) {
-            userNameMap[id] = mockUser.name;
-          } else {
-            // For real users, fetch from Supabase
-            const { data: userData } = await supabase
-              .from('profiles')
-              .select('name')
-              .eq('id', id)
-              .single();
+          if (!id) continue;
+          
+          // Fetch user from profiles
+          const { data: userData } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', id)
+            .maybeSingle();
               
-            if (userData) {
-              userNameMap[id] = userData.name;
-            } else {
-              userNameMap[id] = `User ${id.substring(0, 6)}...`;
-            }
+          if (userData) {
+            userNameMap[id] = userData.name;
+          } else {
+            userNameMap[id] = `User ${id.substring(0, 6)}...`;
           }
         }
         
         setUserMap(userNameMap);
       } catch (error) {
         console.error('Error fetching audit logs:', error);
-        toast({
-          title: "Error loading audit logs",
-          description: "Failed to load security audit logs. Please try again.",
-          variant: "destructive",
+        toast.error("Error loading audit logs", {
+          description: "Failed to load security audit logs. Please try again."
         });
       } finally {
         setLoading(false);
@@ -150,7 +156,7 @@ const SecurityAuditLog = () => {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="h-10 px-3 rounded-md border border-border bg-background"
+            className="h-10 px-3 rounded-md border border-input bg-background"
           >
             <option value="all">All Activities</option>
             <option value="login">Logins</option>
@@ -249,6 +255,3 @@ const SecurityAuditLog = () => {
 };
 
 export default SecurityAuditLog;
-
-// Mock users import for the component
-import { mockUsers } from '@/utils/mockUsers';

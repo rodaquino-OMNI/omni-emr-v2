@@ -21,26 +21,31 @@ export const useAuthState = (language: Language) => {
         setIsLoading(true);
         
         if (sessionData?.user) {
-          const mappedUser = mapSupabaseUserToUser(sessionData.user);
-          setUser(mappedUser);
-          
-          // Log session events for HIPAA compliance audit
-          if (mappedUser && event === 'SIGNED_IN') {
-            try {
-              await logAuditEvent(
-                mappedUser.id,
-                'session_start',
-                'auth',
-                mappedUser.id,
-                { role: mappedUser.role, permissions: mappedUser.permissions }
-              );
-            } catch (error) {
-              console.error('Failed to log session start event:', error);
-              // Don't throw here, we still want to complete the sign-in process
-            }
+          try {
+            const mappedUser = await mapSupabaseUserToUser(sessionData.user);
+            setUser(mappedUser);
             
-            // Generate a new CSRF token on sign in
-            generateCSRFToken();
+            // Log session events for HIPAA compliance audit
+            if (mappedUser && event === 'SIGNED_IN') {
+              try {
+                await logAuditEvent(
+                  mappedUser.id,
+                  'session_start',
+                  'auth',
+                  mappedUser.id,
+                  { role: mappedUser.role, permissions: mappedUser.permissions }
+                );
+              } catch (error) {
+                console.error('Failed to log session start event:', error);
+                // Don't throw here, we still want to complete the sign-in process
+              }
+              
+              // Generate a new CSRF token on sign in
+              generateCSRFToken();
+            }
+          } catch (error) {
+            console.error('Error mapping user:', error);
+            setUser(null);
           }
         } else {
           setUser(null);
@@ -59,7 +64,7 @@ export const useAuthState = (language: Language) => {
         setSession(initialSession);
         
         if (initialSession?.user) {
-          const mappedUser = mapSupabaseUserToUser(initialSession.user);
+          const mappedUser = await mapSupabaseUserToUser(initialSession.user);
           setUser(mappedUser);
           
           // Log session resumption event
@@ -88,7 +93,7 @@ export const useAuthState = (language: Language) => {
         
         toast.error(language === 'pt' 
           ? 'Erro ao inicializar autenticação' 
-          : 'Authentication initialization error', {});
+          : 'Authentication initialization error');
       } finally {
         setIsLoading(false);
       }

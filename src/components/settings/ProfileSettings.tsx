@@ -1,20 +1,105 @@
 
-import React, { useState } from 'react';
-import { Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Save, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const ProfileSettings = () => {
-  const [name, setName] = useState('Dr. Alex Johnson');
-  const [email, setEmail] = useState('alex.johnson@medcare.com');
-  const [role, setRole] = useState('Physician');
-  const [department, setDepartment] = useState('Cardiology');
-  const [phone, setPhone] = useState('(555) 123-4567');
-  const [bio, setBio] = useState('Board certified cardiologist with 10 years of experience in treating complex heart conditions.');
+  const { user } = useAuth();
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [role, setRole] = useState(user?.role || '');
+  const [department, setDepartment] = useState('');
+  const [phone, setPhone] = useState('');
+  const [bio, setBio] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchProfileDetails = async () => {
+      if (!user) {
+        setIsFetching(false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          // Use profile data from database
+          setName(data.name || user.name);
+          setEmail(data.email || user.email);
+          setRole(data.role || user.role);
+          
+          // Set additional profile details if available
+          if (data.department) setDepartment(data.department);
+          if (data.phone) setPhone(data.phone);
+          if (data.bio) setBio(data.bio);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        toast.error('Failed to load profile data');
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    
+    fetchProfileDetails();
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle profile update logic
-    console.log('Profile updated');
+    
+    if (!user) {
+      toast.error('You must be logged in to update your profile');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      // Update profile in the database
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name,
+          email,
+          department,
+          phone,
+          bio,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (isFetching) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -33,7 +118,7 @@ const ProfileSettings = () => {
               <input
                 id="name"
                 type="text"
-                className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -46,9 +131,10 @@ const ProfileSettings = () => {
               <input
                 id="email"
                 type="email"
-                className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={true} // Email can't be changed as it's tied to auth
               />
             </div>
             
@@ -59,9 +145,9 @@ const ProfileSettings = () => {
               <input
                 id="role"
                 type="text"
-                className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
+                disabled={true} // Role can't be changed by users
               />
             </div>
             
@@ -72,7 +158,7 @@ const ProfileSettings = () => {
               <input
                 id="department"
                 type="text"
-                className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
               />
@@ -85,7 +171,7 @@ const ProfileSettings = () => {
               <input
                 id="phone"
                 type="text"
-                className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
@@ -98,7 +184,7 @@ const ProfileSettings = () => {
               <textarea
                 id="bio"
                 rows={4}
-                className="w-full px-3 py-2 rounded-md border border-border bg-background"
+                className="w-full px-3 py-2 rounded-md border border-input bg-background"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               />
@@ -108,9 +194,19 @@ const ProfileSettings = () => {
               <button
                 type="submit"
                 className="h-10 bg-primary text-white rounded-md px-4 text-sm font-medium flex items-center gap-1 mt-2"
+                disabled={loading}
               >
-                <Save className="h-4 w-4" />
-                Save Changes
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    Save Changes
+                  </>
+                )}
               </button>
             </div>
           </div>

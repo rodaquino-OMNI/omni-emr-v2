@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       medical_entry_systems: {
         Row: {
           created_at: string
@@ -74,12 +110,137 @@ export type Database = {
         }
         Relationships: []
       }
+      prescription_items: {
+        Row: {
+          created_at: string
+          details: string | null
+          dosage: string | null
+          duration: string | null
+          end_date: string | null
+          frequency: string | null
+          id: string
+          instructions: string | null
+          name: string
+          prescription_id: string
+          start_date: string | null
+          status: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          dosage?: string | null
+          duration?: string | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          name: string
+          prescription_id: string
+          start_date?: string | null
+          status: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          dosage?: string | null
+          duration?: string | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          name?: string
+          prescription_id?: string
+          start_date?: string | null
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescription_items_prescription_id_fkey"
+            columns: ["prescription_id"]
+            isOneToOne: false
+            referencedRelation: "prescriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prescriptions: {
+        Row: {
+          created_at: string
+          date: string
+          doctor_id: string
+          id: string
+          notes: string | null
+          patient_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          doctor_id: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          doctor_id?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          name?: string | null
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      user_has_role: {
+        Args: {
+          requested_role: string
+        }
+        Returns: boolean
+      }
+      user_is_medical_staff: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
