@@ -28,7 +28,8 @@ export const useAuthLogin = (
         if ('role' in authUser) {
           setUser(authUser as unknown as User);
         } else {
-          const mappedUser = mapSupabaseUserToUser(authUser);
+          // Need to await since mapSupabaseUserToUser returns a Promise<User>
+          const mappedUser = await mapSupabaseUserToUser(authUser);
           setUser(mappedUser);
         }
         
