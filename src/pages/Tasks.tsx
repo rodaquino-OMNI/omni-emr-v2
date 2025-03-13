@@ -6,18 +6,15 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import TaskList from '@/components/tasks/TaskList';
-import TaskFilters from '@/components/tasks/TaskFilters';
 import { Task } from '@/components/tasks/TaskCard';
 import TaskCompletionForm from '@/components/tasks/TaskCompletionForm';
 import { 
   filterTasks, 
   TaskFilter,
-  updateTaskStatus,
-  completeTask,
   getTaskCompletionStats
 } from '@/services/taskService';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import TaskPageHeader from '@/components/tasks/TaskPageHeader';
+import TaskTabs from '@/components/tasks/TaskTabs';
 
 const TasksPage = () => {
   const { t } = useTranslation();
@@ -102,87 +99,19 @@ const TasksPage = () => {
         <Header />
         <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
           <div className="max-w-6xl mx-auto w-full">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <h1 className="text-2xl font-semibold">{t('tasks')}</h1>
-              
-              {stats && (
-                <div className="flex flex-wrap gap-3">
-                  <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">
-                    {t('total')}: {stats.total}
-                  </div>
-                  <div className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">
-                    {t('completed')}: {stats.completed}
-                  </div>
-                  <div className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm">
-                    {t('pending')}: {stats.pending}
-                  </div>
-                  <div className="px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm">
-                    {t('delayed')}: {stats.delayed}
-                  </div>
-                </div>
-              )}
-            </div>
+            <TaskPageHeader stats={stats} />
             
             <div className="space-y-6">
-              {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={(value: string) => setActiveTab(value as 'all' | 'delayed' | 'completed')}>
-                <TabsList className="grid w-full max-w-md grid-cols-3">
-                  <TabsTrigger value="all">{t('allTasks')}</TabsTrigger>
-                  <TabsTrigger value="delayed">{t('delayed')}</TabsTrigger>
-                  <TabsTrigger value="completed">{t('completed')}</TabsTrigger>
-                </TabsList>
-                <TabsContent value="all">
-                  <div className="space-y-4">
-                    <TaskFilters 
-                      filter={filter} 
-                      onFilterChange={handleFilterChange}
-                      searchTerm={searchTerm}
-                      onSearchChange={handleSearchChange}
-                    />
-                    
-                    <div className="glass-card p-6">
-                      <TaskList 
-                        tasks={filteredTasks} 
-                        onMarkComplete={handleMarkComplete} 
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="delayed">
-                  <div className="space-y-4">
-                    <TaskFilters 
-                      filter={filter} 
-                      onFilterChange={handleFilterChange}
-                      searchTerm={searchTerm}
-                      onSearchChange={handleSearchChange}
-                    />
-                    
-                    <div className="glass-card p-6">
-                      <TaskList 
-                        tasks={filteredTasks} 
-                        onMarkComplete={handleMarkComplete} 
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="completed">
-                  <div className="space-y-4">
-                    <TaskFilters 
-                      filter={filter} 
-                      onFilterChange={handleFilterChange}
-                      searchTerm={searchTerm}
-                      onSearchChange={handleSearchChange}
-                    />
-                    
-                    <div className="glass-card p-6">
-                      <TaskList 
-                        tasks={filteredTasks} 
-                        showCompletionInfo={true}
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <TaskTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                filter={filter}
+                onFilterChange={handleFilterChange}
+                searchTerm={searchTerm}
+                onSearchChange={handleSearchChange}
+                filteredTasks={filteredTasks}
+                onMarkComplete={handleMarkComplete}
+              />
             </div>
           </div>
         </main>
