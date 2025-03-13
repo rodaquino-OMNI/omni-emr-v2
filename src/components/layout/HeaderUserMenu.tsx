@@ -42,8 +42,8 @@ const HeaderUserMenu = () => {
           {t('profile')}
         </DropdownMenuItem>
         {user?.role === 'admin' && (
-          <DropdownMenuItem onClick={() => navigate('/admin')}>
-            {t('userAdmin')}
+          <DropdownMenuItem onClick={() => navigate('/settings')}>
+            {t('settings')}
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
