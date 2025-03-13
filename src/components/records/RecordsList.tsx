@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import RecordCard from './RecordCard';
-import { FileText, Calendar, ClipboardList } from 'lucide-react';
+import { FileText, Calendar, ClipboardList, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 type RecordsListProps = {
