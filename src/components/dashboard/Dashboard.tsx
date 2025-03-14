@@ -1,11 +1,15 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, Users, Calendar, ClipboardList, ArrowRight } from 'lucide-react';
+import { Activity, Users, Calendar, ClipboardList, ArrowRight, AlertTriangle, Pill, FileText, MessageSquare, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PatientList from '../patients/PatientList';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Button } from '../ui/button';
+import { useAuth } from '@/context/AuthContext';
+import RoleDashboardKPIs from './RoleDashboardKPIs';
+import DashboardAlerts from './DashboardAlerts';
+import QuickActions from './QuickActions';
 
 type DashboardProps = {
   className?: string;
@@ -53,50 +57,120 @@ const StatCard = ({ title, value, icon, trend, className, linkTo }: StatCardProp
 
 const Dashboard = ({ className }: DashboardProps) => {
   const { language } = useTranslation();
+  const { user } = useAuth();
   
-  // Sample data with translations
-  const stats = [
-    { 
-      title: language === 'pt' ? "Total de Pacientes" : "Total Patients", 
-      value: 248, 
-      icon: <Users className="h-5 w-5" />,
-      trend: { 
-        value: language === 'pt' ? "3.2% do último mês" : "3.2% from last month", 
-        positive: true 
+  // Sample data with translations based on user role
+  const getStats = () => {
+    const baseStats = [
+      { 
+        title: language === 'pt' ? "Total de Pacientes" : "Total Patients", 
+        value: 248, 
+        icon: <Users className="h-5 w-5" />,
+        trend: { 
+          value: language === 'pt' ? "3.2% do último mês" : "3.2% from last month", 
+          positive: true 
+        },
+        linkTo: "/patients"
       },
-      linkTo: "/patients"
-    },
-    { 
-      title: language === 'pt' ? "Pacientes no Hospital" : "Hospital Patients", 
-      value: 86, 
-      icon: <Activity className="h-5 w-5" />,
-      trend: { 
-        value: language === 'pt' ? "2.1% da última semana" : "2.1% from last week", 
-        positive: false 
+      { 
+        title: language === 'pt' ? "Pacientes no Hospital" : "Hospital Patients", 
+        value: 86, 
+        icon: <Activity className="h-5 w-5" />,
+        trend: { 
+          value: language === 'pt' ? "2.1% da última semana" : "2.1% from last week", 
+          positive: false 
+        },
+        linkTo: "/patients?status=hospital"
       },
-      linkTo: "/patients?status=hospital"
-    },
-    { 
-      title: language === 'pt' ? "Pacientes em Casa" : "Home Care Patients", 
-      value: 162, 
-      icon: <ClipboardList className="h-5 w-5" />,
-      trend: { 
-        value: language === 'pt' ? "5.3% do último mês" : "5.3% from last month", 
-        positive: true 
+      { 
+        title: language === 'pt' ? "Pacientes em Casa" : "Home Care Patients", 
+        value: 162, 
+        icon: <ClipboardList className="h-5 w-5" />,
+        trend: { 
+          value: language === 'pt' ? "5.3% do último mês" : "5.3% from last month", 
+          positive: true 
+        },
+        linkTo: "/patients?status=home"
       },
-      linkTo: "/patients?status=home"
-    },
-    { 
-      title: language === 'pt' ? "Agendados Hoje" : "Scheduled Today", 
-      value: 24, 
-      icon: <Calendar className="h-5 w-5" />,
-      linkTo: "/schedule"
+      { 
+        title: language === 'pt' ? "Agendados Hoje" : "Scheduled Today", 
+        value: 24, 
+        icon: <Calendar className="h-5 w-5" />,
+        linkTo: "/schedule"
+      }
+    ];
+
+    // Additional stats for doctors
+    if (user?.role === 'doctor') {
+      return [
+        ...baseStats,
+        { 
+          title: language === 'pt' ? "Prescrições Pendentes" : "Pending Prescriptions", 
+          value: 7, 
+          icon: <Pill className="h-5 w-5" />,
+          linkTo: "/prescriptions?status=pending"
+        },
+        { 
+          title: language === 'pt' ? "Resultados Críticos" : "Critical Results", 
+          value: 3, 
+          icon: <AlertTriangle className="h-5 w-5" />,
+          className: "border-red-200 bg-red-50",
+          linkTo: "/records?status=critical"
+        }
+      ];
     }
-  ];
+    
+    // Additional stats for nurses
+    if (user?.role === 'nurse') {
+      return [
+        ...baseStats,
+        { 
+          title: language === 'pt' ? "Medicamentos Pendentes" : "Medications Due", 
+          value: 18, 
+          icon: <Pill className="h-5 w-5" />,
+          linkTo: "/medications?status=due"
+        },
+        { 
+          title: language === 'pt' ? "Avaliações Pendentes" : "Pending Assessments", 
+          value: 9, 
+          icon: <FileText className="h-5 w-5" />,
+          linkTo: "/tasks?type=assessment"
+        }
+      ];
+    }
+    
+    // Stats for admin
+    if (user?.role === 'admin') {
+      return [
+        ...baseStats,
+        { 
+          title: language === 'pt' ? "Ocupação de Leitos" : "Bed Occupancy", 
+          value: "78%", 
+          icon: <Activity className="h-5 w-5" />,
+          trend: { 
+            value: language === 'pt' ? "4.5% da última semana" : "4.5% from last week", 
+            positive: true 
+          },
+          linkTo: "/admin/resources"
+        },
+        { 
+          title: language === 'pt' ? "Alocação de Pessoal" : "Staff Allocation", 
+          value: "92%", 
+          icon: <Users className="h-5 w-5" />,
+          linkTo: "/admin/staff"
+        }
+      ];
+    }
+
+    return baseStats;
+  };
+
+  const stats = getStats();
 
   return (
     <div className={cn("space-y-6", className)}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <StatCard 
             key={index} 
@@ -105,10 +179,21 @@ const Dashboard = ({ className }: DashboardProps) => {
             icon={stat.icon} 
             trend={stat.trend}
             linkTo={stat.linkTo}
+            className={stat.className}
           />
         ))}
       </div>
       
+      {/* Role-specific KPIs */}
+      <RoleDashboardKPIs />
+      
+      {/* Alerts Section */}
+      <DashboardAlerts />
+      
+      {/* Quick Actions */}
+      <QuickActions />
+      
+      {/* Recent Patients Section */}
       <div className="glass-card p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">

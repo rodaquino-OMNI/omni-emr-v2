@@ -34,7 +34,11 @@ export type CommonTranslationKey =
   | 'loadingData'
   | 'loadingResources'
   | 'vitals'
-  | 'fluidBalance';
+  | 'fluidBalance'
+  | 'quickActions'
+  | 'healthSummary'
+  | 'careTimeline'
+  | 'performanceMetrics';
 
 export const commonTranslations = {
   pt: {
@@ -72,7 +76,11 @@ export const commonTranslations = {
     loadingData: 'Carregando dados',
     loadingResources: 'Carregando recursos',
     vitals: 'Sinais Vitais',
-    fluidBalance: 'Balanço Hídrico'
+    fluidBalance: 'Balanço Hídrico',
+    quickActions: 'Ações Rápidas',
+    healthSummary: 'Resumo de Saúde',
+    careTimeline: 'Linha do Tempo de Cuidados',
+    performanceMetrics: 'Métricas de Desempenho'
   },
   en: {
     appName: 'OmniCare',
@@ -109,6 +117,10 @@ export const commonTranslations = {
     loadingData: 'Loading data',
     loadingResources: 'Loading resources',
     vitals: 'Vital Signs',
-    fluidBalance: 'Fluid Balance'
+    fluidBalance: 'Fluid Balance',
+    quickActions: 'Quick Actions',
+    healthSummary: 'Health Summary',
+    careTimeline: 'Care Timeline',
+    performanceMetrics: 'Performance Metrics'
   }
 };
