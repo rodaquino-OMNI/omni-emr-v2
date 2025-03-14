@@ -38,20 +38,21 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
     const role = profileData.role as UserRole;
     const validRole = validRoles.includes(role) ? role : 'patient';
 
-    // Get permissions for this user
-    const permissions = await getUserPermissions({
+    // Create the base user object without permissions first
+    const baseUser: User = {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
       name: profileData.name || supabaseUser.user_metadata?.name || 'User',
       role: validRole,
       permissions: []
-    });
+    };
 
+    // Get permissions for this user
+    const permissions = await getUserPermissions(baseUser);
+
+    // Return the complete user object with permissions
     return {
-      id: supabaseUser.id,
-      email: supabaseUser.email || '',
-      name: profileData.name || supabaseUser.user_metadata?.name || 'User',
-      role: validRole,
+      ...baseUser,
       permissions
     };
   } catch (error) {

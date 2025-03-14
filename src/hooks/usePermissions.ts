@@ -1,16 +1,34 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { User } from '../types/auth';
 import { 
   hasPermission as checkPermission, 
   canAccessPatientData as checkPatientAccess,
-  getUserPermissions as getPermissions,
+  getUserPermissions as fetchPermissions,
   canPerformClinicalDocumentation,
   canPerformMedicationAction,
   canPerformAppointmentAction
 } from '../utils/permissionUtils';
 
 export const usePermissions = (user: User | null) => {
+  // State to store user permissions
+  const [permissions, setPermissions] = useState<string[]>([]);
+  
+  // Fetch permissions when user changes
+  useEffect(() => {
+    if (user) {
+      // Get permissions and update state
+      const getAndSetPermissions = async () => {
+        const userPermissions = await fetchPermissions(user);
+        setPermissions(userPermissions);
+      };
+      
+      getAndSetPermissions();
+    } else {
+      setPermissions([]);
+    }
+  }, [user]);
+  
   // Function to check if the current user has a specific permission
   const hasPermission = useCallback((permission: string): boolean => {
     return checkPermission(user, permission);
@@ -23,8 +41,8 @@ export const usePermissions = (user: User | null) => {
   
   // Function to get all permissions for the current user
   const getAllPermissions = useCallback((): string[] => {
-    return getPermissions(user);
-  }, [user]);
+    return permissions;
+  }, [permissions]);
   
   // Function to check clinical documentation permissions
   const checkClinicalDocPermission = useCallback((action: 'create' | 'modify' | 'finalize' | 'view'): boolean => {

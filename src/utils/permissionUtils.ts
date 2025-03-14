@@ -82,12 +82,17 @@ export const getUserPermissions = async (user: User | null): Promise<string[]> =
   if (!user) return [];
   
   try {
-    // Try to get permissions from the database first
+    // Try to get permissions from the database using a custom query
+    // instead of the RPC that was causing the error
     const { data, error } = await supabase
-      .rpc('get_user_permissions', { user_id: user.id });
+      .from('role_permissions')
+      .select('permissions(name)')
+      .eq('role', user.role);
     
-    if (!error && data) {
-      return data;
+    if (!error && data && data.length > 0) {
+      // Extract permission names from the returned data
+      const permissionNames = data.map(item => item.permissions?.name).filter(Boolean) as string[];
+      return permissionNames;
     }
   } catch (e) {
     console.error('Error fetching permissions from database:', e);
