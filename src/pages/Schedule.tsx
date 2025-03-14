@@ -19,7 +19,7 @@ import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import AppointmentsList from '../components/schedule/AppointmentsList';
 import ScheduleConsultationForm from '../components/schedule/ScheduleConsultationForm';
-import { getAppointmentsByDate } from '@/services/appointmentService';
+import { getAppointmentsByDate } from '@/services/appointments';
 
 const SchedulePage = () => {
   const { t } = useTranslation();

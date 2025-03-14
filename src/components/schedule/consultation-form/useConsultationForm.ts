@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
-import { createAppointment } from '@/services/appointmentService';
+import { createAppointment } from '@/services/appointments';
 import { consultationFormSchema, ConsultationFormValues, ScheduleConsultationFormProps } from './types';
 
 export const useConsultationForm = ({ 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -9,7 +8,7 @@ import {
   getAppointmentsByDate, 
   getAppointmentsByPatient,
   Appointment
-} from '@/services/appointmentService';
+} from '@/services/appointments';
 
 type AppointmentsListProps = {
   className?: string;

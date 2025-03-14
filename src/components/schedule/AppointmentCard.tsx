@@ -1,10 +1,14 @@
-
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Appointment, cancelAppointment, completeAppointment, sendAppointmentReminder } from '@/services/appointmentService';
+import { 
+  Appointment, 
+  cancelAppointment, 
+  completeAppointment, 
+  sendAppointmentReminder 
+} from '@/services/appointments';
 
 import { Clock, MapPin, User, Calendar, Bell, CheckCircle, X, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -39,7 +43,6 @@ const AppointmentCard = ({ appointment, className, showActions = true }: Appoint
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
-  // Format time
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(':');
     const hour = parseInt(hours);
@@ -48,7 +51,6 @@ const AppointmentCard = ({ appointment, className, showActions = true }: Appoint
     return `${hour12}:${minutes} ${ampm}`;
   };
   
-  // Calculate end time
   const calculateEndTime = (timeString: string, durationMinutes: number) => {
     const [hours, minutes] = timeString.split(':').map(Number);
     const startDate = new Date();
@@ -63,12 +65,10 @@ const AppointmentCard = ({ appointment, className, showActions = true }: Appoint
     return `${hour12}:${endMinutes} ${ampm}`;
   };
   
-  // Format date
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'MMMM d, yyyy');
   };
   
-  // Get status color
   const getStatusColor = (status: Appointment['status']) => {
     switch (status) {
       case 'scheduled':
@@ -84,7 +84,6 @@ const AppointmentCard = ({ appointment, className, showActions = true }: Appoint
     }
   };
 
-  // Get appointment type icon and label
   const getAppointmentTypeInfo = (type: Appointment['type']) => {
     switch (type) {
       case 'in-person':
@@ -110,7 +109,6 @@ const AppointmentCard = ({ appointment, className, showActions = true }: Appoint
     }
   };
   
-  // Handle send reminder
   const handleSendReminder = async () => {
     setIsLoading(true);
     try {
@@ -135,7 +133,6 @@ const AppointmentCard = ({ appointment, className, showActions = true }: Appoint
     }
   };
   
-  // Handle complete appointment
   const handleCompleteAppointment = async () => {
     setIsLoading(true);
     try {
@@ -160,7 +157,6 @@ const AppointmentCard = ({ appointment, className, showActions = true }: Appoint
     }
   };
   
-  // Handle cancel appointment
   const handleCancelAppointment = async () => {
     setIsLoading(true);
     try {
