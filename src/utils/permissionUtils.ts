@@ -1,4 +1,3 @@
-
 import { User } from '../types/auth';
 import { supabase } from '../integrations/supabase/client';
 import { rolePermissions, sharedPermissions } from './permissions';
@@ -82,47 +81,35 @@ export const getUserPermissions = async (user: User | null): Promise<string[]> =
   if (!user) return [];
   
   try {
-    // Try to fetch permissions from the database
-    const { data, error } = await supabase
-      .from('permissions')
-      .select(`
-        name,
-        role_permissions!inner(role)
-      `)
-      .eq('role_permissions.role', user.role);
+    // Since there's no "permissions" table, we'll use role-based permissions
+    // from our local definitions
     
-    if (!error && data && data.length > 0) {
-      // Extract permission names from the returned data
-      const permissionNames = data.map(item => item.name);
-      return permissionNames;
+    // Start with shared permissions
+    const basePermissions = [...sharedPermissions];
+    
+    // Add role-base permissions
+    if (user.role && rolePermissions[user.role]) {
+      basePermissions.push(...rolePermissions[user.role]);
     }
+    
+    // Add explicit permissions assigned to the user
+    if (user.permissions && Array.isArray(user.permissions)) {
+      basePermissions.push(...user.permissions);
+    }
+    
+    // If user has 'all' permission, they have all defined permissions
+    if (basePermissions.includes('all')) {
+      // Combine all permissions from all roles
+      const allPossiblePermissions = Object.values(rolePermissions).flat();
+      return [...new Set([...basePermissions, ...allPossiblePermissions])];
+    }
+    
+    // Return unique permissions
+    return [...new Set(basePermissions)];
   } catch (e) {
-    console.error('Error fetching permissions from database:', e);
-    // Continue to fallback
+    console.error('Error getting user permissions:', e);
+    return [];
   }
-  
-  // Fallback to local permission definitions
-  const basePermissions = [...sharedPermissions];
-  
-  // Add role-based permissions
-  if (user.role && rolePermissions[user.role]) {
-    basePermissions.push(...rolePermissions[user.role]);
-  }
-  
-  // Add explicit permissions assigned to the user
-  if (user.permissions && Array.isArray(user.permissions)) {
-    basePermissions.push(...user.permissions);
-  }
-  
-  // If user has 'all' permission, they have all defined permissions
-  if (basePermissions.includes('all')) {
-    // Combine all permissions from all roles
-    const allPossiblePermissions = Object.values(rolePermissions).flat();
-    return [...new Set([...basePermissions, ...allPossiblePermissions])];
-  }
-  
-  // Return unique permissions
-  return [...new Set(basePermissions)];
 };
 
 // Check if user has permission for specific clinical documentation action
