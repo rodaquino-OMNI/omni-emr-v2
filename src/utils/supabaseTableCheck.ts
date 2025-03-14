@@ -2,12 +2,14 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+type TableName = 'appointments' | 'audit_logs' | 'profiles';
+
 /**
  * Checks if a specific table exists in the Supabase database
  * @param tableName The name of the table to check
  * @returns A boolean indicating if the table exists
  */
-export const checkTableExists = async (tableName: string): Promise<boolean> => {
+export const checkTableExists = async (tableName: TableName): Promise<boolean> => {
   try {
     const { error } = await supabase
       .from(tableName)
@@ -38,7 +40,7 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
  * Verifies the required tables exist in Supabase and displays a toast notification if they don't
  */
 export const verifyRequiredTables = async (): Promise<void> => {
-  const requiredTables = ['appointments', 'audit_logs', 'profiles'];
+  const requiredTables: TableName[] = ['appointments', 'audit_logs', 'profiles'];
   const missingTables: string[] = [];
   
   for (const table of requiredTables) {
