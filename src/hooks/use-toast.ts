@@ -13,6 +13,7 @@ export type ToastOptions = ExternalToast & {
   title?: string;
 };
 
+// Create a specific type for the toast function to avoid type errors
 type ToastFunction = {
   success: (message: string, options?: ToastOptions) => ToastT;
   error: (message: string, options?: ToastOptions) => ToastT;
