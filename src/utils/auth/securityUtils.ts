@@ -4,6 +4,19 @@ import { supabase } from '@/integrations/supabase/client';
 // Check if user has MFA enabled
 export const hasEnabledMFA = async (userId: string): Promise<boolean> => {
   try {
+    // First check if the column exists
+    const { data: columns, error: columnsError } = await supabase
+      .from('profiles')
+      .select('*')
+      .limit(1);
+      
+    // If we don't have the mfa_enabled column yet, return false
+    if (columnsError || !columns || !columns.length || !('mfa_enabled' in columns[0])) {
+      console.warn('MFA column not found in profiles table');
+      return false;
+    }
+      
+    // Now try to get the actual value
     const { data, error } = await supabase
       .from('profiles')
       .select('mfa_enabled')
@@ -69,10 +82,23 @@ export const verifyMFASetup = async (factorId: string, code: string): Promise<bo
     
     if (error) throw error;
     
+    // Check if the column exists before updating
+    const { data: columns, error: columnsError } = await supabase
+      .from('profiles')
+      .select('*')
+      .limit(1);
+      
+    if (columnsError || !columns || !columns.length || !('mfa_enabled' in columns[0])) {
+      console.warn('MFA column not found in profiles table, skipping profile update');
+      return true;
+    }
+    
     // Update the user's profile to mark MFA as enabled
+    const updateData: Record<string, any> = { mfa_enabled: true };
+    
     await supabase
       .from('profiles')
-      .update({ mfa_enabled: true })
+      .update(updateData)
       .eq('id', (await supabase.auth.getUser()).data.user?.id);
     
     return true;
@@ -91,10 +117,23 @@ export const unenrollMFA = async (factorId: string): Promise<boolean> => {
     
     if (error) throw error;
     
+    // Check if the column exists before updating
+    const { data: columns, error: columnsError } = await supabase
+      .from('profiles')
+      .select('*')
+      .limit(1);
+      
+    if (columnsError || !columns || !columns.length || !('mfa_enabled' in columns[0])) {
+      console.warn('MFA column not found in profiles table, skipping profile update');
+      return true;
+    }
+    
     // Update the user's profile to mark MFA as disabled
+    const updateData: Record<string, any> = { mfa_enabled: false };
+    
     await supabase
       .from('profiles')
-      .update({ mfa_enabled: false })
+      .update(updateData)
       .eq('id', (await supabase.auth.getUser()).data.user?.id);
     
     return true;
