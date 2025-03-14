@@ -9,9 +9,14 @@ import InsightsTab from './tabs/InsightsTab';
 interface PatientVitalsTabsProps {
   patientId: string;
   insights: any[];
+  insightsLoading?: boolean;
 }
 
-const PatientVitalsTabs: React.FC<PatientVitalsTabsProps> = ({ patientId, insights }) => {
+const PatientVitalsTabs: React.FC<PatientVitalsTabsProps> = ({ 
+  patientId, 
+  insights, 
+  insightsLoading = false 
+}) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('current');
 
@@ -32,7 +37,11 @@ const PatientVitalsTabs: React.FC<PatientVitalsTabsProps> = ({ patientId, insigh
       </TabsContent>
       
       <TabsContent value="insights">
-        <InsightsTab patientId={patientId} insights={insights} />
+        <InsightsTab 
+          patientId={patientId} 
+          insights={insights} 
+          isLoading={insightsLoading} 
+        />
       </TabsContent>
     </Tabs>
   );

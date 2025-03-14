@@ -10,33 +10,55 @@ import VitalsChartTooltip from '@/components/vitals/components/VitalsChartToolti
 import VitalsTimeRangeSelector from '@/components/vitals/components/VitalsTimeRangeSelector';
 import VitalsChartLines from '@/components/vitals/components/VitalsChartLines';
 import VitalsReferenceLines from '@/components/vitals/components/VitalsReferenceLines';
-import { Button } from './button';
 
 type VitalsChartProps = {
   patientId: string;
   type: VitalType;
   timeRange?: TimeRangeType;
+  height?: number;
+  showTimeSelector?: boolean;
 };
 
-const VitalsChart: React.FC<VitalsChartProps> = ({ patientId, type, timeRange = '7d' }) => {
+const VitalsChart: React.FC<VitalsChartProps> = ({ 
+  patientId, 
+  type, 
+  timeRange = '7d',
+  height = 240,
+  showTimeSelector = false
+}) => {
   const { t } = useTranslation();
   const [data, setData] = useState<VitalDataPoint[]>([]);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRangeType>(timeRange);
   const [showAbnormalAlert, setShowAbnormalAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    const mockData = generateMockVitalsData(type, patientId, selectedTimeRange);
-    setData(mockData);
-    
-    // Check if there are abnormal values to show alert
-    const hasAbnormal = mockData.some(item => {
-      if (type === 'bloodPressure') {
-        return item.value.isAbnormal;
+    setIsLoading(true);
+    // Simulate network request
+    const fetchData = async () => {
+      try {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const mockData = generateMockVitalsData(type, patientId, selectedTimeRange);
+        setData(mockData);
+        
+        // Check if there are abnormal values to show alert
+        const hasAbnormal = mockData.some(item => {
+          if (type === 'bloodPressure') {
+            return item.value.isAbnormal;
+          }
+          return item.isAbnormal;
+        });
+        
+        setShowAbnormalAlert(hasAbnormal);
+      } catch (error) {
+        console.error('Error fetching vitals data:', error);
+      } finally {
+        setIsLoading(false);
       }
-      return item.isAbnormal;
-    });
+    };
     
-    setShowAbnormalAlert(hasAbnormal);
+    fetchData();
   }, [type, patientId, selectedTimeRange]);
   
   const config = getVitalChartConfig(type, t);
@@ -48,21 +70,6 @@ const VitalsChart: React.FC<VitalsChartProps> = ({ patientId, type, timeRange = 
   const renderTooltipContent = (props: any) => {
     return <VitalsChartTooltip {...props} type={type} unit={config.unit} />;
   };
-  
-  const hasAbnormalValues = data.some(item => {
-    if (type === 'bloodPressure') {
-      return item.value.isAbnormal;
-    }
-    return item.isAbnormal;
-  });
-
-  // Time range buttons based on the design
-  const timeRangeButtons = [
-    { label: '24h', value: '24h' },
-    { label: '3d', value: '3d' },
-    { label: '7d', value: '7d' as TimeRangeType, active: true },
-    { label: '30d', value: '30d' }
-  ];
 
   return (
     <div>
@@ -79,47 +86,47 @@ const VitalsChart: React.FC<VitalsChartProps> = ({ patientId, type, timeRange = 
           )}
         </div>
         
-        <div className="flex items-center space-x-1">
-          {timeRangeButtons.map((btn) => (
-            <Button
-              key={btn.value}
-              size="sm"
-              variant={selectedTimeRange === btn.value ? "default" : "outline"}
-              className="h-7 px-2 text-xs"
-              onClick={() => setSelectedTimeRange(btn.value as TimeRangeType)}
-            >
-              {btn.label}
-            </Button>
-          ))}
-        </div>
+        {showTimeSelector && (
+          <VitalsTimeRangeSelector
+            selectedTimeRange={selectedTimeRange}
+            onChange={setSelectedTimeRange}
+            size="sm"
+          />
+        )}
       </div>
       
-      <div className="h-60">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 5, right: 5, left: 10, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-            <XAxis 
-              dataKey="date"
-              tick={{ fontSize: 11 }}
-              tickLine={false}
-              axisLine={{ stroke: '#e5e7eb' }}
-            />
-            <YAxis 
-              tickFormatter={formatYAxis}
-              domain={config.domain}
-              tick={{ fontSize: 11 }}
-              tickLine={false}
-              axisLine={{ stroke: '#e5e7eb' }}
-            />
-            <Tooltip content={renderTooltipContent} />
-            
-            <VitalsReferenceLines type={type} config={config} />
-            <VitalsChartLines type={type} data={data} config={config} />
-          </LineChart>
-        </ResponsiveContainer>
+      <div style={{ height: `${height}px` }} className="relative">
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 rounded">
+            <div className="h-6 w-6 border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 5, right: 5, left: 10, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis 
+                dataKey="date"
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+                axisLine={{ stroke: '#e5e7eb' }}
+              />
+              <YAxis 
+                tickFormatter={formatYAxis}
+                domain={config.domain}
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+                axisLine={{ stroke: '#e5e7eb' }}
+              />
+              <Tooltip content={renderTooltipContent} />
+              
+              <VitalsReferenceLines type={type} config={config} />
+              <VitalsChartLines type={type} data={data} config={config} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </div>
       
       <div className="flex items-center text-xs text-muted-foreground mt-1">

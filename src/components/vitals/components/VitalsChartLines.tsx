@@ -14,6 +14,9 @@ const VitalsChartLines: React.FC<VitalsChartLinesProps> = ({ type, data, config 
   // Custom dot renderer to show abnormal values in red
   const renderDot = (props: any, dataIndex: number, isAbnormal: boolean) => {
     const { cx, cy } = props;
+    
+    if (!cx || !cy) return null;
+    
     return (
       <g key={`dot-${dataIndex}`}>
         <circle 
@@ -39,10 +42,12 @@ const VitalsChartLines: React.FC<VitalsChartLinesProps> = ({ type, data, config 
           activeDot={{ r: 6 }}
           dot={(props: any) => {
             const index = props.index;
+            if (index === undefined || !data[index]) return null;
             const entry = data[index];
             return renderDot(props, index, entry.value.isAbnormal);
           }}
-          name={`${config.label} (Systolic)`}
+          name={`${config.label} (${t('systolic')})`}
+          connectNulls={true}
         />
         <Line 
           type="monotone" 
@@ -53,10 +58,12 @@ const VitalsChartLines: React.FC<VitalsChartLinesProps> = ({ type, data, config 
           activeDot={{ r: 6 }}
           dot={(props: any) => {
             const index = props.index;
+            if (index === undefined || !data[index]) return null;
             const entry = data[index];
             return renderDot(props, index, entry.value.isAbnormal);
           }}
-          name={`${config.label} (Diastolic)`}
+          name={`${config.label} (${t('diastolic')})`}
+          connectNulls={true}
         />
       </>
     );
@@ -71,12 +78,18 @@ const VitalsChartLines: React.FC<VitalsChartLinesProps> = ({ type, data, config 
       activeDot={{ r: 6 }}
       dot={(props: any) => {
         const index = props.index;
+        if (index === undefined || !data[index]) return null;
         const entry = data[index];
         return renderDot(props, index, entry.isAbnormal);
       }}
       name={config.label}
+      connectNulls={true}
     />
   );
 };
+
+// Import t function for translations
+import { useTranslation } from '@/hooks/useTranslation';
+const { t } = useTranslation();
 
 export default VitalsChartLines;

@@ -22,13 +22,23 @@ const PatientVitals = ({ patientId }: PatientVitalsProps) => {
   const canManageVitals = permissions.canManagePatientFluidBalance();
   
   // Get AI insights specifically for vitals
-  const { insights } = useAIInsights(patientId, ['vitals']);
+  const { insights, isLoading: insightsLoading } = useAIInsights(patientId, ['vitals']);
   
   // Mock function for recording vitals - in a real app this would connect to Supabase
   const recordVitals = async () => {
-    toast.success(t('vitalSignsRecorded'), {
-      description: t('vitalSignsRecordedDescription')
-    });
+    try {
+      // Simulate a server request
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      toast.success(t('vitalSignsRecorded'), {
+        description: t('vitalSignsRecordedDescription')
+      });
+    } catch (error) {
+      console.error('Error recording vitals:', error);
+      toast.error(t('errorRecordingVitals'), {
+        description: t('errorRecordingVitalsDescription')
+      });
+    }
   };
   
   return (
@@ -41,7 +51,8 @@ const PatientVitals = ({ patientId }: PatientVitalsProps) => {
       
       <PatientVitalsTabs 
         patientId={patientId} 
-        insights={insights}
+        insights={insights || []}
+        insightsLoading={insightsLoading}
       />
     </div>
   );

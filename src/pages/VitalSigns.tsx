@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import { useTranslation } from '../hooks/useTranslation';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/card';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Filter, Clock, ArrowLeft } from 'lucide-react';
 import PatientVitals from '@/components/patients/PatientVitals';

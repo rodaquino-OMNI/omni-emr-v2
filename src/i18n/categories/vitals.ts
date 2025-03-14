@@ -32,7 +32,12 @@ export type VitalsTranslationKey =
   | 'selectPatientToViewVitals'
   | 'room'
   | 'mrn'
-  | 'normal';
+  | 'normal'
+  | 'loadingInsights'
+  | 'lastRecordedTime'
+  | 'errorRecordingVitals'
+  | 'errorRecordingVitalsDescription'
+  | 'patients';
 
 export const vitalsTranslations = {
   pt: {
@@ -68,7 +73,12 @@ export const vitalsTranslations = {
     selectPatientToViewVitals: 'Selecione um paciente para visualizar os sinais vitais',
     room: 'Quarto',
     mrn: 'MRN',
-    normal: 'Normal'
+    normal: 'Normal',
+    loadingInsights: 'Carregando análises...',
+    lastRecordedTime: 'Último registro há {time}',
+    errorRecordingVitals: 'Erro ao registrar sinais vitais',
+    errorRecordingVitalsDescription: 'Ocorreu um erro ao registrar os sinais vitais do paciente',
+    patients: 'Pacientes'
   },
   en: {
     vitals: 'Vital Signs',
@@ -103,6 +113,11 @@ export const vitalsTranslations = {
     selectPatientToViewVitals: 'Select a patient to view vital signs',
     room: 'Room',
     mrn: 'MRN',
-    normal: 'Normal'
+    normal: 'Normal',
+    loadingInsights: 'Loading insights...',
+    lastRecordedTime: 'Last recorded {time}',
+    errorRecordingVitals: 'Error recording vital signs',
+    errorRecordingVitalsDescription: 'There was an error recording the patient\'s vital signs',
+    patients: 'Patients'
   }
 };
