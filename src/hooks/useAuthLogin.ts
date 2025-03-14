@@ -1,12 +1,9 @@
 
-import { useState } from 'react';
 import { Session } from '@supabase/supabase-js';
-import { User, Language } from '../types/auth';
+import { User, UserRole, Language } from '../types/auth';
 import { useEmailAuth } from './auth/useEmailAuth';
 import { useSocialAuth } from './auth/useSocialAuth';
 import { useSignUpAuth } from './auth/useSignUpAuth';
-import { useSessionRefresh } from './auth/useSessionRefresh';
-import { useAuthError } from './auth/useAuthError';
 
 export const useAuthLogin = (
   setUser: (user: User | null) => void,
@@ -14,18 +11,10 @@ export const useAuthLogin = (
   setIsLoading: (isLoading: boolean) => void,
   handleLoginRateLimit: () => void,
   resetLoginAttempts: () => void,
-  language: Language
+  language: Language,
+  startSessionRefreshTimer: (session: Session | null) => void
 ) => {
-  const [requiresMFA, setRequiresMFA] = useState<boolean>(false);
-  const [passwordResetSent, setPasswordResetSent] = useState<boolean>(false);
-
-  // Set up session refresh hook
-  const { startSessionRefreshTimer } = useSessionRefresh();
-
-  // Set up auth error handling
-  const { lastError } = useAuthError(language);
-
-  // Set up email auth hooks
+  // Initialize email auth
   const { login, resetPassword } = useEmailAuth(
     setUser,
     setSession,
@@ -36,19 +25,16 @@ export const useAuthLogin = (
     startSessionRefreshTimer
   );
 
-  // Set up social auth hooks
+  // Initialize social auth
   const { loginWithSocial } = useSocialAuth(language);
 
-  // Set up signup auth hooks
+  // Initialize sign up auth
   const { signUp } = useSignUpAuth(setIsLoading, language);
 
   return {
     login,
     loginWithSocial,
     signUp,
-    resetPassword,
-    requiresMFA,
-    passwordResetSent,
-    lastError,
+    resetPassword
   };
 };

@@ -9,12 +9,13 @@ import { useSessionTimeoutHook } from './auth/useSessionTimeoutHook';
 import { useAuthRateLimiting } from './useAuthRateLimiting';
 import { usePermissions } from './usePermissions';
 import { useAuthProviderState } from './auth/useAuthProviderState';
+import { useSessionRefresh } from './auth/useSessionRefresh';
 
 export const useAuthProvider = () => {
   // Initialize language settings
   const { language, setLanguage } = useLanguageSettings();
 
-  // Initialize auth state from useAuthState or our new simpler state hook
+  // Initialize auth state from our simpler state hook
   const {
     user,
     setUser,
@@ -23,7 +24,10 @@ export const useAuthProvider = () => {
     isLoading,
     setIsLoading,
     isAuthenticated
-  } = useAuthState(language);
+  } = useAuthProviderState();
+
+  // Initialize session refresh functionality
+  const { startSessionRefreshTimer } = useSessionRefresh();
 
   // Initialize auth rate limiting
   const { 
@@ -43,7 +47,8 @@ export const useAuthProvider = () => {
     setIsLoading,
     handleLoginRateLimit,
     resetLoginAttempts,
-    language
+    language,
+    startSessionRefreshTimer
   );
 
   // Initialize logout functionality
