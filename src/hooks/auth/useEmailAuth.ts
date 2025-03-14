@@ -26,35 +26,29 @@ export const useEmailAuth = (
       // Check rate limiting
       handleLoginRateLimit();
       
-      const { user: authUser, session: authSession } = await signInWithEmail(email, password);
+      const response = await signInWithEmail(email, password);
       
-      if (!authUser) {
+      // Safely handle the response
+      if (!response || !response.user) {
         throw new Error(language === 'pt' 
           ? 'Falha ao fazer login: Credenciais inválidas' 
           : 'Login failed: Invalid credentials');
       }
       
-      // Check for MFA if not a mock user
-      if (!('role' in authUser) && authUser.id) {
-        const mfaEnabled = await import('@/utils/authUtils').then(
-          module => module.hasEnabledMFA(authUser.id)
-        );
-        if (mfaEnabled) {
-          // At this point, you would redirect to MFA verification
-          // For now, we'll continue the flow
-        }
-      }
+      const { user: authUser, session: authSession } = response;
       
-      // Process user data
+      // Process user data with type safety
       if ('role' in authUser) {
         // For mock users
         setUser(authUser as unknown as User);
-      } else {
+      } else if (authUser.id) {
         // For real Supabase users
         const mappedUser = await import('@/utils/authUtils').then(
           module => module.mapSupabaseUserToUser(authUser)
         );
         setUser(mappedUser);
+      } else {
+        throw new Error('Invalid user data received');
       }
       
       setSession(authSession);
