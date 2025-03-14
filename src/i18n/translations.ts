@@ -1,23 +1,21 @@
 
 import { CommonTranslationKey, commonTranslations } from './categories/common';
-import { PatientTranslationKey, patientTranslations } from './categories/patients';
-import { MedicationTranslationKey, medicationTranslations } from './categories/medications';
-import { AppointmentTranslationKey, appointmentTranslations } from './categories/appointments';
-import { TaskTranslationKey, taskTranslations } from './categories/tasks';
+import { PatientsTranslationKey, patientsTranslations } from './categories/patients';
+import { MedicationsTranslationKey, medicationsTranslations } from './categories/medications';
+import { AppointmentsTranslationKey, appointmentsTranslations } from './categories/appointments';
+import { TasksTranslationKey, tasksTranslations } from './categories/tasks';
 import { AuthTranslationKey, authTranslations } from './categories/auth';
-import { SettingsTranslationKey, settingsTranslations } from './categories/settings';
-import { UsersTranslationKey, usersTranslations } from './categories/users';
 import { ValidationTranslationKey, validationTranslations } from './categories/validations';
+import { UsersTranslationKey, usersTranslations } from './categories/users';
 
 // Union type of all possible translation keys
 export type TranslationKey =
   | CommonTranslationKey
-  | PatientTranslationKey
-  | MedicationTranslationKey
-  | AppointmentTranslationKey
-  | TaskTranslationKey
+  | PatientsTranslationKey
+  | MedicationsTranslationKey
+  | AppointmentsTranslationKey
+  | TasksTranslationKey
   | AuthTranslationKey
-  | SettingsTranslationKey
   | UsersTranslationKey
   | ValidationTranslationKey;
 
@@ -25,23 +23,21 @@ export type TranslationKey =
 export const translations = {
   en: {
     ...commonTranslations.en,
-    ...patientTranslations?.en,
-    ...medicationTranslations?.en,
-    ...appointmentTranslations?.en,
-    ...taskTranslations?.en,
+    ...patientsTranslations?.en,
+    ...medicationsTranslations?.en,
+    ...appointmentsTranslations?.en,
+    ...tasksTranslations?.en,
     ...authTranslations?.en,
-    ...settingsTranslations?.en,
     ...usersTranslations?.en,
     ...validationTranslations?.en,
   },
   pt: {
     ...commonTranslations.pt,
-    ...patientTranslations?.pt,
-    ...medicationTranslations?.pt,
-    ...appointmentTranslations?.pt,
-    ...taskTranslations?.pt,
+    ...patientsTranslations?.pt,
+    ...medicationsTranslations?.pt,
+    ...appointmentsTranslations?.pt,
+    ...tasksTranslations?.pt,
     ...authTranslations?.pt,
-    ...settingsTranslations?.pt,
     ...usersTranslations?.pt,
     ...validationTranslations?.pt,
   }

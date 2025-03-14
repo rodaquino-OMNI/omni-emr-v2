@@ -6,7 +6,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { AlertTriangle, Check, Star, Clock, Archive, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Notification } from './mockNotifications';
 
 interface NotificationItemProps {
@@ -18,28 +18,25 @@ const NotificationItem = ({ notification }: NotificationItemProps) => {
   
   const handleMarkAsRead = () => {
     // In a real app, this would update the notification in the backend
-    toast({
-      title: language === 'pt' ? 'Notificação marcada como lida' : 'Notification marked as read',
-      duration: 2000,
-    });
+    toast.success(
+      language === 'pt' ? 'Notificação marcada como lida' : 'Notification marked as read'
+    );
   };
   
   const handleToggleImportant = () => {
     // In a real app, this would update the notification in the backend
-    toast({
-      title: notification.important 
+    toast.success(
+      notification.important 
         ? (language === 'pt' ? 'Removido dos importantes' : 'Removed from important') 
-        : (language === 'pt' ? 'Marcado como importante' : 'Marked as important'),
-      duration: 2000,
-    });
+        : (language === 'pt' ? 'Marcado como importante' : 'Marked as important')
+    );
   };
   
   const handleArchive = () => {
     // In a real app, this would update the notification in the backend
-    toast({
-      title: language === 'pt' ? 'Notificação arquivada' : 'Notification archived',
-      duration: 2000,
-    });
+    toast.success(
+      language === 'pt' ? 'Notificação arquivada' : 'Notification archived'
+    );
   };
   
   const formattedTime = formatDistanceToNow(new Date(notification.timestamp), { 

@@ -26,7 +26,7 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     // Try to get language preference from secure storage first
-    const savedLanguage = secureStorage.getItem('language') as Language | null;
+    const savedLanguage = secureStorage.getItem('language', 'en') as Language;
     
     // If not found, try browser language
     if (!savedLanguage) {
@@ -34,7 +34,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       return browserLang === 'pt' ? 'pt' : 'en';
     }
     
-    return savedLanguage || 'en';
+    return savedLanguage;
   });
 
   const setLanguage = (newLanguage: Language) => {

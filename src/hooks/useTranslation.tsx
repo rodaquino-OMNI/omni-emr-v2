@@ -1,9 +1,9 @@
 
-import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { translations, TranslationKey } from "../i18n/translations";
 
 export const useTranslation = () => {
-  const { language } = useAuth();
+  const { language } = useLanguage();
   
   // Function to translate a key with validation
   const t = (key: TranslationKey): string => {
