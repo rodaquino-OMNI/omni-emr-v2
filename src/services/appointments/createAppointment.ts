@@ -9,7 +9,7 @@ import { mapDbAppointmentToAppointment, mapAppointmentToDbFormat } from './utils
  */
 export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'created_at' | 'updated_at'>): Promise<Appointment> => {
   try {
-    // Prepare data for Supabase insert
+    // Prepare data for Supabase insert using the properly typed mapper
     const appointmentData = mapAppointmentToDbFormat(appointment);
     
     const { data, error } = await supabase

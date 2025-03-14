@@ -1,5 +1,6 @@
 
 import { Appointment, AppointmentStatus, AppointmentType } from '../types';
+import { Database } from '@/integrations/supabase/types';
 
 /**
  * Maps a database appointment row to the Appointment type
@@ -25,41 +26,36 @@ export const mapDbAppointmentToAppointment = (row: any): Appointment => ({
 
 /**
  * Maps an Appointment to database format for insert/update operations
+ * using the correct Supabase types
  */
-export const mapAppointmentToDbFormat = (appointment: Partial<Appointment>): Record<string, any> => {
-  const dbAppointment: Record<string, any> = {};
+export const mapAppointmentToDbFormat = (
+  appointment: Partial<Appointment>
+): Database['public']['Tables']['appointments']['Insert'] => {
+  const dbAppointment: Database['public']['Tables']['appointments']['Insert'] = {
+    date: appointment.date || new Date().toISOString().split('T')[0],
+    duration: appointment.duration || 30,
+    patient_id: appointment.patientId || '',
+    patient_name: appointment.patientName || '',
+    provider_id: appointment.providerId || '',
+    provider_name: appointment.providerName || '',
+    title: appointment.title || '',
+    time: appointment.time || '',
+    type: appointment.type || 'in-person',
+    status: appointment.status || 'scheduled',
+  };
   
-  if (appointment.patientId !== undefined) {
-    dbAppointment.patient_id = appointment.patientId;
+  // Optional fields
+  if (appointment.notes !== undefined) {
+    dbAppointment.notes = appointment.notes;
   }
   
-  if (appointment.patientName !== undefined) {
-    dbAppointment.patient_name = appointment.patientName;
+  if (appointment.location !== undefined) {
+    dbAppointment.location = appointment.location;
   }
   
-  if (appointment.providerId !== undefined) {
-    dbAppointment.provider_id = appointment.providerId;
-  }
-  
-  if (appointment.providerName !== undefined) {
-    dbAppointment.provider_name = appointment.providerName;
-  }
-  
-  // Direct mappings (same field names)
-  ['title', 'notes', 'date', 'time', 'duration', 'location', 'type', 'status'].forEach(field => {
-    if (appointment[field as keyof Appointment] !== undefined) {
-      dbAppointment[field] = appointment[field as keyof Appointment];
-    }
-  });
-  
-  // Handle reminder_sent separately since it has an underscore
   if (appointment.reminder_sent !== undefined) {
     dbAppointment.reminder_sent = appointment.reminder_sent;
   }
-  
-  // Remove created_at and updated_at if present
-  delete dbAppointment.created_at;
-  delete dbAppointment.updated_at;
   
   return dbAppointment;
 };

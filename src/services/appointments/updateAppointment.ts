@@ -9,7 +9,7 @@ import { mapDbAppointmentToAppointment, mapAppointmentToDbFormat } from './utils
  */
 export const updateAppointment = async (id: string, updates: Partial<Appointment>): Promise<Appointment | null> => {
   try {
-    // Convert from our API format to database format
+    // Convert from our API format to database format with correct typing
     const dbUpdates = mapAppointmentToDbFormat(updates);
     
     const { data, error } = await supabase
