@@ -165,3 +165,66 @@ export const clearRxNormCaches = async (): Promise<void> => {
     console.error('Error clearing RxNorm caches:', error);
   }
 };
+
+/**
+ * Clear expired RxNorm cache entries (older than 30 days)
+ */
+export const clearExpiredCache = async (): Promise<{success: boolean; count?: number}> => {
+  try {
+    // Calculate date 30 days ago
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const cutoffDate = thirtyDaysAgo.toISOString();
+    
+    // Delete expired entries from each cache table
+    const { count: searchCount, error: searchError } = await supabase
+      .from('rxnorm_search_cache')
+      .delete()
+      .lt('created_at', cutoffDate)
+      .select('count');
+      
+    const { count: detailsCount, error: detailsError } = await supabase
+      .from('rxnorm_details_cache')
+      .delete()
+      .lt('created_at', cutoffDate)
+      .select('count');
+      
+    const { count: ndcCount, error: ndcError } = await supabase
+      .from('rxnorm_ndc_cache')
+      .delete()
+      .lt('created_at', cutoffDate)
+      .select('count');
+      
+    const { count: termsCount, error: termsError } = await supabase
+      .from('rxnorm_displayterms_cache')
+      .delete()
+      .lt('created_at', cutoffDate)
+      .select('count');
+      
+    const { count: interactionsCount, error: interactionsError } = await supabase
+      .from('rxnorm_interactions_cache')
+      .delete()
+      .lt('created_at', cutoffDate)
+      .select('count');
+    
+    if (searchError || detailsError || ndcError || termsError || interactionsError) {
+      console.error('Errors clearing expired caches:', {
+        searchError, detailsError, ndcError, termsError, interactionsError
+      });
+      return { success: false };
+    }
+    
+    // Sum up all deleted entries
+    const totalDeleted = (searchCount || 0) + 
+                        (detailsCount || 0) + 
+                        (ndcCount || 0) + 
+                        (termsCount || 0) + 
+                        (interactionsCount || 0);
+    
+    console.log(`Cleared ${totalDeleted} expired cache entries`);
+    return { success: true, count: totalDeleted };
+  } catch (error) {
+    console.error('Error clearing expired caches:', error);
+    return { success: false };
+  }
+};
