@@ -1,7 +1,18 @@
 
 import { Session, Provider } from '@supabase/supabase-js';
 
-export type UserRole = 'admin' | 'doctor' | 'nurse' | 'caregiver' | 'patient' | 'specialist' | 'administrative';
+export type UserRole = 
+  | 'admin' 
+  | 'doctor' 
+  | 'nurse' 
+  | 'caregiver' 
+  | 'patient' 
+  | 'specialist' 
+  | 'administrative' 
+  | 'pharmacist'
+  | 'lab_technician'
+  | 'radiology_technician'
+  | 'system_administrator';
 
 export interface User {
   id: string;

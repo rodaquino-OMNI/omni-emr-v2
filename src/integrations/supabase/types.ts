@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      allergies: {
+        Row: {
+          allergen: string
+          created_at: string
+          date_identified: string | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          patient_id: string
+          reaction: string | null
+          recorded_by: string | null
+          recorder_name: string
+          severity: string | null
+          updated_at: string
+        }
+        Insert: {
+          allergen: string
+          created_at?: string
+          date_identified?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          patient_id: string
+          reaction?: string | null
+          recorded_by?: string | null
+          recorder_name: string
+          severity?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allergen?: string
+          created_at?: string
+          date_identified?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          patient_id?: string
+          reaction?: string | null
+          recorded_by?: string | null
+          recorder_name?: string
+          severity?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allergies_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           created_at: string
@@ -102,6 +155,246 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_records: {
+        Row: {
+          adjustment_amount: number | null
+          balance: number | null
+          billing_date: string | null
+          charge_amount: number
+          cpt_code: string | null
+          created_at: string
+          diagnostic_codes: string[] | null
+          encounter_id: string | null
+          id: string
+          insurance_billed: boolean | null
+          insurance_id: string | null
+          notes: string | null
+          patient_id: string
+          payment_amount: number | null
+          payment_date: string | null
+          procedure_description: string
+          service_date: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          adjustment_amount?: number | null
+          balance?: number | null
+          billing_date?: string | null
+          charge_amount: number
+          cpt_code?: string | null
+          created_at?: string
+          diagnostic_codes?: string[] | null
+          encounter_id?: string | null
+          id?: string
+          insurance_billed?: boolean | null
+          insurance_id?: string | null
+          notes?: string | null
+          patient_id: string
+          payment_amount?: number | null
+          payment_date?: string | null
+          procedure_description: string
+          service_date: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adjustment_amount?: number | null
+          balance?: number | null
+          billing_date?: string | null
+          charge_amount?: number
+          cpt_code?: string | null
+          created_at?: string
+          diagnostic_codes?: string[] | null
+          encounter_id?: string | null
+          id?: string
+          insurance_billed?: boolean | null
+          insurance_id?: string | null
+          notes?: string | null
+          patient_id?: string
+          payment_amount?: number | null
+          payment_date?: string | null
+          procedure_description?: string
+          service_date?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_records_insurance_id_fkey"
+            columns: ["insurance_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_information"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_teams: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          primary_provider: boolean | null
+          provider_id: string
+          provider_name: string
+          role: string
+          specialty: string | null
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          primary_provider?: boolean | null
+          provider_id: string
+          provider_name: string
+          role: string
+          specialty?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          primary_provider?: boolean | null
+          provider_id?: string
+          provider_name?: string
+          role?: string
+          specialty?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_teams_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_notes: {
+        Row: {
+          author_id: string | null
+          author_name: string
+          created_at: string
+          encounter_date: string
+          id: string
+          note_content: string
+          note_title: string
+          note_type: string
+          patient_id: string
+          signed: boolean | null
+          signed_date: string | null
+          updated_at: string
+          version: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          author_name: string
+          created_at?: string
+          encounter_date?: string
+          id?: string
+          note_content: string
+          note_title: string
+          note_type: string
+          patient_id: string
+          signed?: boolean | null
+          signed_date?: string | null
+          updated_at?: string
+          version?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string
+          created_at?: string
+          encounter_date?: string
+          id?: string
+          note_content?: string
+          note_title?: string
+          note_type?: string
+          patient_id?: string
+          signed?: boolean | null
+          signed_date?: string | null
+          updated_at?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_notes_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diagnoses: {
+        Row: {
+          created_at: string
+          diagnosed_by: string | null
+          diagnosed_date: string | null
+          diagnosis: string
+          diagnostician_name: string
+          icd_code: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          diagnosed_by?: string | null
+          diagnosed_date?: string | null
+          diagnosis: string
+          diagnostician_name: string
+          icd_code?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          diagnosed_by?: string | null
+          diagnosed_date?: string | null
+          diagnosis?: string
+          diagnostician_name?: string
+          icd_code?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnoses_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fluid_intakes: {
         Row: {
           amount: number
@@ -174,6 +467,142 @@ export type Database = {
         }
         Relationships: []
       }
+      insurance_information: {
+        Row: {
+          copay_amount: number | null
+          coverage_end_date: string | null
+          coverage_start_date: string | null
+          created_at: string
+          deductible_amount: number | null
+          group_number: string | null
+          id: string
+          insurance_provider: string
+          is_primary: boolean | null
+          notes: string | null
+          patient_id: string
+          policy_number: string
+          relationship_to_subscriber: string | null
+          subscriber_id: string | null
+          subscriber_name: string | null
+          updated_at: string
+          verification_date: string | null
+        }
+        Insert: {
+          copay_amount?: number | null
+          coverage_end_date?: string | null
+          coverage_start_date?: string | null
+          created_at?: string
+          deductible_amount?: number | null
+          group_number?: string | null
+          id?: string
+          insurance_provider: string
+          is_primary?: boolean | null
+          notes?: string | null
+          patient_id: string
+          policy_number: string
+          relationship_to_subscriber?: string | null
+          subscriber_id?: string | null
+          subscriber_name?: string | null
+          updated_at?: string
+          verification_date?: string | null
+        }
+        Update: {
+          copay_amount?: number | null
+          coverage_end_date?: string | null
+          coverage_start_date?: string | null
+          created_at?: string
+          deductible_amount?: number | null
+          group_number?: string | null
+          id?: string
+          insurance_provider?: string
+          is_primary?: boolean | null
+          notes?: string | null
+          patient_id?: string
+          policy_number?: string
+          relationship_to_subscriber?: string | null
+          subscriber_id?: string | null
+          subscriber_name?: string | null
+          updated_at?: string
+          verification_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_information_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_results: {
+        Row: {
+          abnormal: boolean | null
+          collection_date: string | null
+          created_at: string
+          critical: boolean | null
+          id: string
+          notes: string | null
+          order_id: string | null
+          ordered_by: string | null
+          ordering_provider: string
+          patient_id: string
+          reference_range: string | null
+          result: string
+          result_date: string
+          test_code: string | null
+          test_name: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          abnormal?: boolean | null
+          collection_date?: string | null
+          created_at?: string
+          critical?: boolean | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          ordered_by?: string | null
+          ordering_provider: string
+          patient_id: string
+          reference_range?: string | null
+          result: string
+          result_date?: string
+          test_code?: string | null
+          test_name: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          abnormal?: boolean | null
+          collection_date?: string | null
+          created_at?: string
+          critical?: boolean | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          ordered_by?: string | null
+          ordering_provider?: string
+          patient_id?: string
+          reference_range?: string | null
+          result?: string
+          result_date?: string
+          test_code?: string | null
+          test_name?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_results_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_entry_systems: {
         Row: {
           created_at: string
@@ -236,6 +665,194 @@ export type Database = {
           provider_id?: string
           provider_name?: string
           title?: string
+        }
+        Relationships: []
+      }
+      medications_inventory: {
+        Row: {
+          controlled_substance: boolean | null
+          controlled_substance_schedule: string | null
+          created_at: string
+          dosage_form: string | null
+          expiration_date: string | null
+          generic_name: string | null
+          id: string
+          location: string | null
+          lot_number: string | null
+          manufacturer: string | null
+          medication_name: string
+          ndc_code: string | null
+          quantity: number
+          reorder_level: number | null
+          strength: string | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          controlled_substance?: boolean | null
+          controlled_substance_schedule?: string | null
+          created_at?: string
+          dosage_form?: string | null
+          expiration_date?: string | null
+          generic_name?: string | null
+          id?: string
+          location?: string | null
+          lot_number?: string | null
+          manufacturer?: string | null
+          medication_name: string
+          ndc_code?: string | null
+          quantity: number
+          reorder_level?: number | null
+          strength?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          controlled_substance?: boolean | null
+          controlled_substance_schedule?: string | null
+          created_at?: string
+          dosage_form?: string | null
+          expiration_date?: string | null
+          generic_name?: string | null
+          id?: string
+          location?: string | null
+          lot_number?: string | null
+          manufacturer?: string | null
+          medication_name?: string
+          ndc_code?: string | null
+          quantity?: number
+          reorder_level?: number | null
+          strength?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      patient_documents: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_date: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          patient_id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          upload_date: string
+          uploaded_by: string | null
+          uploader_name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_date?: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          patient_id: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          upload_date?: string
+          uploaded_by?: string | null
+          uploader_name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_date?: string | null
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          patient_id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          upload_date?: string
+          uploaded_by?: string | null
+          uploader_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          blood_type: string | null
+          city: string | null
+          created_at: string
+          date_of_birth: string
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          mrn: string
+          phone: string | null
+          state: string | null
+          updated_at: string
+          user_id: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          blood_type?: string | null
+          city?: string | null
+          created_at?: string
+          date_of_birth: string
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          mrn: string
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          blood_type?: string | null
+          city?: string | null
+          created_at?: string
+          date_of_birth?: string
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          mrn?: string
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string | null
+          zip_code?: string | null
         }
         Relationships: []
       }
@@ -363,6 +980,71 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      vital_signs: {
+        Row: {
+          created_at: string
+          diastolic_bp: number | null
+          heart_rate: number | null
+          id: string
+          notes: string | null
+          oxygen_saturation: number | null
+          pain_level: number | null
+          patient_id: string
+          recorded_by: string | null
+          recorder_name: string
+          respiratory_rate: number | null
+          systolic_bp: number | null
+          temperature: number | null
+          temperature_unit: string | null
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          diastolic_bp?: number | null
+          heart_rate?: number | null
+          id?: string
+          notes?: string | null
+          oxygen_saturation?: number | null
+          pain_level?: number | null
+          patient_id: string
+          recorded_by?: string | null
+          recorder_name: string
+          respiratory_rate?: number | null
+          systolic_bp?: number | null
+          temperature?: number | null
+          temperature_unit?: string | null
+          timestamp?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          diastolic_bp?: number | null
+          heart_rate?: number | null
+          id?: string
+          notes?: string | null
+          oxygen_saturation?: number | null
+          pain_level?: number | null
+          patient_id?: string
+          recorded_by?: string | null
+          recorder_name?: string
+          respiratory_rate?: number | null
+          systolic_bp?: number | null
+          temperature?: number | null
+          temperature_unit?: string | null
+          timestamp?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vital_signs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

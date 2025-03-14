@@ -1,7 +1,14 @@
 
 // Re-export all auth utilities from their respective modules
-export { rolePermissions } from './permissions';
-export { hasPermission, canAccessPatientData } from './permissionUtils';
+export { rolePermissions, sharedPermissions, permissionCategories } from './permissions';
+export { 
+  hasPermission, 
+  canAccessPatientData, 
+  getUserPermissions,
+  canPerformClinicalDocumentation,
+  canPerformMedicationAction,
+  canPerformAppointmentAction
+} from './permissionUtils';
 export { 
   signInWithProvider, 
   signInWithEmail, 

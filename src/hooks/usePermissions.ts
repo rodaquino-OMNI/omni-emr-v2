@@ -1,55 +1,74 @@
 
+import { useCallback } from 'react';
 import { User } from '../types/auth';
-import { rolePermissions } from '../utils/permissions';
+import { 
+  hasPermission as checkPermission, 
+  canAccessPatientData as checkPatientAccess,
+  getUserPermissions as getPermissions,
+  canPerformClinicalDocumentation,
+  canPerformMedicationAction,
+  canPerformAppointmentAction
+} from '../utils/permissionUtils';
 
 export const usePermissions = (user: User | null) => {
   // Function to check if the current user has a specific permission
-  const hasPermission = (permission: string): boolean => {
-    if (!user) return false;
-    
-    // Admins have all permissions
-    if (user.role === 'admin') {
-      return true;
-    }
-    
-    // Check if permissions array exists and contains the required permission
-    if (user.permissions && Array.isArray(user.permissions)) {
-      if (user.permissions.includes('all')) {
-        return true;
-      }
-      return user.permissions.includes(permission);
-    }
-    
-    // If permissions are undefined/null but we have a role, use the role permissions
-    if (user.role && rolePermissions[user.role]) {
-      return rolePermissions[user.role].includes(permission) || 
-             rolePermissions[user.role].includes('all');
-    }
-    
-    return false;
-  };
+  const hasPermission = useCallback((permission: string): boolean => {
+    return checkPermission(user, permission);
+  }, [user]);
 
   // Function to check if the current user can access a specific patient's data
-  const canAccessPatientData = (patientId: string): boolean => {
-    if (!user) return false;
+  const canAccessPatientData = useCallback((patientId: string): boolean => {
+    return checkPatientAccess(user, patientId);
+  }, [user]);
+  
+  // Function to get all permissions for the current user
+  const getAllPermissions = useCallback((): string[] => {
+    return getPermissions(user);
+  }, [user]);
+  
+  // Function to check clinical documentation permissions
+  const checkClinicalDocPermission = useCallback((action: 'create' | 'modify' | 'finalize' | 'view'): boolean => {
+    return canPerformClinicalDocumentation(user, action);
+  }, [user]);
+  
+  // Function to check medication action permissions
+  const checkMedicationPermission = useCallback((action: 'prescribe' | 'administer' | 'verify' | 'view'): boolean => {
+    return canPerformMedicationAction(user, action);
+  }, [user]);
+  
+  // Function to check appointment action permissions
+  const checkAppointmentPermission = useCallback((action: 'schedule' | 'modify' | 'cancel' | 'view'): boolean => {
+    return canPerformAppointmentAction(user, action);
+  }, [user]);
+  
+  // Function to get user role display name
+  const getRoleDisplayName = useCallback((): string => {
+    if (!user) return '';
     
-    // Admins, doctors, and nurses can access all patient data
-    if (user.role === 'admin' || user.role === 'doctor' || user.role === 'nurse') {
-      return true;
-    }
+    const roleDisplayNames: Record<string, string> = {
+      'admin': 'Administrator',
+      'doctor': 'Physician',
+      'nurse': 'Nurse',
+      'caregiver': 'Caregiver',
+      'patient': 'Patient',
+      'specialist': 'Specialist',
+      'administrative': 'Administrative Staff',
+      'pharmacist': 'Pharmacist',
+      'lab_technician': 'Laboratory Technician',
+      'radiology_technician': 'Radiology Technician',
+      'system_administrator': 'System Administrator'
+    };
     
-    // Patients can only access their own data
-    if (user.role === 'patient') {
-      return user.id === patientId;
-    }
-    
-    // Caregivers would need a specific association with the patient
-    // This would require a caregivers_patients table in a real application
-    return false;
-  };
+    return roleDisplayNames[user.role] || user.role;
+  }, [user]);
 
   return {
     hasPermission,
-    canAccessPatientData
+    canAccessPatientData,
+    getAllPermissions,
+    checkClinicalDocPermission,
+    checkMedicationPermission,
+    checkAppointmentPermission,
+    getRoleDisplayName
   };
 };

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
-import { Shield, AlertTriangle, Clock } from 'lucide-react';
+import { Shield, AlertTriangle, Clock, LockIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
@@ -39,7 +39,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       } catch (error) {
         console.error('Failed to log access attempt:', error);
         // Display error toast to notify admin users
-        if (user.role === 'admin') {
+        if (user.role === 'admin' || user.role === 'system_administrator') {
           toast.error('Failed to log security audit event', {
             description: 'This might affect compliance reporting',
             icon: <AlertTriangle className="h-5 w-5" />
@@ -87,19 +87,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Check role-based access if required
   if (requiredRole && user) {
-    const hasRole = user.role === requiredRole || user.role === 'admin';
+    // Allow system administrators or admins to access any role-restricted area
+    const hasRole = user.role === requiredRole || 
+                   user.role === 'admin' || 
+                   user.role === 'system_administrator';
     
     if (!hasRole) {
       logAccessAttempt(false, `Missing required role: ${requiredRole}`);
       
       // Show user feedback about access denial
       toast.error(language === 'pt' 
-        ? 'Acesso negado: Permissões insuficientes' 
-        : 'Access denied: Insufficient permissions', {
+        ? 'Acesso negado: Função necessária' 
+        : 'Access denied: Required role', {
         description: language === 'pt'
           ? `Você precisa ter a função de ${requiredRole} para acessar esta página.`
           : `You need ${requiredRole} role to access this page.`,
-        icon: <AlertTriangle className="h-5 w-5" />
+        icon: <LockIcon className="h-5 w-5" />
       });
       
       return <Navigate to="/unauthorized" replace />;
@@ -118,7 +121,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       toast.error(language === 'pt'
         ? 'Acesso negado: Permissão necessária'
         : 'Access denied: Required permission missing', {
-        icon: <AlertTriangle className="h-5 w-5" />
+        description: language === 'pt'
+          ? 'Você não tem permissão para acessar esta funcionalidade.'
+          : 'You do not have permission to access this functionality.',
+        icon: <LockIcon className="h-5 w-5" />
       });
       
       return <Navigate to="/unauthorized" replace />;
@@ -139,7 +145,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         description: language === 'pt'
           ? 'Você não está autorizado a acessar os dados deste paciente.'
           : 'You are not authorized to access this patient\'s data.',
-        icon: <AlertTriangle className="h-5 w-5" />
+        icon: <LockIcon className="h-5 w-5" />
       });
       
       return <Navigate to="/unauthorized" replace />;
@@ -149,14 +155,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Log successful access
   logAccessAttempt(true);
   
+  // Display HIPAA compliance banner for patients
+  const displayHipaaBanner = user?.role === 'patient';
+  
   return (
     <>
-      {user?.role === 'patient' && (
+      {displayHipaaBanner && (
         <div className="bg-blue-50 text-blue-800 px-4 py-2 flex items-center gap-2 text-sm border-b border-blue-100">
           <Shield className="h-4 w-4" />
           <span>
             {language === 'pt'
-              ? 'Seus dados de saúde são protegidos sob regulamentos HIPAA. O acesso às suas informações é criptografado e auditado.'
+              ? 'Seus dados de saúde são protegidos sob regulamentos HIPAA e LGPD. O acesso às suas informações é criptografado e auditado.'
               : 'Your health data is protected under HIPAA regulations. Access to your information is encrypted and audited.'}
           </span>
         </div>
