@@ -46,4 +46,3 @@ const AppointmentTypeIcon = ({ type }: AppointmentTypeIconProps) => {
 };
 
 export default AppointmentTypeIcon;
-export { getAppointmentTypeInfo };
