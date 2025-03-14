@@ -16,13 +16,14 @@ type PatientVitalsProps = {
 const PatientVitals = ({ patientId }: PatientVitalsProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  // Extract the permissions object
   const permissions = usePermissions(user);
-  // Get the boolean value directly by calling the function
-  const canManageVitals = permissions.canManagePatientFluidBalance();
+  
+  // Check specifically if the user can manage vital signs
+  const canManageVitals = permissions.hasPermission('document_vital_signs');
+  const canViewVitals = permissions.hasPermission('view_vitals') || permissions.hasPermission('view_own_vitals');
   
   // Get AI insights specifically for vitals
-  const { insights, isLoading: insightsLoading } = useAIInsights(patientId, ['vitals']);
+  const { insights, isLoading } = useAIInsights(patientId, ['vitals']);
   
   // Mock function for recording vitals - in a real app this would connect to Supabase
   const recordVitals = async () => {
@@ -41,6 +42,14 @@ const PatientVitals = ({ patientId }: PatientVitalsProps) => {
     }
   };
   
+  if (!canViewVitals) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-muted-foreground">{t('noPermissionToViewVitals')}</p>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       <VitalsHeader 
@@ -52,7 +61,7 @@ const PatientVitals = ({ patientId }: PatientVitalsProps) => {
       <PatientVitalsTabs 
         patientId={patientId} 
         insights={insights || []}
-        insightsLoading={insightsLoading}
+        insightsLoading={isLoading}
       />
     </div>
   );

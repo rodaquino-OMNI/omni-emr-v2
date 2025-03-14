@@ -11,6 +11,9 @@ import PatientRecordsTab from './tabs/PatientRecordsTab';
 import PatientPrescriptionsTab from './tabs/PatientPrescriptionsTab';
 import PatientAIInsightsTab from './tabs/PatientAIInsightsTab';
 import { usePatientPrescriptions } from './hooks/usePatientPrescriptions';
+import { usePermissions } from '@/hooks/usePermissions';
+import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type PatientDetailProps = {
   patientId: string;
@@ -18,21 +21,29 @@ type PatientDetailProps = {
 };
 
 const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const permissions = usePermissions(user);
   const [activeTab, setActiveTab] = useState<string>('overview');
   
   const patient = samplePatients.find(p => p.id === patientId);
   
-  const { insights, isLoading: insightsLoading } = useAIInsights(
+  const { insights, isLoading } = useAIInsights(
     patientId, 
     ['vitals', 'labs', 'medications', 'tasks', 'general']
   );
   
   const { prescriptions, loading: prescriptionsLoading } = usePatientPrescriptions(patientId);
   
+  // Check permissions for each tab
+  const canViewRecords = permissions.hasPermission('view_records');
+  const canViewPrescriptions = permissions.hasPermission('view_medications');
+  const canViewAIInsights = permissions.hasPermission('view_analytics');
+  
   if (!patient) {
     return (
       <div className="text-center py-8">
-        <h2 className="text-xl font-medium text-muted-foreground">Patient not found</h2>
+        <h2 className="text-xl font-medium text-muted-foreground">{t('patientNotFound')}</h2>
       </div>
     );
   }
@@ -56,10 +67,10 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4 mb-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="records">Records</TabsTrigger>
-          <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
-          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
+          {canViewRecords && <TabsTrigger value="records">{t('records')}</TabsTrigger>}
+          {canViewPrescriptions && <TabsTrigger value="prescriptions">{t('prescriptions')}</TabsTrigger>}
+          {canViewAIInsights && <TabsTrigger value="ai-insights">{t('aiInsights')}</TabsTrigger>}
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
@@ -70,24 +81,30 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
           />
         </TabsContent>
         
-        <TabsContent value="records" className="space-y-6">
-          <PatientRecordsTab patientId={patientId} />
-        </TabsContent>
+        {canViewRecords && (
+          <TabsContent value="records" className="space-y-6">
+            <PatientRecordsTab patientId={patientId} />
+          </TabsContent>
+        )}
         
-        <TabsContent value="prescriptions" className="space-y-6">
-          <PatientPrescriptionsTab 
-            patientId={patientId} 
-            prescriptions={prescriptions} 
-            loading={prescriptionsLoading} 
-          />
-        </TabsContent>
+        {canViewPrescriptions && (
+          <TabsContent value="prescriptions" className="space-y-6">
+            <PatientPrescriptionsTab 
+              patientId={patientId} 
+              prescriptions={prescriptions} 
+              loading={prescriptionsLoading} 
+            />
+          </TabsContent>
+        )}
         
-        <TabsContent value="ai-insights" className="space-y-6">
-          <PatientAIInsightsTab 
-            insights={insights} 
-            loading={insightsLoading} 
-          />
-        </TabsContent>
+        {canViewAIInsights && (
+          <TabsContent value="ai-insights" className="space-y-6">
+            <PatientAIInsightsTab 
+              insights={insights} 
+              loading={isLoading} 
+            />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

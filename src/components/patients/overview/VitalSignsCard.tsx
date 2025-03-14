@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import VitalsChart from '@/components/ui/VitalsChart';
 import { Patient } from '../PatientCard';
 import { useTranslation } from '@/hooks/useTranslation';
+import { usePermissions } from '@/hooks/usePermissions';
+import { useAuth } from '@/context/AuthContext';
 
 type VitalSignsCardProps = {
   patient: Patient;
@@ -13,6 +15,15 @@ type VitalSignsCardProps = {
 
 const VitalSignsCard = ({ patient }: VitalSignsCardProps) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const permissions = usePermissions(user);
+  
+  const canViewVitals = permissions.hasPermission('view_vitals') || 
+                      permissions.hasPermission('view_own_vitals');
+  
+  if (!canViewVitals) {
+    return null;
+  }
 
   return (
     <Card>

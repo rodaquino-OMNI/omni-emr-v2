@@ -1,9 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAIInsights } from '@/hooks/useAIInsights';
 import AIInsights from '../ai/AIInsights';
 import { FileText, Calendar, Download, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/usePermissions';
+import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type PatientRecordsProps = {
   patientId: string;
@@ -18,11 +22,19 @@ type MedicalRecord = {
 };
 
 const PatientRecords = ({ patientId }: PatientRecordsProps) => {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const permissions = usePermissions(user);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Get AI insights specifically for labs/records
   const { insights, isLoading: insightsLoading } = useAIInsights(patientId, ['labs']);
+  
+  // Check permissions
+  const canViewRecords = permissions.hasPermission('view_records') || 
+                       permissions.hasPermission('view_own_records');
+  const canDownloadRecords = permissions.hasPermission('create_clinical_notes');
   
   useEffect(() => {
     // This would normally be an API call to fetch the patient's medical records
@@ -84,6 +96,14 @@ const PatientRecords = ({ patientId }: PatientRecordsProps) => {
     fetchRecords();
   }, [patientId]);
   
+  if (!canViewRecords) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-muted-foreground">{t('noPermissionToViewRecords')}</p>
+      </div>
+    );
+  }
+  
   const getRecordIcon = (type: MedicalRecord['type']) => {
     switch (type) {
       case 'lab':
@@ -129,11 +149,11 @@ const PatientRecords = ({ patientId }: PatientRecordsProps) => {
       
       <div className="glass-card p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-medium">Medical Records</h2>
+          <h2 className="text-xl font-medium">{t('medicalRecords')}</h2>
           <Link to={`/patients/${patientId}/medical-history`}>
             <Button variant="outline" size="sm" className="flex items-center gap-1">
               <ClipboardList className="h-4 w-4" />
-              Medical History
+              {t('medicalHistory')}
             </Button>
           </Link>
         </div>
@@ -141,7 +161,7 @@ const PatientRecords = ({ patientId }: PatientRecordsProps) => {
         {loading ? (
           <div className="text-center py-8">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-            <p className="mt-2 text-muted-foreground">Loading records...</p>
+            <p className="mt-2 text-muted-foreground">{t('loadingRecords')}</p>
           </div>
         ) : records.length > 0 ? (
           <div className="space-y-4">
@@ -159,17 +179,19 @@ const PatientRecords = ({ patientId }: PatientRecordsProps) => {
                       <div>{record.provider}</div>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" className="flex items-center gap-1">
-                    <Download className="h-4 w-4" />
-                    <span className="hidden sm:inline">Download</span>
-                  </Button>
+                  {canDownloadRecords && (
+                    <Button size="sm" variant="outline" className="flex items-center gap-1">
+                      <Download className="h-4 w-4" />
+                      <span className="hidden sm:inline">{t('download')}</span>
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            No medical records found for this patient.
+            {t('noMedicalRecordsFound')}
           </div>
         )}
       </div>
