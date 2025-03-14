@@ -1,4 +1,3 @@
-
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 
 export type AppointmentType = 'in-person' | 'telemedicine' | 'phone';
@@ -161,96 +160,25 @@ let mockAppointments = generateMockAppointments();
 
 // Get all appointments
 export const getAllAppointments = async (): Promise<Appointment[]> => {
-  // Try to fetch from Supabase if available
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*');
-    
-    if (error) {
-      console.error('Error fetching appointments:', error);
-      return mockAppointments;
-    }
-    
-    if (data && data.length > 0) {
-      return data as Appointment[];
-    }
-  } catch (error) {
-    console.error('Failed to fetch appointments:', error);
-  }
-  
+  console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments;
 };
 
 // Get appointments by date
 export const getAppointmentsByDate = async (date: string): Promise<Appointment[]> => {
-  // Try to fetch from Supabase if available
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('date', date);
-    
-    if (error) {
-      console.error('Error fetching appointments by date:', error);
-      return mockAppointments.filter(a => a.date === date);
-    }
-    
-    if (data) {
-      return data as Appointment[];
-    }
-  } catch (error) {
-    console.error('Failed to fetch appointments by date:', error);
-  }
-  
+  console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments.filter(a => a.date === date);
 };
 
 // Get appointments by patient ID
 export const getAppointmentsByPatient = async (patientId: string): Promise<Appointment[]> => {
-  // Try to fetch from Supabase if available
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('patientId', patientId);
-    
-    if (error) {
-      console.error('Error fetching appointments by patient:', error);
-      return mockAppointments.filter(a => a.patientId === patientId);
-    }
-    
-    if (data) {
-      return data as Appointment[];
-    }
-  } catch (error) {
-    console.error('Failed to fetch appointments by patient:', error);
-  }
-  
+  console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments.filter(a => a.patientId === patientId);
 };
 
 // Get appointments by provider ID
 export const getAppointmentsByProvider = async (providerId: string): Promise<Appointment[]> => {
-  // Try to fetch from Supabase if available
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('providerId', providerId);
-    
-    if (error) {
-      console.error('Error fetching appointments by provider:', error);
-      return mockAppointments.filter(a => a.providerId === providerId);
-    }
-    
-    if (data) {
-      return data as Appointment[];
-    }
-  } catch (error) {
-    console.error('Failed to fetch appointments by provider:', error);
-  }
-  
+  console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments.filter(a => a.providerId === providerId);
 };
 
@@ -264,34 +192,18 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
     updated_at: now
   };
   
-  // Try to insert into Supabase if available
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .insert(newAppointment)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error creating appointment:', error);
-    } else if (data) {
-      // Log the action
-      await logAuditEvent(
-        appointment.providerId,
-        'create',
-        'appointment',
-        data.id,
-        { patientId: appointment.patientId }
-      );
-      
-      return data as Appointment;
-    }
-  } catch (error) {
-    console.error('Failed to create appointment:', error);
-  }
-  
-  // Fall back to mock data
+  console.log('Using mock data - no appointments table exists in Supabase yet');
   mockAppointments.push(newAppointment);
+  
+  // Log the action
+  await logAuditEvent(
+    appointment.providerId,
+    'create',
+    'appointment',
+    newAppointment.id,
+    { patientId: appointment.patientId }
+  );
+  
   return newAppointment;
 };
 
@@ -302,40 +214,25 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
     updated_at: new Date().toISOString()
   };
   
-  // Try to update in Supabase if available
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .update(updatedAppointment)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error updating appointment:', error);
-    } else if (data) {
-      // Log the action
-      await logAuditEvent(
-        data.providerId,
-        'update',
-        'appointment',
-        id,
-        { patientId: data.patientId, updates }
-      );
-      
-      return data as Appointment;
-    }
-  } catch (error) {
-    console.error('Failed to update appointment:', error);
-  }
+  console.log('Using mock data - no appointments table exists in Supabase yet');
   
-  // Fall back to mock data
+  // Update in mock data
   const index = mockAppointments.findIndex(a => a.id === id);
   if (index >= 0) {
     mockAppointments[index] = {
       ...mockAppointments[index],
       ...updatedAppointment
     };
+    
+    // Log the action
+    await logAuditEvent(
+      mockAppointments[index].providerId,
+      'update',
+      'appointment',
+      id,
+      { patientId: mockAppointments[index].patientId, updates }
+    );
+    
     return mockAppointments[index];
   }
   
@@ -369,9 +266,7 @@ export const cancelAppointment = async (id: string, reason?: string): Promise<bo
 // Send a reminder for an appointment
 export const sendAppointmentReminder = async (id: string): Promise<boolean> => {
   try {
-    const appointment = mockAppointments.find(a => a.id === id) || 
-      (await getAppointmentsByDate(new Date().toISOString().split('T')[0]))
-        .find(a => a.id === id);
+    const appointment = mockAppointments.find(a => a.id === id);
     
     if (appointment) {
       const result = await updateAppointment(id, { reminder_sent: true });

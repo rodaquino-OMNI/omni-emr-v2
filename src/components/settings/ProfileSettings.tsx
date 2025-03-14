@@ -5,6 +5,19 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Define an interface for profile data to include the new fields
+interface ProfileData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  department?: string;
+  phone?: string;
+  bio?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const ProfileSettings = () => {
   const { user } = useAuth();
   const [name, setName] = useState(user?.name || '');
@@ -35,15 +48,16 @@ const ProfileSettings = () => {
         }
         
         if (data) {
-          // Use profile data from database
-          setName(data.name || user.name);
-          setEmail(data.email || user.email);
-          setRole(data.role || user.role);
+          // Use profile data from database with type assertion to include new fields
+          const profileData = data as unknown as ProfileData;
+          setName(profileData.name || user.name);
+          setEmail(profileData.email || user.email);
+          setRole(profileData.role || user.role);
           
           // Set additional profile details if available
-          if (data.department) setDepartment(data.department);
-          if (data.phone) setPhone(data.phone);
-          if (data.bio) setBio(data.bio);
+          if (profileData.department) setDepartment(profileData.department);
+          if (profileData.phone) setPhone(profileData.phone);
+          if (profileData.bio) setBio(profileData.bio);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -67,7 +81,7 @@ const ProfileSettings = () => {
     setLoading(true);
     
     try {
-      // Update profile in the database
+      // Update profile in the database including new fields
       const { error } = await supabase
         .from('profiles')
         .update({

@@ -55,31 +55,14 @@ export const useNewEntryForm = ({ patientId, onEntryAdded, onClose }: UseNewEntr
     setIsSubmitting(true);
     
     try {
-      // FHIR-compliant data structure
-      const effectiveDate = new Date().toISOString();
+      // Map data to match the Supabase table structure
       const entryData = {
-        subject_id: patientId,
-        recorder_id: recorderId,
-        recorder_name: recorderName,
+        patient_id: patientId,
+        provider_id: recorderId,
+        provider_name: recorderName,
         title,
         notes,
-        effective_date: effectiveDate,
-        resource_type: 'ClinicalImpression',
-        status: 'completed',
-        subject_reference: `Patient/${patientId}`,
-        date_recorded: effectiveDate,
-        version: '1.0',
-        meta: JSON.stringify({
-          versionId: '1',
-          lastUpdated: effectiveDate,
-          source: 'MedCare EHR'
-        }),
-        security_tags: JSON.stringify({
-          hipaa_compliance: true,
-          access_level: 'restricted',
-          sensitivity: 'normal'
-        }),
-        last_updated_by: recorderId
+        entry_date: new Date().toISOString()
       };
       
       // Save to Supabase

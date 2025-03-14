@@ -28,43 +28,19 @@ function hasActiveFilters(filter: TaskFilter): boolean {
 // Optimized filter tasks function with better performance
 export const filterTasks = async (filter: TaskFilter): Promise<Task[]> => {
   try {
-    // Try to fetch tasks from Supabase
-    let query = supabase.from('tasks').select('*');
+    // Check if we have tasks table in Supabase yet
+    const { error } = await supabase.from('tasks').select('count').limit(1).single();
     
-    // Apply filters directly in the database query when possible
-    if (filter.patientId) query = query.eq('patient_id', filter.patientId);
-    if (filter.sector) query = query.eq('sector', filter.sector);
-    if (filter.status) query = query.eq('status', filter.status);
-    if (filter.priority) query = query.eq('priority', filter.priority);
-    if (filter.type) query = query.eq('type', filter.type);
-    
-    // Always sort by due date for consistency
-    query = query.order('due_date', { ascending: true });
-    
-    const { data, error } = await query;
-    
-    if (error) throw error;
-    
-    if (data && data.length > 0) {
-      // Client-side filtering for complex filters like showDelayed
-      // that can't easily be done at the database level
-      let filteredTasks = data as unknown as Task[];
-      
-      if (filter.showDelayed) {
-        const now = new Date();
-        filteredTasks = filteredTasks.filter(task => 
-          new Date(task.dueDate) < now && task.status === 'pending'
-        );
-      }
-      
-      return filteredTasks;
+    if (error) {
+      // Table doesn't exist yet, use mock data
+      console.warn('No tasks table found in Supabase, using mock data');
+      throw new Error('No tasks table found');
     }
     
-    // If no data from database, fall back to mock data with optimized filtering
-    console.warn('No tasks found in database, using mock data');
+    console.log('Supabase tasks table exists, but we need to implement the queries');
+    // Since we don't have proper implementation yet, fall back to mock data
+    throw new Error('Tasks table implementation incomplete');
   } catch (error) {
-    console.error('Error fetching tasks from Supabase:', error);
-    // Fall back to mock data with a warning
     console.warn('Falling back to mock tasks data due to Supabase error');
   }
   

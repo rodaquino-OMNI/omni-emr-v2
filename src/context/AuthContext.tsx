@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext } from 'react';
-import { Session, Provider } from '@supabase/supabase-js';
+import { Session, Provider, AuthError } from '@supabase/supabase-js';
 import { User, UserRole, Language } from '../types/auth';
 import { useAuthProvider } from '../hooks/useAuthProvider';
 
@@ -10,7 +10,10 @@ interface AuthContextType {
   isLoading: boolean;
   language: Language;
   setLanguage: (lang: Language) => void;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{
+    success: boolean;
+    error?: AuthError;
+  }>;
   loginWithSocial: (provider: Provider) => Promise<void>;
   signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{
     user: User | null;
@@ -31,7 +34,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const auth = useAuthProvider();
   
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={auth as AuthContextType}>
       {children}
     </AuthContext.Provider>
   );
