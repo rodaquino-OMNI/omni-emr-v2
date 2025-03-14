@@ -264,7 +264,7 @@ export type Database = {
           setting_name: string
         }
         Insert: {
-          enabled: boolean
+          enabled?: boolean
           id?: number
           migration_date?: string | null
           notes?: string | null

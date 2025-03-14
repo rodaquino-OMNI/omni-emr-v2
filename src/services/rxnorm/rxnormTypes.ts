@@ -22,3 +22,11 @@ export interface RxNormDisplayTermsResponse {
     }>;
   };
 }
+
+export interface RxNormNDCResponse {
+  ndcGroup: {
+    ndcList: {
+      ndc: string[];
+    };
+  };
+}
