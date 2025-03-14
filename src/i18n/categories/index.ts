@@ -6,6 +6,7 @@ import { appointmentsTranslations, AppointmentsTranslationKey } from './appointm
 import { medicationsTranslations, MedicationsTranslationKey } from './medications';
 import { tasksTranslations, TasksTranslationKey } from './tasks';
 import { usersTranslations, UsersTranslationKey } from './users';
+import { ordersTranslations, OrdersTranslationKey } from './orders';
 
 // Export all translation key types
 export type {
@@ -15,7 +16,8 @@ export type {
   AppointmentsTranslationKey,
   MedicationsTranslationKey,
   TasksTranslationKey,
-  UsersTranslationKey
+  UsersTranslationKey,
+  OrdersTranslationKey
 };
 
 // Export all translations
@@ -26,5 +28,6 @@ export {
   appointmentsTranslations,
   medicationsTranslations,
   tasksTranslations,
-  usersTranslations
+  usersTranslations,
+  ordersTranslations
 };

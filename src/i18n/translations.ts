@@ -7,13 +7,15 @@ import {
   MedicationsTranslationKey,
   TasksTranslationKey,
   UsersTranslationKey,
+  OrdersTranslationKey,
   authTranslations,
   commonTranslations,
   patientsTranslations,
   appointmentsTranslations,
   medicationsTranslations,
   tasksTranslations,
-  usersTranslations
+  usersTranslations,
+  ordersTranslations
 } from './categories';
 
 // Combined translation key type
@@ -24,7 +26,8 @@ export type TranslationKey =
   | AppointmentsTranslationKey
   | MedicationsTranslationKey
   | TasksTranslationKey
-  | UsersTranslationKey;
+  | UsersTranslationKey
+  | OrdersTranslationKey;
 
 // Merge all translations into a single object
 export const translations: Record<'en' | 'pt', Record<TranslationKey, string>> = {
@@ -35,7 +38,8 @@ export const translations: Record<'en' | 'pt', Record<TranslationKey, string>> =
     ...appointmentsTranslations.pt,
     ...medicationsTranslations.pt,
     ...tasksTranslations.pt,
-    ...usersTranslations.pt
+    ...usersTranslations.pt,
+    ...ordersTranslations.pt
   },
   en: {
     ...authTranslations.en,
@@ -44,6 +48,7 @@ export const translations: Record<'en' | 'pt', Record<TranslationKey, string>> =
     ...appointmentsTranslations.en,
     ...medicationsTranslations.en,
     ...tasksTranslations.en,
-    ...usersTranslations.en
+    ...usersTranslations.en,
+    ...ordersTranslations.en
   }
 };

@@ -15,7 +15,7 @@ interface RadiologyOrderFormProps {
 }
 
 const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<Partial<RadiologyOrder>>(data || {
     examType: '',
     bodyPart: '',
@@ -26,27 +26,27 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
   
   // List of common radiology exam types
   const examTypes = [
-    { value: 'x-ray', label: language === 'pt' ? 'Raio-X' : 'X-Ray' },
-    { value: 'ct', label: language === 'pt' ? 'Tomografia Computadorizada' : 'CT Scan' },
-    { value: 'mri', label: language === 'pt' ? 'Ressonância Magnética' : 'MRI' },
-    { value: 'ultrasound', label: language === 'pt' ? 'Ultrassom' : 'Ultrasound' },
-    { value: 'pet', label: language === 'pt' ? 'PET Scan' : 'PET Scan' },
-    { value: 'mammogram', label: language === 'pt' ? 'Mamografia' : 'Mammogram' },
-    { value: 'dexa', label: language === 'pt' ? 'Densitometria Óssea' : 'DEXA Scan' },
-    { value: 'fluoroscopy', label: language === 'pt' ? 'Fluoroscopia' : 'Fluoroscopy' }
+    { value: 'x-ray', label: t('xRay') },
+    { value: 'ct', label: t('ctScan') },
+    { value: 'mri', label: t('mri') },
+    { value: 'ultrasound', label: t('ultrasound') },
+    { value: 'pet', label: t('petScan') },
+    { value: 'mammogram', label: t('mammogram') },
+    { value: 'dexa', label: t('dexaScan') },
+    { value: 'fluoroscopy', label: t('fluoroscopy') }
   ];
   
   // Body parts based on common anatomical regions
   const bodyParts = [
-    { value: 'head', label: language === 'pt' ? 'Cabeça' : 'Head' },
-    { value: 'neck', label: language === 'pt' ? 'Pescoço' : 'Neck' },
-    { value: 'chest', label: language === 'pt' ? 'Tórax' : 'Chest' },
-    { value: 'abdomen', label: language === 'pt' ? 'Abdômen' : 'Abdomen' },
-    { value: 'pelvis', label: language === 'pt' ? 'Pelve' : 'Pelvis' },
-    { value: 'spine', label: language === 'pt' ? 'Coluna' : 'Spine' },
-    { value: 'upper_extremity', label: language === 'pt' ? 'Membros Superiores' : 'Upper Extremity' },
-    { value: 'lower_extremity', label: language === 'pt' ? 'Membros Inferiores' : 'Lower Extremity' },
-    { value: 'whole_body', label: language === 'pt' ? 'Corpo Inteiro' : 'Whole Body' }
+    { value: 'head', label: t('head') },
+    { value: 'neck', label: t('neck') },
+    { value: 'chest', label: t('chest') },
+    { value: 'abdomen', label: t('abdomen') },
+    { value: 'pelvis', label: t('pelvis') },
+    { value: 'spine', label: t('spine') },
+    { value: 'upper_extremity', label: t('upperExtremity') },
+    { value: 'lower_extremity', label: t('lowerExtremity') },
+    { value: 'whole_body', label: t('wholeBody') }
   ];
   
   useEffect(() => {
@@ -64,14 +64,14 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
     <div className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="exam-type">
-          {language === 'pt' ? 'Tipo de Exame' : 'Exam Type'}
+          {t('examType')}
         </Label>
         <Select
           value={formData.examType || ''}
           onValueChange={(value) => handleInputChange('examType', value)}
         >
           <SelectTrigger id="exam-type">
-            <SelectValue placeholder={language === 'pt' ? 'Selecionar tipo de exame' : 'Select exam type'} />
+            <SelectValue placeholder={t('selectExamType')} />
           </SelectTrigger>
           <SelectContent>
             {examTypes.map((type) => (
@@ -85,14 +85,14 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
       
       <div className="space-y-1.5">
         <Label htmlFor="body-part">
-          {language === 'pt' ? 'Parte do Corpo' : 'Body Part'}
+          {t('bodyPart')}
         </Label>
         <Select
           value={formData.bodyPart || ''}
           onValueChange={(value) => handleInputChange('bodyPart', value)}
         >
           <SelectTrigger id="body-part">
-            <SelectValue placeholder={language === 'pt' ? 'Selecionar parte do corpo' : 'Select body part'} />
+            <SelectValue placeholder={t('selectBodyPart')} />
           </SelectTrigger>
           <SelectContent>
             {bodyParts.map((part) => (
@@ -112,18 +112,18 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
             onCheckedChange={(checked) => handleInputChange('contrast', checked)}
           />
           <Label htmlFor="contrast">
-            {language === 'pt' ? 'Usar Contraste' : 'Use Contrast'}
+            {t('useContrast')}
           </Label>
         </div>
       </div>
       
       <div className="space-y-1.5">
         <Label htmlFor="clinical-reason">
-          {language === 'pt' ? 'Justificativa Clínica' : 'Clinical Reason'}
+          {t('clinicalReason')}
         </Label>
         <Textarea
           id="clinical-reason"
-          placeholder={language === 'pt' ? 'Justificativa para este exame...' : 'Reason for this exam...'}
+          placeholder={t('clinicalReasonPlaceholder')}
           value={formData.clinicalReason || ''}
           onChange={(e) => handleInputChange('clinicalReason', e.target.value)}
           rows={3}
@@ -132,11 +132,11 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
       
       <div className="space-y-1.5">
         <Label htmlFor="patient-prep">
-          {language === 'pt' ? 'Preparação do Paciente' : 'Patient Preparation'}
+          {t('patientPreparation')}
         </Label>
         <Textarea
           id="patient-prep"
-          placeholder={language === 'pt' ? 'Instruções para preparo do paciente...' : 'Instructions for patient preparation...'}
+          placeholder={t('patientPrepPlaceholder')}
           value={formData.patientPrep || ''}
           onChange={(e) => handleInputChange('patientPrep', e.target.value)}
           rows={2}
@@ -145,7 +145,7 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
       
       <div className="space-y-1.5">
         <Label>
-          {language === 'pt' ? 'Prioridade' : 'Priority'}
+          {t('priority')}
         </Label>
         <RadioGroup 
           value={formData.priority || "routine"}
@@ -155,19 +155,19 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="routine" id="priority-routine" />
               <Label htmlFor="priority-routine">
-                {language === 'pt' ? 'Rotina' : 'Routine'}
+                {t('routine')}
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="urgent" id="priority-urgent" />
               <Label htmlFor="priority-urgent">
-                {language === 'pt' ? 'Urgente' : 'Urgent'}
+                {t('urgent')}
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="stat" id="priority-stat" />
               <Label htmlFor="priority-stat">
-                {language === 'pt' ? 'Imediato' : 'STAT'}
+                {t('stat')}
               </Label>
             </div>
           </div>
