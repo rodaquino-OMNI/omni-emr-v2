@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface TaskActionsSectionProps {
   status: string;
@@ -9,9 +10,11 @@ interface TaskActionsSectionProps {
 }
 
 const TaskActionsSection: React.FC<TaskActionsSectionProps> = ({ status, onStatusChange }) => {
+  const { t } = useTranslation();
+  
   return (
     <div>
-      <h3 className="text-sm font-medium text-muted-foreground mb-2">Actions</h3>
+      <h3 className="text-sm font-medium text-muted-foreground mb-2">{t('taskActions')}</h3>
       <div className="flex flex-wrap gap-2">
         {status === 'pending' && (
           <Button 
@@ -20,7 +23,7 @@ const TaskActionsSection: React.FC<TaskActionsSectionProps> = ({ status, onStatu
             onClick={() => onStatusChange('completed')}
           >
             <CheckCircle className="h-4 w-4" />
-            Mark as Complete
+            {t('markAsComplete')}
           </Button>
         )}
         
@@ -30,7 +33,7 @@ const TaskActionsSection: React.FC<TaskActionsSectionProps> = ({ status, onStatu
             className="gap-1"
             onClick={() => onStatusChange('pending')}
           >
-            Reopen Task
+            {t('reopenTask')}
           </Button>
         )}
         
@@ -40,7 +43,7 @@ const TaskActionsSection: React.FC<TaskActionsSectionProps> = ({ status, onStatu
             className="gap-1 text-destructive"
             onClick={() => onStatusChange('cancelled')}
           >
-            Cancel Task
+            {t('cancelTask')}
           </Button>
         )}
       </div>

@@ -1,81 +1,81 @@
 
 export type TasksTranslationKey =
-  | 'tasks'
-  | 'allTasks'
-  | 'taskType'
-  | 'dueDate'
-  | 'sector'
-  | 'priority'
-  | 'delayed'
-  | 'onTime'
-  | 'filterBy'
-  | 'clearFilters'
-  | 'markAsComplete'
-  | 'taskDetails'
-  | 'completed'
-  | 'completedBy'
-  | 'completedAt'
-  | 'viewTaskDetails'
+  | 'newTask'
+  | 'assignTask'
   | 'completeTask'
-  | 'completeTaskDescription'
+  | 'reassignTask'
+  | 'myTasks'
+  | 'allTasks'
+  | 'taskCreated'
+  | 'taskUpdated'
+  | 'taskCompleted'
+  | 'taskCancelled'
+  | 'taskAssigned'
+  | 'taskDeleted'
+  | 'lowPriority'
+  | 'mediumPriority'
+  | 'highPriority'
+  | 'urgentPriority'
+  | 'dueSoon'
+  | 'overdueTask'
+  | 'onTrack'
   | 'completionNotes'
-  | 'enterCompletionNotes'
-  | 'completing'
-  | 'noTasksFound'
-  | 'total'
-  | 'pending';
+  | 'markAsComplete'
+  | 'reopenTask'
+  | 'cancelTask'
+  | 'taskActions';
 
 export const tasksTranslations = {
   pt: {
-    tasks: 'Tarefas',
+    newTask: 'Nova Tarefa',
+    assignTask: 'Atribuir Tarefa',
+    completeTask: 'Concluir Tarefa',
+    reassignTask: 'Reatribuir Tarefa',
+    myTasks: 'Minhas Tarefas',
     allTasks: 'Todas as Tarefas',
-    taskType: 'Tipo de Tarefa',
-    dueDate: 'Data de Vencimento',
-    sector: 'Setor',
-    priority: 'Prioridade',
-    delayed: 'Atrasado',
-    onTime: 'Em Dia',
-    filterBy: 'Filtrar por',
-    clearFilters: 'Limpar Filtros',
-    markAsComplete: 'Marcar como Concluído',
-    taskDetails: 'Detalhes da Tarefa',
-    completed: 'Concluído',
-    completedBy: 'Concluído por',
-    completedAt: 'Concluído em',
-    viewTaskDetails: 'Ver detalhes da tarefa',
-    completeTask: 'Concluir tarefa',
-    completeTaskDescription: 'Preencha as informações abaixo para marcar esta tarefa como concluída',
-    completionNotes: 'Notas de conclusão',
-    enterCompletionNotes: 'Digite notas sobre a conclusão desta tarefa',
-    completing: 'Concluindo',
-    noTasksFound: 'Nenhuma tarefa encontrada',
-    total: 'Total',
-    pending: 'Pendente'
+    taskCreated: 'Tarefa Criada',
+    taskUpdated: 'Tarefa Atualizada',
+    taskCompleted: 'Tarefa Concluída',
+    taskCancelled: 'Tarefa Cancelada',
+    taskAssigned: 'Tarefa Atribuída',
+    taskDeleted: 'Tarefa Excluída',
+    lowPriority: 'Prioridade Baixa',
+    mediumPriority: 'Prioridade Média',
+    highPriority: 'Prioridade Alta',
+    urgentPriority: 'Prioridade Urgente',
+    dueSoon: 'A Vencer em Breve',
+    overdueTask: 'Tarefa Atrasada',
+    onTrack: 'Em dia',
+    completionNotes: 'Notas de Conclusão',
+    markAsComplete: 'Marcar como Concluída',
+    reopenTask: 'Reabrir Tarefa',
+    cancelTask: 'Cancelar Tarefa',
+    taskActions: 'Ações da Tarefa'
   },
   en: {
-    tasks: 'Tasks',
+    newTask: 'New Task',
+    assignTask: 'Assign Task',
+    completeTask: 'Complete Task',
+    reassignTask: 'Reassign Task',
+    myTasks: 'My Tasks',
     allTasks: 'All Tasks',
-    taskType: 'Task Type',
-    dueDate: 'Due Date',
-    sector: 'Sector',
-    priority: 'Priority',
-    delayed: 'Delayed',
-    onTime: 'On Time',
-    filterBy: 'Filter By',
-    clearFilters: 'Clear Filters',
+    taskCreated: 'Task Created',
+    taskUpdated: 'Task Updated',
+    taskCompleted: 'Task Completed',
+    taskCancelled: 'Task Cancelled',
+    taskAssigned: 'Task Assigned',
+    taskDeleted: 'Task Deleted',
+    lowPriority: 'Low Priority',
+    mediumPriority: 'Medium Priority',
+    highPriority: 'High Priority',
+    urgentPriority: 'Urgent Priority',
+    dueSoon: 'Due Soon',
+    overdueTask: 'Overdue Task',
+    onTrack: 'On Track',
+    completionNotes: 'Completion Notes',
     markAsComplete: 'Mark as Complete',
-    taskDetails: 'Task Details',
-    completed: 'Completed',
-    completedBy: 'Completed by',
-    completedAt: 'Completed at',
-    viewTaskDetails: 'View task details',
-    completeTask: 'Complete task',
-    completeTaskDescription: 'Fill in the information below to mark this task as complete',
-    completionNotes: 'Completion notes',
-    enterCompletionNotes: 'Enter notes about completing this task',
-    completing: 'Completing',
-    noTasksFound: 'No tasks found',
-    total: 'Total',
-    pending: 'Pending'
+    reopenTask: 'Reopen Task',
+    cancelTask: 'Cancel Task',
+    taskActions: 'Task Actions'
   }
 };

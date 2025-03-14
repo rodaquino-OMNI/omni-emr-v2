@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   
   useEffect(() => {
     // Only auto-redirect authenticated users to dashboard
@@ -19,23 +21,23 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="max-w-3xl text-center">
-        <h1 className="text-4xl font-bold text-primary mb-4">Welcome to OmniCare</h1>
+        <h1 className="text-4xl font-bold text-primary mb-4">{t('welcomeTo')} {t('appName')}</h1>
         <p className="text-xl text-muted-foreground mb-8">
-          Comprehensive healthcare management platform for medical professionals
+          {t('appDescription')}
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {isAuthenticated ? (
             <Button size="lg" onClick={() => navigate('/dashboard')}>
-              Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              {t('goToDashboard')} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
             <>
               <Button size="lg" onClick={() => navigate('/login')}>
-                Sign In <ArrowRight className="ml-2 h-4 w-4" />
+                {t('signIn')} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline" onClick={() => navigate('/register')}>
-                Create Account
+                {t('createAccount')}
               </Button>
             </>
           )}
