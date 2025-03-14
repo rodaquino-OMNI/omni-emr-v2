@@ -44,7 +44,12 @@ export const checkPasswordLeak = async (password: string): Promise<boolean> => {
     const suffix = sha1Hash.substring(5);
     
     // Query the API
-    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+      headers: {
+        'User-Agent': 'MedCare-HealthApp/1.0',
+        'Accept': 'text/plain'
+      }
+    });
     
     if (!response.ok) {
       throw new Error('Failed to check password against database');
@@ -168,6 +173,45 @@ export const unenrollMFA = async (factorId: string): Promise<boolean> => {
   }
 };
 
+// Challenge MFA during login
+export const challengeMFA = async (factorId: string): Promise<{
+  challengeId?: string;
+  error?: Error;
+}> => {
+  try {
+    const { data, error } = await supabase.auth.mfa.challenge({
+      factorId
+    });
+    
+    if (error) throw error;
+    return { challengeId: data.id };
+  } catch (error) {
+    console.error('Error challenging MFA:', error);
+    return { error: error as Error };
+  }
+};
+
+// Verify MFA challenge
+export const verifyMFAChallenge = async (
+  factorId: string, 
+  challengeId: string, 
+  code: string
+): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.auth.mfa.verify({
+      factorId,
+      challengeId,
+      code
+    });
+    
+    if (error) throw error;
+    return !!data;
+  } catch (error) {
+    console.error('Error verifying MFA challenge:', error);
+    return false;
+  }
+};
+
 // Check password strength
 export const checkPasswordStrength = (password: string): { 
   score: number; 
@@ -207,4 +251,46 @@ export const checkPasswordStrength = (password: string): {
   }
   
   return { score, feedback };
+};
+
+// Check if MFA is required for a user
+export const isMFARequired = async (userId: string): Promise<boolean> => {
+  try {
+    // Check if the settings migration table exists and has MFA requirement
+    const { data, error } = await supabase
+      .from('auth_settings_migrations')
+      .select('enabled')
+      .eq('setting_name', 'mfa_totp')
+      .single();
+    
+    if (error) {
+      console.warn('Could not determine if MFA is required from settings:', error.message);
+      return false;
+    }
+    
+    // If MFA is globally required, check for user role exceptions
+    // For example, we might want to force MFA for admin users
+    if (data?.enabled) {
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      if (profileError) {
+        console.warn('Could not determine user role for MFA requirement check:', profileError.message);
+        return false;
+      }
+      
+      // Force MFA for admin, doctor, and nurse roles
+      if (userProfile?.role && ['admin', 'doctor', 'nurse', 'system_administrator'].includes(userProfile.role)) {
+        return true;
+      }
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error checking if MFA is required:', error);
+    return false;
+  }
 };

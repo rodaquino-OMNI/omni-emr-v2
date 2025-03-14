@@ -155,6 +155,30 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_settings_migrations: {
+        Row: {
+          enabled: boolean
+          id: number
+          migration_date: string | null
+          notes: string | null
+          setting_name: string
+        }
+        Insert: {
+          enabled: boolean
+          id?: number
+          migration_date?: string | null
+          notes?: string | null
+          setting_name: string
+        }
+        Update: {
+          enabled?: boolean
+          id?: number
+          migration_date?: string | null
+          notes?: string | null
+          setting_name?: string
+        }
+        Relationships: []
+      }
       billing_records: {
         Row: {
           adjustment_amount: number | null
