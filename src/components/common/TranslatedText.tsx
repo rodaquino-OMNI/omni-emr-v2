@@ -7,6 +7,7 @@ interface TranslatedTextProps {
   translationKey: TranslationKey;
   fallback?: string;
   className?: string;
+  values?: Record<string, string | number>;
 }
 
 /**
@@ -16,13 +17,23 @@ interface TranslatedTextProps {
 const TranslatedText: React.FC<TranslatedTextProps> = ({ 
   translationKey, 
   fallback, 
-  className 
+  className,
+  values
 }) => {
-  const { t } = useTranslation();
-  const translatedText = t(translationKey);
+  const { t, hasTranslation } = useTranslation();
   
-  // If we get back the key, it means translation wasn't found
-  const displayText = translatedText === String(translationKey) ? fallback : translatedText;
+  // Get the translated text
+  let translatedText = t(translationKey);
+  
+  // If we have values to interpolate, replace them in the string
+  if (values) {
+    Object.entries(values).forEach(([key, value]) => {
+      translatedText = translatedText.replace(`{${key}}`, String(value));
+    });
+  }
+  
+  // If the translation doesn't exist, use fallback or key
+  const displayText = !hasTranslation(translationKey) ? fallback : translatedText;
   
   return (
     <span className={className}>{displayText || String(translationKey)}</span>

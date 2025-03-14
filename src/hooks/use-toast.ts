@@ -1,191 +1,121 @@
-import * as React from "react"
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
+import { ToasterToast, useToast as useToasterToast } from "sonner";
+import { useTranslation } from "./useTranslation";
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+// Define commonly used toast messages with translations
+type CommonToastMessage = 
+  | 'success'
+  | 'error'
+  | 'saved'
+  | 'deleted'
+  | 'updated'
+  | 'created'
+  | 'loginSuccess'
+  | 'logoutSuccess'
+  | 'permissionDenied'
+  | 'networkError'
+  | 'sessionExpired'
+  | 'validationError';
 
-type ToasterToast = ToastProps & {
-  id: string
-  title?: React.ReactNode
-  description?: React.ReactNode
-  action?: ToastActionElement
-}
-
-const actionTypes = {
-  ADD_TOAST: "ADD_TOAST",
-  UPDATE_TOAST: "UPDATE_TOAST",
-  DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
-} as const
-
-let count = 0
-
-function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER
-  return count.toString()
-}
-
-type ActionType = typeof actionTypes
-
-type Action =
-  | {
-      type: ActionType["ADD_TOAST"]
-      toast: ToasterToast
-    }
-  | {
-      type: ActionType["UPDATE_TOAST"]
-      toast: Partial<ToasterToast>
-    }
-  | {
-      type: ActionType["DISMISS_TOAST"]
-      toastId?: ToasterToast["id"]
-    }
-  | {
-      type: ActionType["REMOVE_TOAST"]
-      toastId?: ToasterToast["id"]
-    }
-
-interface State {
-  toasts: ToasterToast[]
-}
-
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
-
-const addToRemoveQueue = (toastId: string) => {
-  if (toastTimeouts.has(toastId)) {
-    return
-  }
-
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId)
-    dispatch({
-      type: "REMOVE_TOAST",
-      toastId: toastId,
-    })
-  }, TOAST_REMOVE_DELAY)
-
-  toastTimeouts.set(toastId, timeout)
-}
-
-export const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "ADD_TOAST":
-      return {
-        ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
-      }
-
-    case "UPDATE_TOAST":
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
-      }
-
-    case "DISMISS_TOAST": {
-      const { toastId } = action
-
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
-      if (toastId) {
-        addToRemoveQueue(toastId)
-      } else {
-        state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
-        })
-      }
-
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? {
-                ...t,
-                open: false,
-              }
-            : t
-        ),
-      }
-    }
-    case "REMOVE_TOAST":
-      if (action.toastId === undefined) {
-        return {
-          ...state,
-          toasts: [],
-        }
-      }
-      return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
-      }
-  }
-}
-
-const listeners: Array<(state: State) => void> = []
-
-let memoryState: State = { toasts: [] }
-
-function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => {
-    listener(memoryState)
-  })
-}
-
-type Toast = Omit<ToasterToast, "id">
-
-function toast({ ...props }: Toast) {
-  const id = genId()
-
-  const update = (props: ToasterToast) =>
-    dispatch({
-      type: "UPDATE_TOAST",
-      toast: { ...props, id },
-    })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
-
-  dispatch({
-    type: "ADD_TOAST",
-    toast: {
-      ...props,
-      id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss()
-      },
+export function useToast() {
+  const sonnerToast = useToasterToast();
+  const { t, language } = useTranslation();
+  
+  // Create toast function with translation support
+  const toast = Object.assign(
+    // Main function for custom message
+    (message: string, options?: Omit<ToasterToast, "id" | "title" | "description"> & { description?: string }) => {
+      return sonnerToast(message, options);
     },
-  })
-
-  return {
-    id: id,
-    dismiss,
-    update,
-  }
-}
-
-function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
-
-  React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
+    
+    // Common toast variations with pre-translated messages
+    {
+      success: (message: string, options?: Omit<ToasterToast, "id" | "title" | "description"> & { description?: string }) => {
+        return sonnerToast.success(message, options);
+      },
+      error: (message: string, options?: Omit<ToasterToast, "id" | "title" | "description"> & { description?: string }) => {
+        return sonnerToast.error(message, options);
+      },
+      warning: (message: string, options?: Omit<ToasterToast, "id" | "title" | "description"> & { description?: string }) => {
+        return sonnerToast.warning(message, options);
+      },
+      info: (message: string, options?: Omit<ToasterToast, "id" | "title" | "description"> & { description?: string }) => {
+        return sonnerToast.info(message, options);
+      },
+      
+      // Common scenarios with pre-translated messages
+      saved: () => {
+        return sonnerToast.success(
+          language === 'pt' ? 'Salvo com sucesso' : 'Successfully saved'
+        );
+      },
+      deleted: () => {
+        return sonnerToast.success(
+          language === 'pt' ? 'Excluído com sucesso' : 'Successfully deleted'
+        );
+      },
+      updated: () => {
+        return sonnerToast.success(
+          language === 'pt' ? 'Atualizado com sucesso' : 'Successfully updated'
+        );
+      },
+      created: () => {
+        return sonnerToast.success(
+          language === 'pt' ? 'Criado com sucesso' : 'Successfully created'
+        );
+      },
+      loginSuccess: () => {
+        return sonnerToast.success(
+          t('loginSuccess'), 
+          { description: t('welcomeBack') }
+        );
+      },
+      logoutSuccess: () => {
+        return sonnerToast.success(
+          language === 'pt' ? 'Logout realizado com sucesso' : 'Successfully logged out'
+        );
+      },
+      permissionDenied: () => {
+        return sonnerToast.error(
+          language === 'pt' ? 'Permissão negada' : 'Permission denied',
+          { description: language === 'pt' ? 'Você não tem permissão para realizar esta ação' : 'You do not have permission to perform this action' }
+        );
+      },
+      networkError: () => {
+        return sonnerToast.error(
+          language === 'pt' ? 'Erro de rede' : 'Network error',
+          { description: language === 'pt' ? 'Verifique sua conexão e tente novamente' : 'Please check your connection and try again' }
+        );
+      },
+      sessionExpired: () => {
+        return sonnerToast.error(
+          language === 'pt' ? 'Sessão expirada' : 'Session expired',
+          { description: language === 'pt' ? 'Por favor, faça login novamente' : 'Please log in again' }
+        );
+      },
+      validationError: () => {
+        return sonnerToast.error(
+          language === 'pt' ? 'Erro de validação' : 'Validation error',
+          { description: language === 'pt' ? 'Por favor, verifique os campos e tente novamente' : 'Please check the fields and try again' }
+        );
       }
     }
-  }, [state])
+  );
 
   return {
-    ...state,
-    toast,
-    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
-  }
+    ...sonnerToast,
+    toast
+  };
 }
 
-export { useToast, toast }
+// Re-export toast for direct imports
+export const toast = {
+  // Basic methods
+  success: (message: string, options?: any) => useToasterToast.success(message, options),
+  error: (message: string, options?: any) => useToasterToast.error(message, options),
+  warning: (message: string, options?: any) => useToasterToast.warning(message, options),
+  info: (message: string, options?: any) => useToasterToast.info(message, options),
+  
+  // Default toast
+  default: (message: string, options?: any) => useToasterToast(message, options),
+};
