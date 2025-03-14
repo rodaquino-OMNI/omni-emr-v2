@@ -18,11 +18,15 @@ const TranslatedText: React.FC<TranslatedTextProps> = ({
   className,
   as: Component = 'span'
 }) => {
-  const { t, hasTranslation } = useTranslation();
+  const { t } = useTranslation();
   
-  // If the key exists in translations, use it, otherwise use fallback or key itself
-  const displayText = hasTranslation(textKey) 
-    ? t(textKey)
+  // Check if the translation exists by attempting to get it
+  const translated = t(textKey);
+  
+  // If the translation is the same as the key, it means no translation was found
+  // In this case, use the fallback or the key itself
+  const displayText = translated !== textKey 
+    ? translated
     : fallback || textKey;
   
   return (

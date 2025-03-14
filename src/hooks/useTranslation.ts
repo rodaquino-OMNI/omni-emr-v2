@@ -29,5 +29,10 @@ export const useTranslation = () => {
     }
   };
   
-  return { t, language };
+  // Add a hasTranslation utility function to check if a translation key exists
+  const hasTranslation = (key: string): boolean => {
+    return translations[language]?.[key] !== undefined;
+  };
+  
+  return { t, language, hasTranslation };
 };
