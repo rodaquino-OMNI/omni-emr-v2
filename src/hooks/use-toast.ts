@@ -80,4 +80,3 @@ export const toast: ToastFunction = Object.assign(
 export const useToast = () => {
   return { toast };
 };
-

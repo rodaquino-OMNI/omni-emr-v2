@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { 
   Appointment, 
@@ -11,7 +11,6 @@ import {
 
 export const useAppointmentActions = (appointment: Appointment) => {
   const { t } = useTranslation();
-  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
   const handleSendReminder = async () => {

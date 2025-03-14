@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { clearExpiredCache, syncFrequentlyUsedMedications } from '@/services/rxnorm';
 
@@ -13,7 +13,6 @@ export interface DatabaseStats {
 
 export const useRxNormStats = () => {
   const { language } = useTranslation();
-  const toast = useToast();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [dbStats, setDbStats] = useState<DatabaseStats>({

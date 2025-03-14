@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { Save } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { logAuditEvent } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import SecurityControlItem from './SecurityControlItem';
 import SessionTimeoutControl from './SessionTimeoutControl';
 
@@ -16,7 +16,6 @@ const SecurityControls = () => {
   const [loading, setLoading] = useState(false);
   
   const { user } = useAuth();
-  const { toast } = useToast();
   
   const saveSecuritySettings = async () => {
     setLoading(true);

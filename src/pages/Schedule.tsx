@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -24,8 +24,8 @@ import { getAppointmentsByDate } from '@/services/appointments';
 const SchedulePage = () => {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
-  const [month, setMonth] = React.useState<Date>(new Date());
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [month, setMonth] = useState<Date>(new Date());
   const [isScheduleFormOpen, setIsScheduleFormOpen] = useState(false);
   
   const { 
