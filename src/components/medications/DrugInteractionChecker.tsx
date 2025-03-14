@@ -271,7 +271,7 @@ const DrugInteractionChecker: React.FC = () => {
             </h3>
             
             {interactions.map((interaction, index) => (
-              <Alert key={index} variant="outline" className="border-l-4 border-l-warning">
+              <Alert key={index} variant="destructive" className="border-l-4 border-l-warning">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle className="flex items-center gap-2">
                   {language === 'pt' ? 'Interação' : 'Interaction'} 

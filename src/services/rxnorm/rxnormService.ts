@@ -281,18 +281,18 @@ export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicat
 /**
  * Helper function to extract concepts by type from RxNorm API response
  */
-const extractConceptsByType = (data: RxNormRelatedResponse, type: string): RxNormConcept[] => {
+const extractConceptsByType = (data: any, type: string): RxNormConcept[] => {
   if (!data.relatedGroup?.conceptGroup) {
     return [];
   }
   
-  const group = data.relatedGroup.conceptGroup.find(g => g.tty === type);
+  const group = data.relatedGroup.conceptGroup.find((g: any) => g.tty === type);
   
   if (!group || !group.conceptProperties) {
     return [];
   }
   
-  return group.conceptProperties.map(prop => ({
+  return group.conceptProperties.map((prop: any) => ({
     rxcui: prop.rxcui,
     name: prop.name
   }));
@@ -303,7 +303,7 @@ const extractConceptsByType = (data: RxNormRelatedResponse, type: string): RxNor
  */
 export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
   try {
-    // Use a direct SQL query to check the cache as a workaround for type issues
+    // Use our stored procedure to check the cache
     const { data: cachedResult, error: cacheError } = await supabase
       .rpc('get_rxnorm_ndc_cache', { rxcui_param: rxcui });
 
@@ -333,7 +333,7 @@ export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
       }));
     }
     
-    // Use a stored procedure to insert the cache data
+    // Use our improved stored procedure to insert the cache data
     const { error: insertError } = await supabase
       .rpc('insert_rxnorm_ndc_cache', { 
         rxcui_param: rxcui, 
@@ -356,7 +356,7 @@ export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
  */
 export const getDisplayTerms = async (term: string, maxResults = 10): Promise<RxNormDisplayTerm[]> => {
   try {
-    // Use a direct SQL query to check the cache
+    // Use our stored procedure to check the cache
     const { data: cachedResult, error: cacheError } = await supabase
       .rpc('get_rxnorm_displayterms_cache', { term_param: term.toLowerCase() });
 
@@ -380,7 +380,7 @@ export const getDisplayTerms = async (term: string, maxResults = 10): Promise<Rx
       terms = data.displayTermsList.term;
     }
     
-    // Use a stored procedure to insert the cache data
+    // Use our improved stored procedure to insert the cache data
     const { error: insertError } = await supabase
       .rpc('insert_rxnorm_displayterms_cache', { 
         term_param: term.toLowerCase(), 
@@ -410,7 +410,7 @@ export const checkDrugInteractions = async (rxcuis: string[]): Promise<RxNormInt
     // Generate a unique key for caching
     const interactionKey = rxcuis.sort().join('_');
     
-    // Use a direct SQL query to check the cache
+    // Use our stored procedure to check the cache
     const { data: cachedResult, error: cacheError } = await supabase
       .rpc('get_rxnorm_interactions_cache', { key_param: interactionKey });
 
@@ -435,7 +435,7 @@ export const checkDrugInteractions = async (rxcuis: string[]): Promise<RxNormInt
       interactions = data.interactionTypeGroup.interactionType;
     }
     
-    // Use a stored procedure to insert the cache data
+    // Use our improved stored procedure to insert the cache data
     const { error: insertError } = await supabase
       .rpc('insert_rxnorm_interactions_cache', { 
         key_param: interactionKey, 
@@ -586,34 +586,78 @@ export const syncFrequentlyUsedMedications = async (): Promise<{
 };
 
 /**
- * Clear expired cache entries
+ * Clear expired cache entries with configurable retention period
  */
-export const clearExpiredCache = async (): Promise<boolean> => {
+export const clearExpiredCache = async (retentionDays = 7): Promise<{
+  success: boolean;
+  details: {
+    tableName: string;
+    rowsDeleted: number;
+  }[];
+}> => {
   try {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - 7); // Keep 7 days of cache
-    
-    const { error: searchCacheError } = await supabase
-      .from('rxnorm_search_cache')
-      .delete()
-      .lt('created_at', cutoffDate.toISOString());
+    const { data, error } = await supabase
+      .rpc('clean_rxnorm_cache', { retention_days: retentionDays });
       
-    if (searchCacheError) {
-      console.error('Error clearing search cache:', searchCacheError);
+    if (error) {
+      console.error('Error clearing expired cache:', error);
+      return { 
+        success: false,
+        details: []
+      };
     }
     
-    const { error: detailsCacheError } = await supabase
-      .from('rxnorm_details_cache')
-      .delete()
-      .lt('created_at', cutoffDate.toISOString());
+    // Transform the data to match our frontend expectations
+    const details = data.map((item: any) => ({
+      tableName: item.table_name,
+      rowsDeleted: item.rows_deleted
+    }));
     
-    if (detailsCacheError) {
-      console.error('Error clearing details cache:', detailsCacheError);
-    }
-    
-    return !searchCacheError && !detailsCacheError;
+    return {
+      success: true,
+      details
+    };
   } catch (error) {
     console.error('Error clearing expired cache:', error);
-    return false;
+    return {
+      success: false,
+      details: []
+    };
+  }
+};
+
+/**
+ * Get a patient's medication history
+ */
+export const getPatientMedicationHistory = async (
+  patientId: string
+): Promise<{
+  rxcui: string;
+  medicationName: string;
+  startDate: string;
+  endDate: string | null;
+  status: string;
+}[]> => {
+  try {
+    // Use our new stored procedure to get medication history
+    const { data, error } = await supabase
+      .rpc('get_patient_medication_history', { patient_id_param: patientId });
+    
+    if (error) {
+      console.error('Error getting patient medication history:', error);
+      return [];
+    }
+    
+    // Transform the data to match our frontend type expectations
+    return data.map((item: any) => ({
+      rxcui: item.rxcui || '',
+      medicationName: item.medication_name,
+      startDate: item.start_date,
+      endDate: item.end_date,
+      status: item.status
+    }));
+  } catch (error) {
+    console.error('Error getting patient medication history:', error);
+    return [];
   }
 };

@@ -1051,6 +1051,51 @@ export type Database = {
           },
         ]
       }
+      rxnorm_displayterms_cache: {
+        Row: {
+          created_at: string
+          id: string
+          search_term: string
+          terms: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          search_term: string
+          terms: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          search_term?: string
+          terms?: Json
+        }
+        Relationships: []
+      }
+      rxnorm_interactions_cache: {
+        Row: {
+          created_at: string
+          id: string
+          interaction_key: string
+          interactions: Json
+          rxcuis: string[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interaction_key: string
+          interactions: Json
+          rxcuis: string[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interaction_key?: string
+          interactions?: Json
+          rxcuis?: string[]
+        }
+        Relationships: []
+      }
       rxnorm_items: {
         Row: {
           active: boolean
@@ -1072,6 +1117,27 @@ export type Database = {
           name?: string
           rxcui?: string
           term_type?: string
+        }
+        Relationships: []
+      }
+      rxnorm_ndc_cache: {
+        Row: {
+          created_at: string
+          id: string
+          ndcs: Json
+          rxcui: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ndcs: Json
+          rxcui: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ndcs?: Json
+          rxcui?: string
         }
         Relationships: []
       }
@@ -1193,6 +1259,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      clean_rxnorm_cache: {
+        Args: {
+          retention_days?: number
+        }
+        Returns: {
+          table_name: string
+          rows_deleted: number
+        }[]
+      }
       get_auth_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1207,6 +1282,52 @@ export type Database = {
           prescription_count: number
         }[]
       }
+      get_patient_medication_history: {
+        Args: {
+          patient_id_param: string
+        }
+        Returns: {
+          rxcui: string
+          medication_name: string
+          start_date: string
+          end_date: string
+          status: string
+        }[]
+      }
+      get_rxnorm_displayterms_cache: {
+        Args: {
+          term_param: string
+        }
+        Returns: {
+          id: string
+          search_term: string
+          terms: Json
+          created_at: string
+        }[]
+      }
+      get_rxnorm_interactions_cache: {
+        Args: {
+          key_param: string
+        }
+        Returns: {
+          id: string
+          interaction_key: string
+          rxcuis: string[]
+          interactions: Json
+          created_at: string
+        }[]
+      }
+      get_rxnorm_ndc_cache: {
+        Args: {
+          rxcui_param: string
+        }
+        Returns: {
+          id: string
+          rxcui: string
+          ndcs: Json
+          created_at: string
+        }[]
+      }
       get_user_role: {
         Args: {
           user_id: string
@@ -1215,6 +1336,28 @@ export type Database = {
       }
       get_user_role_cached: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      insert_rxnorm_displayterms_cache: {
+        Args: {
+          term_param: string
+          terms_param: Json
+        }
+        Returns: string
+      }
+      insert_rxnorm_interactions_cache: {
+        Args: {
+          key_param: string
+          rxcuis_param: string[]
+          interactions_param: Json
+        }
+        Returns: string
+      }
+      insert_rxnorm_ndc_cache: {
+        Args: {
+          rxcui_param: string
+          ndcs_param: Json
+        }
         Returns: string
       }
       is_admin: {
