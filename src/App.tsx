@@ -107,11 +107,7 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/help" element={<Help />} />
                 
-                <Route path="/orders" element={
-                  <ProtectedRoute>
-                    <Orders />
-                  </ProtectedRoute>
-                } />
+                <Route path="/orders" element={<Orders />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
