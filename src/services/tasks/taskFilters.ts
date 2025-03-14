@@ -31,6 +31,27 @@ export const filterTasks = async (filter: TaskFilter): Promise<Task[]> => {
     // We'll implement Supabase queries when the tasks table is created
     // For now, we'll use mock data
     console.warn('Using mock tasks data until tasks table is created in Supabase');
+    
+    // This would be the implementation if the tasks table existed
+    // const query = supabase.from('tasks').select('*');
+    
+    // if (filter.patientId) query.eq('patient_id', filter.patientId);
+    // if (filter.sector) query.eq('sector', filter.sector); 
+    // if (filter.status) query.eq('status', filter.status);
+    // if (filter.priority) query.eq('priority', filter.priority);
+    // if (filter.type) query.eq('type', filter.type);
+    
+    // if (filter.showDelayed) {
+    //   const now = new Date().toISOString();
+    //   query.lt('due_date', now).eq('status', 'pending');
+    // }
+    
+    // const { data, error } = await query;
+    
+    // if (error) throw error;
+    // return data as Task[];
+    
+    // Intentionally throw an error to trigger the fallback
     throw new Error('Tasks table not implemented yet');
   } catch (error) {
     console.warn('Falling back to mock tasks data');
