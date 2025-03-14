@@ -5,11 +5,22 @@ import { translations, TranslationKey } from "../i18n/translations";
 export const useTranslation = () => {
   const { language } = useAuth();
   
-  // Function to translate a key
+  // Function to translate a key with validation
   const t = (key: TranslationKey): string => {
-    // Get translation in current language or fallback to Portuguese
-    const translation = translations[language]?.[key] || translations.pt[key] || key;
-    return translation;
+    // Get translation in current language
+    const translation = translations[language]?.[key];
+    
+    // Fallback to Portuguese if translation is missing
+    const fallback = translations.pt[key];
+    
+    // Validation in development mode
+    if (process.env.NODE_ENV === 'development') {
+      if (!translation) {
+        console.warn(`Missing translation for key "${key}" in language "${language}"`);
+      }
+    }
+    
+    return translation || fallback || key;
   };
   
   // Function to translate a plain text (not from translation keys)
@@ -79,12 +90,6 @@ export const useTranslation = () => {
       'UTI': 'ICU'
     };
     
-    // English to Portuguese map for reverse lookup
-    const enToPtMap: Record<string, string> = {};
-    Object.entries(ptToEnMap).forEach(([pt, en]) => {
-      enToPtMap[en] = pt;
-    });
-    
     // Try to find a direct translation for the current language context
     if (language === 'en') {
       // When in English mode, if we find the text in our Portuguese-to-English map,
@@ -96,5 +101,28 @@ export const useTranslation = () => {
     return text;
   };
   
-  return { t, translateContent, language };
+  // Function to validate all translations - useful for testing
+  const validateTranslations = () => {
+    const missingKeys = {
+      en: [] as string[],
+      pt: [] as string[]
+    };
+    
+    // Check all keys for each language
+    Object.keys(translations.en).forEach((key) => {
+      if (!translations.pt[key as TranslationKey]) {
+        missingKeys.pt.push(key);
+      }
+    });
+    
+    Object.keys(translations.pt).forEach((key) => {
+      if (!translations.en[key as TranslationKey]) {
+        missingKeys.en.push(key);
+      }
+    });
+    
+    return missingKeys;
+  };
+  
+  return { t, translateContent, language, validateTranslations };
 };
