@@ -34,7 +34,7 @@ export interface MedicationOrder {
   duration: string;
   instructions: string;
   substitutionAllowed: boolean;
-  priority?: 'routine' | 'urgent' | 'stat'; // Added priority
+  priority: 'routine' | 'urgent' | 'stat';
 }
 
 export interface LaboratoryOrder {
@@ -43,7 +43,7 @@ export interface LaboratoryOrder {
   clinicalReason: string;
   specimenType?: string;
   collectionInstructions?: string;
-  priority?: 'routine' | 'urgent' | 'stat'; // Added priority
+  priority: 'routine' | 'urgent' | 'stat';
 }
 
 export interface RadiologyOrder {
@@ -52,7 +52,7 @@ export interface RadiologyOrder {
   contrast: boolean;
   clinicalReason: string;
   patientPrep?: string;
-  priority?: 'routine' | 'urgent' | 'stat'; // Added priority
+  priority: 'routine' | 'urgent' | 'stat';
 }
 
 export interface ProcedureOrder {
@@ -62,7 +62,7 @@ export interface ProcedureOrder {
   preInstructions?: string;
   postInstructions?: string;
   equipmentNeeded?: string[];
-  priority?: 'routine' | 'urgent' | 'stat'; // Added priority
+  priority: 'routine' | 'urgent' | 'stat';
 }
 
 export interface ConsultationOrder {
@@ -70,5 +70,5 @@ export interface ConsultationOrder {
   reason: string;
   urgency: 'routine' | 'urgent' | 'stat';
   additionalInfo?: string;
-  priority?: 'routine' | 'urgent' | 'stat'; // Added priority
+  priority: 'routine' | 'urgent' | 'stat';
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -107,18 +108,7 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
             id="medication-search"
             placeholder={language === 'pt' ? 'Digite para buscar...' : 'Type to search...'}
             value={searchTerm}
-            onChange={(e) => {
-              const term = e.target.value;
-              setSearchTerm(term);
-              
-              if (term.length > 1) {
-                searchMedications(term);
-                setShowSearch(true);
-              } else {
-                setSearchResults([]);
-                setShowSearch(false);
-              }
-            }}
+            onChange={handleSearchChange}
             className="pr-10"
           />
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -130,14 +120,7 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
                   <li 
                     key={med.id}
                     className="px-3 py-2 hover:bg-muted cursor-pointer"
-                    onClick={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        medicationName: med.name
-                      }));
-                      setSearchTerm(med.name);
-                      setShowSearch(false);
-                    }}
+                    onClick={() => selectMedication(med)}
                   >
                     <div className="font-medium">{med.name}</div>
                     <div className="text-xs text-muted-foreground">{med.generic}</div>

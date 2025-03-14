@@ -4,7 +4,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from '@/hooks/useTranslation';
 import { RadiologyOrder } from '@/types/orders';
 
@@ -23,6 +24,31 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
     priority: 'routine'
   });
   
+  // List of common radiology exam types
+  const examTypes = [
+    { value: 'x-ray', label: language === 'pt' ? 'Raio-X' : 'X-Ray' },
+    { value: 'ct', label: language === 'pt' ? 'Tomografia Computadorizada' : 'CT Scan' },
+    { value: 'mri', label: language === 'pt' ? 'Ressonância Magnética' : 'MRI' },
+    { value: 'ultrasound', label: language === 'pt' ? 'Ultrassom' : 'Ultrasound' },
+    { value: 'pet', label: language === 'pt' ? 'PET Scan' : 'PET Scan' },
+    { value: 'mammogram', label: language === 'pt' ? 'Mamografia' : 'Mammogram' },
+    { value: 'dexa', label: language === 'pt' ? 'Densitometria Óssea' : 'DEXA Scan' },
+    { value: 'fluoroscopy', label: language === 'pt' ? 'Fluoroscopia' : 'Fluoroscopy' }
+  ];
+  
+  // Body parts based on common anatomical regions
+  const bodyParts = [
+    { value: 'head', label: language === 'pt' ? 'Cabeça' : 'Head' },
+    { value: 'neck', label: language === 'pt' ? 'Pescoço' : 'Neck' },
+    { value: 'chest', label: language === 'pt' ? 'Tórax' : 'Chest' },
+    { value: 'abdomen', label: language === 'pt' ? 'Abdômen' : 'Abdomen' },
+    { value: 'pelvis', label: language === 'pt' ? 'Pelve' : 'Pelvis' },
+    { value: 'spine', label: language === 'pt' ? 'Coluna' : 'Spine' },
+    { value: 'upper_extremity', label: language === 'pt' ? 'Membros Superiores' : 'Upper Extremity' },
+    { value: 'lower_extremity', label: language === 'pt' ? 'Membros Inferiores' : 'Lower Extremity' },
+    { value: 'whole_body', label: language === 'pt' ? 'Corpo Inteiro' : 'Whole Body' }
+  ];
+  
   useEffect(() => {
     onDataChange(formData);
   }, [formData, onDataChange]);
@@ -36,63 +62,81 @@ const RadiologyOrderForm = ({ onDataChange, data }: RadiologyOrderFormProps) => 
   
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="exam-type">
-            {language === 'pt' ? 'Tipo de Exame' : 'Exam Type'}
-          </Label>
-          <Input
-            id="exam-type"
-            placeholder={language === 'pt' ? 'Ex: Raio-X, Tomografia' : 'Ex: X-Ray, CT Scan'}
-            value={formData.examType || ''}
-            onChange={(e) => handleInputChange('examType', e.target.value)}
-          />
-        </div>
-        
-        <div className="space-y-1.5">
-          <Label htmlFor="body-part">
-            {language === 'pt' ? 'Parte do Corpo' : 'Body Part'}
-          </Label>
-          <Input
-            id="body-part"
-            placeholder={language === 'pt' ? 'Ex: Tórax, Abdômen' : 'Ex: Chest, Abdomen'}
-            value={formData.bodyPart || ''}
-            onChange={(e) => handleInputChange('bodyPart', e.target.value)}
-          />
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="exam-type">
+          {language === 'pt' ? 'Tipo de Exame' : 'Exam Type'}
+        </Label>
+        <Select
+          value={formData.examType || ''}
+          onValueChange={(value) => handleInputChange('examType', value)}
+        >
+          <SelectTrigger id="exam-type">
+            <SelectValue placeholder={language === 'pt' ? 'Selecionar tipo de exame' : 'Select exam type'} />
+          </SelectTrigger>
+          <SelectContent>
+            {examTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="contrast"
-          checked={formData.contrast || false}
-          onCheckedChange={(checked) => handleInputChange('contrast', checked)}
-        />
-        <Label htmlFor="contrast">
-          {language === 'pt' ? 'Com Contraste' : 'With Contrast'}
+      <div className="space-y-1.5">
+        <Label htmlFor="body-part">
+          {language === 'pt' ? 'Parte do Corpo' : 'Body Part'}
         </Label>
+        <Select
+          value={formData.bodyPart || ''}
+          onValueChange={(value) => handleInputChange('bodyPart', value)}
+        >
+          <SelectTrigger id="body-part">
+            <SelectValue placeholder={language === 'pt' ? 'Selecionar parte do corpo' : 'Select body part'} />
+          </SelectTrigger>
+          <SelectContent>
+            {bodyParts.map((part) => (
+              <SelectItem key={part.value} value={part.value}>
+                {part.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="space-y-1.5">
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="contrast" 
+            checked={formData.contrast}
+            onCheckedChange={(checked) => handleInputChange('contrast', checked)}
+          />
+          <Label htmlFor="contrast">
+            {language === 'pt' ? 'Usar Contraste' : 'Use Contrast'}
+          </Label>
+        </div>
       </div>
       
       <div className="space-y-1.5">
         <Label htmlFor="clinical-reason">
-          {language === 'pt' ? 'Razão Clínica' : 'Clinical Reason'}
+          {language === 'pt' ? 'Justificativa Clínica' : 'Clinical Reason'}
         </Label>
         <Textarea
           id="clinical-reason"
-          placeholder={language === 'pt' ? 'Motivo clínico do exame...' : 'Clinical reason for the exam...'}
+          placeholder={language === 'pt' ? 'Justificativa para este exame...' : 'Reason for this exam...'}
           value={formData.clinicalReason || ''}
           onChange={(e) => handleInputChange('clinicalReason', e.target.value)}
-          rows={4}
+          rows={3}
         />
       </div>
       
       <div className="space-y-1.5">
         <Label htmlFor="patient-prep">
-          {language === 'pt' ? 'Preparo do Paciente' : 'Patient Preparation'}
+          {language === 'pt' ? 'Preparação do Paciente' : 'Patient Preparation'}
         </Label>
         <Textarea
           id="patient-prep"
-          placeholder={language === 'pt' ? 'Instruções para o paciente...' : 'Instructions for the patient...'}
+          placeholder={language === 'pt' ? 'Instruções para preparo do paciente...' : 'Instructions for patient preparation...'}
           value={formData.patientPrep || ''}
           onChange={(e) => handleInputChange('patientPrep', e.target.value)}
           rows={2}

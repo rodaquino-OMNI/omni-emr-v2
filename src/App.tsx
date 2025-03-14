@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,6 +35,7 @@ import MedicalHistory from "./pages/MedicalHistory";
 import Notifications from "./pages/Notifications";
 import VitalSigns from "./pages/VitalSigns";
 import FluidBalance from "./pages/FluidBalance";
+import Orders from './pages/Orders';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -106,6 +106,12 @@ const App = () => (
                 
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/help" element={<Help />} />
+                
+                <Route path="/orders" element={
+                  <ProtectedRoute>
+                    <Orders />
+                  </ProtectedRoute>
+                } />
               </Route>
               
               <Route path="*" element={<NotFound />} />
