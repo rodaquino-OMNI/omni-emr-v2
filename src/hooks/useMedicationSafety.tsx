@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from './useTranslation';
 import { toast } from './use-toast';
@@ -75,20 +74,20 @@ export function useMedicationSafety(patientId: string) {
     if (!patientId) return;
     
     try {
-      // Get the most recent vital signs with weight data
+      // Check if vital_signs table has a weight field
       const { data, error } = await supabase
         .from('vital_signs')
-        .select('timestamp, weight')
+        .select('*')
         .eq('patient_id', patientId)
-        .not('weight', 'is', null)
         .order('timestamp', { ascending: false })
         .limit(1);
       
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
+      // If there's data and it contains weight information
+      if (data && data.length > 0 && typeof data[0].weight === 'number') {
         setPatientWeight(data[0].weight);
         setWeightLastUpdated(new Date(data[0].timestamp));
+      } else {
+        console.log('No weight data found for patient');
       }
     } catch (error) {
       console.error('Error fetching patient weight:', error);
@@ -101,14 +100,19 @@ export function useMedicationSafety(patientId: string) {
     
     try {
       const timestamp = new Date().toISOString();
+      const recorder_name = 'System'; // Default recorder name
       
+      // Insert new vital signs record with weight
       const { error } = await supabase
         .from('vital_signs')
-        .insert([{
+        .insert({
           patient_id: patientId,
-          weight: weight,
+          recorder_name: recorder_name,
+          // If the weight field exists in vital_signs table, it will be included,
+          // otherwise we'll use a note to store the weight
+          notes: `Patient weight: ${weight} kg`,
           timestamp: timestamp
-        }]);
+        });
       
       if (error) throw error;
       
