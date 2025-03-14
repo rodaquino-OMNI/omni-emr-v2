@@ -2,6 +2,9 @@
 import { patientsTranslations } from './categories/patients';
 import { usersTranslations } from './categories/users';
 
+// Define the type for translation keys
+export type TranslationKey = string;
+
 // Merge all translation categories
 export const translations = {
   appName: {
@@ -125,6 +128,10 @@ export const translations = {
   noInsightsAvailable: {
     en: 'No insights available',
     pt: 'Nenhuma informação disponível'
+  },
+  noHistoricalUpdates: {
+    en: 'No historical updates available',
+    pt: 'Nenhuma atualização histórica disponível'
   },
   completed: {
     en: 'Completed',

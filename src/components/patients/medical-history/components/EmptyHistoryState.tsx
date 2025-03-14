@@ -8,7 +8,7 @@ const EmptyHistoryState = () => {
   
   return (
     <div className="text-center py-8 text-muted-foreground">
-      <TranslatedText translationKey="noHistoricalUpdates" />
+      <TranslatedText textKey="noHistoricalUpdates" />
     </div>
   );
 };
