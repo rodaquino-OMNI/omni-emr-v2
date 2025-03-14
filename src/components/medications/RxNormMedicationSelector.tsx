@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
-import { Search, Check, AlertCircle, RefreshCw, Database } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Check, AlertCircle, RefreshCw, Database, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { debounce } from 'lodash';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,12 @@ import { useTranslation } from '@/hooks/useTranslation';
 import {
   searchMedicationsByName,
   getMedicationDetails,
-  mapRxNormToANVISA
+  mapRxNormToANVISA,
+  getDisplayTerms,
+  getNDCsByRxCUI,
+  getSpellingSuggestions
 } from '@/services/rxnorm/rxnormService';
-import { RxNormMedication } from '@/types/rxnorm';
+import { RxNormMedication, RxNormDisplayTerm, RxNormNDC } from '@/types/rxnorm';
 
 interface RxNormMedicationSelectorProps {
   onMedicationSelect: (medication: {
@@ -20,6 +24,7 @@ interface RxNormMedicationSelectorProps {
     rxnormCode: string;
     anvisaCode: string | null;
     details: any;
+    ndcs?: RxNormNDC[];
   }) => void;
   initialSearchTerm?: string;
 }
@@ -35,12 +40,56 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
   const [selectedMedication, setSelectedMedication] = useState<RxNormMedication | null>(null);
   const [medicationDetails, setMedicationDetails] = useState<any | null>(null);
   const [anvisaCode, setAnvisaCode] = useState<string | null>(null);
+  const [autocompleteResults, setAutocompleteResults] = useState<RxNormDisplayTerm[]>([]);
+  const [ndcCodes, setNdcCodes] = useState<RxNormNDC[]>([]);
+  const [spellingSuggestions, setSpellingSuggestions] = useState<string[]>([]);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  
+  const autocompleteRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialSearchTerm) {
       handleSearch();
     }
+    
+    // Handle clicks outside of autocomplete
+    const handleClickOutside = (event: MouseEvent) => {
+      if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node)) {
+        setShowAutocomplete(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [initialSearchTerm]);
+  
+  // Debounced function for autocomplete
+  const debouncedAutocomplete = useRef(
+    debounce(async (term: string) => {
+      if (term.length < 2) {
+        setAutocompleteResults([]);
+        return;
+      }
+      
+      try {
+        const results = await getDisplayTerms(term, 10);
+        setAutocompleteResults(results);
+        setShowAutocomplete(results.length > 0);
+      } catch (error) {
+        console.error('Error fetching autocomplete results:', error);
+      }
+    }, 300)
+  ).current;
+  
+  useEffect(() => {
+    debouncedAutocomplete(searchTerm);
+    
+    return () => {
+      debouncedAutocomplete.cancel();
+    };
+  }, [searchTerm, debouncedAutocomplete]);
 
   const handleSearch = async () => {
     if (!searchTerm || searchTerm.length < 3) return;
@@ -49,18 +98,26 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     setSearchResults([]);
     setSelectedMedication(null);
     setMedicationDetails(null);
+    setNdcCodes([]);
+    setShowAutocomplete(false);
     
     try {
       const results = await searchMedicationsByName(searchTerm);
       setSearchResults(results);
       
       if (results.length === 0) {
+        // Get spelling suggestions
+        const suggestions = await getSpellingSuggestions(searchTerm);
+        setSpellingSuggestions(suggestions);
+        
         toast(t('noMedicationsFound'), {
           description: language === 'pt' 
             ? "Tente um termo de pesquisa diferente" 
             : "Try a different search term",
           icon: <AlertCircle className="h-5 w-5 text-amber-500" />
         });
+      } else {
+        setSpellingSuggestions([]);
       }
     } catch (error) {
       console.error('Error searching for medications:', error);
@@ -87,12 +144,17 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       const anvisa = await mapRxNormToANVISA(medication.rxcui);
       setAnvisaCode(anvisa);
       
+      // Get NDC codes
+      const ndcs = await getNDCsByRxCUI(medication.rxcui);
+      setNdcCodes(ndcs);
+      
       // Notify parent component
       onMedicationSelect({
         name: medication.name,
         rxnormCode: medication.rxcui,
         anvisaCode: anvisa,
-        details
+        details,
+        ndcs
       });
       
       toast(t('medicationSelected'), {
@@ -102,6 +164,24 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     } catch (error) {
       console.error('Error getting medication details:', error);
     }
+  };
+  
+  const handleAutocompleteSelect = (term: RxNormDisplayTerm) => {
+    setSearchTerm(term.name);
+    setShowAutocomplete(false);
+    
+    // Get the medication details immediately
+    const medicationToSelect = {
+      rxcui: term.rxcui,
+      name: term.name,
+      tty: term.tty
+    };
+    handleSelectMedication(medicationToSelect);
+  };
+  
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setTimeout(() => handleSearch(), 100);
   };
 
   return (
@@ -116,8 +196,50 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
+              onFocus={() => searchTerm.length >= 2 && setShowAutocomplete(autocompleteResults.length > 0)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
             />
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            {searchTerm && (
+              <button 
+                className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setSearchTerm('');
+                  setAutocompleteResults([]);
+                  setShowAutocomplete(false);
+                }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+            
+            {/* Autocomplete dropdown */}
+            {showAutocomplete && (
+              <div 
+                ref={autocompleteRef}
+                className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg"
+              >
+                <ul className="max-h-60 overflow-y-auto py-1 text-sm">
+                  {autocompleteResults.map((term) => (
+                    <li
+                      key={`${term.rxcui}-${term.name}`}
+                      className="px-3 py-2 hover:bg-accent cursor-pointer"
+                      onClick={() => handleAutocompleteSelect(term)}
+                    >
+                      {term.name}
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({term.tty})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
           <Button 
             onClick={handleSearch}
@@ -133,6 +255,26 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
           </Button>
         </div>
       </div>
+
+      {/* Spelling suggestions */}
+      {spellingSuggestions.length > 0 && (
+        <div className="text-sm">
+          <p className="mb-1 text-muted-foreground">
+            {language === 'pt' ? 'Você quis dizer:' : 'Did you mean:'}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {spellingSuggestions.map((suggestion) => (
+              <button
+                key={suggestion}
+                className="px-2 py-1 rounded bg-accent hover:bg-accent/80 text-accent-foreground text-xs"
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {searchResults.length > 0 && (
         <div className="rounded-md border border-border">
@@ -201,6 +343,24 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
               </div>
             )}
           </div>
+          
+          {/* NDC Codes Section */}
+          {ndcCodes.length > 0 && (
+            <div className="mt-4">
+              <Label className="text-xs text-muted-foreground mb-1 block">
+                {language === 'pt' ? 'Códigos NDC' : 'NDC Codes'}
+              </Label>
+              <div className="bg-muted p-2 rounded text-sm max-h-20 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2">
+                  {ndcCodes.map((ndc, index) => (
+                    <div key={`${ndc.ndc}-${index}`} className="text-xs">
+                      {ndc.ndc}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

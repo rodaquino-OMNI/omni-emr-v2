@@ -1,6 +1,12 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { RxNormMedication, RxNormMedicationDetails, RxNormConcept } from '@/types/rxnorm';
+import { 
+  RxNormMedication, 
+  RxNormMedicationDetails, 
+  RxNormConcept, 
+  RxNormNDC,
+  RxNormDisplayTerm,
+  RxNormInteraction
+} from '@/types/rxnorm';
 import { Json } from '@/integrations/supabase/types';
 
 // RxNorm API base URL
@@ -60,6 +66,26 @@ interface RxNormAllPropResponse {
       propName: string;
       propValue: string;
     }>;
+  };
+}
+
+interface RxNormNDCResponse {
+  ndcGroup: {
+    ndcList: {
+      ndc: string[];
+    };
+  };
+}
+
+interface RxNormDisplayTermsResponse {
+  displayTermsList: {
+    term: RxNormDisplayTerm[];
+  };
+}
+
+interface RxNormInteractionResponse {
+  interactionTypeGroup: {
+    interactionType: RxNormInteraction[];
   };
 }
 
@@ -270,6 +296,197 @@ const extractConceptsByType = (data: RxNormRelatedResponse, type: string): RxNor
     rxcui: prop.rxcui,
     name: prop.name
   }));
+};
+
+/**
+ * Get NDCs (National Drug Codes) for a medication by RxCUI
+ */
+export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
+  try {
+    // Check cache first
+    const { data: cachedNDCs, error: cacheError } = await supabase
+      .from('rxnorm_ndc_cache')
+      .select('*')
+      .eq('rxcui', rxcui)
+      .maybeSingle();
+
+    if (cachedNDCs && !cacheError) {
+      return (cachedNDCs.ndcs as unknown as RxNormNDC[]);
+    }
+
+    const response = await fetch(
+      `${RXNORM_API_BASE_URL}/rxcui/${rxcui}/ndcs`
+    );
+
+    if (!response.ok) {
+      throw new Error(`RxNorm API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    let ndcs: RxNormNDC[] = [];
+    
+    if (data.ndcGroup?.ndcList?.ndc) {
+      ndcs = data.ndcGroup.ndcList.ndc.map((ndc: string) => ({
+        ndc,
+        rxcui,
+        ndcItem: '',
+        packaging: '',
+        status: 'ACTIVE'
+      }));
+    }
+    
+    // Cache the results
+    const { error: insertError } = await supabase.from('rxnorm_ndc_cache').insert({
+      rxcui,
+      ndcs: ndcs as unknown as Json,
+      created_at: new Date().toISOString()
+    });
+
+    if (insertError) {
+      console.error('Error caching NDCs:', insertError);
+    }
+    
+    return ndcs;
+  } catch (error) {
+    console.error('Error getting NDCs by RxCUI:', error);
+    return [];
+  }
+};
+
+/**
+ * Get display terms for autocomplete
+ */
+export const getDisplayTerms = async (term: string, maxResults = 10): Promise<RxNormDisplayTerm[]> => {
+  try {
+    // Check cache first
+    const { data: cachedTerms, error: cacheError } = await supabase
+      .from('rxnorm_displayterms_cache')
+      .select('*')
+      .eq('search_term', term.toLowerCase())
+      .maybeSingle();
+
+    if (cachedTerms && !cacheError) {
+      return (cachedTerms.terms as unknown as RxNormDisplayTerm[]);
+    }
+
+    const response = await fetch(
+      `${RXNORM_API_BASE_URL}/displaynames?name=${encodeURIComponent(term)}&maxResults=${maxResults}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`RxNorm API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    let terms: RxNormDisplayTerm[] = [];
+    
+    if (data.displayTermsList?.term) {
+      terms = data.displayTermsList.term;
+    }
+    
+    // Cache the results
+    const { error: insertError } = await supabase.from('rxnorm_displayterms_cache').insert({
+      search_term: term.toLowerCase(),
+      terms: terms as unknown as Json,
+      created_at: new Date().toISOString()
+    });
+
+    if (insertError) {
+      console.error('Error caching display terms:', insertError);
+    }
+    
+    return terms;
+  } catch (error) {
+    console.error('Error getting display terms:', error);
+    return [];
+  }
+};
+
+/**
+ * Check drug-drug interactions between medications
+ */
+export const checkDrugInteractions = async (rxcuis: string[]): Promise<RxNormInteraction[]> => {
+  try {
+    if (!rxcuis || rxcuis.length < 2) {
+      return [];
+    }
+    
+    // Generate a unique key for caching
+    const interactionKey = rxcuis.sort().join('_');
+    
+    // Check cache first
+    const { data: cachedInteractions, error: cacheError } = await supabase
+      .from('rxnorm_interactions_cache')
+      .select('*')
+      .eq('interaction_key', interactionKey)
+      .maybeSingle();
+
+    if (cachedInteractions && !cacheError) {
+      return (cachedInteractions.interactions as unknown as RxNormInteraction[]);
+    }
+
+    // Note: Using the NIH Drug Interaction API which is separate from the RxNorm API
+    const response = await fetch(
+      `https://rxnav.nlm.nih.gov/REST/interaction/list?rxcuis=${rxcuis.join('+')}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Drug Interaction API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    let interactions: RxNormInteraction[] = [];
+    
+    if (data.interactionTypeGroup?.interactionType) {
+      interactions = data.interactionTypeGroup.interactionType;
+    }
+    
+    // Cache the results
+    const { error: insertError } = await supabase.from('rxnorm_interactions_cache').insert({
+      interaction_key: interactionKey,
+      rxcuis: rxcuis,
+      interactions: interactions as unknown as Json,
+      created_at: new Date().toISOString()
+    });
+
+    if (insertError) {
+      console.error('Error caching interactions:', insertError);
+    }
+    
+    return interactions;
+  } catch (error) {
+    console.error('Error checking drug interactions:', error);
+    return [];
+  }
+};
+
+/**
+ * Get spelling suggestions for a medication name
+ */
+export const getSpellingSuggestions = async (term: string): Promise<string[]> => {
+  try {
+    const response = await fetch(
+      `${RXNORM_API_BASE_URL}/spellingsuggestions?name=${encodeURIComponent(term)}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`RxNorm API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.suggestionGroup?.suggestionList?.suggestion) {
+      return data.suggestionGroup.suggestionList.suggestion;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error getting spelling suggestions:', error);
+    return [];
+  }
 };
 
 /**

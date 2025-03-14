@@ -29,6 +29,36 @@ export interface RxNormConcept {
   tty?: string;
 }
 
+// NDC (National Drug Code) record
+export interface RxNormNDC {
+  ndcItem: string;
+  packaging: string;
+  ndc: string;
+  rxcui: string;
+  status: string;
+}
+
+// Autocomplete suggestion type
+export interface RxNormDisplayTerm {
+  rxcui: string;
+  name: string;
+  tty: string;
+}
+
+// Drug-drug interaction result
+export interface RxNormInteraction {
+  interactionPair: {
+    interactionConcept: Array<{
+      minConceptItem: {
+        rxcui: string;
+        name: string;
+      };
+    }>;
+    severity: string;
+    description: string;
+  }[];
+}
+
 // ANVISA mapping record
 export interface RxNormAnvisaMapping {
   rxnormCode: string;

@@ -6,7 +6,8 @@ import { useTranslation } from '../hooks/useTranslation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RxNormMedicationSelector from '../components/medications/RxNormMedicationSelector';
 import RxNormAdminPanel from '../components/medications/RxNormAdminPanel';
-import { Database, GitBranch, FileSearch } from 'lucide-react';
+import DrugInteractionChecker from '../components/medications/DrugInteractionChecker';
+import { Database, GitBranch, FileSearch, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const RxNormManagementPage = () => {
@@ -35,10 +36,14 @@ const RxNormManagementPage = () => {
             </div>
 
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="search" className="flex items-center gap-2">
                   <FileSearch className="h-4 w-4" />
                   {language === 'pt' ? 'Pesquisar Medicamentos' : 'Search Medications'}
+                </TabsTrigger>
+                <TabsTrigger value="interactions" className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {language === 'pt' ? 'Interações' : 'Interactions'}
                 </TabsTrigger>
                 <TabsTrigger value="admin" className="flex items-center gap-2">
                   <GitBranch className="h-4 w-4" />
@@ -86,6 +91,10 @@ const RxNormManagementPage = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </TabsContent>
+              
+              <TabsContent value="interactions">
+                <DrugInteractionChecker />
               </TabsContent>
               
               <TabsContent value="admin">

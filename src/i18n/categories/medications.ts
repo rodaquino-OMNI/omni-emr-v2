@@ -61,6 +61,26 @@ interface MedicationsTranslations {
   syncRxNormData: string;
   lastSyncDate: string;
   
+  // Drug interaction related translations
+  drugInteractions: string;
+  checkInteractions: string;
+  noInteractionsFound: string;
+  interactionSeverity: string;
+  highSeverity: string;
+  moderateSeverity: string;
+  lowSeverity: string;
+  interactionDescription: string;
+  addMedication: string;
+  selectedMedications: string;
+  interactionsFound: string;
+  interactionChecker: string;
+  
+  // NDC and drug details
+  ndcCodes: string;
+  autocompleteResults: string;
+  spellingSuggestions: string;
+  didYouMean: string;
+  
   // Add missing keys
   prescribeMedication: string;
 }
@@ -129,6 +149,26 @@ export const medicationsTranslations = {
     syncRxNormData: "Sync Medication Data",
     lastSyncDate: "Last Sync Date",
     
+    // Drug interaction related translations
+    drugInteractions: "Drug Interactions",
+    checkInteractions: "Check Interactions",
+    noInteractionsFound: "No interactions found",
+    interactionSeverity: "Severity",
+    highSeverity: "High",
+    moderateSeverity: "Moderate",
+    lowSeverity: "Low",
+    interactionDescription: "Description",
+    addMedication: "Add Medication",
+    selectedMedications: "Selected Medications",
+    interactionsFound: "Interactions Found",
+    interactionChecker: "Drug Interaction Checker",
+    
+    // NDC and drug details
+    ndcCodes: "NDC Codes",
+    autocompleteResults: "Suggested Medications",
+    spellingSuggestions: "Spelling Suggestions",
+    didYouMean: "Did you mean",
+    
     // Add missing key
     prescribeMedication: "Prescribe Medication"
   },
@@ -192,6 +232,26 @@ export const medicationsTranslations = {
     medicationSelected: "Medicamento selecionado",
     syncRxNormData: "Sincronizar Dados de Medicamentos",
     lastSyncDate: "Última Data de Sincronização",
+    
+    // Drug interaction related translations
+    drugInteractions: "Interações Medicamentosas",
+    checkInteractions: "Verificar Interações",
+    noInteractionsFound: "Nenhuma interação encontrada",
+    interactionSeverity: "Gravidade",
+    highSeverity: "Alta",
+    moderateSeverity: "Moderada",
+    lowSeverity: "Baixa",
+    interactionDescription: "Descrição",
+    addMedication: "Adicionar Medicamento",
+    selectedMedications: "Medicamentos Selecionados",
+    interactionsFound: "Interações Encontradas",
+    interactionChecker: "Verificador de Interações Medicamentosas",
+    
+    // NDC and drug details
+    ndcCodes: "Códigos NDC",
+    autocompleteResults: "Medicamentos Sugeridos",
+    spellingSuggestions: "Sugestões de Ortografia",
+    didYouMean: "Você quis dizer",
     
     // Add missing key
     prescribeMedication: "Prescrever Medicamento"
