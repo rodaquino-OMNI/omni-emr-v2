@@ -45,8 +45,8 @@ export const mockSearchMedicationsByName = (name: string): Promise<RxNormMedicat
 export const mockGetDisplayTerms = (term: string): Promise<RxNormDisplayTerm[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const results = mockDisplayTerms.filter(term => 
-        term.name.toLowerCase().includes(term.toLowerCase())
+      const results = mockDisplayTerms.filter(displayTerm => 
+        displayTerm.name.toLowerCase().includes(term.toLowerCase())
       );
       resolve(results);
     }, 200); // Simulate network delay
