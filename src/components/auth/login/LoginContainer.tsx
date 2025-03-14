@@ -26,7 +26,7 @@ const LoginContainer = ({
         
         <div className="glass-card p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <div className="flex justify-between items-center mb-6">
-            <LanguageToggle language={language} setLanguage={(lang) => {}} />
+            <LanguageToggle language={language} setLanguage={() => {}} />
             <SupabaseConnectionStatus 
               showLabel={true}
               onStatusChange={setIsSupabaseConnected}
