@@ -138,6 +138,42 @@ export type Database = {
         }
         Relationships: []
       }
+      fluid_outputs: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          patient_id: string
+          recorded_by: string
+          recorder_name: string
+          timestamp: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          recorded_by: string
+          recorder_name: string
+          timestamp?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          recorded_by?: string
+          recorder_name?: string
+          timestamp?: string
+          type?: string
+        }
+        Relationships: []
+      }
       medical_entry_systems: {
         Row: {
           created_at: string

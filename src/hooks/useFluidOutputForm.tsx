@@ -48,6 +48,7 @@ export const useFluidOutputForm = ({ patientId, onSuccess }: UseFluidOutputFormP
         throw new Error('Database connection not available');
       }
       
+      // Add type assertion to handle the fluid_outputs table not being in the types
       const { error: insertError } = await supabase
         .from('fluid_outputs')
         .insert(fluidOutputData) as { error: any };

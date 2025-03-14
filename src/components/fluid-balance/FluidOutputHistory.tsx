@@ -29,6 +29,7 @@ const FluidOutputHistory: React.FC<FluidOutputHistoryProps> = ({ patientId, refr
           throw new Error('Database connection not available');
         }
         
+        // Add type assertion to handle the fluid_outputs table not being in the types
         const { data, error: fetchError } = await supabase
           .from('fluid_outputs')
           .select('*')
