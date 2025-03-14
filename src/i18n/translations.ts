@@ -1,21 +1,39 @@
 
 import { patientsTranslations } from './categories/patients';
 import { usersTranslations } from './categories/users';
+import { authTranslations } from './categories/auth';
+import { commonTranslations } from './categories/common';
 
 // Define the type for translation keys
 export type TranslationKey = string;
 
+// Import all translation categories from index file
+import { allTranslations } from './categories/index';
+
 // Merge all translation categories
 export const translations = {
+  // App general translations
   appName: {
     en: 'OmniCare',
     pt: 'OmniCare'
+  },
+  appDescription: {
+    en: 'Welcome to your healthcare platform.',
+    pt: 'Bem-vindo à sua plataforma de saúde.'
+  },
+  welcomeTo: {
+    en: 'Welcome to',
+    pt: 'Bem-vindo ao'
   },
   
   // Auth translations
   signIn: {
     en: 'Sign in to your account',
     pt: 'Entre na sua conta'
+  },
+  createAccount: {
+    en: 'Create Account',
+    pt: 'Criar Conta'
   },
   email: {
     en: 'Email',
@@ -33,11 +51,29 @@ export const translations = {
     en: 'Forgot password?',
     pt: 'Esqueceu a senha?'
   },
+  sendReminder: {
+    en: 'Send Reminder',
+    pt: 'Enviar Lembrete'
+  },
+  
+  // Language
+  english: {
+    en: 'English',
+    pt: 'Inglês'
+  },
+  portuguese: {
+    en: 'Portuguese',
+    pt: 'Português'
+  },
   
   // Dashboard
   dashboard: {
     en: 'Dashboard',
     pt: 'Painel'
+  },
+  goToDashboard: {
+    en: 'Go to Dashboard',
+    pt: 'Ir para o Painel'
   },
   
   // Navigation
@@ -89,6 +125,10 @@ export const translations = {
   },
   back: {
     en: 'Back',
+    pt: 'Voltar'
+  },
+  goBack: {
+    en: 'Go back',
     pt: 'Voltar'
   },
   
@@ -157,6 +197,22 @@ export const translations = {
     en: 'Schedule Consultation',
     pt: 'Agendar Consulta'
   },
+  
+  // Appointments
+  cancelAppointment: {
+    en: 'Cancel Appointment',
+    pt: 'Cancelar Consulta'
+  },
+  cancelAppointmentDescription: {
+    en: 'Are you sure you want to cancel this appointment? This action cannot be undone.',
+    pt: 'Tem certeza que deseja cancelar esta consulta? Esta ação não pode ser desfeita.'
+  },
+  confirmCancel: {
+    en: 'Yes, cancel appointment',
+    pt: 'Sim, cancelar consulta'
+  },
+  
+  // Security
   hipaaComplianceTitle: {
     en: 'HIPAA Compliant',
     pt: 'Em conformidade com HIPAA'
@@ -166,7 +222,62 @@ export const translations = {
     pt: 'Estes dados médicos são armazenados e transmitidos com segurança de acordo com as regulamentações HIPAA.'
   },
   
+  // Vitals translation keys
+  heartRate: {
+    en: 'Heart Rate',
+    pt: 'Frequência Cardíaca'
+  },
+  bpm: {
+    en: 'BPM',
+    pt: 'BPM'
+  },
+  bloodPressure: {
+    en: 'Blood Pressure',
+    pt: 'Pressão Arterial'
+  }, 
+  mmHg: {
+    en: 'mmHg',
+    pt: 'mmHg'
+  },
+  temperature: {
+    en: 'Temperature',
+    pt: 'Temperatura'
+  },
+  oxygenSaturation: {
+    en: 'Oxygen Saturation',
+    pt: 'Saturação de Oxigênio'
+  },
+  respiratoryRate: {
+    en: 'Respiratory Rate',
+    pt: 'Frequência Respiratória'
+  },
+  breathsPerMinute: {
+    en: 'breaths/min',
+    pt: 'resp/min'
+  },
+  bloodGlucose: {
+    en: 'Blood Glucose',
+    pt: 'Glicemia'
+  },
+  painLevel: {
+    en: 'Pain Level',
+    pt: 'Nível de Dor'
+  },
+  
+  // Login/authentication
+  loginSuccess: {
+    en: 'Login successful',
+    pt: 'Login bem-sucedido'
+  },
+  welcomeBack: {
+    en: 'Welcome back!',
+    pt: 'Bem-vindo de volta!'
+  },
+
   // Import category translations
   ...patientsTranslations,
   ...usersTranslations,
+  ...authTranslations,
+  ...commonTranslations,
 };
+

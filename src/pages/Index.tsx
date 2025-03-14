@@ -5,12 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import TranslatedText from '@/components/common/TranslatedText';
 
 const Index = () => {
   const navigate = useNavigate();
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated || false;
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   
   useEffect(() => {
     // Only auto-redirect authenticated users to dashboard
@@ -37,7 +38,7 @@ const Index = () => {
           ) : (
             <>
               <Button size="lg" onClick={() => navigate('/login')}>
-                {t('signIn')} <ArrowRight className="ml-2 h-4 w-4" />
+                {language === 'pt' ? 'Entre na sua conta' : 'Sign in'} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline" onClick={() => navigate('/register')}>
                 {t('createAccount')}
