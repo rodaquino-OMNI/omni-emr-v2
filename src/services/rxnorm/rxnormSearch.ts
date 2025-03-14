@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { RxNormMedication, RxNormDisplayTerm } from '@/types/rxnorm';
 import { Json } from '@/integrations/supabase/types';
@@ -77,23 +76,28 @@ export const getDisplayTerms = async (term: string, maxResults = 10): Promise<Rx
       .maybeSingle();
 
     if (cachedResult && !cacheError) {
+      console.log('Using cached display terms for', term);
       return (cachedResult.terms as unknown as RxNormDisplayTerm[]);
     }
 
+    console.log('Fetching display terms from RxNorm API for', term);
     const response = await fetch(
-      `${RXNORM_API_BASE_URL}/displaynames?name=${encodeURIComponent(term)}&maxResults=${maxResults}`
+      `${RXNORM_API_BASE_URL}/displayTerms?term=${encodeURIComponent(term)}&maxResults=${maxResults}`
     );
 
     if (!response.ok) {
+      console.error(`RxNorm API error: ${response.status} for term: ${term}`);
       throw new Error(`RxNorm API error: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('RxNorm API response:', data);
     
     let terms: RxNormDisplayTerm[] = [];
     
     if (data.displayTermsList?.term) {
       terms = data.displayTermsList.term;
+      console.log('Found terms:', terms.length);
     }
     
     // Store in cache directly
@@ -112,6 +116,19 @@ export const getDisplayTerms = async (term: string, maxResults = 10): Promise<Rx
     return terms;
   } catch (error) {
     console.error('Error getting display terms:', error);
+    
+    // For testing purposes, return mock data if the API fails
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Returning mock display terms data');
+      return [
+        { rxcui: '161', name: 'Acetaminophen', tty: 'IN' },
+        { rxcui: '1011', name: 'Aspirin', tty: 'IN' },
+        { rxcui: '1188', name: 'Amoxicillin', tty: 'IN' }
+      ].filter(item => 
+        item.name.toLowerCase().includes(term.toLowerCase())
+      );
+    }
+    
     return [];
   }
 };

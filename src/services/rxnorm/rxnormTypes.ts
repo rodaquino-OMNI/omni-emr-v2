@@ -1,91 +1,24 @@
 
-import { RxNormMedication, RxNormMedicationDetails, RxNormConcept, RxNormNDC, RxNormDisplayTerm, RxNormInteraction } from '@/types/rxnorm';
-import { Json } from '@/integrations/supabase/types';
+// RxNorm API endpoints
+export const RXNORM_API_BASE_URL = 'https://rxnav.nlm.nih.gov/REST';
 
-/**
- * API Response Types for RxNorm services
- */
+// For testing, uncomment the mock API if needed
+// export const RXNORM_API_BASE_URL = 'https://mock-rxnorm-api.example.com';
+
+// Response types for RxNorm API
 export interface RxNormSearchResponse {
-  rxnormData: {
-    idGroup?: {
-      rxnormId: string[];
-    };
-    drugGroup?: {
-      conceptGroup: Array<{
-        tty: string;
-        conceptProperties: RxNormMedication[];
-      }>;
-    };
-  };
-}
-
-export interface RxNormRelatedResponse {
-  relatedGroup: {
-    rxcui: string;
-    rxcuiName: string;
-    termType: string[];
-    conceptGroup: Array<{
-      tty: string;
-      conceptProperties: Array<{
-        rxcui: string;
-        name: string;
-        tty: string;
-      }>;
-    }>;
-  };
-}
-
-export interface RxNormHistoryResponse {
-  rxcuiStatusHistory: {
-    rxcui: string;
-    status: string;
-    history: Array<{
-      rxcui: string;
-      sab: string;
-      code: string;
-      originalRxcui: string;
-      changeType: string;
-      changeDate: string;
-    }>;
-  };
-}
-
-export interface RxNormAllPropResponse {
-  propConceptGroup: {
-    propConcept: Array<{
-      propName: string;
-      propValue: string;
-    }>;
-  };
-}
-
-export interface RxNormNDCResponse {
-  ndcGroup: {
-    ndcList: {
-      ndc: string[];
-    };
-  };
+  rxnormId: string;
+  name: string;
+  synonym?: string;
+  tty?: string;
 }
 
 export interface RxNormDisplayTermsResponse {
   displayTermsList: {
-    term: RxNormDisplayTerm[];
+    term: Array<{
+      rxcui: string;
+      name: string;
+      tty: string;
+    }>;
   };
 }
-
-export interface RxNormInteractionResponse {
-  interactionTypeGroup: {
-    interactionType: RxNormInteraction[];
-  };
-}
-
-export interface MappingEntry {
-  rxnormCode: string;
-  anvisaCode: string;
-  name: string;
-  mappingDate: Date;
-  isVerified: boolean;
-}
-
-// RxNorm API base URL
-export const RXNORM_API_BASE_URL = 'https://rxnav.nlm.nih.gov/REST';

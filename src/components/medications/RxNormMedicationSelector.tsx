@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Check, AlertCircle, RefreshCw, Database, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -52,7 +51,6 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       handleSearch();
     }
     
-    // Handle clicks outside of autocomplete
     const handleClickOutside = (event: MouseEvent) => {
       if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node)) {
         setShowAutocomplete(false);
@@ -65,30 +63,37 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     };
   }, [initialSearchTerm]);
   
-  // Debounced function for autocomplete
   const debouncedAutocomplete = useRef(
     debounce(async (term: string) => {
       if (term.length < 2) {
         setAutocompleteResults([]);
+        setShowAutocomplete(false);
         return;
       }
       
       try {
+        console.log('Calling getDisplayTerms for term:', term);
+        setIsSearching(true);
         const results = await getDisplayTerms(term, 10);
+        console.log('Autocomplete results:', results);
         setAutocompleteResults(results);
         setShowAutocomplete(results.length > 0);
       } catch (error) {
         console.error('Error fetching autocomplete results:', error);
+      } finally {
+        setIsSearching(false);
       }
     }, 300)
   ).current;
   
   useEffect(() => {
-    debouncedAutocomplete(searchTerm);
-    
     return () => {
       debouncedAutocomplete.cancel();
     };
+  }, [debouncedAutocomplete]);
+  
+  useEffect(() => {
+    debouncedAutocomplete(searchTerm);
   }, [searchTerm, debouncedAutocomplete]);
 
   const handleSearch = async () => {
@@ -106,7 +111,6 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       setSearchResults(results);
       
       if (results.length === 0) {
-        // Get spelling suggestions
         const suggestions = await getSpellingSuggestions(searchTerm);
         setSpellingSuggestions(suggestions);
         
@@ -136,19 +140,15 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     setSelectedMedication(medication);
     
     try {
-      // Get medication details
       const details = await getMedicationDetails(medication.rxcui);
       setMedicationDetails(details);
       
-      // Get ANVISA code mapping
       const anvisa = await mapRxNormToANVISA(medication.rxcui);
       setAnvisaCode(anvisa);
       
-      // Get NDC codes
       const ndcs = await getNDCsByRxCUI(medication.rxcui);
       setNdcCodes(ndcs);
       
-      // Notify parent component
       onMedicationSelect({
         name: medication.name,
         rxnormCode: medication.rxcui,
@@ -167,10 +167,10 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
   };
   
   const handleAutocompleteSelect = (term: RxNormDisplayTerm) => {
+    console.log('Selected term:', term);
     setSearchTerm(term.name);
     setShowAutocomplete(false);
     
-    // Get the medication details immediately
     const medicationToSelect = {
       rxcui: term.rxcui,
       name: term.name,
@@ -196,7 +196,11 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
-              onFocus={() => searchTerm.length >= 2 && setShowAutocomplete(autocompleteResults.length > 0)}
+              onFocus={() => {
+                if (searchTerm.length >= 2 && autocompleteResults.length > 0) {
+                  setShowAutocomplete(true);
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -218,27 +222,42 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
               </button>
             )}
             
-            {/* Autocomplete dropdown */}
-            {showAutocomplete && (
-              <div 
-                ref={autocompleteRef}
-                className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg"
-              >
-                <ul className="max-h-60 overflow-y-auto py-1 text-sm">
-                  {autocompleteResults.map((term) => (
-                    <li
-                      key={`${term.rxcui}-${term.name}`}
-                      className="px-3 py-2 hover:bg-accent cursor-pointer"
-                      onClick={() => handleAutocompleteSelect(term)}
-                    >
-                      {term.name}
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        ({term.tty})
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {searchTerm.length >= 2 && (
+              <>
+                {isSearching && (
+                  <div className="absolute right-10 top-2.5">
+                    <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+                
+                {showAutocomplete && (
+                  <div 
+                    ref={autocompleteRef}
+                    className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg"
+                  >
+                    {autocompleteResults.length > 0 ? (
+                      <ul className="max-h-60 overflow-y-auto py-1 text-sm">
+                        {autocompleteResults.map((term) => (
+                          <li
+                            key={`${term.rxcui}-${term.name}`}
+                            className="px-3 py-2 hover:bg-accent cursor-pointer"
+                            onClick={() => handleAutocompleteSelect(term)}
+                          >
+                            {term.name}
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              ({term.tty})
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : !isSearching && (
+                      <div className="p-2 text-sm text-muted-foreground">
+                        No results found
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
           <Button 
@@ -256,7 +275,6 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
         </div>
       </div>
 
-      {/* Spelling suggestions */}
       {spellingSuggestions.length > 0 && (
         <div className="text-sm">
           <p className="mb-1 text-muted-foreground">
@@ -344,7 +362,6 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
             )}
           </div>
           
-          {/* NDC Codes Section */}
           {ndcCodes.length > 0 && (
             <div className="mt-4">
               <Label className="text-xs text-muted-foreground mb-1 block">

@@ -11,7 +11,6 @@ import { PrescriptionItem, createPrescription } from '../services/prescriptionSe
 import { ArrowLeft, Save, Pill, AlertTriangle, Plus, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Define types for the form
 type PrescriptionFormState = {
   patientId: string;
   patientName: string;
@@ -19,7 +18,6 @@ type PrescriptionFormState = {
   items: PrescriptionItem[];
 };
 
-// Type for the item being currently edited
 type CurrentItem = Omit<PrescriptionItem, 'id' | 'status'> & { index?: number };
 
 const PrescribeMedicationPage = () => {
@@ -29,11 +27,9 @@ const PrescribeMedicationPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Check if user has permission to prescribe
   const canPrescribe = user?.role === 'doctor' || user?.role === 'admin' || 
                       (user?.permissions && user.permissions.includes('prescribe_medications'));
   
-  // State for the prescription form
   const [prescriptionData, setPrescriptionData] = useState<PrescriptionFormState>({
     patientId: patientId || '',
     patientName: '',
@@ -41,7 +37,6 @@ const PrescribeMedicationPage = () => {
     items: []
   });
   
-  // State for the currently edited item
   const [currentItem, setCurrentItem] = useState<CurrentItem>({
     name: '',
     type: 'medication',
@@ -54,14 +49,10 @@ const PrescribeMedicationPage = () => {
     instructions: ''
   });
   
-  // State for the active tab
   const [activeTab, setActiveTab] = useState<string>('medication');
   
-  // Load patient data if patientId is provided
   useEffect(() => {
     if (patientId) {
-      // In a real app, you would fetch patient data here
-      // For now, just set a mock patient name
       setPrescriptionData(prev => ({
         ...prev,
         patientId,
@@ -70,34 +61,42 @@ const PrescribeMedicationPage = () => {
     }
   }, [patientId]);
   
-  // Handle tab change
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     setCurrentItem(prev => ({
       ...prev,
       type: value as PrescriptionItem['type'],
-      // Reset fields that are not relevant to the new type
       dosage: value === 'medication' ? prev.dosage : '',
       frequency: ['medication', 'procedure'].includes(value) ? prev.frequency : '',
       duration: ['medication', 'procedure'].includes(value) ? prev.duration : ''
     }));
   };
   
-  // Handle changes to prescription data
   const handlePrescriptionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setPrescriptionData(prev => ({ ...prev, [name]: value }));
   };
   
-  // Handle changes to the current item
   const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
+    if (name === 'name' && value.length >= 3 && currentItem.type === 'medication') {
+      const commonMedications = [
+        'Acetaminophen', 'Ibuprofen', 'Aspirin', 'Lisinopril', 'Atorvastatin',
+        'Metformin', 'Levothyroxine', 'Amlodipine', 'Metoprolol', 'Omeprazole'
+      ];
+      
+      const matchingMeds = commonMedications.filter(med => 
+        med.toLowerCase().includes(value.toLowerCase())
+      );
+      
+      console.log('Medication suggestions:', matchingMeds);
+    }
+    
     setCurrentItem(prev => ({ ...prev, [name]: value }));
   };
   
-  // Add the current item to the prescription
   const handleAddItem = () => {
-    // Validate required fields
     if (!currentItem.name) {
       toast.success("Item name is required", { description: "Please enter a name for the item." });
       return;
@@ -118,19 +117,16 @@ const PrescribeMedicationPage = () => {
     };
     
     if (currentItem.index !== undefined) {
-      // Update existing item
       const updatedItems = [...prescriptionData.items];
       updatedItems[currentItem.index] = newItem;
       setPrescriptionData(prev => ({ ...prev, items: updatedItems }));
     } else {
-      // Add new item
       setPrescriptionData(prev => ({ 
         ...prev, 
         items: [...prev.items, newItem] 
       }));
     }
     
-    // Reset current item
     setCurrentItem({
       name: '',
       type: activeTab as PrescriptionItem['type'],
@@ -146,7 +142,6 @@ const PrescribeMedicationPage = () => {
     toast.success(`${currentItem.name} added to prescription`, { description: "The item has been successfully added to the prescription." });
   };
   
-  // Edit an existing item
   const handleEditItem = (index: number) => {
     const item = prescriptionData.items[index];
     setActiveTab(item.type);
@@ -164,7 +159,6 @@ const PrescribeMedicationPage = () => {
     });
   };
   
-  // Remove an item from the prescription
   const handleRemoveItem = (index: number) => {
     const updatedItems = [...prescriptionData.items];
     updatedItems.splice(index, 1);
@@ -173,7 +167,6 @@ const PrescribeMedicationPage = () => {
     toast.success("Item removed", { description: "The item has been removed from the prescription." });
   };
   
-  // Submit the prescription
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -188,7 +181,6 @@ const PrescribeMedicationPage = () => {
     }
     
     try {
-      // Create the prescription
       await createPrescription({
         patientId: prescriptionData.patientId,
         patientName: prescriptionData.patientName,
@@ -202,7 +194,6 @@ const PrescribeMedicationPage = () => {
       
       toast.success("Prescription created successfully", { description: "The prescription has been successfully created." });
       
-      // Navigate back
       if (patientId) {
         navigate(`/patients/${patientId}`);
       } else {
@@ -214,7 +205,6 @@ const PrescribeMedicationPage = () => {
     }
   };
   
-  // If user doesn't have permission, redirect or show message
   if (!canPrescribe) {
     return (
       <div className="min-h-screen flex bg-background">
@@ -275,7 +265,6 @@ const PrescribeMedicationPage = () => {
             
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
-                {/* Patient Information */}
                 <div className="glass-card p-6">
                   <h2 className="text-lg font-medium mb-4">Patient Information</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -310,7 +299,6 @@ const PrescribeMedicationPage = () => {
                   </div>
                 </div>
                 
-                {/* Prescription Items */}
                 <div className="glass-card p-6">
                   <h2 className="text-lg font-medium mb-4">Prescription Items</h2>
                   
@@ -634,7 +622,6 @@ const PrescribeMedicationPage = () => {
                     </div>
                   </Tabs>
                   
-                  {/* List of Added Items */}
                   {prescriptionData.items.length > 0 && (
                     <div className="mt-6">
                       <h3 className="font-medium mb-3">Added Items</h3>
@@ -668,7 +655,6 @@ const PrescribeMedicationPage = () => {
                   )}
                 </div>
                 
-                {/* Notes */}
                 <div className="glass-card p-6">
                   <h2 className="text-lg font-medium mb-4">Additional Notes</h2>
                   <div className="space-y-2">
