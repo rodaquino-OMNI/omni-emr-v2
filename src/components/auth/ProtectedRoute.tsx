@@ -55,14 +55,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const permissionGranted = hasPermission(requiredPermission);
     
     if (!permissionGranted) {
-      toast.error(language === 'pt'
-        ? 'Acesso negado: Permissão necessária'
-        : 'Access denied: Required permission missing', {
-        description: language === 'pt'
-          ? 'Você não tem permissão para acessar esta funcionalidade.'
-          : 'You do not have permission to access this functionality.',
-        icon: <LockIcon className="h-5 w-5" />
-      });
+      toast(
+        language === 'pt'
+          ? 'Acesso negado: Permissão necessária'
+          : 'Access denied: Required permission missing', 
+        {
+          description: language === 'pt'
+            ? 'Você não tem permissão para acessar esta funcionalidade.'
+            : 'You do not have permission to access this functionality.',
+          icon: <LockIcon className="h-5 w-5" />
+        }
+      );
       
       return <Navigate to="/unauthorized" replace />;
     }

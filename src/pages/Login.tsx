@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 import { secureStorage } from '@/utils/secureStorage';
@@ -29,13 +29,15 @@ const Login = () => {
       setIsSupabaseConnected(isConnected);
       
       if (!isConnected) {
-        toast({
-          title: language === 'pt' ? 'Erro de conexão' : 'Connection error',
-          description: language === 'pt' 
-            ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
-            : 'Could not connect to the server. Some features may not be available.',
-          variant: "destructive"
-        });
+        toast(
+          language === 'pt' ? 'Erro de conexão' : 'Connection error',
+          {
+            description: language === 'pt' 
+              ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
+              : 'Could not connect to the server. Some features may not be available.',
+            variant: "destructive"
+          }
+        );
       }
     };
     
@@ -46,13 +48,15 @@ const Login = () => {
   useEffect(() => {
     const { state } = location;
     if (state && state.timeout) {
-      toast({
-        title: language === 'pt' ? "Sessão expirada" : "Session expired",
-        description: language === 'pt' 
-          ? "Sua sessão expirou devido a inatividade. Por favor, faça login novamente."
-          : "Your session has expired due to inactivity. Please log in again.",
-        variant: "destructive"
-      });
+      toast(
+        language === 'pt' ? "Sessão expirada" : "Session expired",
+        {
+          description: language === 'pt' 
+            ? "Sua sessão expirou devido a inatividade. Por favor, faça login novamente."
+            : "Your session has expired due to inactivity. Please log in again.",
+          variant: "destructive"
+        }
+      );
     }
     
     // Check if user was redirected from a specific page
