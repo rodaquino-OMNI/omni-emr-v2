@@ -5,12 +5,11 @@ import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import PrescriptionCard from './PrescriptionCard';
 import EmptyPrescriptionsState from './EmptyPrescriptionsState';
-import { Prescription } from '@/services/prescriptionService';
 import { ChevronRight, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type PrescriptionsListProps = {
-  prescriptions: Prescription[];
+  prescriptions: any[];
   patientId?: string;
   className?: string;
   limit?: number;
@@ -29,9 +28,12 @@ const PrescriptionsList = ({
   const { user } = useAuth();
   const isDoctor = user?.role === 'doctor' || user?.role === 'admin';
   
-  // Filter prescriptions by patientId if provided
+  // Filter prescriptions by patientId if provided - works with both FHIR data structure and legacy data
   const filteredPrescriptions = patientId 
-    ? prescriptions.filter(prescription => prescription.patientId === patientId)
+    ? prescriptions.filter(prescription => 
+        // FHIR structure uses subject_id, legacy uses patientId
+        (prescription.subject_id === patientId || prescription.patientId === patientId)
+      )
     : prescriptions;
   
   const displayedPrescriptions = limit ? filteredPrescriptions.slice(0, limit) : filteredPrescriptions;

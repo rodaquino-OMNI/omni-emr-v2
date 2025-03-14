@@ -7,6 +7,7 @@ import { Patient } from '../PatientCard';
 import { usePatientPrescriptions } from '../hooks/usePatientPrescriptions';
 import { canPerformMedicationAction } from '@/utils/permissions/medicationManagement';
 import { useAuth } from '@/context/AuthContext';
+import { extractTextFromCodeableConcept } from '@/utils/fhir/fhirExtractors';
 
 type MedicationsCardProps = {
   patient: Patient;
@@ -22,6 +23,38 @@ const MedicationsCard = ({ patient, prescriptions: initialPrescriptions }: Medic
   
   // Check if user can prescribe medications
   const canPrescribe = user ? canPerformMedicationAction(user, 'prescribe') : false;
+  
+  // Extract medication name appropriately based on whether it's FHIR format or not
+  const getMedicationName = (medication: any): string => {
+    if (medication.medication_codeable_concept) {
+      // FHIR format
+      return extractTextFromCodeableConcept(medication.medication_codeable_concept, 'Unknown Medication');
+    }
+    // Legacy format - name is directly on the object
+    return medication.name || 'Unknown Medication';
+  };
+  
+  // Extract medication dosage from either format
+  const getMedicationDosage = (medication: any): string => {
+    if (medication.dosage_instruction && medication.dosage_instruction.length > 0) {
+      // FHIR format
+      const dosageInst = medication.dosage_instruction[0];
+      if (dosageInst.doseAndRate && dosageInst.doseAndRate.length > 0) {
+        const doseQuantity = dosageInst.doseAndRate[0].doseQuantity;
+        if (doseQuantity) {
+          return `${doseQuantity.value || ''} ${doseQuantity.unit || ''}`.trim();
+        }
+      }
+      return dosageInst.text || '';
+    }
+    // Legacy format
+    return medication.dosage || '';
+  };
+  
+  // Extract medication status from either format
+  const getStatus = (medication: any): string => {
+    return medication.status || 'unknown';
+  };
   
   return (
     <Card>
@@ -63,18 +96,18 @@ const MedicationsCard = ({ patient, prescriptions: initialPrescriptions }: Medic
                   <Pill className="h-4 w-4" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-sm">{prescription.name}</div>
-                  <div className="text-xs text-muted-foreground">{prescription.dosage}</div>
+                  <div className="font-medium text-sm">{getMedicationName(prescription)}</div>
+                  <div className="text-xs text-muted-foreground">{getMedicationDosage(prescription)}</div>
                   {prescription.nextDose && (
                     <div className="text-xs text-blue-600 mt-1">Next dose: {prescription.nextDose}</div>
                   )}
                 </div>
-                {prescription.status === 'on-hold' && (
+                {getStatus(prescription) === 'on-hold' && (
                   <div className="px-2 py-1 text-xs bg-amber-50 text-amber-800 rounded-full">
                     On Hold
                   </div>
                 )}
-                {prescription.status === 'active' && prescription.priority === 'high' && (
+                {getStatus(prescription) === 'active' && prescription.priority === 'high' && (
                   <div className="px-2 py-1 text-xs bg-red-50 text-red-800 rounded-full">
                     High Priority
                   </div>

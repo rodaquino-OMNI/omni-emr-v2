@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,13 +38,53 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
   ];
   
   useEffect(() => {
-    // Pass form data to parent component when it changes
-    onDataChange({
+    const fhirMedicationRequest = {
       ...formData,
       duration: startDate && endDate 
         ? `${Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} days` 
-        : formData.duration
-    });
+        : formData.duration,
+      fhirData: {
+        resourceType: 'MedicationRequest',
+        status: 'active',
+        intent: 'order',
+        medicationCodeableConcept: {
+          text: formData.medicationName
+        },
+        subject: {
+          reference: `Patient/${formData.patientId}`
+        },
+        authoredOn: startDate?.toISOString(),
+        dosageInstruction: [{
+          text: formData.instructions,
+          timing: {
+            code: {
+              text: formData.frequency
+            }
+          },
+          doseAndRate: [{
+            doseQuantity: {
+              value: formData.dosage?.replace(/[^0-9.]/g, ''),
+              unit: formData.dosage?.replace(/[0-9.]/g, '').trim()
+            }
+          }],
+          route: {
+            text: formData.route
+          }
+        }],
+        dispenseRequest: endDate ? {
+          validityPeriod: {
+            start: startDate?.toISOString(),
+            end: endDate?.toISOString()
+          }
+        } : undefined,
+        substitution: {
+          allowedBoolean: formData.substitutionAllowed
+        },
+        priority: formData.priority
+      }
+    };
+    
+    onDataChange(fhirMedicationRequest);
   }, [formData, startDate, endDate, onDataChange]);
   
   const handleInputChange = (field: keyof MedicationOrder, value: any) => {
@@ -56,17 +95,15 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
   };
   
   const searchMedications = (term: string) => {
-    // This would be an API call to a medication database in a real app
-    // Simulating search results
     const mockResults = [
-      { id: 1, name: 'Acetaminophen 500mg Tablet', generic: 'Acetaminophen' },
-      { id: 2, name: 'Ibuprofen 400mg Tablet', generic: 'Ibuprofen' },
-      { id: 3, name: 'Amoxicillin 500mg Capsule', generic: 'Amoxicillin' },
-      { id: 4, name: 'Lisinopril 10mg Tablet', generic: 'Lisinopril' },
-      { id: 5, name: 'Atorvastatin 20mg Tablet', generic: 'Atorvastatin' },
-      { id: 6, name: 'Metformin 500mg Tablet', generic: 'Metformin' },
-      { id: 7, name: 'Sertraline 50mg Tablet', generic: 'Sertraline' },
-      { id: 8, name: 'Albuterol 90mcg Inhaler', generic: 'Albuterol' }
+      { id: 1, name: 'Acetaminophen 500mg Tablet', generic: 'Acetaminophen', rxnorm: '198440' },
+      { id: 2, name: 'Ibuprofen 400mg Tablet', generic: 'Ibuprofen', rxnorm: '310965' },
+      { id: 3, name: 'Amoxicillin 500mg Capsule', generic: 'Amoxicillin', rxnorm: '308182' },
+      { id: 4, name: 'Lisinopril 10mg Tablet', generic: 'Lisinopril', rxnorm: '314076' },
+      { id: 5, name: 'Atorvastatin 20mg Tablet', generic: 'Atorvastatin', rxnorm: '259255' },
+      { id: 6, name: 'Metformin 500mg Tablet', generic: 'Metformin', rxnorm: '861007' },
+      { id: 7, name: 'Sertraline 50mg Tablet', generic: 'Sertraline', rxnorm: '312940' },
+      { id: 8, name: 'Albuterol 90mcg Inhaler', generic: 'Albuterol', rxnorm: '801095' }
     ].filter(med => 
       med.name.toLowerCase().includes(term.toLowerCase()) || 
       med.generic.toLowerCase().includes(term.toLowerCase())
@@ -91,7 +128,16 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
   const selectMedication = (medication: any) => {
     setFormData(prev => ({
       ...prev,
-      medicationName: medication.name
+      medicationName: medication.name,
+      rxnormCode: medication.rxnorm,
+      fhirMedication: {
+        coding: [{
+          system: "http://www.nlm.nih.gov/research/umls/rxnorm",
+          code: medication.rxnorm,
+          display: medication.name
+        }],
+        text: medication.name
+      }
     }));
     setSearchTerm(medication.name);
     setShowSearch(false);
@@ -124,6 +170,9 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
                   >
                     <div className="font-medium">{med.name}</div>
                     <div className="text-xs text-muted-foreground">{med.generic}</div>
+                    {med.rxnorm && (
+                      <div className="text-xs text-blue-600">RxNorm: {med.rxnorm}</div>
+                    )}
                   </li>
                 ))}
               </ul>

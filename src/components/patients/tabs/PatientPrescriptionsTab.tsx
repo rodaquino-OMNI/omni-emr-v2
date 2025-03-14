@@ -1,18 +1,18 @@
 
 import React from 'react';
 import PatientPrescriptions from '../PatientPrescriptions';
+import { usePatientPrescriptions } from '../hooks/usePatientPrescriptions';
 
 interface PatientPrescriptionsTabProps {
   patientId: string;
-  prescriptions: any[];
-  loading: boolean;
 }
 
 const PatientPrescriptionsTab: React.FC<PatientPrescriptionsTabProps> = ({ 
-  patientId, 
-  prescriptions, 
-  loading 
+  patientId
 }) => {
+  // Use the FHIR-compatible hook
+  const { prescriptions, loading } = usePatientPrescriptions(patientId);
+
   return (
     <PatientPrescriptions 
       patientId={patientId} 

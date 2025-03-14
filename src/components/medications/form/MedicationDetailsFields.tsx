@@ -29,13 +29,27 @@ const MedicationDetailsFields = ({
   const [isRxNormOpen, setIsRxNormOpen] = useState(false);
 
   const handleMedicationSelect = (medication: any) => {
+    // Using RxNorm data for FHIR compliance
+    
     // Create a synthetic event to pass to the original handler
     const event = {
       target: {
-        value: medication.name
+        value: medication.name,
+        // Add FHIR-specific data as custom properties
+        fhirData: {
+          coding: [{
+            system: "http://www.nlm.nih.gov/research/umls/rxnorm",
+            code: medication.rxcui || "",
+            display: medication.name
+          }],
+          text: medication.name
+        }
       }
-    } as React.ChangeEvent<HTMLInputElement>;
+    } as React.ChangeEvent<HTMLInputElement> & { 
+      target: { fhirData?: any }
+    };
     
+    // Pass the enriched event to the original handler
     onNameChange(event);
     
     // Auto-fill dosage if available
