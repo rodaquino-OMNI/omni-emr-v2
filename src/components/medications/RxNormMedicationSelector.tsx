@@ -9,10 +9,10 @@ import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   searchMedicationsByName,
-  RxNormMedication,
   getMedicationDetails,
   mapRxNormToANVISA
 } from '@/services/rxnorm/rxnormService';
+import { RxNormMedication } from '@/types/rxnorm';
 
 interface RxNormMedicationSelectorProps {
   onMedicationSelect: (medication: {

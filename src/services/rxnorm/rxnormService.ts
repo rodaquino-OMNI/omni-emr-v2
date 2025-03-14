@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { RxNormMedication, RxNormMedicationDetails, RxNormConcept } from '@/types/rxnorm';
+import { Json } from '@/integrations/supabase/types';
 
 // RxNorm API base URL
 const RXNORM_API_BASE_URL = 'https://rxnav.nlm.nih.gov/REST';
@@ -85,7 +86,8 @@ export const searchMedicationsByName = async (name: string): Promise<RxNormMedic
 
     if (cachedResults && !cacheError) {
       console.log('Using cached search results for', name);
-      return cachedResults.results as RxNormMedication[];
+      // Cast the JSON results to the expected type
+      return (cachedResults.results as Json) as RxNormMedication[];
     }
 
     const response = await fetch(
@@ -110,10 +112,11 @@ export const searchMedicationsByName = async (name: string): Promise<RxNormMedic
     }
 
     // Cache the search results in our database
+    // Convert the medications array to a JSON-compatible format
     const { error: insertError } = await supabase.from('rxnorm_search_cache').insert({
       search_term: name.toLowerCase(),
       search_type: 'name',
-      results: medications,
+      results: medications as unknown as Json,
       created_at: new Date().toISOString()
     });
 
@@ -197,7 +200,7 @@ export const getMedicationByRxCUI = async (rxcui: string): Promise<RxNormMedicat
 /**
  * Get medication details including ingredients, dosage form, etc.
  */
-export const getMedicationDetails = async (rxcui: string) => {
+export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicationDetails | null> => {
   try {
     // Check if we have the details cached
     const { data: cachedDetails, error: cacheError } = await supabase
@@ -207,7 +210,7 @@ export const getMedicationDetails = async (rxcui: string) => {
       .maybeSingle();
 
     if (cachedDetails && !cacheError) {
-      return cachedDetails.details as RxNormMedicationDetails;
+      return (cachedDetails.details as Json) as RxNormMedicationDetails;
     }
 
     const response = await fetch(
@@ -233,7 +236,7 @@ export const getMedicationDetails = async (rxcui: string) => {
     // Cache the details
     const { error: insertError } = await supabase.from('rxnorm_details_cache').insert({
       rxcui,
-      details,
+      details: details as unknown as Json,
       created_at: new Date().toISOString()
     });
 
