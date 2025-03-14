@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Printer, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Trash2, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Prescription } from '@/services/prescriptions';
+import ParticipantInfo from './ParticipantInfo';
 
 type PrescriptionHeaderProps = {
   prescription: Prescription;
@@ -72,7 +72,3 @@ const PrescriptionHeader = ({ prescription, formatDate }: PrescriptionHeaderProp
 };
 
 export default PrescriptionHeader;
-
-// Missing imports - adding here
-import { Calendar } from 'lucide-react';
-import ParticipantInfo from './ParticipantInfo';
