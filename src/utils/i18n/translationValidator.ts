@@ -32,7 +32,7 @@ export const validateTranslations = () => {
  * @param keys Array of translation keys used in a component
  * @returns Object containing missing keys for each language
  */
-export const validateComponentTranslations = (keys: TranslationKey[]) => {
+export const validateComponentTranslations = (keys: readonly TranslationKey[]) => {
   const missingKeys = {
     en: [] as string[],
     pt: [] as string[]
