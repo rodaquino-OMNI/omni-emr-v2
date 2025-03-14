@@ -86,8 +86,8 @@ export const searchMedicationsByName = async (name: string): Promise<RxNormMedic
 
     if (cachedResults && !cacheError) {
       console.log('Using cached search results for', name);
-      // Cast the JSON results to the expected type
-      return (cachedResults.results as Json) as RxNormMedication[];
+      // Properly cast the JSON results to the expected type using a double cast
+      return (cachedResults.results as unknown as RxNormMedication[]);
     }
 
     const response = await fetch(
@@ -112,7 +112,7 @@ export const searchMedicationsByName = async (name: string): Promise<RxNormMedic
     }
 
     // Cache the search results in our database
-    // Convert the medications array to a JSON-compatible format
+    // Convert the medications array to a JSON-compatible format with a double cast
     const { error: insertError } = await supabase.from('rxnorm_search_cache').insert({
       search_term: name.toLowerCase(),
       search_type: 'name',
@@ -210,7 +210,8 @@ export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicat
       .maybeSingle();
 
     if (cachedDetails && !cacheError) {
-      return (cachedDetails.details as Json) as RxNormMedicationDetails;
+      // Properly cast the JSON results to the expected type using a double cast
+      return (cachedDetails.details as unknown as RxNormMedicationDetails);
     }
 
     const response = await fetch(
@@ -233,7 +234,7 @@ export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicat
       strengths: extractConceptsByType(data, 'SCDC')
     };
     
-    // Cache the details
+    // Cache the details with proper type casting
     const { error: insertError } = await supabase.from('rxnorm_details_cache').insert({
       rxcui,
       details: details as unknown as Json,
