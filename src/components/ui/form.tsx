@@ -71,15 +71,16 @@ const useFormField = (): UseFormFieldReturn => {
     }
   }
 
-  const name = fieldContext?.name
+  const name = fieldContext?.name || ""
   
-  // Safe destructuring with fallback - fix for TS2339 error
+  // Safe destructuring with type checking
   const formState = formContext?.formState || {}
-  // Use optional chaining and provide a fallback empty object
-  const errors = formState?.errors || {}
-
+  
+  // Type check to ensure errors exists on formState
+  const errors = formState.errors !== undefined ? formState.errors : {}
+  
   // Only try to access errors if name exists and errors object exists
-  const error = name && errors ? errors[name] : undefined
+  const error = name ? errors[name as string] : undefined
 
   const id = `${name}-form-item`
   const formItemId = itemContext?.id || id
