@@ -1,4 +1,3 @@
-
 export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'procedure' | 'consultation';
 
 export type OrderStatus = 'draft' | 'pending' | 'approved' | 'completed' | 'cancelled';
@@ -27,6 +26,7 @@ export interface Order {
 }
 
 export interface MedicationOrder {
+  patientId?: string;
   medicationName: string;
   dosage: string;
   frequency: string;
@@ -35,6 +35,8 @@ export interface MedicationOrder {
   instructions: string;
   substitutionAllowed: boolean;
   priority: 'routine' | 'urgent' | 'stat';
+  rxnormCode?: string;
+  fhirMedication?: any;
 }
 
 export interface LaboratoryOrder {

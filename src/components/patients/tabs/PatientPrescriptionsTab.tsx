@@ -5,13 +5,21 @@ import { usePatientPrescriptions } from '../hooks/usePatientPrescriptions';
 
 interface PatientPrescriptionsTabProps {
   patientId: string;
+  prescriptions?: any[];
+  loading?: boolean;
 }
 
 const PatientPrescriptionsTab: React.FC<PatientPrescriptionsTabProps> = ({ 
-  patientId
+  patientId,
+  prescriptions: externalPrescriptions,
+  loading: externalLoading
 }) => {
-  // Use the FHIR-compatible hook
-  const { prescriptions, loading } = usePatientPrescriptions(patientId);
+  // Use the FHIR-compatible hook if external prescriptions aren't provided
+  const { prescriptions: fetchedPrescriptions, loading: fetchLoading } = usePatientPrescriptions(patientId);
+  
+  // Use either the externally provided data or the data from the hook
+  const prescriptions = externalPrescriptions || fetchedPrescriptions;
+  const loading = externalLoading !== undefined ? externalLoading : fetchLoading;
 
   return (
     <PatientPrescriptions 
