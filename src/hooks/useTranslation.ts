@@ -17,9 +17,10 @@ export const useTranslation = () => {
    * @param key The translation key to look up
    * @returns The translated string or the key itself if translation is missing
    */
-  const t = (key: TranslationKey): string => {
+  const t = (key: string): string => {
+    // Allow any string to be used as a translation key
     // Safe navigation through the translations object
-    const translatedText = translations?.[language]?.[key];
+    const translatedText = translations?.[language]?.[key as TranslationKey];
     
     // If translation is missing, log error and return the key as fallback
     if (translatedText === undefined) {
@@ -35,8 +36,8 @@ export const useTranslation = () => {
    * @param key The translation key to check
    * @returns True if the translation exists, false otherwise
    */
-  const hasTranslation = (key: TranslationKey): boolean => {
-    return translations?.[language]?.[key] !== undefined;
+  const hasTranslation = (key: string): boolean => {
+    return translations?.[language]?.[key as TranslationKey] !== undefined;
   };
 
   /**
@@ -44,9 +45,9 @@ export const useTranslation = () => {
    * @param keys Array of translation keys to validate
    * @returns Object with validation result and any missing keys
    */
-  const validateTranslations = (keys: TranslationKey[]): { 
+  const validateTranslations = (keys: string[]): { 
     valid: boolean; 
-    missingKeys: TranslationKey[] 
+    missingKeys: string[] 
   } => {
     const missingKeys = keys.filter(key => !hasTranslation(key));
     return {

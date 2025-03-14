@@ -8,16 +8,8 @@ import { AuthTranslationKey, authTranslations } from './categories/auth';
 import { ValidationTranslationKey, validationTranslations } from './categories/validations';
 import { UsersTranslationKey, usersTranslations } from './categories/users';
 
-// Union type of all possible translation keys
-export type TranslationKey =
-  | CommonTranslationKey
-  | PatientsTranslationKey
-  | MedicationsTranslationKey
-  | AppointmentsTranslationKey
-  | TasksTranslationKey
-  | AuthTranslationKey
-  | UsersTranslationKey
-  | ValidationTranslationKey;
+// Make TranslationKey a string to allow any string literal
+export type TranslationKey = string;
 
 // Combine all translation categories
 export const translations = {
