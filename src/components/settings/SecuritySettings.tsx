@@ -6,6 +6,7 @@ import PasswordUpdateForm from './security/PasswordUpdateForm';
 import SecurityControls from './security/SecurityControls';
 import ComplianceInformation from './security/ComplianceInformation';
 import SecurityAuditLog from './SecurityAuditLog';
+import MFASetup from './security/MFASetup';
 
 const SecuritySettings = () => {
   return (
@@ -15,6 +16,12 @@ const SecuritySettings = () => {
       
       {/* Password Update Form */}
       <PasswordUpdateForm />
+      
+      {/* MFA Setup */}
+      <div className="border-t border-border pt-6">
+        <h2 className="text-lg font-medium mb-4">Multi-Factor Authentication</h2>
+        <MFASetup />
+      </div>
       
       {/* Security Controls */}
       <div className="border-t border-border pt-6">
