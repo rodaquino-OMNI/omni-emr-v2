@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { ClinicalNote, NoteTemplate, NoteStatus } from '@/types/clinicalNotes';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -12,7 +12,6 @@ export const useNoteEditor = (
   onSave?: (note: ClinicalNote, status: NoteStatus) => void
 ) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const { language } = useTranslation();
   
   const [note, setNote] = useState<Partial<ClinicalNote>>({
@@ -111,17 +110,24 @@ export const useNoteEditor = (
       setSections(aiSections);
       setNote(prev => ({ ...prev, aiGenerated: true }));
       
-      toast({
-        title: language === 'pt' ? 'Assistência de IA concluída' : 'AI Assistance Completed',
-        description: language === 'pt' ? 'Conteúdo gerado por IA adicionado à nota' : 'AI-generated content has been added to the note',
-      });
+      toast.success(
+        language === 'pt' ? 'Assistência de IA concluída' : 'AI Assistance Completed',
+        {
+          description: language === 'pt' 
+            ? 'Conteúdo gerado por IA adicionado à nota' 
+            : 'AI-generated content has been added to the note'
+        }
+      );
     } catch (error) {
       console.error('Error requesting AI assistance:', error);
-      toast({
-        variant: 'destructive',
-        title: language === 'pt' ? 'Erro' : 'Error',
-        description: language === 'pt' ? 'Não foi possível gerar conteúdo com IA' : 'Failed to generate AI content',
-      });
+      toast.error(
+        language === 'pt' ? 'Erro' : 'Error',
+        {
+          description: language === 'pt' 
+            ? 'Não foi possível gerar conteúdo com IA' 
+            : 'Failed to generate AI content'
+        }
+      );
     } finally {
       setIsRequestingAI(false);
     }

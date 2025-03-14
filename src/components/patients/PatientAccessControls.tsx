@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Shield, Lock, User, CheckCircle, XCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { supabase, logAuditEvent, encryptData } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
@@ -20,7 +19,6 @@ interface AccessDelegate {
 
 const PatientAccessControls: React.FC<PatientAccessControlsProps> = ({ patientId, patientName }) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [delegates, setDelegates] = useState<AccessDelegate[]>([
     // Mock data for demonstration
@@ -93,16 +91,13 @@ const PatientAccessControls: React.FC<PatientAccessControlsProps> = ({ patientId
         );
       }
       
-      toast({
-        title: "Access delegate added",
+      toast.success("Access delegate added", {
         description: `Access for ${newDelegate.name} has been granted successfully.`
       });
     } catch (error) {
       console.error('Error adding delegate:', error);
-      toast({
-        title: "Failed to add delegate",
-        description: "An error occurred while adding the access delegate.",
-        variant: "destructive"
+      toast.error("Failed to add delegate", {
+        description: "An error occurred while adding the access delegate."
       });
     } finally {
       setLoading(false);
@@ -135,16 +130,13 @@ const PatientAccessControls: React.FC<PatientAccessControlsProps> = ({ patientId
         );
       }
       
-      toast({
-        title: "Access delegate removed",
+      toast.success("Access delegate removed", {
         description: "Access has been revoked successfully."
       });
     } catch (error) {
       console.error('Error removing delegate:', error);
-      toast({
-        title: "Failed to remove delegate",
-        description: "An error occurred while removing the access delegate.",
-        variant: "destructive"
+      toast.error("Failed to remove delegate", {
+        description: "An error occurred while removing the access delegate."
       });
     } finally {
       setLoading(false);

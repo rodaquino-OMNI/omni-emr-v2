@@ -1,5 +1,6 @@
 
-import { useLanguage } from "../context/LanguageContext";
+import { useContext } from "react";
+import { LanguageContext } from "../context/LanguageContext";
 import { translations } from "../i18n/translations";
 
 /**
@@ -7,7 +8,13 @@ import { translations } from "../i18n/translations";
  * with built-in validation to catch missing translations
  */
 export const useTranslation = () => {
-  const { language } = useLanguage();
+  const context = useContext(LanguageContext);
+  
+  if (!context) {
+    throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  
+  const { language } = context;
 
   /**
    * Translates a key into the current language

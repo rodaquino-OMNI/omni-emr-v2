@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React from 'react';
+import { toast } from '@/hooks/use-toast';
 import { Save } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { logAuditEvent } from '@/integrations/supabase/client';
@@ -42,17 +42,10 @@ const SecurityControls = () => {
         );
       }
       
-      toast({
-        title: "Security controls updated",
-        description: "Your security control settings have been successfully updated."
-      });
+      toast.success("Security controls updated", { description: "Your security control settings have been successfully updated." });
     } catch (error) {
       console.error('Error updating security controls:', error);
-      toast({
-        title: "Update failed",
-        description: "Failed to update security controls. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Update failed", { description: "Failed to update security controls. Please try again." });
     } finally {
       setLoading(false);
     }

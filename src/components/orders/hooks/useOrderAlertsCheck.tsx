@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { OrderType } from '@/types/orders';
 
@@ -12,7 +12,6 @@ export interface OrderAlert {
 }
 
 export const useOrderAlertsCheck = () => {
-  const { toast } = useToast();
   const { language } = useTranslation();
   const [alerts, setAlerts] = useState<OrderAlert[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -107,9 +106,7 @@ export const useOrderAlertsCheck = () => {
       console.error('Error checking for alerts:', error);
       
       // Show error toast
-      toast({
-        variant: 'destructive',
-        title: language === 'pt' ? 'Erro' : 'Error',
+      toast.error(language === 'pt' ? 'Erro' : 'Error', {
         description: language === 'pt' 
           ? 'Falha ao verificar alertas. Deseja prosseguir mesmo assim?' 
           : 'Failed to check for alerts. Do you want to proceed anyway?'
@@ -119,7 +116,7 @@ export const useOrderAlertsCheck = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [isSubmitting, toast, language, generateMockAlerts]);
+  }, [isSubmitting, language, generateMockAlerts]);
   
   // Handle alert decisions
   const handleAlertsDecision = useCallback((proceed: boolean, overrideReasons?: {[key: number]: string}) => {

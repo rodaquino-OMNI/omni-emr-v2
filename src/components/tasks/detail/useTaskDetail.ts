@@ -1,11 +1,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { getTaskById, updateTaskStatus } from '@/services/tasks';
 import { Task, TaskStatus } from '@/components/tasks/card/TaskCardTypes';
 
 export const useTaskDetail = (id: string) => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   
   // Fetch task data
@@ -29,16 +28,13 @@ export const useTaskDetail = (id: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task', id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: 'Task updated',
+      toast.success('Task updated', {
         description: 'The task status has been updated successfully',
       });
     },
     onError: () => {
-      toast({
-        title: 'Error',
+      toast.error('Error', {
         description: 'Failed to update task status',
-        variant: 'destructive',
       });
     },
   });

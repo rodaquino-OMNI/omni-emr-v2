@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { toast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
@@ -12,7 +12,6 @@ import {
   SheetHeader, 
   SheetTitle
 } from '@/components/ui/sheet';
-import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { FileText, FilePlus, Search } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -119,13 +118,7 @@ const ClinicalDocumentationPage = () => {
       setNotes(filteredNotes);
     } catch (error) {
       console.error('Error fetching notes:', error);
-      toast({
-        variant: 'destructive',
-        title: language === 'pt' ? 'Erro' : 'Error',
-        description: language === 'pt' 
-          ? 'Erro ao carregar notas clínicas' 
-          : 'Error loading clinical notes'
-      });
+      toast.error(language === 'pt' ? 'Erro ao carregar notas clínicas' : 'Error loading clinical notes');
     } finally {
       setLoading(false);
     }
@@ -136,8 +129,7 @@ const ClinicalDocumentationPage = () => {
     setIsNewNoteOpen(false);
     setSelectedTemplate(null);
     
-    toast({
-      title: language === 'pt' ? 'Nota salva' : 'Note saved',
+    toast.success(language === 'pt' ? 'Nota salva' : 'Note saved', {
       description: language === 'pt' 
         ? `A nota foi ${status === 'signed' ? 'assinada e salva' : 'salva como rascunho'}.` 
         : `The note has been ${status === 'signed' ? 'signed and saved' : 'saved as a draft'}.`

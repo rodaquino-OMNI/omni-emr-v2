@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatDistance } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,7 +32,6 @@ type MessageThread = {
   subject: string;
 };
 
-// Mock data for message threads
 const mockThreads: Record<string, MessageThread> = {
   '1': {
     id: '1',
@@ -220,11 +218,7 @@ export const MessageView = ({ messageId }: MessageViewProps) => {
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
     
-    // In a real app, this would be calling an API to send the message
-    toast({
-      title: language === 'pt' ? 'Mensagem enviada' : 'Message sent',
-      description: language === 'pt' ? 'Sua resposta foi enviada com sucesso' : 'Your response has been sent successfully'
-    });
+    toast.success("Message sent", { description: "Your message has been sent successfully" });
     
     setNewMessage('');
   };

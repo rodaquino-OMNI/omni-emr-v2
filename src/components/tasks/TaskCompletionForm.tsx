@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,7 +5,7 @@ import * as z from 'zod';
 import { format } from 'date-fns';
 import { Clock, ClipboardCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { completeTask } from '@/services/tasks';
 import { Task } from '@/components/tasks/card/TaskCardTypes';
@@ -50,7 +49,6 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
   onSuccess
 }) => {
   const { t } = useTranslation();
-  const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -63,10 +61,8 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
   
   const onSubmit = async (data: CompletionFormValues) => {
     if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "You must be logged in to complete tasks",
-        variant: "destructive",
+      toast.error("Authentication required", {
+        description: "You must be logged in to complete tasks"
       });
       return;
     }
@@ -82,9 +78,8 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
       );
       
       if (result) {
-        toast({
-          title: "Task completed",
-          description: `Task "${task.title}" has been marked as complete`,
+        toast.success("Task completed", {
+          description: `Task "${task.title}" has been marked as complete`
         });
         
         if (onSuccess) {
@@ -97,10 +92,8 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
       }
     } catch (error) {
       console.error('Failed to complete task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to mark the task as complete. Please try again.",
-        variant: "destructive",
+      toast.error("Error", {
+        description: "Failed to mark the task as complete. Please try again."
       });
     } finally {
       setIsSubmitting(false);

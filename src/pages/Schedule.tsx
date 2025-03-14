@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -57,10 +57,7 @@ const SchedulePage = () => {
   const handleScheduleSuccess = () => {
     setIsScheduleFormOpen(false);
     refetch();
-    toast({
-      title: t('appointmentScheduled'),
-      description: t('appointmentScheduledSuccess'),
-    });
+    toast.success(t('appointmentScheduled'), { description: t('appointmentScheduledSuccess') });
   };
 
   return (

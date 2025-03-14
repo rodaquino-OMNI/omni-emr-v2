@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React from 'react';
+import { toast } from '@/hooks/use-toast';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import { useTranslation } from '../hooks/useTranslation';
@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, ShieldCheck } from 'lucide-react';
 import { useAuth, User, UserRole } from '../context/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
 
 // Mock user data
 const mockUsers: User[] = [
@@ -77,7 +76,6 @@ const Admin = () => {
     permissions: []
   });
 
-  // Start with empty form for new user or populate with existing data for edit
   const openUserForm = (user: User | null = null) => {
     if (user) {
       setFormData({
@@ -102,54 +100,36 @@ const Admin = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For demo purposes, we'll just update our local state
     if (editingUser) {
-      // Update existing user
       setUsers(users.map(u => 
         u.id === editingUser.id 
           ? { ...u, ...formData } 
           : u
       ));
       
-      toast({
-        title: "User updated",
-        description: `${formData.name} has been updated successfully.`
-      });
+      toast.success(`${formData.name} has been updated successfully.`);
     } else {
-      // Add new user
       const newUser: User = {
         id: Date.now().toString(),
         ...formData
       };
       setUsers([...users, newUser]);
       
-      toast({
-        title: "User added",
-        description: `${formData.name} has been added successfully.`
-      });
+      toast.success(`${formData.name} has been added successfully.`);
     }
     
     setIsDialogOpen(false);
   };
 
   const handleDelete = (userId: string) => {
-    // Don't allow deleting self
     if (userId === user?.id) {
-      toast({
-        title: "Error",
-        description: "You cannot delete your own account.",
-        variant: "destructive"
-      });
+      toast.error("You cannot delete your own account.");
       return;
     }
     
-    // Filter out the deleted user
     setUsers(users.filter(u => u.id !== userId));
     
-    toast({
-      title: "User deleted",
-      description: "The user has been deleted successfully."
-    });
+    toast.success("The user has been deleted successfully.");
   };
 
   const handlePermissionChange = (permissionId: string) => {

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { OrderType, Order } from '@/types/orders';
@@ -11,7 +11,6 @@ export const useOrderCreator = (
   onOrderCreated: (order: Order) => void
 ) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState<OrderType>('medication');
   const [orderData, setOrderData] = useState<any>({});
@@ -69,8 +68,7 @@ export const useOrderCreator = (
       // This would be an API call in a real app
       console.log('New order created:', newOrder);
       
-      toast({
-        title: language === 'pt' ? 'Pedido criado' : 'Order created',
+      toast.success(language === 'pt' ? 'Pedido criado' : 'Order created', {
         description: language === 'pt' 
           ? 'O pedido foi criado com sucesso' 
           : 'The order has been created successfully'
@@ -79,9 +77,7 @@ export const useOrderCreator = (
       onOrderCreated(newOrder);
     } catch (error) {
       console.error('Error creating order:', error);
-      toast({
-        variant: 'destructive',
-        title: language === 'pt' ? 'Erro' : 'Error',
+      toast.error(language === 'pt' ? 'Erro' : 'Error', {
         description: language === 'pt' 
           ? 'Falha ao criar pedido' 
           : 'Failed to create order'

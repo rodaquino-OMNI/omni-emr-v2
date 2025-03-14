@@ -1,14 +1,11 @@
-
-import React, { useState } from 'react';
-import { Save } from 'lucide-react';
+import React from 'react';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../hooks/useTranslation';
-import { useToast } from '@/components/ui/use-toast';
 
 const SystemSettings = () => {
   const { language, setLanguage } = useAuth();
   const { t } = useTranslation();
-  const { toast } = useToast();
   
   const [timezone, setTimezone] = useState('America/Sao_Paulo');
   const [dateFormat, setDateFormat] = useState('DD/MM/YYYY');
@@ -19,10 +16,7 @@ const SystemSettings = () => {
     e.preventDefault();
     
     // Handle system settings update logic
-    toast({
-      title: language === 'pt' ? "Configurações do sistema atualizadas" : "System settings updated",
-      description: language === 'pt' ? "Suas preferências foram salvas com sucesso." : "Your preferences have been saved successfully.",
-    });
+    toast.success(language === 'pt' ? "Configurações do sistema atualizadas" : "System settings updated", { description: language === 'pt' ? "Suas preferências foram salvas com sucesso." : "Your preferences have been saved successfully." });
   };
 
   return (

@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { toast } from '@/hooks/use-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
@@ -99,11 +99,7 @@ const PrescribeMedicationPage = () => {
   const handleAddItem = () => {
     // Validate required fields
     if (!currentItem.name) {
-      toast({
-        title: "Error",
-        description: "Item name is required",
-        variant: "destructive"
-      });
+      toast.success("Item name is required", { description: "Please enter a name for the item." });
       return;
     }
     
@@ -147,10 +143,7 @@ const PrescribeMedicationPage = () => {
       instructions: ''
     });
     
-    toast({
-      title: "Success",
-      description: `${currentItem.name} added to prescription`
-    });
+    toast.success(`${currentItem.name} added to prescription`, { description: "The item has been successfully added to the prescription." });
   };
   
   // Edit an existing item
@@ -177,10 +170,7 @@ const PrescribeMedicationPage = () => {
     updatedItems.splice(index, 1);
     setPrescriptionData(prev => ({ ...prev, items: updatedItems }));
     
-    toast({
-      title: "Item removed",
-      description: "The item has been removed from the prescription"
-    });
+    toast.success("Item removed", { description: "The item has been removed from the prescription." });
   };
   
   // Submit the prescription
@@ -188,20 +178,12 @@ const PrescribeMedicationPage = () => {
     e.preventDefault();
     
     if (!canPrescribe) {
-      toast({
-        title: "Permission Denied",
-        description: "You don't have permission to prescribe medications",
-        variant: "destructive"
-      });
+      toast.error("Permission Denied", { description: "You don't have permission to prescribe medications." });
       return;
     }
     
     if (prescriptionData.items.length === 0) {
-      toast({
-        title: "No Items",
-        description: "Please add at least one item to the prescription",
-        variant: "destructive"
-      });
+      toast.error("No Items", { description: "Please add at least one item to the prescription." });
       return;
     }
     
@@ -218,10 +200,7 @@ const PrescribeMedicationPage = () => {
         notes: prescriptionData.notes
       }, user!);
       
-      toast({
-        title: "Success",
-        description: "Prescription created successfully",
-      });
+      toast.success("Prescription created successfully", { description: "The prescription has been successfully created." });
       
       // Navigate back
       if (patientId) {
@@ -231,11 +210,7 @@ const PrescribeMedicationPage = () => {
       }
     } catch (error) {
       console.error("Error creating prescription:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create prescription",
-        variant: "destructive"
-      });
+      toast.error("Failed to create prescription", { description: "Failed to create the prescription." });
     }
   };
   
@@ -741,3 +716,4 @@ const PrescribeMedicationPage = () => {
 };
 
 export default PrescribeMedicationPage;
+
