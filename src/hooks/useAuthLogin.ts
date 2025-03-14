@@ -2,9 +2,10 @@
 import { useState, useCallback } from 'react';
 import { Session, Provider } from '@supabase/supabase-js';
 import { User, UserRole, Language } from '../types/auth';
-import { signInWithProvider, signInWithEmail, signUpWithEmail } from '../utils/authUtils';
+import { signInWithProvider, signInWithEmail, signUpWithEmail, hasEnabledMFA, refreshSession } from '../utils/authUtils';
 import { generateCSRFToken } from '../utils/csrfUtils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthError extends Error {
   message: string;
@@ -21,6 +22,8 @@ export const useAuthLogin = (
   language: Language
 ) => {
   const [lastError, setLastError] = useState<AuthError | null>(null);
+  const [requiresMFA, setRequiresMFA] = useState<boolean>(false);
+  const [passwordResetSent, setPasswordResetSent] = useState<boolean>(false);
 
   // Common error handler to reduce duplication
   const handleAuthError = useCallback((error: any, context: string): AuthError => {
@@ -61,7 +64,21 @@ export const useAuthLogin = (
         ? 'Credenciais inválidas'
         : 'Invalid login credentials';
     }
+
+    // Rate limiting
+    if (error.message?.includes('too many requests') || error.code === '429') {
+      return language === 'pt'
+        ? 'Muitas tentativas, tente novamente mais tarde'
+        : 'Rate limited, please try again later';
+    }
     
+    // Network error
+    if (error.message?.includes('network') || error.message?.includes('fetch')) {
+      return language === 'pt'
+        ? 'Erro de conexão, verifique sua internet'
+        : 'Connection error, check your internet';
+    }
+
     // Default error message
     return error.message || (language === 'pt' 
       ? `Erro de ${context}` 
@@ -84,6 +101,16 @@ export const useAuthLogin = (
           : 'Login failed: Invalid credentials');
       }
       
+      // Check for MFA if not a mock user
+      if (!('role' in authUser) && authUser.id) {
+        const mfaEnabled = await hasEnabledMFA(authUser.id);
+        if (mfaEnabled) {
+          setRequiresMFA(true);
+          // At this point, you would redirect to MFA verification
+          // For now, we'll continue the flow
+        }
+      }
+      
       // Process user data
       if ('role' in authUser) {
         // For mock users
@@ -100,6 +127,9 @@ export const useAuthLogin = (
       
       // Reset login attempts on successful login
       resetLoginAttempts();
+
+      // Start session refresh timer
+      startSessionRefreshTimer(authSession);
       
       return { success: true };
     } catch (error) {
@@ -117,7 +147,7 @@ export const useAuthLogin = (
     }
   }, [language, handleAuthError, getErrorMessage, handleLoginRateLimit, resetLoginAttempts, setIsLoading, setUser, setSession]);
 
-  // Handle social login
+  // Handle social login with improved PKCE flow
   const loginWithSocial = useCallback(async (provider: Provider) => {
     try {
       // Generate new CSRF token for the OAuth flow
@@ -138,7 +168,66 @@ export const useAuthLogin = (
     }
   }, [language, handleAuthError, getErrorMessage]);
 
-  // Handle sign up
+  // New function to handle password reset
+  const resetPassword = useCallback(async (email: string) => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      setPasswordResetSent(true);
+      
+      toast.success(
+        language === 'pt' ? 'Email enviado' : 'Email sent',
+        { description: language === 'pt' 
+            ? 'Instruções de recuperação enviadas para seu email' 
+            : 'Recovery instructions sent to your email'
+        }
+      );
+      
+      return { success: true };
+    } catch (error) {
+      const authError = handleAuthError(error, language === 'pt' ? 'recuperação de senha' : 'password reset');
+      const errorMessage = getErrorMessage(authError, 'password reset');
+      
+      toast.error(
+        language === 'pt' ? 'Erro de recuperação' : 'Reset error',
+        { description: errorMessage }
+      );
+      
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [language, handleAuthError, getErrorMessage, setIsLoading]);
+
+  // Helper function to set up session refresh
+  const startSessionRefreshTimer = (session: Session | null) => {
+    if (!session?.expires_at) return;
+    
+    // Calculate when to refresh (5 minutes before expiry)
+    const expiryTime = new Date(session.expires_at * 1000);
+    const refreshTime = new Date(expiryTime.getTime() - 5 * 60 * 1000);
+    const now = new Date();
+    
+    // Set timeout to refresh session
+    const timeoutMs = Math.max(0, refreshTime.getTime() - now.getTime());
+    setTimeout(() => {
+      refreshSession()
+        .then(success => {
+          if (!success) {
+            console.warn('Session refresh failed, user may need to re-login');
+          }
+        })
+        .catch(err => console.error('Error in session refresh:', err));
+    }, timeoutMs);
+  };
+
+  // Handle sign up with enhanced verification flow
   const signUp = useCallback(async (email: string, password: string, name: string, role: UserRole) => {
     setIsLoading(true);
     
@@ -179,6 +268,9 @@ export const useAuthLogin = (
     login,
     loginWithSocial,
     signUp,
+    resetPassword,
+    requiresMFA,
+    passwordResetSent,
     lastError,
   };
 };

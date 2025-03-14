@@ -2,7 +2,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { UserCheck, Loader2 } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { UserCheck, Loader2, KeyRound, ArrowLeft } from 'lucide-react';
 import { Language } from '@/types/auth';
 
 interface EmailLoginFormProps {
@@ -16,6 +18,8 @@ interface EmailLoginFormProps {
   setValidationErrors: (errors: { [key: string]: string }) => void;
   language: Language;
   t: (key: string) => string;
+  forgotPassword?: boolean;
+  toggleForgotPassword?: () => void;
 }
 
 const EmailLoginForm = ({
@@ -28,20 +32,22 @@ const EmailLoginForm = ({
   validationErrors,
   setValidationErrors,
   language,
-  t
+  t,
+  forgotPassword = false,
+  toggleForgotPassword
 }: EmailLoginFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
+        <FormLabel htmlFor="email" className="text-sm font-medium">
           {t('email')}
-        </label>
-        <input
+        </FormLabel>
+        <Input
           id="email"
           type="email"
-          className={`w-full h-10 px-3 rounded-md border ${
+          className={`w-full h-10 px-3 rounded-md ${
             validationErrors.email ? 'border-destructive' : 'border-input'
-          } bg-background`}
+          }`}
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
@@ -54,39 +60,54 @@ const EmailLoginForm = ({
           }}
           disabled={isSubmitting}
           placeholder="admin@medcare.com"
+          autoComplete="email"
         />
         {validationErrors.email && (
           <p className="text-xs text-destructive mt-1">{validationErrors.email}</p>
         )}
       </div>
       
-      <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          {t('password')}
-        </label>
-        <input
-          id="password"
-          type="password"
-          className={`w-full h-10 px-3 rounded-md border ${
-            validationErrors.password ? 'border-destructive' : 'border-input'
-          } bg-background`}
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (validationErrors.password) {
-              setValidationErrors({
-                ...validationErrors,
-                password: ''
-              });
-            }
-          }}
-          disabled={isSubmitting}
-          placeholder="••••••••"
-        />
-        {validationErrors.password && (
-          <p className="text-xs text-destructive mt-1">{validationErrors.password}</p>
-        )}
-      </div>
+      {!forgotPassword && (
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <FormLabel htmlFor="password" className="text-sm font-medium">
+              {t('password')}
+            </FormLabel>
+            {toggleForgotPassword && (
+              <button 
+                type="button" 
+                onClick={toggleForgotPassword}
+                className="text-xs text-primary hover:underline"
+              >
+                {language === 'pt' ? 'Esqueceu a senha?' : 'Forgot password?'}
+              </button>
+            )}
+          </div>
+          <Input
+            id="password"
+            type="password"
+            className={`w-full h-10 px-3 rounded-md ${
+              validationErrors.password ? 'border-destructive' : 'border-input'
+            }`}
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (validationErrors.password) {
+                setValidationErrors({
+                  ...validationErrors,
+                  password: ''
+                });
+              }
+            }}
+            disabled={isSubmitting}
+            placeholder="••••••••"
+            autoComplete="current-password"
+          />
+          {validationErrors.password && (
+            <p className="text-xs text-destructive mt-1">{validationErrors.password}</p>
+          )}
+        </div>
+      )}
       
       <Button 
         type="submit" 
@@ -95,16 +116,31 @@ const EmailLoginForm = ({
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            {language === 'pt' ? 'Entrando...' : 'Signing in...'}
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            {forgotPassword 
+              ? (language === 'pt' ? 'Enviando...' : 'Sending...') 
+              : (language === 'pt' ? 'Entrando...' : 'Signing in...')}
           </>
         ) : (
           <>
-            <UserCheck className="h-4 w-4" />
-            {t('signIn')}
+            {forgotPassword 
+              ? (<><KeyRound className="h-4 w-4 mr-2" />{language === 'pt' ? 'Enviar link de recuperação' : 'Send recovery link'}</>)
+              : (<><UserCheck className="h-4 w-4 mr-2" />{t('signIn')}</>)
+            }
           </>
         )}
       </Button>
+      
+      {forgotPassword && toggleForgotPassword && (
+        <button
+          type="button"
+          onClick={toggleForgotPassword}
+          className="w-full mt-2 text-sm text-center flex items-center justify-center text-muted-foreground hover:text-primary"
+        >
+          <ArrowLeft className="h-3 w-3 mr-1" />
+          {language === 'pt' ? 'Voltar para o login' : 'Back to login'}
+        </button>
+      )}
       
       <div className="pt-4 text-center text-sm">
         <p className="text-muted-foreground">

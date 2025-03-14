@@ -1,31 +1,65 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { secureStorage } from '@/utils/secureStorage';
 import { Language } from '@/types/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useLoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   
-  const { login, loginWithSocial, language } = useAuth();
+  const { login, loginWithSocial, resetPassword, language } = useAuth();
   const navigate = useNavigate();
+
+  // Listen for authentication changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // User has been signed in, redirect to appropriate page
+        const returnUrl = secureStorage.getItem<string>('returnUrl', '/dashboard');
+        secureStorage.removeItem('returnUrl');
+        navigate(returnUrl);
+      }
+    });
+
+    // Clean up subscription
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const validateForm = (): boolean => {
     const errors: {[key: string]: string} = {};
     
-    if (!email.trim()) {
-      errors.email = language === 'pt' ? 'Email é obrigatório' : 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = language === 'pt' ? 'Email inválido' : 'Invalid email format';
-    }
-    
-    if (!password) {
-      errors.password = language === 'pt' ? 'Senha é obrigatória' : 'Password is required';
+    if (!forgotPassword) {
+      // Only validate password in normal login mode
+      if (!email.trim()) {
+        errors.email = language === 'pt' ? 'Email é obrigatório' : 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(email)) {
+        errors.email = language === 'pt' ? 'Email inválido' : 'Invalid email format';
+      }
+      
+      if (!password) {
+        errors.password = language === 'pt' ? 'Senha é obrigatória' : 'Password is required';
+      } else if (password.length < 6) {
+        errors.password = language === 'pt' 
+          ? 'Senha deve ter pelo menos 6 caracteres' 
+          : 'Password must be at least 6 characters';
+      }
+    } else {
+      // In forgot password mode, only validate email
+      if (!email.trim()) {
+        errors.email = language === 'pt' ? 'Email é obrigatório' : 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(email)) {
+        errors.email = language === 'pt' ? 'Email inválido' : 'Invalid email format';
+      }
     }
     
     setValidationErrors(errors);
@@ -42,21 +76,41 @@ export const useLoginForm = () => {
     setIsSubmitting(true);
     
     try {
-      await login(email, password);
-      
-      toast.success(
-        language === 'pt' ? "Bem-vindo" : "Welcome back",
-        {
-          description: language === 'pt' 
-            ? "Login realizado com sucesso." 
-            : "You have successfully logged in."
+      // If in forgot password mode, call password reset
+      if (forgotPassword) {
+        const { success } = await resetPassword(email);
+        
+        if (success) {
+          toast.success(
+            language === 'pt' ? "Email enviado" : "Email sent",
+            {
+              description: language === 'pt' 
+                ? "Verifique seu email para instruções de recuperação de senha." 
+                : "Check your email for password reset instructions."
+            }
+          );
         }
-      );
+        return;
+      }
       
-      // Redirect to the return URL if it exists, otherwise to dashboard
-      const returnUrl = secureStorage.getItem<string>('returnUrl', '/dashboard');
-      secureStorage.removeItem('returnUrl');
-      navigate(returnUrl);
+      // Store captcha token if available
+      if (captchaToken) {
+        localStorage.setItem('captcha_token', captchaToken);
+      }
+      
+      // Normal login flow
+      const { success } = await login(email, password);
+      
+      if (success) {
+        toast.success(
+          language === 'pt' ? "Bem-vindo" : "Welcome back",
+          {
+            description: language === 'pt' 
+              ? "Login realizado com sucesso." 
+              : "You have successfully logged in."
+          }
+        );
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       
@@ -66,7 +120,7 @@ export const useLoginForm = () => {
         : 'Invalid credentials');
       
       // If the error message contains "auth/too-many-requests", it's a rate limit error
-      if (error.message && error.message.includes('many')) {
+      if (error.message && (error.message.includes('many') || error.message.includes('rate'))) {
         errorMessage = language === 'pt'
           ? 'Muitas tentativas de login. Por favor, tente novamente mais tarde.'
           : 'Too many login attempts. Please try again later.';
@@ -101,6 +155,18 @@ export const useLoginForm = () => {
     }
   };
 
+  // Handle forgot password toggle
+  const toggleForgotPassword = () => {
+    setForgotPassword(!forgotPassword);
+    // Clear validation errors when switching modes
+    setValidationErrors({});
+  };
+
+  // Handle captcha response
+  const handleCaptchaResponse = (token: string) => {
+    setCaptchaToken(token);
+  };
+
   return {
     email,
     setEmail,
@@ -110,6 +176,9 @@ export const useLoginForm = () => {
     validationErrors,
     setValidationErrors,
     handleSubmit,
-    handleSocialLogin
+    handleSocialLogin,
+    forgotPassword,
+    toggleForgotPassword,
+    handleCaptchaResponse
   };
 };
