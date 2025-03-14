@@ -53,15 +53,22 @@ export const usePatientPrescriptions = (patientId: string) => {
         } else {
           // Transform FHIR data
           const transformedFhirData = medicationRequests.map(req => {
-            const medicationName = req.medication_codeable_concept?.text || '';
-            const dosageInst = req.dosage_instruction?.[0] || {};
+            // Fix: Handle potentially undefined or null values safely
+            const medicationCodeableConcept = req.medication_codeable_concept || {};
+            const medicationName = typeof medicationCodeableConcept === 'object' && 'text' in medicationCodeableConcept 
+              ? String(medicationCodeableConcept.text)
+              : '';
+              
+            // Safely get first dosage instruction
+            const dosageInstructions = Array.isArray(req.dosage_instruction) ? req.dosage_instruction : [];
+            const dosageInst = dosageInstructions[0] || {};
             
             return {
               id: req.id,
               name: medicationName,
               dosage: extractDosage(dosageInst),
               frequency: extractFrequency(dosageInst),
-              instructions: dosageInst.text || '',
+              instructions: typeof dosageInst === 'object' && 'text' in dosageInst ? String(dosageInst.text || '') : '',
               status: req.status,
               startDate: req.authored_on,
               endDate: null,
@@ -105,20 +112,27 @@ const calculateNextDose = (frequency: string) => {
 };
 
 const extractDosage = (dosageInst: any) => {
-  if (!dosageInst) return '';
+  if (!dosageInst || typeof dosageInst !== 'object') return '';
   
-  const doseQuantity = dosageInst.doseAndRate?.[0]?.doseQuantity;
-  if (doseQuantity) {
-    return `${doseQuantity.value || ''} ${doseQuantity.unit || ''}`.trim();
+  const doseAndRate = Array.isArray(dosageInst.doseAndRate) ? dosageInst.doseAndRate : [];
+  const doseQuantity = doseAndRate[0]?.doseQuantity || {};
+  
+  if (doseQuantity && typeof doseQuantity === 'object') {
+    const value = 'value' in doseQuantity ? doseQuantity.value : '';
+    const unit = 'unit' in doseQuantity ? doseQuantity.unit : '';
+    return `${value || ''} ${unit || ''}`.trim();
   }
   
   return '';
 };
 
 const extractFrequency = (dosageInst: any) => {
-  if (!dosageInst || !dosageInst.timing) return '';
+  if (!dosageInst || typeof dosageInst !== 'object') return '';
   
-  return dosageInst.timing.code?.text || '';
+  const timing = dosageInst.timing || {};
+  const code = timing.code || {};
+  
+  return typeof code === 'object' && 'text' in code ? String(code.text || '') : '';
 };
 
 export const getPatientPrescriptions = async (patientId: string) => {
