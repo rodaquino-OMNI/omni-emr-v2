@@ -32,14 +32,16 @@ export type CommonTranslationKey =
   | 'goToDashboard'
   | 'unexpectedError'
   | 'loadingData'
-  | 'loadingResources';
+  | 'loadingResources'
+  | 'vitals'
+  | 'fluidBalance';
 
 export const commonTranslations = {
   pt: {
     appName: 'OmniCare',
     dashboard: 'Painel',
     patients: 'Pacientes',
-    records: 'Registros Médicos',
+    records: 'Documentação Clínica',
     medications: 'Medicamentos',
     prescriptions: 'Prescrições',
     schedule: 'Agenda',
@@ -68,13 +70,15 @@ export const commonTranslations = {
     goToDashboard: 'Ir para o Painel',
     unexpectedError: 'Ocorreu um erro inesperado',
     loadingData: 'Carregando dados',
-    loadingResources: 'Carregando recursos'
+    loadingResources: 'Carregando recursos',
+    vitals: 'Sinais Vitais',
+    fluidBalance: 'Balanço Hídrico'
   },
   en: {
     appName: 'OmniCare',
     dashboard: 'Dashboard',
     patients: 'Patients',
-    records: 'Medical Records',
+    records: 'Clinical Documentation',
     medications: 'Medications',
     prescriptions: 'Prescriptions',
     schedule: 'Schedule',
@@ -103,6 +107,8 @@ export const commonTranslations = {
     goToDashboard: 'Go to Dashboard',
     unexpectedError: 'An unexpected error occurred',
     loadingData: 'Loading data',
-    loadingResources: 'Loading resources'
+    loadingResources: 'Loading resources',
+    vitals: 'Vital Signs',
+    fluidBalance: 'Fluid Balance'
   }
 };

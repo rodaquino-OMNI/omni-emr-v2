@@ -1,5 +1,5 @@
 
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks } from 'lucide-react';
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -8,6 +8,7 @@ export type SidebarItem = {
   translationKey: string;
   permissionRequired?: string;
   priority: number;
+  children?: Omit<SidebarItem, 'children'>[];
 };
 
 export const sidebarItems: SidebarItem[] = [
@@ -41,39 +42,53 @@ export const sidebarItems: SidebarItem[] = [
     priority: 4
   },
   {
-    name: 'Records',
+    name: 'Clinical Documentation',
     path: '/records',
     icon: FileText,
     translationKey: 'records',
     priority: 5
   },
   {
+    name: 'Vital Signs',
+    path: '/vitals',
+    icon: Activity,
+    translationKey: 'vitals',
+    priority: 6
+  },
+  {
+    name: 'Fluid Balance',
+    path: '/fluid-balance',
+    icon: Droplet, 
+    translationKey: 'fluidBalance',
+    priority: 7
+  },
+  {
     name: 'Medications',
     path: '/medications',
     icon: Pill,
     translationKey: 'medications',
-    priority: 6
+    priority: 8
   },
   {
     name: 'Prescriptions',
     path: '/prescriptions',
     icon: ClipboardList,
     translationKey: 'prescriptions',
-    priority: 7
+    priority: 9
   },
   {
     name: 'Messages',
     path: '/messages',
     icon: MessageSquare,
     translationKey: 'messages',
-    priority: 8
+    priority: 10
   },
   {
     name: 'Notifications',
     path: '/notifications',
     icon: Bell,
     translationKey: 'notifications',
-    priority: 9
+    priority: 11
   },
   {
     name: 'Telemedicine',
@@ -81,13 +96,13 @@ export const sidebarItems: SidebarItem[] = [
     icon: Video,
     translationKey: 'telemedicine',
     permissionRequired: 'telemedicine',
-    priority: 10
+    priority: 12
   },
   {
     name: 'Help & Support',
     path: '/help',
     icon: HelpCircle,
     translationKey: 'help',
-    priority: 11
+    priority: 13
   }
 ];

@@ -34,6 +34,8 @@ import Tasks from "./pages/Tasks";
 import TaskDetail from "./pages/TaskDetail";
 import MedicalHistory from "./pages/MedicalHistory";
 import Notifications from "./pages/Notifications";
+import VitalSigns from "./pages/VitalSigns";
+import FluidBalance from "./pages/FluidBalance";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +84,9 @@ const App = () => (
                 
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/tasks/:id" element={<TaskDetail />} />
+                
+                <Route path="/vitals" element={<VitalSigns />} />
+                <Route path="/fluid-balance" element={<FluidBalance />} />
                 
                 <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
                   <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
