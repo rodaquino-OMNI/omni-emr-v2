@@ -1,4 +1,3 @@
-
 import { Session, Provider } from '@supabase/supabase-js';
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 import { User, UserRole } from '../types/auth';
@@ -168,7 +167,8 @@ export const verifyPhoneOTP = async (phone: string, token: string) => {
       }
     }
     
-    return data;
+    // Return with a consistent format including success flag
+    return { ...data, success: true };
   } catch (error) {
     console.error('OTP verification error:', error);
     throw error;

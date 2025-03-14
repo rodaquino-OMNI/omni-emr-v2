@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -160,7 +159,6 @@ export const useLoginForm = () => {
     try {
       const result = await signInWithPhone(phone);
       
-      // Safely check the shape of the result
       if (result && 'success' in result && result.success) {
         setVerificationSent(true);
         toast.success(
@@ -211,9 +209,9 @@ export const useLoginForm = () => {
     setIsSubmitting(true);
     
     try {
-      const { user, session } = await verifyPhoneOTP(phone, verificationCode);
+      const result = await verifyPhoneOTP(phone, verificationCode);
       
-      if (user && session) {
+      if (result && result.success && result.user && result.session) {
         toast.success(
           language === 'pt' ? "Verificação concluída" : "Verification completed",
           {
