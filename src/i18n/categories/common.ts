@@ -1,4 +1,3 @@
-
 export type CommonTranslationKey =
   | 'search'
   | 'back'
@@ -72,7 +71,9 @@ export type CommonTranslationKey =
   | 'userAdmin'
   | 'add'
   | 'loading'
-  | 'refresh';
+  | 'refresh'
+  | 'loginSuccess'
+  | 'welcomeBack';
 
 export const commonTranslations = {
   pt: {
@@ -148,7 +149,9 @@ export const commonTranslations = {
     userAdmin: 'Administração de Usuários',
     add: 'Adicionar',
     loading: 'Carregando',
-    refresh: 'Atualizar'
+    refresh: 'Atualizar',
+    loginSuccess: 'Login bem-sucedido',
+    welcomeBack: 'Bem-vindo de volta!'
   },
   en: {
     search: 'Search',
@@ -223,6 +226,8 @@ export const commonTranslations = {
     userAdmin: 'User Administration',
     add: 'Add',
     loading: 'Loading',
-    refresh: 'Refresh'
+    refresh: 'Refresh',
+    loginSuccess: 'Login successful',
+    welcomeBack: 'Welcome back!'
   }
 };

@@ -3,9 +3,10 @@ import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { Session } from '@supabase/supabase-js';
 import { User, Language } from '@/types/auth';
-import { signInWithEmail } from '@/utils/authUtils';
+import { signInWithEmail } from '@/utils/auth/emailAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthError } from './useAuthError';
+import { mapSupabaseUserToUser } from '@/utils/userMappingUtils';
 
 export const useEmailAuth = (
   setUser: (user: User | null) => void,
@@ -29,26 +30,29 @@ export const useEmailAuth = (
       const response = await signInWithEmail(email, password);
       
       // Safely handle the response
-      if (!response || !response.user) {
+      if (!response) {
         throw new Error(language === 'pt' 
-          ? 'Falha ao fazer login: Credenciais inválidas' 
-          : 'Login failed: Invalid credentials');
+          ? 'Falha ao fazer login: Resposta inválida' 
+          : 'Login failed: Invalid response');
       }
       
       const { user: authUser, session: authSession } = response;
       
       // Process user data with type safety
-      if ('role' in authUser) {
-        // For mock users
-        setUser(authUser as unknown as User);
-      } else if (authUser.id) {
-        // For real Supabase users
-        const mappedUser = await import('@/utils/authUtils').then(
-          module => module.mapSupabaseUserToUser(authUser)
-        );
-        setUser(mappedUser);
+      if (authUser) {
+        if ('role' in authUser) {
+          // For mock users
+          setUser(authUser as unknown as User);
+        } else {
+          // For real Supabase users
+          const mappedUser = await mapSupabaseUserToUser(authUser);
+          setUser(mappedUser);
+        }
       } else {
-        throw new Error('Invalid user data received');
+        setUser(null);
+        throw new Error(language === 'pt'
+          ? 'Falha ao fazer login: Dados de usuário inválidos'
+          : 'Login failed: Invalid user data');
       }
       
       setSession(authSession);
@@ -58,6 +62,11 @@ export const useEmailAuth = (
 
       // Start session refresh timer
       startSessionRefreshTimer(authSession);
+      
+      toast.success(
+        language === 'pt' ? 'Login bem-sucedido' : 'Login successful', 
+        { description: language === 'pt' ? 'Bem-vindo de volta!' : 'Welcome back!' }
+      );
       
       return { success: true };
     } catch (error) {

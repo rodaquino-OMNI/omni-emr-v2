@@ -48,7 +48,7 @@ export const signInWithEmail = async (email: string, password: string) => {
     if (error) throw error;
     
     // Log audit event for real user login
-    if (data.user) {
+    if (data?.user) {
       logAuditEvent(
         data.user.id,
         'login',
@@ -64,7 +64,10 @@ export const signInWithEmail = async (email: string, password: string) => {
       }
     }
     
-    return data;
+    return {
+      user: data?.user || null,
+      session: data?.session || null
+    };
   } catch (error) {
     console.error('Email sign-in error:', error);
     throw error;
