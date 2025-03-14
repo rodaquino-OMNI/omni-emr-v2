@@ -1,4 +1,3 @@
-
 import { UserRole } from '../../types/auth';
 
 // Define role-specific permissions
@@ -76,7 +75,11 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'document_assessments',
     'order_specialty_tests',
     'respond_clinical_messages',
-    'approve_refill_requests'
+    'approve_refill_requests',
+    
+    // Add critical results permissions
+    'view_critical_results',
+    'manage_critical_results'
   ],
   
   // Nursing staff have patient care and assessment permissions
@@ -128,7 +131,11 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'document_assessments',
     'assist_patient_care',
     'triage_patient_messages',
-    'schedule_appointments'
+    'schedule_appointments',
+    
+    // Add critical results permissions
+    'view_critical_results',
+    'manage_critical_results'
   ],
   
   // Pharmacists focus on medication management
@@ -148,7 +155,10 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_diagnoses',
     
     // Actions
-    'approve_refill_requests'
+    'approve_refill_requests',
+    
+    // Add critical results related to medications
+    'view_critical_results'
   ],
   
   // Laboratory technicians handle lab specimens and results
@@ -161,7 +171,11 @@ export const rolePermissions: Record<UserRole, string[]> = {
     // Access controls
     'view_patients',
     'view_lab_orders',
-    'view_lab_results'
+    'view_lab_results',
+    
+    // Add critical results permissions related to lab results
+    'view_critical_results',
+    'alert_critical_values'
   ],
   
   // Radiology technicians handle imaging studies
@@ -173,7 +187,11 @@ export const rolePermissions: Record<UserRole, string[]> = {
     // Access controls
     'view_patients',
     'view_imaging_orders',
-    'view_imaging_results'
+    'view_imaging_results',
+    
+    // Add critical results permissions related to imaging
+    'view_critical_results',
+    'alert_critical_values'
   ],
   
   // Administrative staff handle registration and scheduling

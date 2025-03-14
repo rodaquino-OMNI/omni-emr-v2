@@ -1,4 +1,3 @@
-
 import { UserRole } from '../../types/auth';
 
 // Define all permission categories
@@ -36,6 +35,8 @@ export const permissionCategories = {
     'specify_test_urgency',
     'document_results_context',
     'alert_critical_values',
+    'view_critical_results',
+    'manage_critical_results',
     'perform_laboratory_tests',
     'enter_test_results'
   ],

@@ -1,4 +1,3 @@
-
 import { patientsTranslations } from './categories/patients';
 import { usersTranslations } from './categories/users';
 import { authTranslations } from './categories/auth';
@@ -274,10 +273,135 @@ export const translations = {
     pt: 'Bem-vindo de volta!'
   },
 
+  // Critical result management
+  criticalResultsManagement: {
+    en: 'Critical Results Management',
+    pt: 'Gestão de Resultados Críticos'
+  },
+  criticalResult: {
+    en: 'Critical Result',
+    pt: 'Resultado Crítico'
+  },
+  urgentResult: {
+    en: 'Urgent Result',
+    pt: 'Resultado Urgente'
+  },
+  abnormalResult: {
+    en: 'Abnormal Result',
+    pt: 'Resultado Anormal'
+  },
+  value: {
+    en: 'Value',
+    pt: 'Valor'
+  },
+  normalRange: {
+    en: 'Normal Range',
+    pt: 'Faixa Normal'
+  },
+  view: {
+    en: 'View',
+    pt: 'Visualizar'
+  },
+  acknowledge: {
+    en: 'Acknowledge',
+    pt: 'Confirmar Recebimento'
+  },
+  acknowledged: {
+    en: 'Acknowledged',
+    pt: 'Recebido'
+  },
+  unacknowledged: {
+    en: 'Unacknowledged',
+    pt: 'Não Recebido'
+  },
+  all: {
+    en: 'All',
+    pt: 'Todos'
+  },
+  noCriticalResults: {
+    en: 'No critical results to display',
+    pt: 'Não há resultados críticos para exibir'
+  },
+  noUnacknowledgedResults: {
+    en: 'No unacknowledged critical results',
+    pt: 'Não há resultados críticos não recebidos'
+  },
+  noAcknowledgedResults: {
+    en: 'No acknowledged critical results',
+    pt: 'Não há resultados críticos recebidos'
+  },
+  loadingCriticalResults: {
+    en: 'Loading critical results',
+    pt: 'Carregando resultados críticos'
+  },
+  criticalResultDetails: {
+    en: 'Critical Result Details',
+    pt: 'Detalhes do Resultado Crítico'
+  },
+  pendingAcknowledgment: {
+    en: 'Pending Acknowledgment',
+    pt: 'Confirmação Pendente'
+  },
+  acknowledgedBy: {
+    en: 'Acknowledged by',
+    pt: 'Recebido por'
+  },
+  on: {
+    en: 'on',
+    pt: 'em'
+  },
+  patient: {
+    en: 'Patient',
+    pt: 'Paciente'
+  },
+  resultType: {
+    en: 'Result Type',
+    pt: 'Tipo de Resultado'
+  },
+  laboratoryResult: {
+    en: 'Laboratory Result',
+    pt: 'Resultado de Laboratório'
+  },
+  imagingResult: {
+    en: 'Imaging Result',
+    pt: 'Resultado de Imagem'
+  },
+  vitalSign: {
+    en: 'Vital Sign',
+    pt: 'Sinal Vital'
+  },
+  resultName: {
+    en: 'Test/Result Name',
+    pt: 'Nome do Teste/Resultado'
+  },
+  reportedAt: {
+    en: 'Reported At',
+    pt: 'Reportado Em'
+  },
+  close: {
+    en: 'Close',
+    pt: 'Fechar'
+  },
+  errorFetchingCriticalResults: {
+    en: 'Failed to fetch critical results. Please try again.',
+    pt: 'Falha ao buscar resultados críticos. Por favor, tente novamente.'
+  },
+  criticalResultAcknowledged: {
+    en: 'Critical result has been acknowledged',
+    pt: 'Resultado crítico foi confirmado'
+  },
+  errorAcknowledgingResult: {
+    en: 'Failed to acknowledge critical result. Please try again.',
+    pt: 'Falha ao confirmar recebimento do resultado crítico. Por favor, tente novamente.'
+  },
+  unauthorizedAccess: {
+    en: 'You do not have permission to view critical results.',
+    pt: 'Você não tem permissão para visualizar resultados críticos.'
+  },
+  
   // Import category translations
   ...patientsTranslations,
   ...usersTranslations,
   ...authTranslations,
   ...commonTranslations,
 };
-
