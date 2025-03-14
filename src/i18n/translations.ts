@@ -1,40 +1,40 @@
 
-import { authTranslations } from './categories/auth';
-import { commonTranslations } from './categories/common';
-import { tasksTranslations } from './categories/tasks';
-import { patientsTranslations } from './categories/patients';
-import { appointmentsTranslations } from './categories/appointments';
-import { ordersTranslations } from './categories/orders';
-import { usersTranslations } from './categories/users';
-import { medicationsTranslations } from './categories/medications';
-import { medicalHistoryTranslations } from './categories/medicalHistory';
-import { vitalsTranslations } from './categories/vitals';
+import { allTranslations, TranslationCategories, TranslationKey } from './categories';
 
-export const translations = {
-  en: {
-    ...authTranslations.en,
-    ...commonTranslations.en,
-    ...tasksTranslations.en,
-    ...patientsTranslations.en,
-    ...appointmentsTranslations.en,
-    ...ordersTranslations.en,
-    ...usersTranslations.en,
-    ...medicationsTranslations.en,
-    ...medicalHistoryTranslations.en,
-    ...vitalsTranslations.en,
-  },
-  pt: {
-    ...authTranslations.pt,
-    ...commonTranslations.pt,
-    ...tasksTranslations.pt,
-    ...patientsTranslations.pt,
-    ...appointmentsTranslations.pt,
-    ...ordersTranslations.pt,
-    ...usersTranslations.pt,
-    ...medicationsTranslations.pt,
-    ...medicalHistoryTranslations.pt,
-    ...vitalsTranslations.pt,
-  }
+export type { TranslationKey };
+
+export type Language = 'en' | 'pt';
+
+// Flatten the translations for each language
+const flattenTranslations = <T extends Record<string, any>>(obj: T, prefix = ''): Record<string, string> => {
+  return Object.keys(obj).reduce((acc, k) => {
+    const pre = prefix.length ? `${prefix}.` : '';
+    if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
+      Object.assign(acc, flattenTranslations(obj[k], `${pre}${k}`));
+    } else {
+      acc[`${pre}${k}`] = obj[k];
+    }
+    return acc;
+  }, {} as Record<string, string>);
 };
 
-export type TranslationKey = keyof typeof translations.en;
+export const translations: Record<Language, Record<TranslationKey, string>> = {
+  en: {} as Record<TranslationKey, string>,
+  pt: {} as Record<TranslationKey, string>
+};
+
+// Loop through each category and add to the flattened translations
+Object.keys(allTranslations).forEach((category) => {
+  const categoryKey = category as keyof TranslationCategories;
+  const categoryTranslations = allTranslations[categoryKey];
+  
+  // Add English translations
+  Object.entries(categoryTranslations.en).forEach(([key, value]) => {
+    translations.en[key as TranslationKey] = value;
+  });
+  
+  // Add Portuguese translations
+  Object.entries(categoryTranslations.pt).forEach(([key, value]) => {
+    translations.pt[key as TranslationKey] = value;
+  });
+});
