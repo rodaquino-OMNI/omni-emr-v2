@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { AIInsight } from '../ai/AIInsights';
 import { Patient } from './PatientCard';
-import { Activity, AlertTriangle, Calendar, Pill, Clock, ListChecks, Info } from 'lucide-react';
+import { Activity, AlertTriangle, Calendar, Pill, Clock, ListChecks, Info, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { samplePatients } from '@/data/samplePatients';
@@ -147,7 +146,7 @@ const VitalSignsCard = ({ patient }: { patient: Patient }) => {
           </div>
           
           <div className="h-40">
-            <VitalsChart />
+            <VitalsChart patientId={patient.id} type="heartRate" />
           </div>
         </div>
       </CardContent>
