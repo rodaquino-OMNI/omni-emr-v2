@@ -43,34 +43,34 @@ type ToastFunction = {
 // Create the toast object with function properties
 export const toast: ToastFunction = Object.assign(
   // Base function
-  (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options) as ToastT,
+  (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options) as unknown as ToastT,
   // Methods
   {
-    success: (message: string, options?: ToastOptions): ToastT => sonnerToast.success(message, options) as ToastT,
-    error: (message: string, options?: ToastOptions): ToastT => sonnerToast.error(message, options) as ToastT,
-    warning: (message: string, options?: ToastOptions): ToastT => sonnerToast.warning(message, options) as ToastT,
-    info: (message: string, options?: ToastOptions): ToastT => sonnerToast.info(message, options) as ToastT,
-    default: (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options) as ToastT,
+    success: (message: string, options?: ToastOptions): ToastT => sonnerToast.success(message, options) as unknown as ToastT,
+    error: (message: string, options?: ToastOptions): ToastT => sonnerToast.error(message, options) as unknown as ToastT,
+    warning: (message: string, options?: ToastOptions): ToastT => sonnerToast.warning(message, options) as unknown as ToastT,
+    info: (message: string, options?: ToastOptions): ToastT => sonnerToast.info(message, options) as unknown as ToastT,
+    default: (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options) as unknown as ToastT,
     
     // Common scenarios with pre-defined messages
-    saved: (): ToastT => sonnerToast.success('Successfully saved') as ToastT,
-    deleted: (): ToastT => sonnerToast.success('Successfully deleted') as ToastT,
-    updated: (): ToastT => sonnerToast.success('Successfully updated') as ToastT,
-    created: (): ToastT => sonnerToast.success('Successfully created') as ToastT,
-    loginSuccess: (): ToastT => sonnerToast.success('Successfully logged in') as ToastT,
-    logoutSuccess: (): ToastT => sonnerToast.success('Successfully logged out') as ToastT,
+    saved: (): ToastT => sonnerToast.success('Successfully saved') as unknown as ToastT,
+    deleted: (): ToastT => sonnerToast.success('Successfully deleted') as unknown as ToastT,
+    updated: (): ToastT => sonnerToast.success('Successfully updated') as unknown as ToastT,
+    created: (): ToastT => sonnerToast.success('Successfully created') as unknown as ToastT,
+    loginSuccess: (): ToastT => sonnerToast.success('Successfully logged in') as unknown as ToastT,
+    logoutSuccess: (): ToastT => sonnerToast.success('Successfully logged out') as unknown as ToastT,
     permissionDenied: (): ToastT => sonnerToast.error('Permission denied', { 
       description: 'You do not have permission to perform this action'
-    }) as ToastT,
+    }) as unknown as ToastT,
     networkError: (): ToastT => sonnerToast.error('Network error', { 
       description: 'Please check your connection and try again'
-    }) as ToastT,
+    }) as unknown as ToastT,
     sessionExpired: (): ToastT => sonnerToast.error('Session expired', { 
       description: 'Please log in again'
-    }) as ToastT,
+    }) as unknown as ToastT,
     validationError: (): ToastT => sonnerToast.error('Validation error', { 
       description: 'Please check the fields and try again'
-    }) as ToastT,
+    }) as unknown as ToastT,
     
     // Add for compatibility with shadcn/ui toast
     toast: sonnerToast,

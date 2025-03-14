@@ -1,7 +1,7 @@
 
 import { useContext } from 'react';
 import { LanguageContext } from '../context/LanguageContext';
-import translations from '../i18n/translations';
+import { translations } from '../i18n/translations';
 import { Language } from '../types/auth';
 
 export const useTranslation = () => {
@@ -42,11 +42,31 @@ export const useTranslation = () => {
     return key;
   };
 
+  // Add a hasTranslation utility function to check if a translation key exists
+  const hasTranslation = (key: string): boolean => {
+    const currentLanguage = language || 'en';
+    const keys = key.split('.');
+    let result: any = translations;
+    
+    // Navigate through nested properties
+    for (const k of keys) {
+      if (result && typeof result === 'object' && k in result) {
+        result = result[k];
+      } else {
+        return false;
+      }
+    }
+    
+    // Check if translation exists for current language
+    return result && typeof result === 'object' && currentLanguage in result;
+  };
+
   return {
     t,
     language: language as Language,
     setLanguage,
-    toggleLanguage
+    toggleLanguage,
+    hasTranslation
   };
 };
 

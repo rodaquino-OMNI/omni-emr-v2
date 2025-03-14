@@ -1,42 +1,34 @@
 
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { TranslationKey } from '@/i18n/translations';
 
 interface TranslatedTextProps {
-  translationKey: TranslationKey;
+  textKey: string;
   fallback?: string;
   className?: string;
-  values?: Record<string, string | number>;
+  as?: React.ElementType;
 }
 
 /**
- * Component that displays translated text with validation
- * and proper fallback handling
+ * A component to display translated text with fallback options
  */
-const TranslatedText: React.FC<TranslatedTextProps> = ({ 
-  translationKey, 
-  fallback, 
+const TranslatedText: React.FC<TranslatedTextProps> = ({
+  textKey,
+  fallback,
   className,
-  values
+  as: Component = 'span'
 }) => {
   const { t, hasTranslation } = useTranslation();
   
-  // Get the translated text
-  let translatedText = t(translationKey);
-  
-  // If we have values to interpolate, replace them in the string
-  if (values) {
-    Object.entries(values).forEach(([key, value]) => {
-      translatedText = translatedText.replace(`{${key}}`, String(value));
-    });
-  }
-  
-  // If the translation doesn't exist, use fallback or key
-  const displayText = !hasTranslation(translationKey) ? fallback : translatedText;
+  // If the key exists in translations, use it, otherwise use fallback or key itself
+  const displayText = hasTranslation(textKey) 
+    ? t(textKey)
+    : fallback || textKey;
   
   return (
-    <span className={className}>{displayText || String(translationKey)}</span>
+    <Component className={className}>
+      {displayText}
+    </Component>
   );
 };
 
