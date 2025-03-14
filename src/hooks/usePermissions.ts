@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useEffect } from 'react';
 import { User } from '../types/auth';
 import { 
@@ -15,7 +14,7 @@ import {
   canManageFluidBalance,
   canPerformTriageAssessment,
   canDocumentMedicalDecisionMaking
-} from '../utils/permissions';
+} from '../utils/permissions/index';
 
 export const usePermissions = (user: User | null) => {
   // State to store user permissions

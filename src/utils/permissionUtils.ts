@@ -16,5 +16,4 @@ export {
   canManageFluidBalance,
   canPerformTriageAssessment,
   canDocumentMedicalDecisionMaking
-} from './permissions';
-
+} from './permissions/index';

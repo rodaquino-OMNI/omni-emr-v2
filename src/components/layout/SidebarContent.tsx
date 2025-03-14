@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -6,7 +5,7 @@ import SidebarLogo from './SidebarLogo';
 import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import { sidebarItems } from '@/config/sidebarConfig';
-import { hasPermission } from '@/utils/permissions/roleChecks';
+import { hasPermission } from '@/utils/permissions/index';
 
 interface SidebarContentProps {
   onItemClick?: () => void;

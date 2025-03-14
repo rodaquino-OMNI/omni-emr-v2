@@ -3,9 +3,10 @@
 export { 
   permissionCategories,
   sharedPermissions,
-  rolePermissions,
-  allPermissions
-} from '../permissions';
+  allPermissions 
+} from './permissionTypes';
+
+export { rolePermissions } from './roleDefinitions';
 
 // Export permission utility functions
 export { hasPermission, getUserPermissions } from './roleChecks';
