@@ -25,7 +25,8 @@ export const useLoginForm = () => {
     forgotPassword,
     toggleForgotPassword,
     handleEmailSubmit,
-    handleCaptchaResponse
+    handleCaptchaResponse,
+    isSubmitting: emailIsSubmitting
   } = useEmailLogin(language);
   
   const {
@@ -34,24 +35,25 @@ export const useLoginForm = () => {
     verificationCode,
     setVerificationCode,
     verificationSent,
-    usePhoneLogin,
+    usePhoneLogin: phoneLoginEnabled,
     togglePhoneLogin,
     resetPhoneForm,
     handlePhoneSubmit,
-    handleVerifySubmit
+    handleVerifySubmit,
+    isSubmitting: phoneIsSubmitting
   } = usePhoneLogin(language);
   
-  const { handleSocialLogin } = useSocialLogin(language);
+  const { handleSocialLogin, isSubmitting: socialIsSubmitting } = useSocialLogin(language);
   
   // Combined validation function that delegates to the appropriate validator
   const validateForm = useCallback((): boolean => {
-    if (usePhoneLogin) {
+    if (phoneLoginEnabled) {
       return validatePhone(phone, verificationSent, verificationCode);
     } else {
       return validateEmailPassword(email, password, forgotPassword);
     }
   }, [
-    usePhoneLogin, 
+    phoneLoginEnabled, 
     validatePhone, 
     phone, 
     verificationSent, 
@@ -81,6 +83,9 @@ export const useLoginForm = () => {
     setValidationErrors({});
   }, [resetPhoneForm, setValidationErrors]);
   
+  // Determine the current isSubmitting state based on which login method is active
+  const isSubmitting = phoneLoginEnabled ? phoneIsSubmitting : emailIsSubmitting;
+  
   // Combine and return all the necessary properties and methods
   return {
     // Email login related
@@ -97,7 +102,7 @@ export const useLoginForm = () => {
     verificationSent,
     
     // UI state
-    isSubmitting: usePhoneLogin ? usePhoneLogin.isSubmitting : useEmailLogin.isSubmitting,
+    isSubmitting,
     validationErrors,
     setValidationErrors,
     
@@ -110,7 +115,7 @@ export const useLoginForm = () => {
     // Toggle state
     forgotPassword,
     toggleForgotPassword,
-    usePhoneLogin,
+    usePhoneLogin: phoneLoginEnabled,
     togglePhoneLogin,
     
     // Utilities
