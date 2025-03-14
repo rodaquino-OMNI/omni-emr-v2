@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertCircle, Plus, Trash2, Search, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -55,7 +54,6 @@ const DrugInteractionChecker: React.FC = () => {
   };
 
   const handleAddMedication = (medication: RxNormMedication) => {
-    // Check if medication is already added
     if (medications.some(med => med.rxcui === medication.rxcui)) {
       toast.info(language === 'pt'
         ? "Este medicamento já foi adicionado"
@@ -70,7 +68,6 @@ const DrugInteractionChecker: React.FC = () => {
 
   const handleRemoveMedication = (rxcui: string) => {
     setMedications(medications.filter(med => med.rxcui !== rxcui));
-    // Clear interactions if we're left with less than 2 medications
     if (medications.length <= 2) {
       setInteractions([]);
     }
@@ -182,7 +179,7 @@ const DrugInteractionChecker: React.FC = () => {
           
           <Dialog open={showMedicationSelector} onOpenChange={setShowMedicationSelector}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="secondary" size="sm">
                 <Plus className="h-4 w-4 mr-1" />
                 {language === 'pt' ? 'Avançado' : 'Advanced'}
               </Button>
@@ -223,7 +220,6 @@ const DrugInteractionChecker: React.FC = () => {
           </div>
         )}
         
-        {/* Selected medications list */}
         <div>
           <Label className="mb-1 block">
             {language === 'pt' ? 'Medicamentos Selecionados' : 'Selected Medications'}
@@ -268,7 +264,6 @@ const DrugInteractionChecker: React.FC = () => {
           {language === 'pt' ? 'Verificar Interações' : 'Check Interactions'}
         </Button>
         
-        {/* Interactions results */}
         {interactions.length > 0 && (
           <div className="mt-4 space-y-4">
             <h3 className="font-medium text-lg">

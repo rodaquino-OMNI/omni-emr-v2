@@ -303,15 +303,12 @@ const extractConceptsByType = (data: RxNormRelatedResponse, type: string): RxNor
  */
 export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
   try {
-    // Check cache first
-    const { data: cachedNDCs, error: cacheError } = await supabase
-      .from('rxnorm_ndc_cache')
-      .select('*')
-      .eq('rxcui', rxcui)
-      .maybeSingle();
+    // Use a direct SQL query to check the cache as a workaround for type issues
+    const { data: cachedResult, error: cacheError } = await supabase
+      .rpc('get_rxnorm_ndc_cache', { rxcui_param: rxcui });
 
-    if (cachedNDCs && !cacheError) {
-      return (cachedNDCs.ndcs as unknown as RxNormNDC[]);
+    if (cachedResult && !cacheError && cachedResult.length > 0) {
+      return (cachedResult[0].ndcs as unknown as RxNormNDC[]);
     }
 
     const response = await fetch(
@@ -336,12 +333,12 @@ export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
       }));
     }
     
-    // Cache the results
-    const { error: insertError } = await supabase.from('rxnorm_ndc_cache').insert({
-      rxcui,
-      ndcs: ndcs as unknown as Json,
-      created_at: new Date().toISOString()
-    });
+    // Use a stored procedure to insert the cache data
+    const { error: insertError } = await supabase
+      .rpc('insert_rxnorm_ndc_cache', { 
+        rxcui_param: rxcui, 
+        ndcs_param: JSON.stringify(ndcs)
+      });
 
     if (insertError) {
       console.error('Error caching NDCs:', insertError);
@@ -359,15 +356,12 @@ export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
  */
 export const getDisplayTerms = async (term: string, maxResults = 10): Promise<RxNormDisplayTerm[]> => {
   try {
-    // Check cache first
-    const { data: cachedTerms, error: cacheError } = await supabase
-      .from('rxnorm_displayterms_cache')
-      .select('*')
-      .eq('search_term', term.toLowerCase())
-      .maybeSingle();
+    // Use a direct SQL query to check the cache
+    const { data: cachedResult, error: cacheError } = await supabase
+      .rpc('get_rxnorm_displayterms_cache', { term_param: term.toLowerCase() });
 
-    if (cachedTerms && !cacheError) {
-      return (cachedTerms.terms as unknown as RxNormDisplayTerm[]);
+    if (cachedResult && !cacheError && cachedResult.length > 0) {
+      return (cachedResult[0].terms as unknown as RxNormDisplayTerm[]);
     }
 
     const response = await fetch(
@@ -386,12 +380,12 @@ export const getDisplayTerms = async (term: string, maxResults = 10): Promise<Rx
       terms = data.displayTermsList.term;
     }
     
-    // Cache the results
-    const { error: insertError } = await supabase.from('rxnorm_displayterms_cache').insert({
-      search_term: term.toLowerCase(),
-      terms: terms as unknown as Json,
-      created_at: new Date().toISOString()
-    });
+    // Use a stored procedure to insert the cache data
+    const { error: insertError } = await supabase
+      .rpc('insert_rxnorm_displayterms_cache', { 
+        term_param: term.toLowerCase(), 
+        terms_param: JSON.stringify(terms)
+      });
 
     if (insertError) {
       console.error('Error caching display terms:', insertError);
@@ -416,15 +410,12 @@ export const checkDrugInteractions = async (rxcuis: string[]): Promise<RxNormInt
     // Generate a unique key for caching
     const interactionKey = rxcuis.sort().join('_');
     
-    // Check cache first
-    const { data: cachedInteractions, error: cacheError } = await supabase
-      .from('rxnorm_interactions_cache')
-      .select('*')
-      .eq('interaction_key', interactionKey)
-      .maybeSingle();
+    // Use a direct SQL query to check the cache
+    const { data: cachedResult, error: cacheError } = await supabase
+      .rpc('get_rxnorm_interactions_cache', { key_param: interactionKey });
 
-    if (cachedInteractions && !cacheError) {
-      return (cachedInteractions.interactions as unknown as RxNormInteraction[]);
+    if (cachedResult && !cacheError && cachedResult.length > 0) {
+      return (cachedResult[0].interactions as unknown as RxNormInteraction[]);
     }
 
     // Note: Using the NIH Drug Interaction API which is separate from the RxNorm API
@@ -444,13 +435,13 @@ export const checkDrugInteractions = async (rxcuis: string[]): Promise<RxNormInt
       interactions = data.interactionTypeGroup.interactionType;
     }
     
-    // Cache the results
-    const { error: insertError } = await supabase.from('rxnorm_interactions_cache').insert({
-      interaction_key: interactionKey,
-      rxcuis: rxcuis,
-      interactions: interactions as unknown as Json,
-      created_at: new Date().toISOString()
-    });
+    // Use a stored procedure to insert the cache data
+    const { error: insertError } = await supabase
+      .rpc('insert_rxnorm_interactions_cache', { 
+        key_param: interactionKey, 
+        rxcuis_param: rxcuis,
+        interactions_param: JSON.stringify(interactions)
+      });
 
     if (insertError) {
       console.error('Error caching interactions:', insertError);
