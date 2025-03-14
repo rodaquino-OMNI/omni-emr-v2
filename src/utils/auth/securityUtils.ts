@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import * as CryptoJS from 'crypto-js';
 
 // Check if user has MFA enabled
 export const hasEnabledMFA = async (userId: string): Promise<boolean> => {
@@ -34,10 +35,34 @@ export const hasEnabledMFA = async (userId: string): Promise<boolean> => {
 // Check if a password is potentially leaked
 export const checkPasswordLeak = async (password: string): Promise<boolean> => {
   try {
-    // This is a placeholder for integration with haveibeenpwned API
-    // In production, you would use their k-anonymity model API
-    // This would typically be implemented in a serverless function
-    return false;
+    // Generate a SHA-1 hash of the password
+    const sha1Hash = CryptoJS.SHA1(password).toString().toUpperCase();
+    
+    // Use the k-anonymity model that HaveIBeenPwned API supports
+    // We only send the first 5 chars of the hash (prefix) to maintain privacy
+    const prefix = sha1Hash.substring(0, 5);
+    const suffix = sha1Hash.substring(5);
+    
+    // Query the API
+    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to check password against database');
+    }
+    
+    // The response contains suffixes with breach counts
+    const text = await response.text();
+    const breachedHashes = text.split('\n');
+    
+    // Check if our suffix exists in the response
+    for (const hashLine of breachedHashes) {
+      const [hashSuffix] = hashLine.split(':');
+      if (hashSuffix.trim() === suffix) {
+        return true; // Password has been found in a breach
+      }
+    }
+    
+    return false; // Password not found in any known breaches
   } catch (error) {
     console.error('Error checking password leak status:', error);
     return false;
@@ -141,4 +166,45 @@ export const unenrollMFA = async (factorId: string): Promise<boolean> => {
     console.error('Error unenrolling from MFA:', error);
     return false;
   }
+};
+
+// Check password strength
+export const checkPasswordStrength = (password: string): { 
+  score: number; 
+  feedback: string;
+} => {
+  let score = 0;
+  let feedback = '';
+  
+  // Length check (0-4 points)
+  if (password.length < 8) {
+    score += 0;
+    feedback = 'Password is too short';
+  } else if (password.length >= 12) {
+    score += 4;
+  } else {
+    score += 2;
+  }
+  
+  // Complexity checks (add points for each)
+  const hasLowercase = /[a-z]/.test(password);
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasDigits = /\d/.test(password);
+  const hasSpecialChars = /[^A-Za-z0-9]/.test(password);
+  
+  if (hasLowercase) score += 1;
+  if (hasUppercase) score += 1;
+  if (hasDigits) score += 1;
+  if (hasSpecialChars) score += 1;
+  
+  // Generate feedback
+  if (score <= 4) {
+    feedback = 'Weak password. Use a longer password with mixed case, numbers, and symbols.';
+  } else if (score <= 6) {
+    feedback = 'Moderate password. Consider adding more variety.';
+  } else {
+    feedback = 'Strong password!';
+  }
+  
+  return { score, feedback };
 };

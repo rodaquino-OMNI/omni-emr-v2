@@ -952,6 +952,7 @@ export type Database = {
           department: string | null
           email: string | null
           id: string
+          mfa_enabled: boolean | null
           name: string | null
           phone: string | null
           role: string
@@ -963,6 +964,7 @@ export type Database = {
           department?: string | null
           email?: string | null
           id: string
+          mfa_enabled?: boolean | null
           name?: string | null
           phone?: string | null
           role: string
@@ -974,6 +976,7 @@ export type Database = {
           department?: string | null
           email?: string | null
           id?: string
+          mfa_enabled?: boolean | null
           name?: string | null
           phone?: string | null
           role?: string
