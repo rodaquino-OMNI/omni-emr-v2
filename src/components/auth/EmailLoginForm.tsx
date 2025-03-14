@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { UserCheck, Loader2, KeyRound, ArrowLeft } from 'lucide-react';
 import { Language } from '@/types/auth';
 
@@ -39,9 +38,9 @@ const EmailLoginForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <FormLabel htmlFor="email" className="text-sm font-medium">
+        <label htmlFor="email" className="text-sm font-medium">
           {t('email')}
-        </FormLabel>
+        </label>
         <Input
           id="email"
           type="email"
@@ -70,9 +69,9 @@ const EmailLoginForm = ({
       {!forgotPassword && (
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <FormLabel htmlFor="password" className="text-sm font-medium">
+            <label htmlFor="password" className="text-sm font-medium">
               {t('password')}
-            </FormLabel>
+            </label>
             {toggleForgotPassword && (
               <button 
                 type="button" 

@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormLabel } from "@/components/ui/form";
 import { Loader2, Phone, Check } from 'lucide-react';
 import { Language } from '@/types/auth';
 
@@ -42,9 +41,9 @@ const PhoneLoginForm = ({
       {!verificationSent ? (
         <form onSubmit={handlePhoneSubmit} className="space-y-4">
           <div className="space-y-2">
-            <FormLabel htmlFor="phone" className="text-sm font-medium">
+            <label htmlFor="phone" className="text-sm font-medium">
               {language === 'pt' ? 'Número de Telefone' : 'Phone Number'}
-            </FormLabel>
+            </label>
             <Input
               id="phone"
               type="tel"
@@ -90,9 +89,9 @@ const PhoneLoginForm = ({
       ) : (
         <form onSubmit={handleVerifySubmit} className="space-y-4">
           <div className="space-y-2">
-            <FormLabel htmlFor="verification-code" className="text-sm font-medium">
+            <label htmlFor="verification-code" className="text-sm font-medium">
               {language === 'pt' ? 'Código de Verificação' : 'Verification Code'}
-            </FormLabel>
+            </label>
             <Input
               id="verification-code"
               type="text"

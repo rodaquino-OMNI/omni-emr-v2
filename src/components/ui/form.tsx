@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
@@ -42,23 +43,44 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
-  const { getFieldState, formState } = useFormContext()
+  const formContext = useFormContext()
 
-  const fieldState = getFieldState(fieldContext.name, formState)
+  // Protect against undefined/null contexts
+  const isInsideFormField = !!fieldContext && Object.keys(fieldContext).length > 0
+  const isInsideFormItem = !!itemContext && Object.keys(itemContext).length > 0
 
-  if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>")
+  if (!isInsideFormField && !formContext) {
+    return {
+      id: "",
+      name: "",
+      formItemId: "",
+      formDescriptionId: "",
+      formMessageId: "",
+      formItemHasError: false,
+    }
   }
 
-  const { id } = itemContext
+  const name = fieldContext?.name
+  
+  // Safe destructuring with fallback
+  const formState = formContext?.formState || {}
+  const { errors } = formState
+
+  // Only try to access errors if name exists and errors object exists
+  const error = name && errors ? errors[name] : undefined
+
+  const id = `${name}-form-item`
+  const formItemId = itemContext?.id || id
+  const formDescriptionId = `${formItemId}-description`
+  const formMessageId = `${formItemId}-message`
 
   return {
     id,
-    name: fieldContext.name,
-    formItemId: `${id}-form-item`,
-    formDescriptionId: `${id}-form-item-description`,
-    formMessageId: `${id}-form-item-message`,
-    ...fieldState,
+    name,
+    formItemId,
+    formDescriptionId,
+    formMessageId,
+    formItemHasError: !!error,
   }
 }
 
