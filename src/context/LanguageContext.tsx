@@ -9,8 +9,12 @@ interface LanguageContextType {
   toggleLanguage: () => void;
 }
 
-// Export the context so it can be used in other files
-export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Export the context with a defined default value to avoid null issues
+export const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {},
+  toggleLanguage: () => {}
+});
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);

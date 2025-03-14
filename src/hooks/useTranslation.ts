@@ -5,7 +5,10 @@ import { translations } from '../i18n/translations';
 import { Language } from '../types/auth';
 
 export const useTranslation = () => {
-  const { language } = useContext(LanguageContext);
+  const context = useContext(LanguageContext);
+  
+  // If context is not available (outside provider), use English as fallback
+  const language = context?.language || 'en';
   
   const t = (key: string): string => {
     try {
@@ -31,7 +34,10 @@ export const useTranslation = () => {
   
   // Add a hasTranslation utility function to check if a translation key exists
   const hasTranslation = (key: string): boolean => {
-    return translations[language]?.[key] !== undefined;
+    return (
+      translations[language]?.[key] !== undefined || 
+      (language !== 'en' && translations['en']?.[key] !== undefined)
+    );
   };
   
   return { t, language, hasTranslation };

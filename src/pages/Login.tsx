@@ -11,7 +11,13 @@ import { checkConnectivity } from '@/utils/supabaseConnectivity';
 import LoginContainer from '@/components/auth/login/LoginContainer';
 
 const Login = () => {
-  const { user, isAuthenticated, isLoading, language } = useAuth();
+  const auth = useAuth();
+  const { user, isAuthenticated, isLoading, language } = auth || { 
+    user: null, 
+    isAuthenticated: false, 
+    isLoading: false, 
+    language: 'en' 
+  };
   const { t } = useTranslation();
   const location = useLocation();
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean | null>(null);
@@ -23,14 +29,13 @@ const Login = () => {
       setIsSupabaseConnected(isConnected);
       
       if (!isConnected) {
-        toast.error(
-          language === 'pt' ? 'Erro de conexão' : 'Connection error',
-          {
-            description: language === 'pt' 
-              ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
-              : 'Could not connect to the server. Some features may not be available.'
-          }
-        );
+        toast({
+          title: language === 'pt' ? 'Erro de conexão' : 'Connection error',
+          description: language === 'pt' 
+            ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
+            : 'Could not connect to the server. Some features may not be available.',
+          variant: "destructive"
+        });
       }
     };
     
@@ -41,10 +46,12 @@ const Login = () => {
   useEffect(() => {
     const { state } = location;
     if (state && state.timeout) {
-      toast.error(language === 'pt' ? "Sessão expirada" : "Session expired", {
+      toast({
+        title: language === 'pt' ? "Sessão expirada" : "Session expired",
         description: language === 'pt' 
           ? "Sua sessão expirou devido a inatividade. Por favor, faça login novamente."
-          : "Your session has expired due to inactivity. Please log in again."
+          : "Your session has expired due to inactivity. Please log in again.",
+        variant: "destructive"
       });
     }
     
@@ -58,6 +65,18 @@ const Login = () => {
   // If already authenticated, redirect to dashboard
   if (isAuthenticated && !isLoading) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  // Return a basic login page if auth context is not available
+  if (!auth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="p-8 border rounded shadow">
+          <h1 className="text-2xl mb-4">Login</h1>
+          <p>Authentication service is not available</p>
+        </div>
+      </div>
+    );
   }
 
   return (

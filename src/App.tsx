@@ -5,8 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { LanguageProvider } from "./context/LanguageContext";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 import Index from "./pages/Index";
@@ -39,6 +37,7 @@ import VitalSigns from "./pages/VitalSigns";
 import FluidBalance from "./pages/FluidBalance";
 import Orders from './pages/Orders';
 import CriticalResults from './pages/CriticalResults';
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,78 +53,74 @@ const queryClient = new QueryClient({
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner closeButton position="top-right" />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/unauthorized" element={<Unauthorized />} />
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner closeButton position="top-right" />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
+              
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
                 
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  
-                  <Route path="/patients" element={<Patients />} />
-                  <Route path="/patients/:id" element={<PatientProfile />} />
-                  <Route path="/patients/:id/medical-history" element={<MedicalHistory />} />
-                  
-                  <Route path="/records" element={<Records />} />
-                  <Route path="/records/:id" element={<RecordView />} />
-                  
-                  <Route path="/medications" element={<Medications />} />
-                  <Route path="/medications/:id" element={<MedicationView />} />
-                  
-                  <Route path="/prescriptions" element={<Prescriptions />} />
-                  <Route path="/prescriptions/:id" element={<PrescriptionView />} />
-                  
-                  <Route path="/messages" element={<Messages />} />
-                  <Route path="/notifications" element={<Notifications />} />
-                  
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/tasks/:id" element={<TaskDetail />} />
-                  
-                  <Route path="/vitals" element={<VitalSigns />} />
-                  <Route path="/fluid-balance" element={<FluidBalance />} />
-                  <Route path="/critical-results" element={<CriticalResults />} />
-                  
-                  <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
-                    <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
-                    {/* Add alias for the prescribe route */}
-                    <Route path="/prescribe" element={<PrescribeMedication />} />
-                    {/* Add redirect from old route */}
-                    <Route path="/prescribe-medication" element={<Navigate to="/prescribe" replace />} />
-                    <Route path="/prescribe-medication/:patientId" element={<Navigate to="/prescribe/:patientId" replace />} />
-                  </Route>
-                  
-                  <Route element={<ProtectedRoute requiredPermission="telemedicine" />}>
-                    <Route path="/telemedicine" element={<Telemedicine />} />
-                  </Route>
-                  
-                  <Route element={<ProtectedRoute requiredPermission="view_schedule" />}>
-                    <Route path="/schedule" element={<Schedule />} />
-                  </Route>
-                  
-                  <Route element={<ProtectedRoute requiredPermission="all" />}>
-                    <Route path="/admin" element={<Admin />} />
-                  </Route>
-                  
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/help" element={<Help />} />
-                  
-                  <Route path="/orders" element={<Orders />} />
+                <Route path="/patients" element={<Patients />} />
+                <Route path="/patients/:id" element={<PatientProfile />} />
+                <Route path="/patients/:id/medical-history" element={<MedicalHistory />} />
+                
+                <Route path="/records" element={<Records />} />
+                <Route path="/records/:id" element={<RecordView />} />
+                
+                <Route path="/medications" element={<Medications />} />
+                <Route path="/medications/:id" element={<MedicationView />} />
+                
+                <Route path="/prescriptions" element={<Prescriptions />} />
+                <Route path="/prescriptions/:id" element={<PrescriptionView />} />
+                
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/notifications" element={<Notifications />} />
+                
+                <Route path="/tasks" element={<Tasks />} />
+                <Route path="/tasks/:id" element={<TaskDetail />} />
+                
+                <Route path="/vitals" element={<VitalSigns />} />
+                <Route path="/fluid-balance" element={<FluidBalance />} />
+                <Route path="/critical-results" element={<CriticalResults />} />
+                
+                <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
+                  <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
+                  <Route path="/prescribe" element={<PrescribeMedication />} />
+                  <Route path="/prescribe-medication" element={<Navigate to="/prescribe" replace />} />
+                  <Route path="/prescribe-medication/:patientId" element={<Navigate to="/prescribe/:patientId" replace />} />
                 </Route>
                 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </LanguageProvider>
+                <Route element={<ProtectedRoute requiredPermission="telemedicine" />}>
+                  <Route path="/telemedicine" element={<Telemedicine />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="view_schedule" />}>
+                  <Route path="/schedule" element={<Schedule />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="all" />}>
+                  <Route path="/admin" element={<Admin />} />
+                </Route>
+                
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/help" element={<Help />} />
+                
+                <Route path="/orders" element={<Orders />} />
+              </Route>
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );
