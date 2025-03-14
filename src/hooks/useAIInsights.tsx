@@ -7,11 +7,11 @@ export const useAIInsights = (
   sources: Array<'vitals' | 'labs' | 'medications' | 'tasks' | 'general'> = ['general']
 ) => {
   const [insights, setInsights] = useState<AIInsight[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const generateInsights = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         // This would normally be an API call to a backend service
         // that processes the patient data and returns AI insights
@@ -138,7 +138,7 @@ export const useAIInsights = (
       } catch (error) {
         console.error('Error generating AI insights:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     
@@ -147,6 +147,6 @@ export const useAIInsights = (
 
   return {
     insights,
-    loading
+    isLoading
   };
 };

@@ -67,7 +67,7 @@ const VitalSignsCard = ({ patient }: VitalSignsCardProps) => {
           </div>
           
           <div className="h-44 mt-2">
-            <VitalsChart patientId={patient.id} type="heartRate" />
+            <VitalsChart patientId={patient.id} />
           </div>
         </div>
       </CardContent>
