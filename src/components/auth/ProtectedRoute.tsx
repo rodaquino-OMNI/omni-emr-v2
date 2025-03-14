@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Shield, AlertTriangle, Clock, LockIcon } from 'lucide-react';
@@ -16,8 +16,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole,
   patientId
 }) => {
-  const auth = useAuth();
   const location = useLocation();
+  
+  // Try to get auth context, handle gracefully if missing
+  let auth;
+  try {
+    auth = useAuth();
+  } catch (error) {
+    console.error("Auth context error in ProtectedRoute:", error);
+    // If auth context fails, redirect to login
+    return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
+  }
   
   // If auth context is not available, show a loading state
   if (!auth) {

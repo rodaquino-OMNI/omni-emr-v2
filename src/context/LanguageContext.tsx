@@ -1,67 +1,43 @@
 
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { Language } from '../types/auth';
-import { secureStorage } from '../utils/secureStorage';
 
 interface LanguageContextType {
   language: Language;
-  setLanguage: (language: Language) => void;
-  toggleLanguage: () => void;
+  setLanguage: (lang: Language) => void;
 }
 
-// Export the context with a defined default value to avoid null issues
+// Create context with default values
 export const LanguageContext = createContext<LanguageContextType>({
   language: 'en',
-  setLanguage: () => {},
-  toggleLanguage: () => {}
+  setLanguage: () => {}
 });
 
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-};
-
-interface LanguageProviderProps {
-  children: React.ReactNode;
-}
-
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Try to get language preference from secure storage first
-    const savedLanguage = secureStorage.getItem('language', 'en') as Language;
-    
-    // If not found, try browser language
-    if (!savedLanguage) {
-      const browserLang = navigator.language.split('-')[0];
-      return browserLang === 'pt' ? 'pt' : 'en';
+export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  // Try to get stored language from localStorage, default to 'en'
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      const storedLanguage = localStorage.getItem('language');
+      return (storedLanguage === 'en' || storedLanguage === 'pt') 
+        ? storedLanguage 
+        : 'en';
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      return 'en';
     }
-    
-    return savedLanguage;
   });
 
-  const setLanguage = (newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    secureStorage.setItem('language', newLanguage);
-    
-    // Also update HTML lang attribute for accessibility
-    document.documentElement.lang = newLanguage;
-  };
-
-  const toggleLanguage = () => {
-    const newLanguage = language === 'en' ? 'pt' : 'en';
-    setLanguage(newLanguage);
-  };
-
-  // Set the HTML lang attribute on initial load
+  // Store language changes in localStorage
   useEffect(() => {
-    document.documentElement.lang = language;
-  }, []);
+    try {
+      localStorage.setItem('language', language);
+    } catch (error) {
+      console.error('Error writing to localStorage:', error);
+    }
+  }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage }}>
       {children}
     </LanguageContext.Provider>
   );

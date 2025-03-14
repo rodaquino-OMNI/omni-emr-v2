@@ -5,10 +5,11 @@ import { translations } from '../i18n/translations';
 import { Language } from '../types/auth';
 
 export const useTranslation = () => {
+  // Safely get context or use default
   const context = useContext(LanguageContext);
   
   // If context is not available (outside provider), use English as fallback
-  const language = context?.language || 'en';
+  const language: Language = context?.language || 'en';
   
   const t = (key: string): string => {
     try {

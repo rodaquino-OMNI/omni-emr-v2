@@ -11,13 +11,22 @@ import { checkConnectivity } from '@/utils/supabaseConnectivity';
 import LoginContainer from '@/components/auth/login/LoginContainer';
 
 const Login = () => {
-  const auth = useAuth();
+  // Try to get auth context, handle the case when it's not available
+  let auth;
+  try {
+    auth = useAuth();
+  } catch (error) {
+    console.error("Auth context error in Login page:", error);
+    auth = null;
+  }
+  
   const { user, isAuthenticated, isLoading, language } = auth || { 
     user: null, 
     isAuthenticated: false, 
     isLoading: false, 
     language: 'en' 
   };
+  
   const { t } = useTranslation();
   const location = useLocation();
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean | null>(null);
@@ -25,18 +34,23 @@ const Login = () => {
   // Check Supabase connectivity on page load
   useEffect(() => {
     const checkSupabaseConnection = async () => {
-      const isConnected = await checkConnectivity();
-      setIsSupabaseConnected(isConnected);
-      
-      if (!isConnected) {
-        toast(
-          language === 'pt' ? 'Erro de conexão' : 'Connection error',
-          {
-            description: language === 'pt' 
-              ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
-              : 'Could not connect to the server. Some features may not be available.'
-          }
-        );
+      try {
+        const isConnected = await checkConnectivity();
+        setIsSupabaseConnected(isConnected);
+        
+        if (!isConnected) {
+          toast(
+            language === 'pt' ? 'Erro de conexão' : 'Connection error',
+            {
+              description: language === 'pt' 
+                ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
+                : 'Could not connect to the server. Some features may not be available.'
+            }
+          );
+        }
+      } catch (error) {
+        console.error("Error checking connectivity:", error);
+        setIsSupabaseConnected(false);
       }
     };
     
@@ -45,22 +59,26 @@ const Login = () => {
   
   // Check if user was redirected due to session timeout
   useEffect(() => {
-    const { state } = location;
-    if (state && state.timeout) {
-      toast(
-        language === 'pt' ? "Sessão expirada" : "Session expired",
-        {
-          description: language === 'pt' 
-            ? "Sua sessão expirou devido a inatividade. Por favor, faça login novamente."
-            : "Your session has expired due to inactivity. Please log in again."
-        }
-      );
-    }
-    
-    // Check if user was redirected from a specific page
-    if (state && state.returnUrl) {
-      // Store the return URL in secure storage to redirect after login
-      secureStorage.setItem('returnUrl', state.returnUrl);
+    try {
+      const { state } = location;
+      if (state && state.timeout) {
+        toast(
+          language === 'pt' ? "Sessão expirada" : "Session expired",
+          {
+            description: language === 'pt' 
+              ? "Sua sessão expirou devido a inatividade. Por favor, faça login novamente."
+              : "Your session has expired due to inactivity. Please log in again."
+          }
+        );
+      }
+      
+      // Check if user was redirected from a specific page
+      if (state && state.returnUrl) {
+        // Store the return URL in secure storage to redirect after login
+        secureStorage.setItem('returnUrl', state.returnUrl);
+      }
+    } catch (error) {
+      console.error("Error processing location state:", error);
     }
   }, [location, language]);
   
