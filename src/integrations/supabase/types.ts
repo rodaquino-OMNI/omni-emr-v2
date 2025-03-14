@@ -62,6 +62,106 @@ export type Database = {
           },
         ]
       }
+      allergy_intolerances: {
+        Row: {
+          asserter_id: string | null
+          category: Json | null
+          clinical_status: Json | null
+          code: Json
+          created_at: string
+          criticality: string | null
+          encounter_id: string | null
+          id: string
+          identifier: Json | null
+          last_occurrence: string | null
+          note: Json | null
+          onset_age: Json | null
+          onset_date_time: string | null
+          onset_period: Json | null
+          onset_range: Json | null
+          onset_string: string | null
+          patient_id: string
+          reaction: Json | null
+          recorded_date: string
+          recorder_id: string | null
+          type: string | null
+          updated_at: string
+          verification_status: Json | null
+        }
+        Insert: {
+          asserter_id?: string | null
+          category?: Json | null
+          clinical_status?: Json | null
+          code: Json
+          created_at?: string
+          criticality?: string | null
+          encounter_id?: string | null
+          id?: string
+          identifier?: Json | null
+          last_occurrence?: string | null
+          note?: Json | null
+          onset_age?: Json | null
+          onset_date_time?: string | null
+          onset_period?: Json | null
+          onset_range?: Json | null
+          onset_string?: string | null
+          patient_id: string
+          reaction?: Json | null
+          recorded_date?: string
+          recorder_id?: string | null
+          type?: string | null
+          updated_at?: string
+          verification_status?: Json | null
+        }
+        Update: {
+          asserter_id?: string | null
+          category?: Json | null
+          clinical_status?: Json | null
+          code?: Json
+          created_at?: string
+          criticality?: string | null
+          encounter_id?: string | null
+          id?: string
+          identifier?: Json | null
+          last_occurrence?: string | null
+          note?: Json | null
+          onset_age?: Json | null
+          onset_date_time?: string | null
+          onset_period?: Json | null
+          onset_range?: Json | null
+          onset_string?: string | null
+          patient_id?: string
+          reaction?: Json | null
+          recorded_date?: string
+          recorder_id?: string | null
+          type?: string | null
+          updated_at?: string
+          verification_status?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allergy_intolerances_asserter_id_fkey"
+            columns: ["asserter_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allergy_intolerances_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allergy_intolerances_recorder_id_fkey"
+            columns: ["recorder_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           created_at: string
@@ -369,6 +469,239 @@ export type Database = {
           },
         ]
       }
+      conditions: {
+        Row: {
+          abatement_age: Json | null
+          abatement_date_time: string | null
+          abatement_period: Json | null
+          abatement_range: Json | null
+          abatement_string: string | null
+          asserter_id: string | null
+          body_site: Json | null
+          category: Json | null
+          clinical_status: Json | null
+          code: Json
+          created_at: string
+          encounter_id: string | null
+          evidence: Json | null
+          id: string
+          identifier: Json | null
+          note: Json | null
+          onset_age: Json | null
+          onset_date_time: string | null
+          onset_period: Json | null
+          onset_range: Json | null
+          onset_string: string | null
+          recorded_date: string
+          recorder_id: string | null
+          severity: Json | null
+          stage: Json | null
+          subject_id: string
+          updated_at: string
+          verification_status: Json | null
+        }
+        Insert: {
+          abatement_age?: Json | null
+          abatement_date_time?: string | null
+          abatement_period?: Json | null
+          abatement_range?: Json | null
+          abatement_string?: string | null
+          asserter_id?: string | null
+          body_site?: Json | null
+          category?: Json | null
+          clinical_status?: Json | null
+          code: Json
+          created_at?: string
+          encounter_id?: string | null
+          evidence?: Json | null
+          id?: string
+          identifier?: Json | null
+          note?: Json | null
+          onset_age?: Json | null
+          onset_date_time?: string | null
+          onset_period?: Json | null
+          onset_range?: Json | null
+          onset_string?: string | null
+          recorded_date?: string
+          recorder_id?: string | null
+          severity?: Json | null
+          stage?: Json | null
+          subject_id: string
+          updated_at?: string
+          verification_status?: Json | null
+        }
+        Update: {
+          abatement_age?: Json | null
+          abatement_date_time?: string | null
+          abatement_period?: Json | null
+          abatement_range?: Json | null
+          abatement_string?: string | null
+          asserter_id?: string | null
+          body_site?: Json | null
+          category?: Json | null
+          clinical_status?: Json | null
+          code?: Json
+          created_at?: string
+          encounter_id?: string | null
+          evidence?: Json | null
+          id?: string
+          identifier?: Json | null
+          note?: Json | null
+          onset_age?: Json | null
+          onset_date_time?: string | null
+          onset_period?: Json | null
+          onset_range?: Json | null
+          onset_string?: string | null
+          recorded_date?: string
+          recorder_id?: string | null
+          severity?: Json | null
+          stage?: Json | null
+          subject_id?: string
+          updated_at?: string
+          verification_status?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conditions_asserter_id_fkey"
+            columns: ["asserter_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditions_recorder_id_fkey"
+            columns: ["recorder_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditions_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devices: {
+        Row: {
+          contact: Json | null
+          created_at: string
+          definition: Json | null
+          device_name: Json | null
+          distinct_identifier: string | null
+          expiration_date: string | null
+          id: string
+          identifier: Json | null
+          location: Json | null
+          lot_number: string | null
+          manufacture_date: string | null
+          manufacturer: string | null
+          model_number: string | null
+          note: Json | null
+          owner_id: string | null
+          parent_id: string | null
+          part_number: string | null
+          patient_id: string | null
+          property: Json | null
+          safety: Json | null
+          serial_number: string | null
+          specialization: Json | null
+          status: string | null
+          status_reason: Json | null
+          type: Json | null
+          udicarrier: Json | null
+          updated_at: string
+          url: string | null
+          version: Json | null
+        }
+        Insert: {
+          contact?: Json | null
+          created_at?: string
+          definition?: Json | null
+          device_name?: Json | null
+          distinct_identifier?: string | null
+          expiration_date?: string | null
+          id?: string
+          identifier?: Json | null
+          location?: Json | null
+          lot_number?: string | null
+          manufacture_date?: string | null
+          manufacturer?: string | null
+          model_number?: string | null
+          note?: Json | null
+          owner_id?: string | null
+          parent_id?: string | null
+          part_number?: string | null
+          patient_id?: string | null
+          property?: Json | null
+          safety?: Json | null
+          serial_number?: string | null
+          specialization?: Json | null
+          status?: string | null
+          status_reason?: Json | null
+          type?: Json | null
+          udicarrier?: Json | null
+          updated_at?: string
+          url?: string | null
+          version?: Json | null
+        }
+        Update: {
+          contact?: Json | null
+          created_at?: string
+          definition?: Json | null
+          device_name?: Json | null
+          distinct_identifier?: string | null
+          expiration_date?: string | null
+          id?: string
+          identifier?: Json | null
+          location?: Json | null
+          lot_number?: string | null
+          manufacture_date?: string | null
+          manufacturer?: string | null
+          model_number?: string | null
+          note?: Json | null
+          owner_id?: string | null
+          parent_id?: string | null
+          part_number?: string | null
+          patient_id?: string | null
+          property?: Json | null
+          safety?: Json | null
+          serial_number?: string | null
+          specialization?: Json | null
+          status?: string | null
+          status_reason?: Json | null
+          type?: Json | null
+          udicarrier?: Json | null
+          updated_at?: string
+          url?: string | null
+          version?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devices_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devices_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       diagnoses: {
         Row: {
           created_at: string
@@ -413,6 +746,102 @@ export type Database = {
           {
             foreignKeyName: "diagnoses_patient_id_fkey"
             columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      encounters: {
+        Row: {
+          account: Json | null
+          appointment: Json | null
+          class: Json
+          created_at: string
+          diagnosis: Json | null
+          episode_of_care: Json | null
+          hospitalization: Json | null
+          id: string
+          identifier: Json | null
+          length: number | null
+          location: Json | null
+          part_of_id: string | null
+          participant: Json | null
+          period_end: string | null
+          period_start: string
+          priority: Json | null
+          reason_code: Json | null
+          reason_reference: Json | null
+          service_provider: Json | null
+          service_type: Json | null
+          status: string
+          subject_id: string
+          type: Json | null
+          updated_at: string
+        }
+        Insert: {
+          account?: Json | null
+          appointment?: Json | null
+          class: Json
+          created_at?: string
+          diagnosis?: Json | null
+          episode_of_care?: Json | null
+          hospitalization?: Json | null
+          id?: string
+          identifier?: Json | null
+          length?: number | null
+          location?: Json | null
+          part_of_id?: string | null
+          participant?: Json | null
+          period_end?: string | null
+          period_start?: string
+          priority?: Json | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          service_provider?: Json | null
+          service_type?: Json | null
+          status: string
+          subject_id: string
+          type?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          account?: Json | null
+          appointment?: Json | null
+          class?: Json
+          created_at?: string
+          diagnosis?: Json | null
+          episode_of_care?: Json | null
+          hospitalization?: Json | null
+          id?: string
+          identifier?: Json | null
+          length?: number | null
+          location?: Json | null
+          part_of_id?: string | null
+          participant?: Json | null
+          period_end?: string | null
+          period_start?: string
+          priority?: Json | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          service_provider?: Json | null
+          service_type?: Json | null
+          status?: string
+          subject_id?: string
+          type?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounters_part_of_id_fkey"
+            columns: ["part_of_id"]
+            isOneToOne: false
+            referencedRelation: "encounters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounters_subject_id_fkey"
+            columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
@@ -692,6 +1121,155 @@ export type Database = {
         }
         Relationships: []
       }
+      medication_requests: {
+        Row: {
+          authored_on: string
+          based_on: Json | null
+          category: Json | null
+          course_of_therapy_type: Json | null
+          created_at: string
+          detected_issue: Json | null
+          dispense_request: Json | null
+          do_not_perform: boolean | null
+          dosage_instruction: Json | null
+          encounter_id: string | null
+          event_history: Json | null
+          group_identifier: Json | null
+          id: string
+          identifier: Json | null
+          instantiates_canonical: Json | null
+          instantiates_uri: Json | null
+          insurance: Json | null
+          intent: string
+          medication_codeable_concept: Json | null
+          medication_reference: Json | null
+          note: Json | null
+          performer_id: string | null
+          performer_type: Json | null
+          prior_prescription: Json | null
+          priority: string | null
+          reason_code: Json | null
+          reason_reference: Json | null
+          recorder_id: string | null
+          reported_boolean: boolean | null
+          reported_reference: Json | null
+          requester_id: string | null
+          status: string
+          status_reason: Json | null
+          subject_id: string
+          substitution: Json | null
+          supporting_information: Json | null
+          updated_at: string
+        }
+        Insert: {
+          authored_on?: string
+          based_on?: Json | null
+          category?: Json | null
+          course_of_therapy_type?: Json | null
+          created_at?: string
+          detected_issue?: Json | null
+          dispense_request?: Json | null
+          do_not_perform?: boolean | null
+          dosage_instruction?: Json | null
+          encounter_id?: string | null
+          event_history?: Json | null
+          group_identifier?: Json | null
+          id?: string
+          identifier?: Json | null
+          instantiates_canonical?: Json | null
+          instantiates_uri?: Json | null
+          insurance?: Json | null
+          intent: string
+          medication_codeable_concept?: Json | null
+          medication_reference?: Json | null
+          note?: Json | null
+          performer_id?: string | null
+          performer_type?: Json | null
+          prior_prescription?: Json | null
+          priority?: string | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          recorder_id?: string | null
+          reported_boolean?: boolean | null
+          reported_reference?: Json | null
+          requester_id?: string | null
+          status: string
+          status_reason?: Json | null
+          subject_id: string
+          substitution?: Json | null
+          supporting_information?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          authored_on?: string
+          based_on?: Json | null
+          category?: Json | null
+          course_of_therapy_type?: Json | null
+          created_at?: string
+          detected_issue?: Json | null
+          dispense_request?: Json | null
+          do_not_perform?: boolean | null
+          dosage_instruction?: Json | null
+          encounter_id?: string | null
+          event_history?: Json | null
+          group_identifier?: Json | null
+          id?: string
+          identifier?: Json | null
+          instantiates_canonical?: Json | null
+          instantiates_uri?: Json | null
+          insurance?: Json | null
+          intent?: string
+          medication_codeable_concept?: Json | null
+          medication_reference?: Json | null
+          note?: Json | null
+          performer_id?: string | null
+          performer_type?: Json | null
+          prior_prescription?: Json | null
+          priority?: string | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          recorder_id?: string | null
+          reported_boolean?: boolean | null
+          reported_reference?: Json | null
+          requester_id?: string | null
+          status?: string
+          status_reason?: Json | null
+          subject_id?: string
+          substitution?: Json | null
+          supporting_information?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_requests_performer_id_fkey"
+            columns: ["performer_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_requests_recorder_id_fkey"
+            columns: ["recorder_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_requests_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medications_inventory: {
         Row: {
           controlled_substance: boolean | null
@@ -751,6 +1329,114 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      observations: {
+        Row: {
+          body_site: Json | null
+          category: Json | null
+          code: Json
+          component: Json | null
+          created_at: string
+          data_absent_reason: string | null
+          effective_date_time: string
+          encounter_id: string | null
+          id: string
+          interpretation: Json | null
+          issued: string
+          method: Json | null
+          note: Json | null
+          performer_id: string | null
+          reference_range: Json | null
+          status: string
+          subject_id: string
+          updated_at: string
+          value_boolean: boolean | null
+          value_codeable_concept: Json | null
+          value_date_time: string | null
+          value_integer: number | null
+          value_period: Json | null
+          value_quantity: Json | null
+          value_range: Json | null
+          value_ratio: Json | null
+          value_string: string | null
+          value_time: string | null
+        }
+        Insert: {
+          body_site?: Json | null
+          category?: Json | null
+          code: Json
+          component?: Json | null
+          created_at?: string
+          data_absent_reason?: string | null
+          effective_date_time?: string
+          encounter_id?: string | null
+          id?: string
+          interpretation?: Json | null
+          issued?: string
+          method?: Json | null
+          note?: Json | null
+          performer_id?: string | null
+          reference_range?: Json | null
+          status: string
+          subject_id: string
+          updated_at?: string
+          value_boolean?: boolean | null
+          value_codeable_concept?: Json | null
+          value_date_time?: string | null
+          value_integer?: number | null
+          value_period?: Json | null
+          value_quantity?: Json | null
+          value_range?: Json | null
+          value_ratio?: Json | null
+          value_string?: string | null
+          value_time?: string | null
+        }
+        Update: {
+          body_site?: Json | null
+          category?: Json | null
+          code?: Json
+          component?: Json | null
+          created_at?: string
+          data_absent_reason?: string | null
+          effective_date_time?: string
+          encounter_id?: string | null
+          id?: string
+          interpretation?: Json | null
+          issued?: string
+          method?: Json | null
+          note?: Json | null
+          performer_id?: string | null
+          reference_range?: Json | null
+          status?: string
+          subject_id?: string
+          updated_at?: string
+          value_boolean?: boolean | null
+          value_codeable_concept?: Json | null
+          value_date_time?: string | null
+          value_integer?: number | null
+          value_period?: Json | null
+          value_quantity?: Json | null
+          value_range?: Json | null
+          value_ratio?: Json | null
+          value_string?: string | null
+          value_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "observations_performer_id_fkey"
+            columns: ["performer_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_documents: {
         Row: {
@@ -830,6 +1516,7 @@ export type Database = {
           first_name: string
           gender: string | null
           id: string
+          identifiers: Json | null
           last_name: string
           mrn: string
           phone: string | null
@@ -850,6 +1537,7 @@ export type Database = {
           first_name: string
           gender?: string | null
           id?: string
+          identifiers?: Json | null
           last_name: string
           mrn: string
           phone?: string | null
@@ -870,6 +1558,7 @@ export type Database = {
           first_name?: string
           gender?: string | null
           id?: string
+          identifiers?: Json | null
           last_name?: string
           mrn?: string
           phone?: string | null
@@ -877,6 +1566,57 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           zip_code?: string | null
+        }
+        Relationships: []
+      }
+      practitioners: {
+        Row: {
+          active: boolean | null
+          address: Json | null
+          birth_date: string | null
+          communication: Json | null
+          created_at: string
+          gender: string | null
+          id: string
+          identifier: Json | null
+          name: Json
+          photo: string | null
+          qualification: Json | null
+          telecom: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          address?: Json | null
+          birth_date?: string | null
+          communication?: Json | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          identifier?: Json | null
+          name: Json
+          photo?: string | null
+          qualification?: Json | null
+          telecom?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: Json | null
+          birth_date?: string | null
+          communication?: Json | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          identifier?: Json | null
+          name?: Json
+          photo?: string | null
+          qualification?: Json | null
+          telecom?: Json | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1394,6 +2134,10 @@ export type Database = {
       is_authenticated: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      migrate_to_fhir_model: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       user_has_role: {
         Args: {
