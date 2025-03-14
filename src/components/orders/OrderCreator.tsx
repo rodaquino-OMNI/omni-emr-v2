@@ -1,9 +1,6 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Tabs } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { 
   Pill, 
@@ -11,22 +8,16 @@ import {
   ImageIcon, 
   Stethoscope, 
   UserPlus,
-  Search,
-  Calendar,
-  Clock,
-  AlertTriangle,
-  CheckCircle2,
-  X 
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { OrderType, Order } from '@/types/orders';
-import MedicationOrderForm from './forms/MedicationOrderForm';
-import LaboratoryOrderForm from './forms/LaboratoryOrderForm';
-import RadiologyOrderForm from './forms/RadiologyOrderForm';
-import ProcedureOrderForm from './forms/ProcedureOrderForm';
-import ConsultationOrderForm from './forms/ConsultationOrderForm';
 import AIVerificationModal from './AIVerificationModal';
+import OrderTypeSelector from './components/OrderTypeSelector';
+import OrderFormContent from './components/OrderFormContent';
+import OrderActionButtons from './components/OrderActionButtons';
+import OrderHeader from './components/OrderHeader';
+import { useOrderAlertsCheck } from './hooks/useOrderAlertsCheck';
 
 interface OrderCreatorProps {
   patientId: string;
@@ -46,16 +37,22 @@ const OrderCreator = ({
   const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState<OrderType>('medication');
   const [orderData, setOrderData] = useState<any>({});
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [showAIModal, setShowAIModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const orderTypes: { value: OrderType; label: string; icon: React.ReactNode }[] = [
-    { value: 'medication', label: language === 'pt' ? 'Medicamento' : 'Medication', icon: <Pill className="h-4 w-4" /> },
-    { value: 'laboratory', label: language === 'pt' ? 'Laboratório' : 'Laboratory', icon: <Microscope className="h-4 w-4" /> },
-    { value: 'radiology', label: language === 'pt' ? 'Radiologia' : 'Radiology', icon: <ImageIcon className="h-4 w-4" /> },
-    { value: 'procedure', label: language === 'pt' ? 'Procedimento' : 'Procedure', icon: <Stethoscope className="h-4 w-4" /> },
-    { value: 'consultation', label: language === 'pt' ? 'Consulta' : 'Consultation', icon: <UserPlus className="h-4 w-4" /> }
+  const {
+    alerts,
+    isSubmitting,
+    showAIModal,
+    setShowAIModal,
+    checkForAlerts,
+    handleAlertsDecision
+  } = useOrderAlertsCheck();
+  
+  const orderTypes = [
+    { value: 'medication' as OrderType, label: language === 'pt' ? 'Medicamento' : 'Medication', icon: <Pill className="h-4 w-4" /> },
+    { value: 'laboratory' as OrderType, label: language === 'pt' ? 'Laboratório' : 'Laboratory', icon: <Microscope className="h-4 w-4" /> },
+    { value: 'radiology' as OrderType, label: language === 'pt' ? 'Radiologia' : 'Radiology', icon: <ImageIcon className="h-4 w-4" /> },
+    { value: 'procedure' as OrderType, label: language === 'pt' ? 'Procedimento' : 'Procedure', icon: <Stethoscope className="h-4 w-4" /> },
+    { value: 'consultation' as OrderType, label: language === 'pt' ? 'Consulta' : 'Consultation', icon: <UserPlus className="h-4 w-4" /> }
   ];
   
   const handleOrderDataChange = (data: any) => {
@@ -73,69 +70,11 @@ const OrderCreator = ({
     return true;
   };
   
-  const checkForAlerts = async () => {
-    setIsSubmitting(true);
+  const handleVerifyOrder = async () => {
+    const result = await checkForAlerts(activeTab, orderData);
     
-    try {
-      // In a real app, this would call an AI service
-      // Simulating API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Simulating AI-generated alerts for demonstration
-      if (activeTab === 'medication') {
-        const medicationName = orderData.medication?.medicationName?.toLowerCase() || '';
-        
-        // Generate mock alerts based on medication name
-        if (medicationName.includes('warfarin') || medicationName.includes('coumadin')) {
-          setAlerts([
-            {
-              type: 'warning',
-              message: 'Potential interaction with patient\'s current aspirin therapy. Consider monitoring INR more frequently.',
-              overridden: false
-            }
-          ]);
-        } else if (medicationName.includes('penicillin') || medicationName.includes('amoxicillin')) {
-          setAlerts([
-            {
-              type: 'critical',
-              message: 'Patient has documented penicillin allergy. Consider alternative antibiotic.',
-              overridden: false
-            }
-          ]);
-        } else if (medicationName && Math.random() > 0.5) {
-          // Random warning for demo purposes
-          setAlerts([
-            {
-              type: 'info',
-              message: 'This medication may cause drowsiness. Advise patient to avoid driving.',
-              overridden: false
-            }
-          ]);
-        } else {
-          setAlerts([]);
-        }
-      } else {
-        // For other order types
-        setAlerts([]);
-      }
-      
-      // Show AI verification modal only if there are alerts
-      if (alerts.length > 0) {
-        setShowAIModal(true);
-      } else {
-        submitOrder();
-      }
-    } catch (error) {
-      console.error('Error checking for alerts:', error);
-      toast({
-        variant: 'destructive',
-        title: language === 'pt' ? 'Erro' : 'Error',
-        description: language === 'pt' 
-          ? 'Falha ao verificar alertas. Deseja prosseguir mesmo assim?' 
-          : 'Failed to check for alerts. Do you want to proceed anyway?'
-      });
-    } finally {
-      setIsSubmitting(false);
+    if (!result.hasAlerts) {
+      submitOrder();
     }
   };
   
@@ -180,38 +119,17 @@ const OrderCreator = ({
     }
   };
   
-  const handleAlertsDecision = (proceed: boolean, overrideReasons?: {[key: number]: string}) => {
-    setShowAIModal(false);
+  const onAlertsDecision = (proceed: boolean, overrideReasons?: {[key: number]: string}) => {
+    const updatedAlerts = handleAlertsDecision(proceed, overrideReasons);
     
-    if (proceed) {
-      // Update alerts with override reasons
-      if (overrideReasons) {
-        const updatedAlerts = alerts.map((alert, index) => ({
-          ...alert,
-          overridden: true,
-          overriddenBy: user?.name,
-          overriddenReason: overrideReasons[index] || 'Clinical decision'
-        }));
-        setAlerts(updatedAlerts);
-      }
-      
-      // Submit the order with updated alerts
+    if (proceed && updatedAlerts) {
       submitOrder();
     }
   };
   
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          {language === 'pt' ? 'Novo Pedido' : 'New Order'}
-        </h2>
-        {patientName && (
-          <p className="text-sm text-muted-foreground">
-            {language === 'pt' ? 'Paciente' : 'Patient'}: {patientName}
-          </p>
-        )}
-      </div>
+      <OrderHeader patientName={patientName} />
       
       <Tabs 
         defaultValue="medication" 
@@ -219,84 +137,31 @@ const OrderCreator = ({
         onValueChange={(value) => setActiveTab(value as OrderType)}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-4">
-          {orderTypes.map((type) => (
-            <TabsTrigger 
-              key={type.value} 
-              value={type.value} 
-              className="flex items-center gap-2"
-            >
-              {type.icon}
-              <span className="hidden md:inline">{type.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <OrderTypeSelector 
+          orderTypes={orderTypes} 
+          activeTab={activeTab}
+          onChangeTab={(value) => setActiveTab(value)}
+        />
         
-        <div className="border rounded-md p-4">
-          <TabsContent value="medication">
-            <MedicationOrderForm 
-              onDataChange={handleOrderDataChange} 
-              data={orderData.medication}
-            />
-          </TabsContent>
-          
-          <TabsContent value="laboratory">
-            <LaboratoryOrderForm 
-              onDataChange={handleOrderDataChange} 
-              data={orderData.laboratory}
-            />
-          </TabsContent>
-          
-          <TabsContent value="radiology">
-            <RadiologyOrderForm 
-              onDataChange={handleOrderDataChange} 
-              data={orderData.radiology}
-            />
-          </TabsContent>
-          
-          <TabsContent value="procedure">
-            <ProcedureOrderForm 
-              onDataChange={handleOrderDataChange} 
-              data={orderData.procedure}
-            />
-          </TabsContent>
-          
-          <TabsContent value="consultation">
-            <ConsultationOrderForm 
-              onDataChange={handleOrderDataChange} 
-              data={orderData.consultation}
-            />
-          </TabsContent>
-        </div>
+        <OrderFormContent 
+          activeTab={activeTab}
+          orderData={orderData}
+          onDataChange={handleOrderDataChange}
+        />
       </Tabs>
       
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel}>
-          {language === 'pt' ? 'Cancelar' : 'Cancel'}
-        </Button>
-        <Button 
-          onClick={checkForAlerts}
-          disabled={isSubmitting || !validateOrder()}
-        >
-          {isSubmitting ? (
-            <>
-              <div className="animate-spin mr-2 h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full" />
-              {language === 'pt' ? 'Verificando...' : 'Verifying...'}
-            </>
-          ) : (
-            <>
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              {language === 'pt' ? 'Verificar e Enviar' : 'Verify & Submit'}
-            </>
-          )}
-        </Button>
-      </div>
+      <OrderActionButtons 
+        onCancel={onCancel}
+        onVerify={handleVerifyOrder}
+        isSubmitting={isSubmitting}
+        isValid={validateOrder()}
+      />
       
       {showAIModal && (
         <AIVerificationModal
           alerts={alerts}
           onClose={() => setShowAIModal(false)}
-          onProceed={handleAlertsDecision}
+          onProceed={onAlertsDecision}
         />
       )}
     </div>
