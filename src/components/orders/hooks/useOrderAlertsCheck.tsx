@@ -94,9 +94,11 @@ export const useOrderAlertsCheck = () => {
         overriddenReason: overrideReasons[index] || 'Clinical decision'
       }));
       setAlerts(updatedAlerts);
+      
+      return updatedAlerts;
     }
     
-    return proceed ? updatedAlerts : null;
+    return proceed ? alerts : null;
   };
   
   return {
