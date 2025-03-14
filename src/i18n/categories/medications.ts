@@ -45,7 +45,23 @@ interface MedicationsTranslations {
   medicationAdministration: string;
   selectPatientToViewMedications: string;
   
-  // Add missing key
+  // RxNorm integration
+  searchRxNorm: string;
+  noMedicationsFound: string;
+  searchByName: string;
+  searchByCode: string;
+  rxnormCode: string;
+  anvisaCode: string;
+  ingredientStrength: string;
+  dosageForm: string;
+  brandName: string;
+  genericName: string;
+  selectMedication: string;
+  medicationSelected: string;
+  syncRxNormData: string;
+  lastSyncDate: string;
+  
+  // Add missing keys
   prescribeMedication: string;
 }
 
@@ -97,6 +113,22 @@ export const medicationsTranslations = {
     medicationAdministration: "Medication Administration",
     selectPatientToViewMedications: "Select a patient to view their medications",
     
+    // RxNorm integration
+    searchRxNorm: "Search Medication Database",
+    noMedicationsFound: "No medications found",
+    searchByName: "Search by name",
+    searchByCode: "Search by code",
+    rxnormCode: "RxNorm Code",
+    anvisaCode: "ANVISA Code",
+    ingredientStrength: "Ingredient Strength",
+    dosageForm: "Dosage Form",
+    brandName: "Brand Name",
+    genericName: "Generic Name",
+    selectMedication: "Select Medication",
+    medicationSelected: "Medication selected",
+    syncRxNormData: "Sync Medication Data",
+    lastSyncDate: "Last Sync Date",
+    
     // Add missing key
     prescribeMedication: "Prescribe Medication"
   },
@@ -144,6 +176,22 @@ export const medicationsTranslations = {
     medicationAdministrationFormWouldOpen: "Em uma aplicação real, um formulário de administração de medicamentos seria aberto",
     medicationAdministration: "Administração de Medicamentos",
     selectPatientToViewMedications: "Selecione um paciente para ver seus medicamentos",
+    
+    // RxNorm integration
+    searchRxNorm: "Pesquisar Banco de Dados de Medicamentos",
+    noMedicationsFound: "Nenhum medicamento encontrado",
+    searchByName: "Pesquisar por nome",
+    searchByCode: "Pesquisar por código",
+    rxnormCode: "Código RxNorm",
+    anvisaCode: "Código ANVISA",
+    ingredientStrength: "Concentração do Ingrediente",
+    dosageForm: "Forma Farmacêutica",
+    brandName: "Nome Comercial",
+    genericName: "Nome Genérico",
+    selectMedication: "Selecionar Medicamento",
+    medicationSelected: "Medicamento selecionado",
+    syncRxNormData: "Sincronizar Dados de Medicamentos",
+    lastSyncDate: "Última Data de Sincronização",
     
     // Add missing key
     prescribeMedication: "Prescrever Medicamento"
