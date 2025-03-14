@@ -9,6 +9,9 @@ export const useAuthProviderState = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Calculate isAuthenticated based on user existence
+  const isAuthenticated = !!user;
+
   return {
     user,
     setUser,
@@ -16,6 +19,6 @@ export const useAuthProviderState = () => {
     setSession,
     isLoading,
     setIsLoading,
-    isAuthenticated: !!user
+    isAuthenticated
   };
 };
