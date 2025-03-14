@@ -30,3 +30,12 @@ export interface RxNormNDCResponse {
     };
   };
 }
+
+// Add custom JSON type for Supabase
+export type Json = 
+  | string
+  | number
+  | boolean
+  | { [key: string]: Json }
+  | Json[]
+  | null;

@@ -20,6 +20,7 @@ export interface RxNormMedicationDetails {
   brandNames?: RxNormConcept[];
   dosageForms?: RxNormConcept[];
   strengths?: RxNormConcept[];
+  [key: string]: any; // Add index signature to make it assignable to JSON
 }
 
 // Basic concept type used for related entities
@@ -36,7 +37,8 @@ export interface RxNormNDC {
   ndc: string;
   rxcui: string;
   status: string;
-  source?: string; // Adding the missing source property
+  source?: string; // Property for tracking the source of the NDC
+  [key: string]: any; // Add index signature to make it assignable to JSON
 }
 
 // Autocomplete suggestion type
@@ -58,6 +60,7 @@ export interface RxNormInteraction {
     severity: string;
     description: string;
   }[];
+  [key: string]: any; // Add index signature to make it assignable to JSON
 }
 
 // ANVISA mapping record

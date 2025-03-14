@@ -23,7 +23,8 @@ export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicat
 
     if (cachedDetails && !cacheError) {
       console.log('Using cached medication details for rxcui:', rxcui);
-      return cachedDetails.details as RxNormMedicationDetails;
+      // Type assertion to handle the JSON conversion
+      return cachedDetails.details as unknown as RxNormMedicationDetails;
     }
 
     // Fetch from RxNorm API
@@ -71,12 +72,14 @@ export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicat
       }
     }
 
-    // Cache the results
-    const { error: insertError } = await supabase.from('rxnorm_details_cache').insert({
-      rxcui,
-      details,
-      created_at: new Date().toISOString()
-    });
+    // Cache the results - convert to JSON format for storage
+    const { error: insertError } = await supabase
+      .from('rxnorm_details_cache')
+      .insert({
+        rxcui,
+        details: JSON.stringify(details) as any, // Convert to string for storage
+        created_at: new Date().toISOString()
+      });
 
     if (insertError) {
       console.error('Error caching medication details:', insertError);
@@ -108,7 +111,8 @@ export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
 
     if (cachedNDCs && !cacheError) {
       console.log('Using cached NDCs for rxcui:', rxcui);
-      return cachedNDCs.ndcs as RxNormNDC[];
+      // Proper type assertion for the cached NDCs
+      return cachedNDCs.ndcs as unknown as RxNormNDC[];
     }
 
     // Fetch from RxNorm API
@@ -134,12 +138,14 @@ export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
       });
     }
 
-    // Cache the results
-    const { error: insertError } = await supabase.from('rxnorm_ndc_cache').insert({
-      rxcui,
-      ndcs,
-      created_at: new Date().toISOString()
-    });
+    // Cache the results - convert to JSON format for storage
+    const { error: insertError } = await supabase
+      .from('rxnorm_ndc_cache')
+      .insert({
+        rxcui,
+        ndcs: JSON.stringify(ndcs) as any, // Convert to string for storage
+        created_at: new Date().toISOString()
+      });
 
     if (insertError) {
       console.error('Error caching NDCs:', insertError);
