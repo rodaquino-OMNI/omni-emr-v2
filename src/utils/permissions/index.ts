@@ -1,5 +1,13 @@
 
-// Export all permission utility functions for ease of use
+// Export permission data structures
+export { 
+  permissionCategories,
+  sharedPermissions,
+  rolePermissions,
+  allPermissions
+} from '../permissions';
+
+// Export permission utility functions
 export { hasPermission, getUserPermissions } from './roleChecks';
 export { canAccessPatientData } from './patientAccess';
 export { 
