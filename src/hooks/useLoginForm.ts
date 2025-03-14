@@ -22,18 +22,15 @@ export const useLoginForm = () => {
   const { login, loginWithSocial, resetPassword, language } = useAuth();
   const navigate = useNavigate();
 
-  // Listen for authentication changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        // User has been signed in, redirect to appropriate page
         const returnUrl = secureStorage.getItem<string>('returnUrl', '/dashboard');
         secureStorage.removeItem('returnUrl');
         navigate(returnUrl);
       }
     });
 
-    // Clean up subscription
     return () => {
       subscription.unsubscribe();
     };
@@ -44,7 +41,6 @@ export const useLoginForm = () => {
     
     if (usePhoneLogin) {
       if (!verificationSent) {
-        // Validate phone number in the initial step
         if (!phone.trim()) {
           errors.phone = language === 'pt' ? 'Telefone é obrigatório' : 'Phone is required';
         } else if (!/^\+[1-9]\d{1,14}$/.test(phone)) {
@@ -53,7 +49,6 @@ export const useLoginForm = () => {
             : 'Invalid phone format. Use international format (+123...)';
         }
       } else {
-        // Validate verification code in the second step
         if (!verificationCode.trim()) {
           errors.code = language === 'pt' ? 'Código de verificação é obrigatório' : 'Verification code is required';
         } else if (!/^\d{6}$/.test(verificationCode)) {
@@ -63,7 +58,6 @@ export const useLoginForm = () => {
         }
       }
     } else if (!forgotPassword) {
-      // Only validate password in normal login mode
       if (!email.trim()) {
         errors.email = language === 'pt' ? 'Email é obrigatório' : 'Email is required';
       } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -78,7 +72,6 @@ export const useLoginForm = () => {
           : 'Password must be at least 6 characters';
       }
     } else {
-      // In forgot password mode, only validate email
       if (!email.trim()) {
         errors.email = language === 'pt' ? 'Email é obrigatório' : 'Email is required';
       } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -100,7 +93,6 @@ export const useLoginForm = () => {
     setIsSubmitting(true);
     
     try {
-      // If in forgot password mode, call password reset
       if (forgotPassword) {
         const { success } = await resetPassword(email);
         
@@ -117,12 +109,10 @@ export const useLoginForm = () => {
         return;
       }
       
-      // Store captcha token if available
       if (captchaToken) {
         localStorage.setItem('captcha_token', captchaToken);
       }
       
-      // Normal login flow
       const { success } = await login(email, password);
       
       if (success) {
@@ -138,12 +128,10 @@ export const useLoginForm = () => {
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Display appropriate error message
       let errorMessage = error.message || (language === 'pt' 
         ? 'Credenciais inválidas' 
         : 'Invalid credentials');
       
-      // If the error message contains "auth/too-many-requests", it's a rate limit error
       if (error.message && (error.message.includes('many') || error.message.includes('rate'))) {
         errorMessage = language === 'pt'
           ? 'Muitas tentativas de login. Por favor, tente novamente mais tarde.'
@@ -169,9 +157,9 @@ export const useLoginForm = () => {
     setIsSubmitting(true);
     
     try {
-      const { success } = await signInWithPhone(phone);
+      const result = await signInWithPhone(phone);
       
-      if (success) {
+      if ('data' in result && result.success) {
         setVerificationSent(true);
         toast.success(
           language === 'pt' ? "Código enviado" : "Code sent",
@@ -181,6 +169,19 @@ export const useLoginForm = () => {
               : "A verification code has been sent to your phone."
           }
         );
+      } else if ('user' in result && result.user) {
+        toast.success(
+          language === 'pt' ? "Login bem-sucedido" : "Login successful",
+          {
+            description: language === 'pt' 
+              ? "Você foi conectado com sucesso." 
+              : "You have been successfully logged in."
+          }
+        );
+      } else {
+        throw new Error(language === 'pt' 
+          ? "Falha ao enviar o código de verificação" 
+          : "Failed to send verification code");
       }
     } catch (error: any) {
       console.error("Phone verification error:", error);
@@ -219,8 +220,6 @@ export const useLoginForm = () => {
               : "Code verified successfully. You are now logged in."
           }
         );
-        
-        // Auth state change listener will handle the redirect
       } else {
         throw new Error(language === 'pt' 
           ? "Falha na verificação do código" 
@@ -262,24 +261,19 @@ export const useLoginForm = () => {
     }
   };
 
-  // Handle forgot password toggle
   const toggleForgotPassword = () => {
     setForgotPassword(!forgotPassword);
     setUsePhoneLogin(false);
-    // Clear validation errors when switching modes
     setValidationErrors({});
   };
 
-  // Toggle between email and phone login
   const togglePhoneLogin = () => {
     setUsePhoneLogin(!usePhoneLogin);
     setForgotPassword(false);
     setVerificationSent(false);
-    // Clear validation errors when switching modes
     setValidationErrors({});
   };
 
-  // Reset form to initial state
   const resetForm = () => {
     setUsePhoneLogin(false);
     setForgotPassword(false);
@@ -289,7 +283,6 @@ export const useLoginForm = () => {
     setValidationErrors({});
   };
 
-  // Handle captcha response
   const handleCaptchaResponse = (token: string) => {
     setCaptchaToken(token);
   };
