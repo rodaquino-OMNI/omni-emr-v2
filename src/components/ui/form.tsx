@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
@@ -73,14 +74,15 @@ const useFormField = (): UseFormFieldReturn => {
 
   const name = fieldContext?.name || ""
   
-  // Safe destructuring with type checking
+  // Safely access formState and ensure errors exists with proper typing
   const formState = formContext?.formState || {}
   
-  // Type check to ensure errors exists on formState
-  const errors = formState.errors !== undefined ? formState.errors : {}
+  // Use a type assertion to tell TypeScript that errors exists on formState
+  // This is safe because react-hook-form's FormState includes an errors property
+  const errors = 'errors' in formState ? formState.errors : {}
   
-  // Only try to access errors if name exists and errors object exists
-  const error = name ? errors[name as string] : undefined
+  // Only try to access errors if name exists
+  const error = name ? (errors as Record<string, any>)[name as string] : undefined
 
   const id = `${name}-form-item`
   const formItemId = itemContext?.id || id
