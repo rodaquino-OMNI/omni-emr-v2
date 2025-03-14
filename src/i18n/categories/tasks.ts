@@ -23,7 +23,10 @@ export type TasksTranslationKey =
   | 'markAsComplete'
   | 'reopenTask'
   | 'cancelTask'
-  | 'taskActions';
+  | 'taskActions'
+  | 'completeTaskDescription'
+  | 'enterCompletionNotes'
+  | 'completing';
 
 export const tasksTranslations = {
   pt: {
@@ -50,7 +53,10 @@ export const tasksTranslations = {
     markAsComplete: 'Marcar como Concluída',
     reopenTask: 'Reabrir Tarefa',
     cancelTask: 'Cancelar Tarefa',
-    taskActions: 'Ações da Tarefa'
+    taskActions: 'Ações da Tarefa',
+    completeTaskDescription: 'Adicione notas sobre a conclusão desta tarefa',
+    enterCompletionNotes: 'Insira notas sobre a conclusão',
+    completing: 'Concluindo'
   },
   en: {
     newTask: 'New Task',
@@ -76,6 +82,9 @@ export const tasksTranslations = {
     markAsComplete: 'Mark as Complete',
     reopenTask: 'Reopen Task',
     cancelTask: 'Cancel Task',
-    taskActions: 'Task Actions'
+    taskActions: 'Task Actions',
+    completeTaskDescription: 'Add notes about the completion of this task',
+    enterCompletionNotes: 'Enter completion notes',
+    completing: 'Completing'
   }
 };

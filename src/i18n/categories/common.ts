@@ -1,4 +1,3 @@
-
 export type CommonTranslationKey =
   | 'search'
   | 'back'
@@ -68,7 +67,11 @@ export type CommonTranslationKey =
   | 'welcomeTo'
   | 'appDescription'
   | 'goToDashboard'
-  | 'createAccount';
+  | 'createAccount'
+  | 'userAdmin'
+  | 'add'
+  | 'loading'
+  | 'refresh';
 
 export const commonTranslations = {
   pt: {
@@ -140,7 +143,11 @@ export const commonTranslations = {
     welcomeTo: 'Bem-vindo ao',
     appDescription: 'Plataforma abrangente de gestão de saúde para profissionais médicos',
     goToDashboard: 'Ir para o Painel',
-    createAccount: 'Criar Conta'
+    createAccount: 'Criar Conta',
+    userAdmin: 'Administração de Usuários',
+    add: 'Adicionar',
+    loading: 'Carregando',
+    refresh: 'Atualizar'
   },
   en: {
     search: 'Search',
@@ -211,6 +218,10 @@ export const commonTranslations = {
     welcomeTo: 'Welcome to',
     appDescription: 'Comprehensive healthcare management platform for medical professionals',
     goToDashboard: 'Go to Dashboard',
-    createAccount: 'Create Account'
+    createAccount: 'Create Account',
+    userAdmin: 'User Administration',
+    add: 'Add',
+    loading: 'Loading',
+    refresh: 'Refresh'
   }
 };
