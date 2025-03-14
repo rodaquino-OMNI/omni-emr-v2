@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
@@ -74,9 +73,10 @@ const useFormField = (): UseFormFieldReturn => {
 
   const name = fieldContext?.name
   
-  // Safe destructuring with fallback
+  // Safe destructuring with fallback - fix for TS2339 error
   const formState = formContext?.formState || {}
-  const errors = formState.errors || {}
+  // Use optional chaining and provide a fallback empty object
+  const errors = formState?.errors || {}
 
   // Only try to access errors if name exists and errors object exists
   const error = name && errors ? errors[name] : undefined
