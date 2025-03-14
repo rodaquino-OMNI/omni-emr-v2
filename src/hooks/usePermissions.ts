@@ -15,7 +15,7 @@ import {
   canManageFluidBalance,
   canPerformTriageAssessment,
   canDocumentMedicalDecisionMaking
-} from '../utils/permissionUtils';
+} from '../utils/permissions';
 
 export const usePermissions = (user: User | null) => {
   // State to store user permissions

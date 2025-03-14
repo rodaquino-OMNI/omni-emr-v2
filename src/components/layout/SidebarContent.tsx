@@ -6,7 +6,7 @@ import SidebarLogo from './SidebarLogo';
 import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import { sidebarItems } from '@/config/sidebarConfig';
-import { hasPermission } from '@/utils/permissionUtils';
+import { hasPermission } from '@/utils/permissions';
 
 interface SidebarContentProps {
   onItemClick?: () => void;

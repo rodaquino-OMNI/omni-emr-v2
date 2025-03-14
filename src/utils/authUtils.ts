@@ -8,7 +8,7 @@ export {
   canPerformClinicalDocumentation,
   canPerformMedicationAction,
   canPerformAppointmentAction
-} from './permissionUtils';
+} from './permissions';
 export { 
   signInWithProvider, 
   signInWithEmail, 

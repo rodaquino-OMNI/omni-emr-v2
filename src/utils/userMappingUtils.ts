@@ -2,7 +2,7 @@
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { User, UserRole } from '../types/auth';
 import { supabase } from '../integrations/supabase/client';
-import { getUserPermissions } from './permissionUtils';
+import { getUserPermissions } from './permissions';
 
 /**
  * Maps a Supabase user to our application's User interface
