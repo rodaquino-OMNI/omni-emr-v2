@@ -39,6 +39,11 @@ interface HospitalTranslations {
   completingDischargeSummary: string;
   dischargeInstructionsCreated: string;
   patientEducationMaterialsCreated: string;
+  // Adding missing translation keys
+  hospitalWorkflows: string;
+  inpatients: string;
+  admittedOn: string;
+  selectPatientToViewWorkflows: string;
 }
 
 export type HospitalTranslationKey = keyof HospitalTranslations;
@@ -83,7 +88,12 @@ export const hospitalTranslations = {
     dischargeSummaryStarted: "Discharge Summary Started",
     completingDischargeSummary: "Completing the discharge summary documentation",
     dischargeInstructionsCreated: "Discharge Instructions Created",
-    patientEducationMaterialsCreated: "Patient education materials have been created"
+    patientEducationMaterialsCreated: "Patient education materials have been created",
+    // Adding missing translation keys
+    hospitalWorkflows: "Hospital Workflows",
+    inpatients: "Inpatients",
+    admittedOn: "Admitted On",
+    selectPatientToViewWorkflows: "Select a patient to view hospital workflows"
   },
   pt: {
     admissionProcess: "Processo de Admissão",
@@ -124,6 +134,11 @@ export const hospitalTranslations = {
     dischargeSummaryStarted: "Resumo de Alta Iniciado",
     completingDischargeSummary: "Completando a documentação do resumo de alta",
     dischargeInstructionsCreated: "Instruções de Alta Criadas",
-    patientEducationMaterialsCreated: "Materiais educativos para o paciente foram criados"
+    patientEducationMaterialsCreated: "Materiais educativos para o paciente foram criados",
+    // Adding missing translation keys
+    hospitalWorkflows: "Fluxos de Trabalho Hospitalares",
+    inpatients: "Pacientes Internados",
+    admittedOn: "Admitido Em",
+    selectPatientToViewWorkflows: "Selecione um paciente para ver os fluxos de trabalho hospitalares"
   }
 };

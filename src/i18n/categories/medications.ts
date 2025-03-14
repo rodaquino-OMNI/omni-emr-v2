@@ -44,6 +44,9 @@ interface MedicationsTranslations {
   medicationAdministrationFormWouldOpen: string;
   medicationAdministration: string;
   selectPatientToViewMedications: string;
+  
+  // Add missing key
+  prescribeMedication: string;
 }
 
 export type MedicationsTranslationKey = keyof MedicationsTranslations;
@@ -92,7 +95,10 @@ export const medicationsTranslations = {
     featureNotImplemented: "Feature Not Implemented",
     medicationAdministrationFormWouldOpen: "In a real application, a medication administration form would open",
     medicationAdministration: "Medication Administration",
-    selectPatientToViewMedications: "Select a patient to view their medications"
+    selectPatientToViewMedications: "Select a patient to view their medications",
+    
+    // Add missing key
+    prescribeMedication: "Prescribe Medication"
   },
   pt: {
     medications: "Medicamentos",
@@ -137,6 +143,9 @@ export const medicationsTranslations = {
     featureNotImplemented: "Funcionalidade Não Implementada",
     medicationAdministrationFormWouldOpen: "Em uma aplicação real, um formulário de administração de medicamentos seria aberto",
     medicationAdministration: "Administração de Medicamentos",
-    selectPatientToViewMedications: "Selecione um paciente para ver seus medicamentos"
+    selectPatientToViewMedications: "Selecione um paciente para ver seus medicamentos",
+    
+    // Add missing key
+    prescribeMedication: "Prescrever Medicamento"
   }
 };

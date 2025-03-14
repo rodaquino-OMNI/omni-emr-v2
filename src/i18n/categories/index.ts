@@ -11,6 +11,7 @@ import { vitalsTranslations, VitalsTranslationKey } from './vitals';
 import { medicalHistoryTranslations, MedicalHistoryTranslationKey } from './medicalHistory';
 import { hospitalTranslations, HospitalTranslationKey } from './hospital';
 import { emergencyTranslations, EmergencyTranslationKey } from './emergency';
+import { telemedicineTranslations, TelemedicineTranslationKey } from './telemedicine';
 
 export type TranslationCategories = {
   common: typeof commonTranslations.en;
@@ -25,6 +26,7 @@ export type TranslationCategories = {
   medicalHistory: typeof medicalHistoryTranslations.en;
   hospital: typeof hospitalTranslations.en;
   emergency: typeof emergencyTranslations.en;
+  telemedicine: typeof telemedicineTranslations.en;
 };
 
 export type TranslationKey =
@@ -39,7 +41,8 @@ export type TranslationKey =
   | VitalsTranslationKey
   | MedicalHistoryTranslationKey
   | HospitalTranslationKey
-  | EmergencyTranslationKey;
+  | EmergencyTranslationKey
+  | TelemedicineTranslationKey;
 
 export const allTranslations = {
   common: commonTranslations,
@@ -53,5 +56,6 @@ export const allTranslations = {
   vitals: vitalsTranslations,
   medicalHistory: medicalHistoryTranslations,
   hospital: hospitalTranslations,
-  emergency: emergencyTranslations
+  emergency: emergencyTranslations,
+  telemedicine: telemedicineTranslations
 };

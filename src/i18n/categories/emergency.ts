@@ -53,6 +53,9 @@ interface EmergencyTranslations {
   vitalSignsUpdated: string;
   noEmergencyCarePermissions: string;
   selectPatientToViewEmergencyCare: string;
+  
+  // Add missing translation key
+  age: string;
 }
 
 export type EmergencyTranslationKey = keyof EmergencyTranslations;
@@ -111,7 +114,10 @@ export const emergencyTranslations = {
     vitalSignsRecorded: "Vital Signs Recorded",
     vitalSignsUpdated: "Vital signs have been updated",
     noEmergencyCarePermissions: "You don't have permissions to perform emergency care actions",
-    selectPatientToViewEmergencyCare: "Select a patient to view emergency care"
+    selectPatientToViewEmergencyCare: "Select a patient to view emergency care",
+    
+    // Add missing translation key
+    age: "Age"
   },
   pt: {
     // Emergency department
@@ -166,6 +172,9 @@ export const emergencyTranslations = {
     vitalSignsRecorded: "Sinais Vitais Registrados",
     vitalSignsUpdated: "Os sinais vitais foram atualizados",
     noEmergencyCarePermissions: "Você não tem permissões para realizar ações de atendimento de emergência",
-    selectPatientToViewEmergencyCare: "Selecione um paciente para ver o atendimento de emergência"
+    selectPatientToViewEmergencyCare: "Selecione um paciente para ver o atendimento de emergência",
+    
+    // Add missing translation key
+    age: "Idade"
   }
 };
