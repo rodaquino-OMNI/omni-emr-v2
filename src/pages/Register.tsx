@@ -3,7 +3,7 @@ import React from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 
 const Register = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

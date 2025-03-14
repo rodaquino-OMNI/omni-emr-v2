@@ -8,7 +8,7 @@ import { generateCSRFToken } from '../utils/csrfUtils';
 import { secureStorage } from '../utils/secureStorage';
 import { toast } from 'sonner';
 
-export const useAuthState = (language: Language) => {
+export const useAuthState = (language: Language = 'en') => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,7 +91,7 @@ export const useAuthState = (language: Language) => {
       } catch (error) {
         console.error('Error initializing auth:', error);
         
-        toast.error(language === 'pt' 
+        toast(language === 'pt' 
           ? 'Erro ao inicializar autenticação' 
           : 'Authentication initialization error');
       } finally {

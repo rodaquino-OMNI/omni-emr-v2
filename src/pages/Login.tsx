@@ -34,8 +34,7 @@ const Login = () => {
           {
             description: language === 'pt' 
               ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
-              : 'Could not connect to the server. Some features may not be available.',
-            variant: "destructive"
+              : 'Could not connect to the server. Some features may not be available.'
           }
         );
       }
@@ -53,8 +52,7 @@ const Login = () => {
         {
           description: language === 'pt' 
             ? "Sua sessão expirou devido a inatividade. Por favor, faça login novamente."
-            : "Your session has expired due to inactivity. Please log in again.",
-          variant: "destructive"
+            : "Your session has expired due to inactivity. Please log in again."
         }
       );
     }
