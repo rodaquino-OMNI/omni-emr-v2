@@ -24,7 +24,7 @@ export const hasEnabledMFA = async (userId: string): Promise<boolean> => {
       .single();
     
     if (error) throw error;
-    return !!data?.mfa_enabled;
+    return data && 'mfa_enabled' in data ? !!data.mfa_enabled : false;
   } catch (error) {
     console.error('Error checking MFA status:', error);
     return false;
