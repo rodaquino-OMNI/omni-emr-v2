@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { AIInsight } from '../ai/AIInsights';
@@ -353,28 +354,28 @@ const PatientQuickActions = ({ patient }: { patient: Patient }) => {
     {
       title: 'Add Prescription',
       icon: <Pill className="h-5 w-5" />,
-      link: `/prescribe/${patient.id}`,
+      link: `/prescribe?patientId=${patient.id}`, // Fixed: changed from /prescribe/${patient.id} to use query param
       color: 'bg-blue-100 text-blue-800',
       roles: ['doctor', 'admin']
     },
     {
       title: 'Record Vital Signs',
       icon: <Activity className="h-5 w-5" />,
-      link: `/vitals/new?patientId=${patient.id}`,
+      link: `/vitals?patientId=${patient.id}`, // Fixed: changed from /vitals/new to /vitals
       color: 'bg-red-100 text-red-800',
       roles: ['doctor', 'nurse', 'admin']
     },
     {
       title: 'Add Clinical Note',
       icon: <FileText className="h-5 w-5" />,
-      link: `/records/new?patientId=${patient.id}`,
+      link: `/records?patientId=${patient.id}`, // Fixed: changed from /records/new to /records
       color: 'bg-green-100 text-green-800',
       roles: ['doctor', 'nurse', 'admin']
     },
     {
       title: 'Schedule Appointment',
       icon: <Calendar className="h-5 w-5" />,
-      link: `/schedule/new?patientId=${patient.id}`,
+      link: `/schedule?patientId=${patient.id}`, // Fixed: changed from /schedule/new to /schedule
       color: 'bg-purple-100 text-purple-800',
       roles: ['doctor', 'nurse', 'admin', 'administrative']
     }

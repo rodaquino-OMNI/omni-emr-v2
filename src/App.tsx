@@ -38,6 +38,7 @@ import Notifications from "./pages/Notifications";
 import VitalSigns from "./pages/VitalSigns";
 import FluidBalance from "./pages/FluidBalance";
 import Orders from './pages/Orders';
+import CriticalResults from './pages/CriticalResults';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,9 +91,12 @@ const App = () => (
                   
                   <Route path="/vitals" element={<VitalSigns />} />
                   <Route path="/fluid-balance" element={<FluidBalance />} />
+                  <Route path="/critical-results" element={<CriticalResults />} />
                   
                   <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
                     <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
+                    {/* Add alias for the prescribe route */}
+                    <Route path="/prescribe" element={<PrescribeMedication />} />
                   </Route>
                   
                   <Route element={<ProtectedRoute requiredPermission="telemedicine" />}>

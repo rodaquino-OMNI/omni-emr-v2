@@ -1,3 +1,4 @@
+
 export type CommonTranslationKey =
   | 'welcome'
   | 'appName'
@@ -35,7 +36,16 @@ export type CommonTranslationKey =
   | 'errorLoadingAppointments'
   | 'loadingAppointments'
   | 'newOrder'
-  | 'patient';
+  | 'patient'
+  | 'telemedicine'
+  | 'medications'
+  | 'vitals'
+  | 'fluidBalance'
+  | 'prescriptions'
+  | 'messages'
+  | 'help'
+  | 'logout'
+  | 'profile';
 
 export const commonTranslations = {
   pt: {
@@ -75,7 +85,16 @@ export const commonTranslations = {
     errorLoadingAppointments: 'Erro ao carregar as consultas',
     loadingAppointments: 'Carregando consultas',
     newOrder: 'Novo Pedido',
-    patient: 'Paciente'
+    patient: 'Paciente',
+    telemedicine: 'Telemedicina',
+    medications: 'Medicamentos',
+    vitals: 'Sinais Vitais',
+    fluidBalance: 'Balanço Hídrico',
+    prescriptions: 'Prescrições',
+    messages: 'Mensagens',
+    help: 'Ajuda',
+    logout: 'Sair',
+    profile: 'Perfil'
   },
   en: {
     welcome: 'Welcome',
@@ -114,6 +133,15 @@ export const commonTranslations = {
     errorLoadingAppointments: 'Error loading appointments',
     loadingAppointments: 'Loading appointments',
     newOrder: 'New Order',
-    patient: 'Patient'
+    patient: 'Patient',
+    telemedicine: 'Telemedicine',
+    medications: 'Medications',
+    vitals: 'Vital Signs',
+    fluidBalance: 'Fluid Balance',
+    prescriptions: 'Prescriptions',
+    messages: 'Messages',
+    help: 'Help & Support',
+    logout: 'Logout',
+    profile: 'Profile'
   }
 };
