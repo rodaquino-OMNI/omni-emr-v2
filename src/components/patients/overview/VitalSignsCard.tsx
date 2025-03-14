@@ -27,7 +27,7 @@ const VitalSignsCard = ({ patient }: VitalSignsCardProps) => {
             <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
-        <CardDescription>{t('lastRecordedTime', { time: '2 hours ago' })}</CardDescription>
+        <CardDescription>{t('lastRecordedTime')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
