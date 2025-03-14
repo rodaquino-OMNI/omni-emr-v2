@@ -1,5 +1,6 @@
 
 import { User } from '../types/auth';
+import { supabase } from '../integrations/supabase/client';
 import { rolePermissions, sharedPermissions } from './permissions';
 
 // Function to check if a user has a specific permission
@@ -77,9 +78,23 @@ export const canAccessPatientData = (user: User | null, patientId: string): bool
 };
 
 // Function to get all permissions for a user
-export const getUserPermissions = (user: User | null): string[] => {
+export const getUserPermissions = async (user: User | null): Promise<string[]> => {
   if (!user) return [];
   
+  try {
+    // Try to get permissions from the database first
+    const { data, error } = await supabase
+      .rpc('get_user_permissions', { user_id: user.id });
+    
+    if (!error && data) {
+      return data;
+    }
+  } catch (e) {
+    console.error('Error fetching permissions from database:', e);
+    // Continue to fallback
+  }
+  
+  // Fallback to local permission definitions
   const basePermissions = [...sharedPermissions];
   
   // Add role-based permissions

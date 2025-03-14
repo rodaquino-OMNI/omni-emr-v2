@@ -1,66 +1,68 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import { User, UserRole } from '../types/auth';
-import { mockUsers } from './mockUsers';
-import { rolePermissions } from './permissions';
+import { supabase } from '../integrations/supabase/client';
+import { getUserPermissions } from './permissionUtils';
 
-export const mapSupabaseUserToUser = async (supabaseUser: any): Promise<User | null> => {
-  if (!supabaseUser) return null;
-  
-  // Check if this is a mock user
-  const mockUser = mockUsers.find(u => u.email === supabaseUser.email);
-  if (mockUser) return mockUser;
-  
+/**
+ * Maps a Supabase user to our application's User interface
+ */
+export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise<User> => {
   try {
-    // Get user profile from profiles table
-    const profileResponse = await supabase
+    // Get user profile from the profiles table
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('*')
+      .select('name, role')
       .eq('id', supabaseUser.id)
-      .maybeSingle();
-      
-    const profile = profileResponse?.data || null;
-    const error = profileResponse?.error || null;
-    
-    if (error) {
-      console.error('Error fetching user profile:', error);
-      throw error;
-    }
-    
-    // If profile exists, use it
-    if (profile) {
-      const role = (profile.role as UserRole) || 'patient';
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
+      // Fallback to defaults if profile fetch fails
       return {
         id: supabaseUser.id,
-        email: profile.email || supabaseUser.email || '',
-        name: profile.name || 'User',
-        role: role,
-        permissions: rolePermissions[role] || []
+        email: supabaseUser.email || '',
+        name: supabaseUser.user_metadata?.name || 'User',
+        role: (supabaseUser.user_metadata?.role as UserRole) || 'patient',
+        permissions: []
       };
     }
+
+    // Validate the role is one of our allowed roles
+    const validRoles: UserRole[] = [
+      'admin', 'doctor', 'nurse', 'caregiver', 'patient', 'specialist', 
+      'administrative', 'pharmacist', 'lab_technician', 'radiology_technician', 
+      'system_administrator'
+    ];
     
-    // Fallback to metadata if profile doesn't exist
-    const metadata = supabaseUser.user_metadata || {};
-    const role = (metadata.role as UserRole) || 'patient';
+    const role = profileData.role as UserRole;
+    const validRole = validRoles.includes(role) ? role : 'patient';
+
+    // Get permissions for this user
+    const permissions = await getUserPermissions({
+      id: supabaseUser.id,
+      email: supabaseUser.email || '',
+      name: profileData.name || supabaseUser.user_metadata?.name || 'User',
+      role: validRole,
+      permissions: []
+    });
+
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      name: metadata.name || 'User',
-      role: role,
-      permissions: rolePermissions[role] || []
+      name: profileData.name || supabaseUser.user_metadata?.name || 'User',
+      role: validRole,
+      permissions
     };
   } catch (error) {
     console.error('Error mapping Supabase user:', error);
-    
-    // Fallback to basic mapping
-    const metadata = supabaseUser.user_metadata || {};
-    const role = (metadata.role as UserRole) || 'patient';
+    // Provide fallback user mapping in case of errors
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      name: metadata.name || 'User',
-      role: role,
-      permissions: rolePermissions[role] || []
+      name: supabaseUser.user_metadata?.name || 'User',
+      role: (supabaseUser.user_metadata?.role as UserRole) || 'patient',
+      permissions: []
     };
   }
 };
