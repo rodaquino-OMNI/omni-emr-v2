@@ -1,16 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AIInsights from '../ai/AIInsights';
 import { useAIInsights } from '@/hooks/useAIInsights';
-import { getPatientPrescriptions } from '../../services/prescriptionService';
 import { samplePatients } from '../../data/samplePatients';
 import PatientHeader from './PatientHeader';
-import PatientOverview from './PatientOverview';
-import PatientRecords from './PatientRecords';
-import PatientPrescriptions from './PatientPrescriptions';
-import PatientAIInsights from './PatientAIInsights';
+import PatientOverviewTab from './tabs/PatientOverviewTab';
+import PatientRecordsTab from './tabs/PatientRecordsTab';
+import PatientPrescriptionsTab from './tabs/PatientPrescriptionsTab';
+import PatientAIInsightsTab from './tabs/PatientAIInsightsTab';
+import { usePatientPrescriptions } from './hooks/usePatientPrescriptions';
 
 type PatientDetailProps = {
   patientId: string;
@@ -19,8 +19,6 @@ type PatientDetailProps = {
 
 const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
   const [activeTab, setActiveTab] = useState<string>('overview');
-  const [prescriptions, setPrescriptions] = useState([]);
-  const [loading, setLoading] = useState(false);
   
   const patient = samplePatients.find(p => p.id === patientId);
   
@@ -29,21 +27,7 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
     ['vitals', 'labs', 'medications', 'tasks', 'general']
   );
   
-  useEffect(() => {
-    const fetchPrescriptions = async () => {
-      setLoading(true);
-      try {
-        const data = await getPatientPrescriptions(patientId);
-        setPrescriptions(data);
-      } catch (error) {
-        console.error('Error fetching prescriptions:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchPrescriptions();
-  }, [patientId]);
+  const { prescriptions, loading: prescriptionsLoading } = usePatientPrescriptions(patientId);
   
   if (!patient) {
     return (
@@ -79,7 +63,7 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
-          <PatientOverview 
+          <PatientOverviewTab 
             patientId={patientId} 
             insights={insights} 
             prescriptions={prescriptions} 
@@ -87,19 +71,19 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
         </TabsContent>
         
         <TabsContent value="records" className="space-y-6">
-          <PatientRecords patientId={patientId} />
+          <PatientRecordsTab patientId={patientId} />
         </TabsContent>
         
         <TabsContent value="prescriptions" className="space-y-6">
-          <PatientPrescriptions 
+          <PatientPrescriptionsTab 
             patientId={patientId} 
             prescriptions={prescriptions} 
-            loading={loading} 
+            loading={prescriptionsLoading} 
           />
         </TabsContent>
         
         <TabsContent value="ai-insights" className="space-y-6">
-          <PatientAIInsights 
+          <PatientAIInsightsTab 
             insights={insights} 
             loading={insightsLoading} 
           />
