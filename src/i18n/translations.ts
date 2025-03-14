@@ -7,6 +7,8 @@ import { appointmentsTranslations } from './categories/appointments';
 import { ordersTranslations } from './categories/orders';
 import { usersTranslations } from './categories/users';
 import { medicationsTranslations } from './categories/medications';
+import { medicalHistoryTranslations } from './categories/medicalHistory';
+import { vitalsTranslations } from './categories/vitals';
 
 export const translations = {
   en: {
@@ -18,6 +20,8 @@ export const translations = {
     ...ordersTranslations.en,
     ...usersTranslations.en,
     ...medicationsTranslations.en,
+    ...medicalHistoryTranslations.en,
+    ...vitalsTranslations.en,
   },
   pt: {
     ...authTranslations.pt,
@@ -28,6 +32,8 @@ export const translations = {
     ...ordersTranslations.pt,
     ...usersTranslations.pt,
     ...medicationsTranslations.pt,
+    ...medicalHistoryTranslations.pt,
+    ...vitalsTranslations.pt,
   }
 };
 

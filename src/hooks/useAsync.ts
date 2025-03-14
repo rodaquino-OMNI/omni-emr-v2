@@ -1,93 +1,41 @@
 
-import { useState, useCallback, useEffect } from 'react';
-import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
-
-export interface AsyncState<T> {
-  data: T | null;
-  isLoading: boolean;
-  error: Error | null;
-  run: (promise: Promise<T>, errorMessage?: string) => Promise<T | null>;
-  reset: () => void;
-  retry: () => Promise<T | null>;
-}
+import { useState, useEffect } from 'react';
 
 /**
- * Hook for managing async operations with loading states, errors, and retries
+ * A hook to handle async operations
+ * @param asyncFunction - The async function to execute
+ * @param immediate - Whether to execute the function immediately
+ * @returns Object containing data, error, isLoading, and execute function
  */
-export function useAsync<T>(initialData: T | null = null): AsyncState<T> {
-  const [data, setData] = useState<T | null>(initialData);
+export const useAsync = <T>(
+  asyncFunction: () => Promise<T> | T,
+  immediate = true
+) => {
+  const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [lastPromise, setLastPromise] = useState<() => Promise<T>|null>(() => null);
-  const auth = useAuth();
-  const language = auth?.language || 'en';
+  const [isLoading, setIsLoading] = useState(false);
 
-  const reset = useCallback(() => {
-    setData(initialData);
+  const execute = async () => {
+    setIsLoading(true);
     setError(null);
-    setIsLoading(false);
-  }, [initialData]);
 
-  const run = useCallback(async (
-    promise: Promise<T>,
-    errorMessage?: string
-  ): Promise<T | null> => {
     try {
-      if (!promise || typeof promise.then !== 'function') {
-        console.error("Invalid promise passed to useAsync.run", promise);
-        throw new Error("Invalid promise passed to run function");
-      }
-      
-      setIsLoading(true);
-      setError(null);
-      
-      const result = await promise;
-      
-      // Ensure result is not undefined
-      if (result === undefined) {
-        console.warn("Promise resolved with undefined value");
-      }
-      
+      const result = await asyncFunction();
       setData(result);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
-      console.error("Error in useAsync.run:", error);
-      setError(error);
-      
-      if (errorMessage) {
-        const message = language === 'pt' 
-          ? `Erro: ${errorMessage}`
-          : `Error: ${errorMessage}`;
-        
-        toast.error(message, {
-          description: error.message,
-        });
-      }
-      return null;
+      setError(err as Error);
+      throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [language]);
+  };
 
-  const retry = useCallback(async (): Promise<T | null> => {
-    if (!lastPromise) return null;
-    
-    const promiseFn = lastPromise();
-    if (!promiseFn) return null;
-    
-    return run(promiseFn);
-  }, [lastPromise, run]);
-  
   useEffect(() => {
-    // Cleanup function to prevent state updates on unmounted component
-    return () => {
-      setData(null);
-      setError(null);
-      setIsLoading(false);
-    };
+    if (immediate) {
+      execute();
+    }
   }, []);
 
-  return { data, isLoading, error, run, reset, retry };
-}
+  return { data, error, isLoading, execute };
+};

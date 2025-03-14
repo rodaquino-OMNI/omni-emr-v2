@@ -7,6 +7,8 @@ import { medicationsTranslations, MedicationsTranslationKey } from './medication
 import { tasksTranslations, TasksTranslationKey } from './tasks';
 import { usersTranslations, UsersTranslationKey } from './users';
 import { ordersTranslations, OrdersTranslationKey } from './orders';
+import { medicalHistoryTranslations, MedicalHistoryTranslationKey } from './medicalHistory';
+import { vitalsTranslations, VitalsTranslationKey } from './vitals';
 
 // Export all translation key types
 export type {
@@ -17,7 +19,9 @@ export type {
   MedicationsTranslationKey,
   TasksTranslationKey,
   UsersTranslationKey,
-  OrdersTranslationKey
+  OrdersTranslationKey,
+  MedicalHistoryTranslationKey,
+  VitalsTranslationKey
 };
 
 // Export all translations
@@ -29,5 +33,7 @@ export {
   medicationsTranslations,
   tasksTranslations,
   usersTranslations,
-  ordersTranslations
+  ordersTranslations,
+  medicalHistoryTranslations,
+  vitalsTranslations
 };
