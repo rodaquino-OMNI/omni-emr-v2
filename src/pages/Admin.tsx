@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 import Header from '../components/layout/Header';
@@ -65,7 +64,6 @@ interface UserFormData {
 
 const Admin = () => {
   const { t } = useTranslation();
-  const { toast } = useToast();
   const { user } = useAuth();
   const [users, setUsers] = useState<User[]>(mockUsers);
   const [editingUser, setEditingUser] = useState<User | null>(null);
