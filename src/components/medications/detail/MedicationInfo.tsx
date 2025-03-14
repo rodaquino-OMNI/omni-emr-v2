@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Medication } from '../MedicationCard';
+import SpecialInstructions from './SpecialInstructions';
 
 interface MedicationInfoProps {
   medication: Medication;
