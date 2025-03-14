@@ -1,15 +1,9 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, ClipboardCheck } from 'lucide-react';
 import { ClinicalNote, NoteTemplate, NoteStatus } from '@/types/clinicalNotes';
-import { useTranslation } from '@/hooks/useTranslation';
 import { useNoteEditor } from './hooks/useNoteEditor';
 import NoteEditorHeader from './components/NoteEditorHeader';
-import NoteSectionEditor from './components/NoteSectionEditor';
-import NoteSectionPreview from './components/NoteSectionPreview';
-import AIAssistButton from './components/AIAssistButton';
+import NoteEditorContainer from './editor/NoteEditorContainer';
 
 interface NoteEditorProps {
   template: NoteTemplate;
@@ -26,8 +20,6 @@ const NoteEditor = ({
   onSave, 
   onCancel 
 }: NoteEditorProps) => {
-  const { language } = useTranslation();
-  
   const {
     note,
     sections,
@@ -49,59 +41,16 @@ const NoteEditor = ({
         onCancel={onCancel}
       />
       
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-md">
-              {language === 'pt' ? 'Editor de nota' : 'Note Editor'}
-            </CardTitle>
-            <Tabs defaultValue="editor" value={activeTab} onValueChange={(value) => setActiveTab(value as 'editor' | 'preview')}>
-              <TabsList>
-                <TabsTrigger value="editor">
-                  <FileText className="h-4 w-4 mr-1" />
-                  {language === 'pt' ? 'Editor' : 'Editor'}
-                </TabsTrigger>
-                <TabsTrigger value="preview">
-                  <ClipboardCheck className="h-4 w-4 mr-1" />
-                  {language === 'pt' ? 'Visualizar' : 'Preview'}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <AIAssistButton 
-              isRequestingAI={isRequestingAI}
-              onClick={requestAIAssistance}
-            />
-          </div>
-          
-          <TabsContent value="editor" className="space-y-4 mt-2">
-            {template.sections.map((section, index) => (
-              <NoteSectionEditor
-                key={index}
-                sectionTitle={section.title}
-                content={sections[section.title] || ''}
-                onChange={(content) => handleSectionChange(section.title, content)}
-              />
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="preview" className="mt-2">
-            <div className="prose prose-sm max-w-none">
-              <h1>{note.title}</h1>
-              {template.sections.map((section, index) => (
-                <NoteSectionPreview
-                  key={index}
-                  sectionTitle={section.title}
-                  content={sections[section.title] || ''}
-                />
-              ))}
-            </div>
-          </TabsContent>
-        </CardContent>
-      </Card>
+      <NoteEditorContainer
+        template={template}
+        sections={sections}
+        noteTitle={note.title || template.name}
+        activeTab={activeTab}
+        isRequestingAI={isRequestingAI}
+        setActiveTab={setActiveTab}
+        handleSectionChange={handleSectionChange}
+        requestAIAssistance={requestAIAssistance}
+      />
     </div>
   );
 };
