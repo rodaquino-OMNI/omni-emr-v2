@@ -9,6 +9,63 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string
+          date: string
+          duration: number
+          id: string
+          location: string | null
+          notes: string | null
+          patient_id: string
+          patient_name: string
+          provider_id: string
+          provider_name: string
+          reminder_sent: boolean | null
+          status: string
+          time: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          duration: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          patient_id: string
+          patient_name: string
+          provider_id: string
+          provider_name: string
+          reminder_sent?: boolean | null
+          status?: string
+          time: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          duration?: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          patient_id?: string
+          patient_name?: string
+          provider_id?: string
+          provider_name?: string
+          reminder_sent?: boolean | null
+          status?: string
+          time?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -240,6 +297,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_role: {
+        Args: {
+          user_id: string
+        }
+        Returns: string
+      }
       user_has_role: {
         Args: {
           requested_role: string

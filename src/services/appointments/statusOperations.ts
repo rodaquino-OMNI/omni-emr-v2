@@ -1,4 +1,5 @@
 
+import { toast } from 'sonner';
 import { logAuditEvent } from '@/integrations/supabase/client';
 import { Appointment } from './types';
 import { updateAppointment } from './crudOperations';
@@ -9,6 +10,9 @@ export const cancelAppointment = async (id: string, reason?: string): Promise<bo
     const result = await updateAppointment(id, { status: 'cancelled' });
     
     if (result) {
+      // Show success toast
+      toast.success('Appointment cancelled successfully');
+      
       // Log the action with the reason
       await logAuditEvent(
         result.providerId,
@@ -22,6 +26,7 @@ export const cancelAppointment = async (id: string, reason?: string): Promise<bo
     }
   } catch (error) {
     console.error('Failed to cancel appointment:', error);
+    toast.error('Failed to cancel appointment');
   }
   
   return false;
@@ -38,6 +43,9 @@ export const completeAppointment = async (id: string, notes?: string): Promise<b
     const result = await updateAppointment(id, updates);
     
     if (result) {
+      // Show success toast
+      toast.success('Appointment marked as completed');
+      
       // Log the action
       await logAuditEvent(
         result.providerId,
@@ -51,6 +59,7 @@ export const completeAppointment = async (id: string, notes?: string): Promise<b
     }
   } catch (error) {
     console.error('Failed to complete appointment:', error);
+    toast.error('Failed to mark appointment as completed');
   }
   
   return false;
@@ -62,6 +71,9 @@ export const sendAppointmentReminder = async (id: string): Promise<boolean> => {
     const result = await updateAppointment(id, { reminder_sent: true });
     
     if (result) {
+      // Show success toast
+      toast.success('Reminder sent to patient');
+      
       // In a real app, this would trigger an email or SMS notification
       console.log(`Reminder sent for appointment ID: ${id}`);
       
@@ -78,6 +90,7 @@ export const sendAppointmentReminder = async (id: string): Promise<boolean> => {
     }
   } catch (error) {
     console.error('Failed to send appointment reminder:', error);
+    toast.error('Failed to send appointment reminder');
   }
   
   return false;
