@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -24,19 +23,19 @@ const QuickActions = () => {
       {
         title: language === 'pt' ? 'Nova Prescrição' : 'New Prescription',
         icon: <Pill className="h-5 w-5" />,
-        link: '/prescribe', // Fixed: changed from '/prescribe-medication' to '/prescribe'
+        link: '/prescribe',
         color: 'bg-blue-100 text-blue-800'
       },
       {
         title: language === 'pt' ? 'Agendar Consulta' : 'Schedule Appointment',
         icon: <Calendar className="h-5 w-5" />,
-        link: '/schedule', // Fixed: changed from '/schedule/new' to '/schedule'
+        link: '/schedule',
         color: 'bg-green-100 text-green-800'
       },
       {
         title: language === 'pt' ? 'Nova Evolução' : 'New Progress Note',
         icon: <FileText className="h-5 w-5" />,
-        link: '/records', // Fixed: changed from '/records/new' to '/records'
+        link: '/records',
         color: 'bg-purple-100 text-purple-800'
       },
       {
@@ -51,25 +50,25 @@ const QuickActions = () => {
       {
         title: language === 'pt' ? 'Registrar Sinais Vitais' : 'Record Vital Signs',
         icon: <Activity className="h-5 w-5" />,
-        link: '/vitals', // Fixed: changed from '/vitals/new' to '/vitals'
+        link: '/vitals',
         color: 'bg-red-100 text-red-800'
       },
       {
         title: language === 'pt' ? 'Balanço Hídrico' : 'Fluid Balance',
         icon: <Droplet className="h-5 w-5" />,
-        link: '/fluid-balance', // Fixed: changed from '/fluid-balance/new' to '/fluid-balance'
+        link: '/fluid-balance',
         color: 'bg-blue-100 text-blue-800'
       },
       {
         title: language === 'pt' ? 'Administrar Medicação' : 'Administer Medication',
         icon: <Pill className="h-5 w-5" />,
-        link: '/medications', // Fixed: kept as is, but removed query param
+        link: '/medications',
         color: 'bg-green-100 text-green-800'
       },
       {
         title: language === 'pt' ? 'Evolução de Enfermagem' : 'Nursing Note',
         icon: <FileText className="h-5 w-5" />,
-        link: '/records', // Fixed: changed from '/records/new?type=nursing' to '/records'
+        link: '/records',
         color: 'bg-purple-100 text-purple-800'
       }
     ];
@@ -78,19 +77,19 @@ const QuickActions = () => {
       {
         title: language === 'pt' ? 'Gerenciar Usuários' : 'Manage Users',
         icon: <Users className="h-5 w-5" />,
-        link: '/settings', // Fixed: changed from '/admin/users' to '/settings'
+        link: '/settings',
         color: 'bg-blue-100 text-blue-800'
       },
       {
         title: language === 'pt' ? 'Relatórios' : 'Reports',
         icon: <ClipboardList className="h-5 w-5" />,
-        link: '/dashboard', // Fixed: changed from '/admin/reports' to '/dashboard'
+        link: '/dashboard',
         color: 'bg-green-100 text-green-800'
       },
       {
         title: language === 'pt' ? 'Auditoria' : 'Audit Log',
         icon: <FileText className="h-5 w-5" />,
-        link: '/settings', // Fixed: changed from '/admin/audit' to '/settings'
+        link: '/settings',
         color: 'bg-purple-100 text-purple-800'
       },
       {
@@ -105,7 +104,7 @@ const QuickActions = () => {
       {
         title: language === 'pt' ? 'Agendar Consulta' : 'Schedule Appointment',
         icon: <Calendar className="h-5 w-5" />,
-        link: '/schedule', // Fixed: changed from '/schedule/new' to '/schedule'
+        link: '/schedule',
         color: 'bg-blue-100 text-blue-800'
       },
       {
