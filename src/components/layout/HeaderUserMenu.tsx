@@ -29,7 +29,11 @@ const HeaderUserMenu = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center p-0">
           {user?.avatar ? (
-            <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
+            <img 
+              src={user.avatar} 
+              alt={user.name} 
+              className="h-9 w-9 rounded-full object-cover" 
+            />
           ) : (
             <User className="h-5 w-5 text-primary" />
           )}

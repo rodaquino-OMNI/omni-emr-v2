@@ -29,7 +29,11 @@ const SidebarUserProfile = ({ user, onClick }: SidebarUserProfileProps) => {
       >
         <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">
           {user.avatar ? (
-            <img src={user.avatar} alt={user.name} className="h-7 w-7 rounded-full object-cover" />
+            <img 
+              src={user.avatar} 
+              alt={user.name} 
+              className="h-7 w-7 rounded-full object-cover" 
+            />
           ) : (
             <User className="h-4 w-4" />
           )}

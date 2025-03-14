@@ -20,6 +20,7 @@ export interface User {
   name: string;
   role: UserRole;
   permissions: string[];
+  avatar?: string; // Added avatar property as optional
 }
 
 export type Language = 'en' | 'pt';
