@@ -33,7 +33,8 @@ export const useAuthProvider = () => {
   const {
     login,
     loginWithSocial,
-    signUp
+    signUp,
+    resetPassword
   } = useAuthLogin(
     setUser,
     setSession,
@@ -69,6 +70,7 @@ export const useAuthProvider = () => {
     login,
     loginWithSocial,
     signUp,
+    resetPassword,
     logout,
     session,
     hasPermission,
