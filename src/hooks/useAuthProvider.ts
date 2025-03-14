@@ -5,22 +5,24 @@ import { useLanguageSettings } from './useLanguageSettings';
 import { useAuthState } from './useAuthState';
 import { useAuthLogin } from './useAuthLogin';
 import { useAuthLogout } from './useAuthLogout';
-import { useSessionTimeout } from './useSessionTimeout';
+import { useSessionTimeoutHook } from './auth/useSessionTimeoutHook';
 import { useAuthRateLimiting } from './useAuthRateLimiting';
 import { usePermissions } from './usePermissions';
+import { useAuthProviderState } from './auth/useAuthProviderState';
 
 export const useAuthProvider = () => {
   // Initialize language settings
   const { language, setLanguage } = useLanguageSettings();
 
-  // Initialize auth state
+  // Initialize auth state from useAuthState or our new simpler state hook
   const {
     user,
     setUser,
     session,
     setSession,
     isLoading,
-    setIsLoading
+    setIsLoading,
+    isAuthenticated
   } = useAuthState(language);
 
   // Initialize auth rate limiting
@@ -52,8 +54,8 @@ export const useAuthProvider = () => {
     lastActivity, 
     sessionTimeoutMinutes, 
     setSessionTimeoutMinutes 
-  } = useSessionTimeout({
-    isAuthenticated: !!user,
+  } = useSessionTimeoutHook({
+    isAuthenticated,
     language,
     onTimeout: logout
   });
@@ -63,7 +65,7 @@ export const useAuthProvider = () => {
 
   return {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated,
     isLoading,
     language,
     setLanguage,
