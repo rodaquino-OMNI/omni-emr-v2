@@ -51,7 +51,8 @@ const VitalSigns = () => {
     }
   };
   
-  const { data: patients, isLoading } = useAsync(fetchPatients);
+  // Fix: Pass the function, not the result of the function
+  const { data: patients, isLoading } = useAsync<PatientData[]>(fetchPatients);
   
   return (
     <div className="min-h-screen flex bg-background">
@@ -106,7 +107,8 @@ const VitalSigns = () => {
                             </TableCell>
                           </TableRow>
                         ) : (
-                          patients?.map((patient) => (
+                          // Fixed: Check that patients is an array before calling map
+                          Array.isArray(patients) && patients.map((patient) => (
                             <TableRow
                               key={patient.id}
                               className={`cursor-pointer hover:bg-muted/50 ${

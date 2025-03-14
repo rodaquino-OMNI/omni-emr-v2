@@ -16,7 +16,9 @@ type PatientVitalsProps = {
 const PatientVitals = ({ patientId }: PatientVitalsProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { canManagePatientFluidBalance } = usePermissions(user);
+  // Fix: Extract the boolean value directly instead of providing the function
+  const permissions = usePermissions(user);
+  const canManageVitals = permissions.canManagePatientFluidBalance;
   
   // Get AI insights specifically for vitals
   const { insights } = useAIInsights(patientId, ['vitals']);
@@ -32,7 +34,7 @@ const PatientVitals = ({ patientId }: PatientVitalsProps) => {
     <div className="space-y-6">
       <VitalsHeader 
         patientName={getPatientName(patientId)}
-        canManageVitals={canManagePatientFluidBalance}
+        canManageVitals={canManageVitals}
         onRecordVitals={recordVitals}
       />
       
