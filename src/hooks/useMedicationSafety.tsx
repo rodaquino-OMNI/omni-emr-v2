@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from './useTranslation';
 import { toast } from './use-toast';
@@ -74,7 +75,7 @@ export function useMedicationSafety(patientId: string) {
     if (!patientId) return;
     
     try {
-      // Check if vital_signs table has a weight field
+      // Get the most recent vital signs
       const { data, error } = await supabase
         .from('vital_signs')
         .select('*')
@@ -82,10 +83,21 @@ export function useMedicationSafety(patientId: string) {
         .order('timestamp', { ascending: false })
         .limit(1);
       
-      // If there's data and it contains weight information
-      if (data && data.length > 0 && typeof data[0].weight === 'number') {
-        setPatientWeight(data[0].weight);
-        setWeightLastUpdated(new Date(data[0].timestamp));
+      if (error) throw error;
+      
+      // If there's data, try to extract weight information from notes
+      if (data && data.length > 0) {
+        // Check if the notes contain weight information
+        const notes = data[0].notes;
+        if (notes && notes.includes('Patient weight:')) {
+          // Extract weight from notes like "Patient weight: 75 kg"
+          const weightMatch = notes.match(/Patient weight: (\d+\.?\d*) kg/);
+          if (weightMatch && weightMatch[1]) {
+            const weight = parseFloat(weightMatch[1]);
+            setPatientWeight(weight);
+            setWeightLastUpdated(new Date(data[0].timestamp));
+          }
+        }
       } else {
         console.log('No weight data found for patient');
       }
@@ -102,14 +114,12 @@ export function useMedicationSafety(patientId: string) {
       const timestamp = new Date().toISOString();
       const recorder_name = 'System'; // Default recorder name
       
-      // Insert new vital signs record with weight
+      // Insert new vital signs record with weight stored in notes
       const { error } = await supabase
         .from('vital_signs')
         .insert({
           patient_id: patientId,
           recorder_name: recorder_name,
-          // If the weight field exists in vital_signs table, it will be included,
-          // otherwise we'll use a note to store the weight
           notes: `Patient weight: ${weight} kg`,
           timestamp: timestamp
         });
