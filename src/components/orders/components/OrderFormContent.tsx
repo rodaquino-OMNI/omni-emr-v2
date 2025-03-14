@@ -3,9 +3,9 @@ import React from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import { OrderType } from '@/types/orders';
 import MedicationOrderForm from '../forms/MedicationOrderForm';
-import LaboratoryOrderForm from '../forms/LaboratoryOrderForm';
+import LaboratoryOrderForm from '../forms/laboratory/LaboratoryOrderForm';
 import RadiologyOrderForm from '../forms/RadiologyOrderForm';
-import ProcedureOrderForm from '../forms/ProcedureOrderForm';
+import ProcedureOrderForm from '../forms/procedure/ProcedureOrderForm';
 import ConsultationOrderForm from '../forms/ConsultationOrderForm';
 
 interface OrderFormContentProps {
