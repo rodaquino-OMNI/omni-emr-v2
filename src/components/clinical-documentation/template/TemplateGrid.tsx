@@ -1,50 +1,44 @@
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { NoteTemplate } from '@/types/clinicalNotes';
 import TemplateCard from './TemplateCard';
+import { useInView } from 'react-intersection-observer';
 
 interface TemplateGridProps {
   templates: NoteTemplate[];
   onSelectTemplate: (template: NoteTemplate) => void;
 }
 
+const INITIAL_ITEMS_TO_LOAD = 6;
+const ITEMS_PER_BATCH = 6;
+
 const TemplateGrid = ({ templates, onSelectTemplate }: TemplateGridProps) => {
+  const [visibleCount, setVisibleCount] = useState(INITIAL_ITEMS_TO_LOAD);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [visibleTemplates, setVisibleTemplates] = useState<NoteTemplate[]>([]);
   
-  // Simple virtualization implementation for better performance with large lists
+  // Create a reference for lazy loading more templates
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: false,
+  });
+  
+  // Function to load more templates
+  const loadMoreTemplates = useCallback(() => {
+    setVisibleCount(prev => 
+      Math.min(prev + ITEMS_PER_BATCH, templates.length)
+    );
+  }, [templates.length]);
+  
+  // Load more templates when the load more element comes into view
   useEffect(() => {
-    if (templates.length <= 12) {
-      // For small lists, don't bother with virtualization
-      setVisibleTemplates(templates);
-      return;
+    if (inView) {
+      loadMoreTemplates();
     }
-    
-    // Initial render of visible items
-    setVisibleTemplates(templates.slice(0, 12));
-    
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      
-      const container = containerRef.current;
-      const scrollPosition = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      const totalHeight = container.getBoundingClientRect().height;
-      const containerTop = container.getBoundingClientRect().top + scrollPosition;
-      
-      // If we're scrolling near the bottom, load more templates
-      if (scrollPosition + viewportHeight > containerTop + totalHeight - 300) {
-        setVisibleTemplates(prev => {
-          const nextBatch = templates.slice(0, Math.min(prev.length + 6, templates.length));
-          if (nextBatch.length === prev.length) return prev; // No change
-          return nextBatch;
-        });
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [templates]);
+  }, [inView, loadMoreTemplates]);
+  
+  // Create an array of templates to display
+  const visibleTemplates = templates.slice(0, visibleCount);
+  const hasMoreTemplates = visibleCount < templates.length;
   
   return (
     <div 
@@ -58,8 +52,12 @@ const TemplateGrid = ({ templates, onSelectTemplate }: TemplateGridProps) => {
           onSelect={onSelectTemplate} 
         />
       ))}
-      {visibleTemplates.length < templates.length && (
-        <div className="col-span-full flex justify-center py-4">
+      
+      {hasMoreTemplates && (
+        <div 
+          ref={loadMoreRef}
+          className="col-span-full flex justify-center py-4 h-20"
+        >
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )}

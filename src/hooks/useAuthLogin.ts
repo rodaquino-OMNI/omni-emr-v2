@@ -1,10 +1,16 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Session, Provider } from '@supabase/supabase-js';
 import { User, UserRole, Language } from '../types/auth';
 import { signInWithProvider, signInWithEmail, signUpWithEmail } from '../utils/authUtils';
 import { generateCSRFToken } from '../utils/csrfUtils';
 import { toast } from 'sonner';
+
+interface AuthError extends Error {
+  message: string;
+  status?: number;
+  code?: string;
+}
 
 export const useAuthLogin = (
   setUser: (user: User | null) => void,
@@ -14,29 +20,62 @@ export const useAuthLogin = (
   resetLoginAttempts: () => void,
   language: Language
 ) => {
-  // Common error handler function to reduce duplication
-  const handleAuthError = (error: any, context: string) => {
-    console.error(`${context} error:`, error);
-    
-    const errorMessage = error?.message || 
-      (language === 'pt' ? 'Erro de autenticação' : 'Authentication error');
-      
-    toast.error(
-      language === 'pt' ? `Erro de ${context}` : `${context} error`, 
-      { description: errorMessage }
-    );
-    
-    throw error;
-  };
+  const [lastError, setLastError] = useState<AuthError | null>(null);
 
-  const login = async (email: string, password: string) => {
+  // Common error handler to reduce duplication
+  const handleAuthError = useCallback((error: any, context: string): AuthError => {
+    const errorObj: AuthError = error instanceof Error 
+      ? error 
+      : new Error(error?.message || 'Unknown error');
+    
+    if (error?.status) errorObj.status = error.status;
+    if (error?.code) errorObj.code = error.code;
+    
+    // Log with important details but avoid sensitive information
+    console.error(`${context} error:`, {
+      message: errorObj.message,
+      status: errorObj.status,
+      code: errorObj.code,
+      // Don't log stack trace in production
+      ...(process.env.NODE_ENV !== 'production' && { stack: errorObj.stack })
+    });
+    
+    // Save last error for potential recovery strategies
+    setLastError(errorObj);
+    
+    return errorObj;
+  }, []);
+
+  // Translate error messages based on language
+  const getErrorMessage = useCallback((error: AuthError, context: string): string => {
+    // Email already exists
+    if (error.message?.includes('User already registered')) {
+      return language === 'pt' 
+        ? 'Este email já está registrado' 
+        : 'This email is already registered';
+    }
+    
+    // Invalid credentials
+    if (error.message?.includes('Invalid login credentials')) {
+      return language === 'pt'
+        ? 'Credenciais inválidas'
+        : 'Invalid login credentials';
+    }
+    
+    // Default error message
+    return error.message || (language === 'pt' 
+      ? `Erro de ${context}` 
+      : `${context} error`);
+  }, [language]);
+
+  // Handle login
+  const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     
     try {
       // Check rate limiting
       handleLoginRateLimit();
       
-      console.log('Attempting login with email:', email);
       const { user: authUser, session: authSession } = await signInWithEmail(email, password);
       
       if (!authUser) {
@@ -61,28 +100,46 @@ export const useAuthLogin = (
       
       // Reset login attempts on successful login
       resetLoginAttempts();
+      
+      return { success: true };
     } catch (error) {
-      handleAuthError(error, language === 'pt' ? 'login' : 'login');
+      const authError = handleAuthError(error, language === 'pt' ? 'login' : 'login');
+      const errorMessage = getErrorMessage(authError, 'login');
+      
+      toast.error(
+        language === 'pt' ? 'Erro de login' : 'Login error', 
+        { description: errorMessage }
+      );
+      
+      return { success: false, error: authError };
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [language, handleAuthError, getErrorMessage, handleLoginRateLimit, resetLoginAttempts, setIsLoading, setUser, setSession]);
 
-  const loginWithSocial = async (provider: Provider) => {
+  // Handle social login
+  const loginWithSocial = useCallback(async (provider: Provider) => {
     try {
       // Generate new CSRF token for the OAuth flow
       generateCSRFToken();
       await signInWithProvider(provider);
       // Auth state change listener will handle user/session updates
+      return { success: true };
     } catch (error) {
-      handleAuthError(error, language === 'pt' ? 'login social' : 'social login');
+      const authError = handleAuthError(error, language === 'pt' ? 'login social' : 'social login');
+      const errorMessage = getErrorMessage(authError, 'social login');
+      
+      toast.error(
+        language === 'pt' ? 'Erro de login social' : 'Social login error', 
+        { description: errorMessage }
+      );
+      
+      return { success: false, error: authError };
     }
-  };
+  }, [language, handleAuthError, getErrorMessage]);
 
-  const signUp = async (email: string, password: string, name: string, role: UserRole): Promise<{
-    user: User | null;
-    session: Session | null;
-  }> => {
+  // Handle sign up
+  const signUp = useCallback(async (email: string, password: string, name: string, role: UserRole) => {
     setIsLoading(true);
     
     try {
@@ -98,35 +155,30 @@ export const useAuthLogin = (
       });
       
       return {
+        success: true,
         user: result.user ? (typeof result.user === 'object' && 'role' in result.user 
           ? result.user as User 
           : null) : null,
         session: result.session
       };
-    } catch (error: any) {
-      // Handle specific Supabase errors
-      let errorMessage = error.message || 
-        (language === 'pt' ? 'Falha ao criar conta' : 'Failed to create account');
-        
-      if (error.message?.includes('User already registered')) {
-        errorMessage = language === 'pt' 
-          ? 'Este email já está registrado' 
-          : 'This email is already registered';
-      }
+    } catch (error) {
+      const authError = handleAuthError(error, language === 'pt' ? 'registro' : 'registration');
+      const errorMessage = getErrorMessage(authError, 'registration');
       
       toast.error(language === 'pt' ? 'Erro de registro' : 'Registration error', {
         description: errorMessage
       });
       
-      throw error;
+      return { success: false, error: authError };
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [language, handleAuthError, getErrorMessage, setIsLoading]);
 
   return {
     login,
     loginWithSocial,
-    signUp
+    signUp,
+    lastError,
   };
 };

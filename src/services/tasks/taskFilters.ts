@@ -1,6 +1,7 @@
 
 import { Task, TaskPriority, TaskStatus, TaskType } from "@/components/tasks/card/TaskCardTypes";
 import { mockTasks } from "./mockTasks";
+import { supabase } from "@/integrations/supabase/client";
 
 // Filter tasks by multiple criteria
 export interface TaskFilter {
@@ -12,44 +13,7 @@ export interface TaskFilter {
   showDelayed?: boolean;
 }
 
-export const filterTasks = async (filter: TaskFilter): Promise<Task[]> => {
-  // Optimize by creating a single filter function that combines all criteria
-  const now = new Date();
-  
-  // Fast path for no filters
-  if (!hasActiveFilters(filter)) {
-    const sortedTasks = [...mockTasks].sort(
-      (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-    );
-    return sortedTasks;
-  }
-
-  // Filter in a single pass through the array
-  const filteredTasks = mockTasks.filter(task => {
-    // Check each filter criteria
-    if (filter.patientId && task.patientId !== filter.patientId) return false;
-    if (filter.sector && task.sector !== filter.sector) return false;
-    if (filter.status && task.status !== filter.status) return false;
-    if (filter.priority && task.priority !== filter.priority) return false;
-    if (filter.type && task.type !== filter.type) return false;
-    
-    // Special handling for delayed tasks
-    if (filter.showDelayed) {
-      const dueDate = new Date(task.dueDate);
-      if (!(dueDate < now && task.status === 'pending')) return false;
-    }
-    
-    // If we made it here, the task passed all filters
-    return true;
-  });
-  
-  // Sort by due date (ascending)
-  return filteredTasks.sort(
-    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-  );
-};
-
-// Helper function to check if any filters are active
+// Check if any filters are active
 function hasActiveFilters(filter: TaskFilter): boolean {
   return Boolean(
     filter.patientId || 
@@ -60,3 +24,83 @@ function hasActiveFilters(filter: TaskFilter): boolean {
     filter.showDelayed
   );
 }
+
+// Optimized filter tasks function with better performance
+export const filterTasks = async (filter: TaskFilter): Promise<Task[]> => {
+  try {
+    // Try to fetch tasks from Supabase
+    let query = supabase.from('tasks').select('*');
+    
+    // Apply filters directly in the database query when possible
+    if (filter.patientId) query = query.eq('patient_id', filter.patientId);
+    if (filter.sector) query = query.eq('sector', filter.sector);
+    if (filter.status) query = query.eq('status', filter.status);
+    if (filter.priority) query = query.eq('priority', filter.priority);
+    if (filter.type) query = query.eq('type', filter.type);
+    
+    // Always sort by due date for consistency
+    query = query.order('due_date', { ascending: true });
+    
+    const { data, error } = await query;
+    
+    if (error) throw error;
+    
+    if (data && data.length > 0) {
+      // Client-side filtering for complex filters like showDelayed
+      // that can't easily be done at the database level
+      let filteredTasks = data as unknown as Task[];
+      
+      if (filter.showDelayed) {
+        const now = new Date();
+        filteredTasks = filteredTasks.filter(task => 
+          new Date(task.dueDate) < now && task.status === 'pending'
+        );
+      }
+      
+      return filteredTasks;
+    }
+    
+    // If no data from database, fall back to mock data with optimized filtering
+    console.warn('No tasks found in database, using mock data');
+  } catch (error) {
+    console.error('Error fetching tasks from Supabase:', error);
+    // Fall back to mock data with a warning
+    console.warn('Falling back to mock tasks data due to Supabase error');
+  }
+  
+  // Use mock data with optimized filtering
+  const now = new Date();
+  
+  // Fast path for no filters
+  if (!hasActiveFilters(filter)) {
+    return [...mockTasks].sort(
+      (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    );
+  }
+  
+  // Create predicate functions for each active filter for better performance
+  const predicates: ((task: Task) => boolean)[] = [];
+  
+  if (filter.patientId) predicates.push(task => task.patientId === filter.patientId);
+  if (filter.sector) predicates.push(task => task.sector === filter.sector);
+  if (filter.status) predicates.push(task => task.status === filter.status);
+  if (filter.priority) predicates.push(task => task.priority === filter.priority);
+  if (filter.type) predicates.push(task => task.type === filter.type);
+  
+  if (filter.showDelayed) {
+    predicates.push(task => {
+      const dueDate = new Date(task.dueDate);
+      return dueDate < now && task.status === 'pending';
+    });
+  }
+  
+  // Apply all predicates in a single pass
+  const filteredTasks = mockTasks.filter(task => 
+    predicates.every(predicate => predicate(task))
+  );
+  
+  // Sort by due date
+  return filteredTasks.sort(
+    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+  );
+};
