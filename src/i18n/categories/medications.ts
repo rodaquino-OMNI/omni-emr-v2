@@ -1,4 +1,3 @@
-
 interface MedicationsTranslations {
   // Add common medication-related translations
   medications: string; // Plural
@@ -81,8 +80,32 @@ interface MedicationsTranslations {
   spellingSuggestions: string;
   didYouMean: string;
   
-  // Add missing keys
-  prescribeMedication: string;
+  // Safety-related translations
+  medicationSafety: string;
+  allergyWarning: string;
+  allergyWarningDescription: string;
+  highRiskMedication: string;
+  highRiskMedicationWarning: string;
+  weightBasedDosing: string;
+  weightBasedDosingRequired: string;
+  medicationContraindicated: string;
+  verifyAllergies: string;
+  allergiesNotReviewed: string;
+  reviewAllergies: string;
+  allergiesReviewed: string;
+  proceedAnyway: string;
+  acknowledgeAndProceed: string;
+  weightVerification: string;
+  verifyPatientWeight: string;
+  patientWeight: string;
+  lastUpdated: string;
+  updateWeight: string;
+  contraIndication: string;
+  possibleInteraction: string;
+  noKnownAllergies: string;
+  reviewComplete: string;
+  safetyCheckPassed: string;
+  safetyCheckFailed: string;
 }
 
 export type MedicationsTranslationKey = keyof MedicationsTranslations;
@@ -169,8 +192,32 @@ export const medicationsTranslations = {
     spellingSuggestions: "Spelling Suggestions",
     didYouMean: "Did you mean",
     
-    // Add missing key
-    prescribeMedication: "Prescribe Medication"
+    // Safety-related translations
+    medicationSafety: "Medication Safety",
+    allergyWarning: "Allergy Warning",
+    allergyWarningDescription: "This medication may cause an allergic reaction based on patient's recorded allergies.",
+    highRiskMedication: "High Risk Medication",
+    highRiskMedicationWarning: "This is a high-risk medication that requires additional verification.",
+    weightBasedDosing: "Weight-Based Dosing",
+    weightBasedDosingRequired: "This medication requires current patient weight for proper dosing.",
+    medicationContraindicated: "Medication Contraindicated",
+    verifyAllergies: "Verify Allergies",
+    allergiesNotReviewed: "Allergies have not been reviewed for this session",
+    reviewAllergies: "Review Allergies",
+    allergiesReviewed: "Allergies reviewed",
+    proceedAnyway: "Proceed Anyway",
+    acknowledgeAndProceed: "Acknowledge and Proceed",
+    weightVerification: "Weight Verification",
+    verifyPatientWeight: "Verify patient weight",
+    patientWeight: "Patient Weight",
+    lastUpdated: "Last Updated",
+    updateWeight: "Update Weight",
+    contraIndication: "Contraindication",
+    possibleInteraction: "Possible Interaction",
+    noKnownAllergies: "No Known Allergies",
+    reviewComplete: "Review Complete",
+    safetyCheckPassed: "Safety Check Passed",
+    safetyCheckFailed: "Safety Check Failed",
   },
   pt: {
     medications: "Medicamentos",
@@ -253,7 +300,31 @@ export const medicationsTranslations = {
     spellingSuggestions: "Sugestões de Ortografia",
     didYouMean: "Você quis dizer",
     
-    // Add missing key
-    prescribeMedication: "Prescrever Medicamento"
+    // Safety-related translations
+    medicationSafety: "Segurança Medicamentosa",
+    allergyWarning: "Alerta de Alergia",
+    allergyWarningDescription: "Este medicamento pode causar uma reação alérgica com base nas alergias registradas do paciente.",
+    highRiskMedication: "Medicamento de Alto Risco",
+    highRiskMedicationWarning: "Este é um medicamento de alto risco que requer verificação adicional.",
+    weightBasedDosing: "Dosagem Baseada no Peso",
+    weightBasedDosingRequired: "Este medicamento requer o peso atual do paciente para dosagem adequada.",
+    medicationContraindicated: "Medicamento Contraindicado",
+    verifyAllergies: "Verificar Alergias",
+    allergiesNotReviewed: "As alergias não foram revisadas para esta sessão",
+    reviewAllergies: "Revisar Alergias",
+    allergiesReviewed: "Alergias revisadas",
+    proceedAnyway: "Continuar Mesmo Assim",
+    acknowledgeAndProceed: "Reconhecer e Continuar",
+    weightVerification: "Verificação de Peso",
+    verifyPatientWeight: "Verificar peso do paciente",
+    patientWeight: "Peso do Paciente",
+    lastUpdated: "Última Atualização",
+    updateWeight: "Atualizar Peso",
+    contraIndication: "Contraindicação",
+    possibleInteraction: "Possível Interação",
+    noKnownAllergies: "Sem Alergias Conhecidas",
+    reviewComplete: "Revisão Completa",
+    safetyCheckPassed: "Verificação de Segurança Aprovada",
+    safetyCheckFailed: "Verificação de Segurança Falhou",
   }
 };
