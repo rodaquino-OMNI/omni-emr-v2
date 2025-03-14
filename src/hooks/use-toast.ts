@@ -1,8 +1,7 @@
 
-import { toast as sonnerToast } from "sonner";
-import { useTranslation } from "./useTranslation";
+import { toast as sonnerToast, type ToastT } from "sonner";
 
-type ToastOptions = {
+export type ToastOptions = {
   description?: string;
   duration?: number;
   action?: React.ReactNode;
@@ -11,11 +10,23 @@ type ToastOptions = {
   className?: string;
 };
 
-export function useToast() {
-  const { language } = useTranslation();
+export const toast = {
+  // Basic methods
+  success: (message: string, options?: ToastOptions) => sonnerToast.success(message, options),
+  error: (message: string, options?: ToastOptions) => sonnerToast.error(message, options),
+  warning: (message: string, options?: ToastOptions) => sonnerToast.warning(message, options),
+  info: (message: string, options?: ToastOptions) => sonnerToast.info(message, options),
+  default: (message: string, options?: ToastOptions) => sonnerToast(message, options),
+  
+  // Allow direct invocation for default toast
+  (message: string, options?: ToastOptions) => sonnerToast(message, options)
+};
+
+export const useToast = () => {
+  const { language } = useTranslationHook();
   
   // Create toast function with translation support
-  const toast = {
+  const translatedToast = {
     // Basic methods
     success: (message: string, options?: ToastOptions) => {
       return sonnerToast.success(message, options);
@@ -91,17 +102,14 @@ export function useToast() {
     }
   };
 
-  return toast;
-}
-
-// Re-export toast for direct imports
-export const toast = {
-  // Basic methods
-  success: (message: string, options?: ToastOptions) => sonnerToast.success(message, options),
-  error: (message: string, options?: ToastOptions) => sonnerToast.error(message, options),
-  warning: (message: string, options?: ToastOptions) => sonnerToast.warning(message, options),
-  info: (message: string, options?: ToastOptions) => sonnerToast.info(message, options),
-  
-  // Default toast
-  default: (message: string, options?: ToastOptions) => sonnerToast(message, options),
+  return translatedToast;
 };
+
+// Helper hook to get language without circular imports
+const useTranslationHook = () => {
+  const context = useLanguage();
+  return { language: context.language };
+};
+
+// Import at the end to avoid circular dependencies
+import { useLanguage } from "../context/LanguageContext";

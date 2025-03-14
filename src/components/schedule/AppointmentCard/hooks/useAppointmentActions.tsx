@@ -11,7 +11,7 @@ import {
 
 export const useAppointmentActions = (appointment: Appointment) => {
   const { t } = useTranslation();
-  const { toast } = useToast();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
   const handleSendReminder = async () => {
@@ -19,8 +19,7 @@ export const useAppointmentActions = (appointment: Appointment) => {
     try {
       const result = await sendAppointmentReminder(appointment.id);
       if (result) {
-        toast({
-          title: t('reminderSent'),
+        toast.success(t('reminderSent'), {
           description: t('reminderSentDescription'),
         });
       } else {
@@ -28,10 +27,8 @@ export const useAppointmentActions = (appointment: Appointment) => {
       }
     } catch (error) {
       console.error('Error sending reminder:', error);
-      toast({
-        title: t('errorSendingReminder'),
+      toast.error(t('errorSendingReminder'), {
         description: t('errorSendingReminderDescription'),
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -43,8 +40,7 @@ export const useAppointmentActions = (appointment: Appointment) => {
     try {
       const result = await completeAppointment(appointment.id);
       if (result) {
-        toast({
-          title: t('appointmentCompleted'),
+        toast.success(t('appointmentCompleted'), {
           description: t('appointmentCompletedDescription'),
         });
       } else {
@@ -52,10 +48,8 @@ export const useAppointmentActions = (appointment: Appointment) => {
       }
     } catch (error) {
       console.error('Error completing appointment:', error);
-      toast({
-        title: t('errorCompletingAppointment'),
+      toast.error(t('errorCompletingAppointment'), {
         description: t('errorCompletingAppointmentDescription'),
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -67,8 +61,7 @@ export const useAppointmentActions = (appointment: Appointment) => {
     try {
       const result = await cancelAppointment(appointment.id);
       if (result) {
-        toast({
-          title: t('appointmentCancelled'),
+        toast.success(t('appointmentCancelled'), {
           description: t('appointmentCancelledDescription'),
         });
       } else {
@@ -76,10 +69,8 @@ export const useAppointmentActions = (appointment: Appointment) => {
       }
     } catch (error) {
       console.error('Error cancelling appointment:', error);
-      toast({
-        title: t('errorCancellingAppointment'),
+      toast.error(t('errorCancellingAppointment'), {
         description: t('errorCancellingAppointmentDescription'),
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
