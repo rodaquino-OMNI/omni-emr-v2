@@ -981,6 +981,148 @@ export type Database = {
         }
         Relationships: []
       }
+      rxnorm_anvisa_mappings: {
+        Row: {
+          anvisa_code: string
+          comments: string | null
+          id: string
+          is_verified: boolean
+          mapping_date: string
+          medication_name: string
+          rxnorm_code: string
+          verified_by: string | null
+        }
+        Insert: {
+          anvisa_code: string
+          comments?: string | null
+          id?: string
+          is_verified?: boolean
+          mapping_date?: string
+          medication_name: string
+          rxnorm_code: string
+          verified_by?: string | null
+        }
+        Update: {
+          anvisa_code?: string
+          comments?: string | null
+          id?: string
+          is_verified?: boolean
+          mapping_date?: string
+          medication_name?: string
+          rxnorm_code?: string
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rxnorm_anvisa_mappings_rxnorm_code_fkey"
+            columns: ["rxnorm_code"]
+            isOneToOne: false
+            referencedRelation: "rxnorm_items"
+            referencedColumns: ["rxcui"]
+          },
+        ]
+      }
+      rxnorm_details_cache: {
+        Row: {
+          created_at: string
+          details: Json
+          id: string
+          rxcui: string
+        }
+        Insert: {
+          created_at?: string
+          details: Json
+          id?: string
+          rxcui: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          id?: string
+          rxcui?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rxnorm_details_cache_rxcui_fkey"
+            columns: ["rxcui"]
+            isOneToOne: true
+            referencedRelation: "rxnorm_items"
+            referencedColumns: ["rxcui"]
+          },
+        ]
+      }
+      rxnorm_items: {
+        Row: {
+          active: boolean
+          last_updated: string
+          name: string
+          rxcui: string
+          term_type: string
+        }
+        Insert: {
+          active?: boolean
+          last_updated?: string
+          name: string
+          rxcui: string
+          term_type?: string
+        }
+        Update: {
+          active?: boolean
+          last_updated?: string
+          name?: string
+          rxcui?: string
+          term_type?: string
+        }
+        Relationships: []
+      }
+      rxnorm_search_cache: {
+        Row: {
+          created_at: string
+          id: string
+          results: Json
+          search_term: string
+          search_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          results: Json
+          search_term: string
+          search_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          results?: Json
+          search_term?: string
+          search_type?: string
+        }
+        Relationships: []
+      }
+      rxnorm_sync_log: {
+        Row: {
+          errors: string[] | null
+          id: string
+          items_synced: number
+          sync_date: string
+          sync_type: string
+        }
+        Insert: {
+          errors?: string[] | null
+          id?: string
+          items_synced?: number
+          sync_date?: string
+          sync_type: string
+        }
+        Update: {
+          errors?: string[] | null
+          id?: string
+          items_synced?: number
+          sync_date?: string
+          sync_type?: string
+        }
+        Relationships: []
+      }
       vital_signs: {
         Row: {
           created_at: string
@@ -1054,6 +1196,16 @@ export type Database = {
       get_auth_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_frequently_prescribed_medications: {
+        Args: {
+          limit_count?: number
+        }
+        Returns: {
+          medication_name: string
+          rxnorm_code: string
+          prescription_count: number
+        }[]
       }
       get_user_role: {
         Args: {

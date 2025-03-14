@@ -62,7 +62,6 @@ const MedicationDetailsFields = ({
             value={name}
             onChange={onNameChange}
             placeholder={language === 'pt' ? "Nome do medicamento" : "Medication name"}
-            className="flex-1"
           />
         </div>
         <Dialog open={isRxNormOpen} onOpenChange={setIsRxNormOpen}>

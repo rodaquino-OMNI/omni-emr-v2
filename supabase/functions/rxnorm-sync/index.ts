@@ -1,191 +1,433 @@
 
-// RxNorm Sync Edge Function
-// This function handles syncing RxNorm data in batch mode
-
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.6'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// RxNorm API base URL
-const RXNORM_API_BASE_URL = 'https://rxnav.nlm.nih.gov/REST';
-
-interface RxNormApiResponse {
-  drugGroup?: {
-    conceptGroup: Array<{
-      tty: string;
-      conceptProperties: Array<{
-        rxcui: string;
-        name: string;
-        tty: string;
-      }>;
-    }>;
-  };
-}
-
+// Handle CORS preflight requests
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Create a Supabase client with the Auth context of the logged in user
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+  // Get the session from the request headers
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: 'Missing Authorization header' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 401,
+    });
+  }
+
+  // Extract the token from the Authorization header
+  const token = authHeader.replace('Bearer ', '');
+  const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+  if (userError || !user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 401,
+    });
+  }
+
+  // Check if the user has a valid role to use this function
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profileData || !['admin', 'doctor', 'pharmacist'].includes(profileData.role)) {
+    return new Response(JSON.stringify({ error: 'Access denied. Requires admin, doctor, or pharmacist role.' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 403,
+    });
+  }
+
+  // Parse the request
+  const url = new URL(req.url);
+  const action = url.searchParams.get('action') || 'sync_popular';
+  const limit = parseInt(url.searchParams.get('limit') || '100');
   
   try {
-    const { syncType = 'manual', limit = 100 } = await req.json();
+    switch (action) {
+      case 'sync_popular':
+        return await handleSyncPopular(limit, supabase, corsHeaders);
+      case 'clear_cache':
+        return await handleClearCache(supabase, corsHeaders);
+      case 'sync_specific': 
+        // Syncs specific medications, requires a payload
+        const payload = await req.json();
+        return await handleSyncSpecific(payload, supabase, corsHeaders);
+      default:
+        return new Response(JSON.stringify({ error: 'Invalid action parameter' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        });
+    }
+  } catch (error) {
+    console.error('Error processing request:', error);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    });
+  }
+});
+
+async function handleSyncPopular(limit: number, supabase: any, corsHeaders: any) {
+  try {
+    // Get the most frequently prescribed medications
+    const { data: frequentMeds, error: rpcError } = await supabase
+      .rpc('get_frequently_prescribed_medications', { limit_count: limit });
     
-    // Create a Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
-    let itemsToSync: string[] = [];
-    
-    // Get list of RxCUIs to sync based on the sync type
-    if (syncType === 'frequently_used') {
-      // Get most frequently prescribed medications
-      const { data: frequentMeds } = await supabase
-        .rpc('get_frequently_prescribed_medications', { limit_count: limit });
-      
-      if (frequentMeds && frequentMeds.length > 0) {
-        itemsToSync = frequentMeds
-          .filter((med: any) => med.rxnorm_code)
-          .map((med: any) => med.rxnorm_code);
-      }
-    } else if (syncType === 'outdated') {
-      // Get medications that haven't been updated in the last 30 days
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const { data: outdatedMeds } = await supabase
-        .from('rxnorm_items')
-        .select('rxcui')
-        .lt('last_updated', thirtyDaysAgo.toISOString())
-        .limit(limit);
-      
-      if (outdatedMeds && outdatedMeds.length > 0) {
-        itemsToSync = outdatedMeds.map((med: any) => med.rxcui);
-      }
-    } else if (syncType === 'class' && req.body) {
-      // Sync a specific medication class
-      const { className } = await req.json();
-      
-      if (className) {
-        const response = await fetch(
-          `${RXNORM_API_BASE_URL}/rxclass/classMembers?classId=${encodeURIComponent(className)}&relaSource=ATC`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          itemsToSync = data.drugMemberGroup?.drugMember
-            .map((drug: any) => drug.rxcui)
-            .slice(0, limit) || [];
-        }
-      }
+    if (rpcError) {
+      console.error('Error fetching frequently prescribed medications:', rpcError);
+      return new Response(JSON.stringify({ error: 'Error fetching frequently prescribed medications' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      });
     }
     
-    // Process each item
+    if (!frequentMeds || frequentMeds.length === 0) {
+      return new Response(JSON.stringify({ message: 'No medications to sync', count: 0 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+    
     const results = {
-      total: itemsToSync.length,
-      processed: 0,
+      success: 0,
+      failed: 0,
       errors: [] as string[],
-      details: [] as any[]
+      updated: [] as string[],
     };
     
-    for (const rxcui of itemsToSync) {
+    // Process each medication
+    for (const med of frequentMeds) {
       try {
-        // Fetch medication details from RxNorm API
-        const response = await fetch(
-          `${RXNORM_API_BASE_URL}/rxcui/${rxcui}/allrelated`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Extract medication details
-          const details = {
-            rxcui,
-            name: data.relatedGroup?.rxcuiName || '',
-            ingredients: extractConceptsByType(data, 'IN'),
-            brandNames: extractConceptsByType(data, 'BN'),
-            dosageForms: extractConceptsByType(data, 'DF'),
-            strengths: extractConceptsByType(data, 'SCDC')
-          };
-          
-          // Update or insert the medication
-          const { error: upsertError } = await supabase
-            .from('rxnorm_items')
-            .upsert({
-              rxcui,
-              name: data.relatedGroup?.rxcuiName || '',
-              term_type: 'SCD',
-              active: true,
+        // If the medication doesn't have an RxNorm code yet, try to find one
+        if (!med.rxnorm_code && med.medication_name) {
+          const rxnormCode = await findRxNormCode(med.medication_name);
+          if (rxnormCode) {
+            // Update the medication with the new RxNorm code
+            await supabase.from('rxnorm_items').insert({
+              rxcui: rxnormCode.rxcui,
+              name: rxnormCode.name,
+              term_type: rxnormCode.tty || 'SCD',
               last_updated: new Date().toISOString()
-            });
-          
-          if (upsertError) {
-            results.errors.push(`Error upserting ${rxcui}: ${upsertError.message}`);
-            continue;
+            }).onConflict('rxcui').merge();
+            
+            results.updated.push(`Found RxNorm code ${rxnormCode.rxcui} for ${med.medication_name}`);
+            results.success++;
+          } else {
+            results.errors.push(`No RxNorm code found for ${med.medication_name}`);
+            results.failed++;
           }
-          
-          // Cache the details
-          await supabase.from('rxnorm_details_cache').upsert({
-            rxcui,
-            details,
-            created_at: new Date().toISOString()
-          });
-          
-          results.processed++;
-          results.details.push({
-            rxcui,
-            name: details.name
-          });
-        } else {
-          results.errors.push(`API error for ${rxcui}: ${response.status}`);
+        } 
+        // If it already has an RxNorm code, update medication details
+        else if (med.rxnorm_code) {
+          const details = await getMedicationDetails(med.rxnorm_code);
+          if (details) {
+            // Store the details in the cache
+            await supabase.from('rxnorm_details_cache').insert({
+              rxcui: med.rxnorm_code,
+              details: details,
+              created_at: new Date().toISOString()
+            }).onConflict('rxcui').merge();
+            
+            results.updated.push(`Updated details for ${med.medication_name} (${med.rxnorm_code})`);
+            results.success++;
+          } else {
+            results.errors.push(`Failed to get details for ${med.medication_name} (${med.rxnorm_code})`);
+            results.failed++;
+          }
         }
       } catch (error) {
-        console.error(`Error processing ${rxcui}:`, error);
-        results.errors.push(`Error processing ${rxcui}: ${error.message}`);
+        console.error(`Error processing ${med.medication_name}:`, error);
+        results.errors.push(`Error processing ${med.medication_name}: ${error.message}`);
+        results.failed++;
       }
-      
-      // Add a small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
     }
     
     // Log the sync operation
     await supabase.from('rxnorm_sync_log').insert({
       sync_date: new Date().toISOString(),
-      items_synced: results.processed,
-      sync_type: syncType,
+      items_synced: results.success,
+      sync_type: 'popular_medications',
       errors: results.errors.length > 0 ? results.errors : null
     });
     
-    return new Response(
-      JSON.stringify(results),
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json' 
-        } 
-      }
-    );
+    return new Response(JSON.stringify({
+      message: 'Sync completed',
+      totalProcessed: frequentMeds.length,
+      success: results.success,
+      failed: results.failed,
+      updates: results.updated,
+      errors: results.errors
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
   } catch (error) {
-    console.error('Error in RxNorm sync:', error);
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { 
-        status: 500,
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json' 
-        } 
-      }
-    );
+    console.error('Error in handleSyncPopular:', error);
+    return new Response(JSON.stringify({ error: 'Failed to sync popular medications' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    });
   }
-});
+}
 
-// Helper function to extract concepts by type from RxNorm API response
+async function handleClearCache(supabase: any, corsHeaders: any) {
+  try {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 7); // Keep 7 days of cache
+    const cutoffDateStr = cutoffDate.toISOString();
+    
+    // Delete expired search cache entries
+    const { error: searchCacheError } = await supabase
+      .from('rxnorm_search_cache')
+      .delete()
+      .lt('created_at', cutoffDateStr);
+      
+    if (searchCacheError) {
+      console.error('Error clearing search cache:', searchCacheError);
+      return new Response(JSON.stringify({ error: 'Error clearing search cache' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      });
+    }
+    
+    // Delete expired details cache entries
+    const { error: detailsCacheError } = await supabase
+      .from('rxnorm_details_cache')
+      .delete()
+      .lt('created_at', cutoffDateStr);
+    
+    if (detailsCacheError) {
+      console.error('Error clearing details cache:', detailsCacheError);
+      return new Response(JSON.stringify({ error: 'Error clearing details cache' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      });
+    }
+    
+    return new Response(JSON.stringify({
+      message: 'Cache cleared successfully',
+      cutoffDate: cutoffDateStr
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error in handleClearCache:', error);
+    return new Response(JSON.stringify({ error: 'Failed to clear cache' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    });
+  }
+}
+
+async function handleSyncSpecific(payload: any, supabase: any, corsHeaders: any) {
+  try {
+    const { medications } = payload;
+    
+    if (!medications || !Array.isArray(medications) || medications.length === 0) {
+      return new Response(JSON.stringify({ error: 'Invalid or empty medications list' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      });
+    }
+    
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: [] as string[],
+      updated: [] as string[],
+    };
+    
+    // Process each medication
+    for (const med of medications) {
+      try {
+        if (med.rxnorm_code) {
+          // Fetch and store RxNorm data
+          const details = await getMedicationDetails(med.rxnorm_code);
+          if (details) {
+            // Update RxNorm item
+            await supabase.from('rxnorm_items').insert({
+              rxcui: med.rxnorm_code,
+              name: details.name,
+              term_type: 'SCD',
+              last_updated: new Date().toISOString()
+            }).onConflict('rxcui').merge();
+            
+            // Store the details in the cache
+            await supabase.from('rxnorm_details_cache').insert({
+              rxcui: med.rxnorm_code,
+              details: details,
+              created_at: new Date().toISOString()
+            }).onConflict('rxcui').merge();
+            
+            results.updated.push(`Updated details for ${details.name} (${med.rxnorm_code})`);
+            results.success++;
+          } else {
+            results.errors.push(`Failed to get details for RxCUI ${med.rxnorm_code}`);
+            results.failed++;
+          }
+        } else if (med.name) {
+          // Find RxNorm code for the medication name
+          const rxnormCode = await findRxNormCode(med.name);
+          if (rxnormCode) {
+            // Update the medication with the new RxNorm code
+            await supabase.from('rxnorm_items').insert({
+              rxcui: rxnormCode.rxcui,
+              name: rxnormCode.name,
+              term_type: rxnormCode.tty || 'SCD',
+              last_updated: new Date().toISOString()
+            }).onConflict('rxcui').merge();
+            
+            results.updated.push(`Found RxNorm code ${rxnormCode.rxcui} for ${med.name}`);
+            results.success++;
+          } else {
+            results.errors.push(`No RxNorm code found for ${med.name}`);
+            results.failed++;
+          }
+        } else {
+          results.errors.push('Invalid medication data: requires rxnorm_code or name');
+          results.failed++;
+        }
+      } catch (error) {
+        console.error(`Error processing medication:`, error);
+        results.errors.push(`Error processing medication: ${error.message}`);
+        results.failed++;
+      }
+    }
+    
+    // Log the sync operation
+    await supabase.from('rxnorm_sync_log').insert({
+      sync_date: new Date().toISOString(),
+      items_synced: results.success,
+      sync_type: 'specific_medications',
+      errors: results.errors.length > 0 ? results.errors : null
+    });
+    
+    return new Response(JSON.stringify({
+      message: 'Sync completed',
+      totalProcessed: medications.length,
+      success: results.success,
+      failed: results.failed,
+      updates: results.updated,
+      errors: results.errors
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error in handleSyncSpecific:', error);
+    return new Response(JSON.stringify({ error: 'Failed to sync specific medications' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    });
+  }
+}
+
+// Helper functions to interact with RxNorm API
+
+async function findRxNormCode(medicationName: string) {
+  try {
+    const response = await fetch(
+      `https://rxnav.nlm.nih.gov/REST/drugs?name=${encodeURIComponent(medicationName)}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`RxNorm API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.drugGroup?.conceptGroup) {
+      return null;
+    }
+    
+    // Get the first SCD (semantic clinical drug) result, or any result if no SCD
+    let bestMatch = null;
+    
+    for (const group of data.drugGroup.conceptGroup) {
+      if (group.conceptProperties && group.conceptProperties.length > 0) {
+        if (group.tty === 'SCD') {
+          return group.conceptProperties[0];
+        } else if (!bestMatch) {
+          bestMatch = group.conceptProperties[0];
+        }
+      }
+    }
+    
+    return bestMatch;
+  } catch (error) {
+    console.error('Error finding RxNorm code:', error);
+    return null;
+  }
+}
+
+async function getMedicationDetails(rxcui: string) {
+  try {
+    // Get basic information
+    const infoResponse = await fetch(
+      `https://rxnav.nlm.nih.gov/REST/rxcui/${rxcui}/allProperties?prop=names`
+    );
+
+    if (!infoResponse.ok) {
+      throw new Error(`RxNorm API error: ${infoResponse.status}`);
+    }
+
+    const infoData = await infoResponse.json();
+    
+    if (!infoData.propConceptGroup) {
+      return null;
+    }
+    
+    const nameProps = infoData.propConceptGroup.propConcept.filter(
+      (prop: any) => prop.propName === 'RxNorm Name'
+    );
+    
+    if (nameProps.length === 0) {
+      return null;
+    }
+    
+    // Get related entities
+    const relatedResponse = await fetch(
+      `https://rxnav.nlm.nih.gov/REST/rxcui/${rxcui}/allrelated`
+    );
+
+    if (!relatedResponse.ok) {
+      throw new Error(`RxNorm API error: ${relatedResponse.status}`);
+    }
+
+    const relatedData = await relatedResponse.json();
+    
+    // Process and structure the medication details
+    const details = {
+      rxcui,
+      name: nameProps[0].propValue,
+      ingredients: extractConceptsByType(relatedData, 'IN'),
+      brandNames: extractConceptsByType(relatedData, 'BN'),
+      dosageForms: extractConceptsByType(relatedData, 'DF'),
+      strengths: extractConceptsByType(relatedData, 'SCDC')
+    };
+    
+    return details;
+  } catch (error) {
+    console.error('Error getting medication details:', error);
+    return null;
+  }
+}
+
 function extractConceptsByType(data: any, type: string) {
   if (!data.relatedGroup?.conceptGroup) {
     return [];

@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { RxNormMedication, RxNormMedicationDetails, RxNormConcept } from '@/types/rxnorm';
 
 // RxNorm API base URL
 const RXNORM_API_BASE_URL = 'https://rxnav.nlm.nih.gov/REST';
@@ -7,17 +8,7 @@ const RXNORM_API_BASE_URL = 'https://rxnav.nlm.nih.gov/REST';
 /**
  * Types for RxNorm API responses
  */
-export interface RxNormMedication {
-  rxcui: string;
-  name: string;
-  synonym?: string;
-  tty?: string; // Term Type
-  language?: string;
-  suppress?: string;
-  umlsCui?: string;
-}
-
-export interface RxNormSearchResponse {
+interface RxNormSearchResponse {
   rxnormData: {
     idGroup?: {
       rxnormId: string[];
@@ -31,7 +22,7 @@ export interface RxNormSearchResponse {
   };
 }
 
-export interface RxNormRelatedResponse {
+interface RxNormRelatedResponse {
   relatedGroup: {
     rxcui: string;
     rxcuiName: string;
@@ -47,7 +38,7 @@ export interface RxNormRelatedResponse {
   };
 }
 
-export interface RxNormHistoryResponse {
+interface RxNormHistoryResponse {
   rxcuiStatusHistory: {
     rxcui: string;
     status: string;
@@ -62,7 +53,7 @@ export interface RxNormHistoryResponse {
   };
 }
 
-export interface RxNormAllPropResponse {
+interface RxNormAllPropResponse {
   propConceptGroup: {
     propConcept: Array<{
       propName: string;
@@ -71,7 +62,7 @@ export interface RxNormAllPropResponse {
   };
 }
 
-export interface MappingEntry {
+interface MappingEntry {
   rxnormCode: string;
   anvisaCode: string;
   name: string;
@@ -85,16 +76,16 @@ export interface MappingEntry {
 export const searchMedicationsByName = async (name: string): Promise<RxNormMedication[]> => {
   try {
     // First, check if we have this search cached in our database
-    const { data: cachedResults } = await supabase
+    const { data: cachedResults, error: cacheError } = await supabase
       .from('rxnorm_search_cache')
-      .select('results')
+      .select('*')
       .eq('search_term', name.toLowerCase())
       .eq('search_type', 'name')
-      .single();
+      .maybeSingle();
 
-    if (cachedResults) {
+    if (cachedResults && !cacheError) {
       console.log('Using cached search results for', name);
-      return cachedResults.results;
+      return cachedResults.results as RxNormMedication[];
     }
 
     const response = await fetch(
@@ -119,12 +110,16 @@ export const searchMedicationsByName = async (name: string): Promise<RxNormMedic
     }
 
     // Cache the search results in our database
-    await supabase.from('rxnorm_search_cache').insert({
+    const { error: insertError } = await supabase.from('rxnorm_search_cache').insert({
       search_term: name.toLowerCase(),
       search_type: 'name',
       results: medications,
       created_at: new Date().toISOString()
     });
+
+    if (insertError) {
+      console.error('Error caching search results:', insertError);
+    }
 
     return medications;
   } catch (error) {
@@ -139,13 +134,13 @@ export const searchMedicationsByName = async (name: string): Promise<RxNormMedic
 export const getMedicationByRxCUI = async (rxcui: string): Promise<RxNormMedication | null> => {
   try {
     // Check cache first
-    const { data: cachedResult } = await supabase
+    const { data: cachedResult, error: cacheError } = await supabase
       .from('rxnorm_items')
       .select('*')
       .eq('rxcui', rxcui)
-      .single();
+      .maybeSingle();
 
-    if (cachedResult) {
+    if (cachedResult && !cacheError) {
       return {
         rxcui: cachedResult.rxcui,
         name: cachedResult.name,
@@ -181,12 +176,16 @@ export const getMedicationByRxCUI = async (rxcui: string): Promise<RxNormMedicat
     };
     
     // Cache the result
-    await supabase.from('rxnorm_items').insert({
+    const { error: insertError } = await supabase.from('rxnorm_items').insert({
       rxcui: medication.rxcui,
       name: medication.name,
       term_type: medication.tty || 'SCD',
       last_updated: new Date().toISOString()
     });
+
+    if (insertError) {
+      console.error('Error caching medication:', insertError);
+    }
     
     return medication;
   } catch (error) {
@@ -201,14 +200,14 @@ export const getMedicationByRxCUI = async (rxcui: string): Promise<RxNormMedicat
 export const getMedicationDetails = async (rxcui: string) => {
   try {
     // Check if we have the details cached
-    const { data: cachedDetails } = await supabase
+    const { data: cachedDetails, error: cacheError } = await supabase
       .from('rxnorm_details_cache')
-      .select('details')
+      .select('*')
       .eq('rxcui', rxcui)
-      .single();
+      .maybeSingle();
 
-    if (cachedDetails) {
-      return cachedDetails.details;
+    if (cachedDetails && !cacheError) {
+      return cachedDetails.details as RxNormMedicationDetails;
     }
 
     const response = await fetch(
@@ -222,7 +221,7 @@ export const getMedicationDetails = async (rxcui: string) => {
     const data = await response.json();
     
     // Process and structure the medication details
-    const details = {
+    const details: RxNormMedicationDetails = {
       rxcui,
       name: data.relatedGroup?.rxcuiName || '',
       ingredients: extractConceptsByType(data, 'IN'),
@@ -232,11 +231,15 @@ export const getMedicationDetails = async (rxcui: string) => {
     };
     
     // Cache the details
-    await supabase.from('rxnorm_details_cache').insert({
+    const { error: insertError } = await supabase.from('rxnorm_details_cache').insert({
       rxcui,
       details,
       created_at: new Date().toISOString()
     });
+
+    if (insertError) {
+      console.error('Error caching medication details:', insertError);
+    }
     
     return details;
   } catch (error) {
@@ -248,7 +251,7 @@ export const getMedicationDetails = async (rxcui: string) => {
 /**
  * Helper function to extract concepts by type from RxNorm API response
  */
-const extractConceptsByType = (data: RxNormRelatedResponse, type: string) => {
+const extractConceptsByType = (data: RxNormRelatedResponse, type: string): RxNormConcept[] => {
   if (!data.relatedGroup?.conceptGroup) {
     return [];
   }
@@ -273,13 +276,13 @@ export const mapRxNormToANVISA = async (
 ): Promise<string | null> => {
   try {
     // Check if mapping exists in our database
-    const { data: mapping } = await supabase
+    const { data: mapping, error: mappingError } = await supabase
       .from('rxnorm_anvisa_mappings')
-      .select('anvisa_code')
+      .select('*')
       .eq('rxnorm_code', rxcui)
-      .single();
+      .maybeSingle();
 
-    if (mapping) {
+    if (mapping && !mappingError) {
       return mapping.anvisa_code;
     }
 
@@ -301,13 +304,18 @@ export const saveRxNormAnvisaMapping = async (
   isVerified = false
 ): Promise<boolean> => {
   try {
-    await supabase.from('rxnorm_anvisa_mappings').insert({
+    const { error } = await supabase.from('rxnorm_anvisa_mappings').insert({
       rxnorm_code: rxnormCode,
       anvisa_code: anvisaCode,
       medication_name: name,
       mapping_date: new Date().toISOString(),
       is_verified: isVerified
     });
+    
+    if (error) {
+      console.error('Error saving mapping:', error);
+      return false;
+    }
     
     return true;
   } catch (error) {
@@ -325,8 +333,13 @@ export const syncFrequentlyUsedMedications = async (): Promise<{
 }> => {
   try {
     // Get list of most frequently prescribed medications
-    const { data: frequentMeds } = await supabase
+    const { data: frequentMeds, error: rpcError } = await supabase
       .rpc('get_frequently_prescribed_medications', { limit_count: 100 });
+    
+    if (rpcError) {
+      console.error('Error fetching frequently prescribed medications:', rpcError);
+      return { success: false, count: 0 };
+    }
     
     if (!frequentMeds || frequentMeds.length === 0) {
       return { success: true, count: 0 };
@@ -343,11 +356,15 @@ export const syncFrequentlyUsedMedications = async (): Promise<{
     }
     
     // Update last sync timestamp
-    await supabase.from('rxnorm_sync_log').insert({
+    const { error: syncLogError } = await supabase.from('rxnorm_sync_log').insert({
       sync_date: new Date().toISOString(),
       items_synced: count,
       sync_type: 'frequently_used'
     });
+    
+    if (syncLogError) {
+      console.error('Error logging sync:', syncLogError);
+    }
     
     return { success: true, count };
   } catch (error) {
@@ -364,17 +381,25 @@ export const clearExpiredCache = async (): Promise<boolean> => {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - 7); // Keep 7 days of cache
     
-    await supabase
+    const { error: searchCacheError } = await supabase
       .from('rxnorm_search_cache')
       .delete()
       .lt('created_at', cutoffDate.toISOString());
       
-    await supabase
+    if (searchCacheError) {
+      console.error('Error clearing search cache:', searchCacheError);
+    }
+    
+    const { error: detailsCacheError } = await supabase
       .from('rxnorm_details_cache')
       .delete()
       .lt('created_at', cutoffDate.toISOString());
     
-    return true;
+    if (detailsCacheError) {
+      console.error('Error clearing details cache:', detailsCacheError);
+    }
+    
+    return !searchCacheError && !detailsCacheError;
   } catch (error) {
     console.error('Error clearing expired cache:', error);
     return false;

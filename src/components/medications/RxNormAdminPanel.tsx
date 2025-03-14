@@ -2,58 +2,103 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Database, RefreshCw, Trash2, FileSpreadsheet } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { clearExpiredCache, syncFrequentlyUsedMedications } from '@/services/rxnorm/rxnormService';
 
+interface DatabaseStats {
+  totalMedications: number;
+  totalMappings: number;
+  totalCacheEntries: number;
+  lastSyncDate: Date | null;
+}
+
 const RxNormAdminPanel: React.FC = () => {
   const { t, language } = useTranslation();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
-  const [dbStats, setDbStats] = useState({
+  const [dbStats, setDbStats] = useState<DatabaseStats>({
     totalMedications: 0,
     totalMappings: 0,
     totalCacheEntries: 0,
-    lastSyncDate: null as Date | null
+    lastSyncDate: null
   });
 
   // Fetch database statistics
   const fetchStats = async () => {
     try {
-      // Get total medications
-      const { count: medCount } = await supabase
-        .from('rxnorm_items')
-        .select('*', { count: 'exact', head: true });
+      // Due to type constraints, we need to perform direct queries to count rows
+      // Get total medications count via direct query
+      const medCountQuery = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_items?select=count`,
+        {
+          method: 'HEAD',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact'
+          }
+        }
+      );
+      const medCount = parseInt(medCountQuery.headers.get('content-range')?.split('/')[1] || '0');
       
-      // Get total mappings
-      const { count: mappingCount } = await supabase
-        .from('rxnorm_anvisa_mappings')
-        .select('*', { count: 'exact', head: true });
+      // Get total mappings count
+      const mappingCountQuery = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_anvisa_mappings?select=count`,
+        {
+          method: 'HEAD',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact'
+          }
+        }
+      );
+      const mappingCount = parseInt(mappingCountQuery.headers.get('content-range')?.split('/')[1] || '0');
       
-      // Get total cache entries
-      const { count: cacheCount } = await supabase
-        .from('rxnorm_search_cache')
-        .select('*', { count: 'exact', head: true });
+      // Get total cache entries count
+      const cacheCountQuery = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_search_cache?select=count`,
+        {
+          method: 'HEAD',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact'
+          }
+        }
+      );
+      const cacheCount = parseInt(cacheCountQuery.headers.get('content-range')?.split('/')[1] || '0');
       
-      // Get last sync date
-      const { data: syncLog } = await supabase
-        .from('rxnorm_sync_log')
-        .select('sync_date')
-        .order('sync_date', { ascending: false })
-        .limit(1)
-        .single();
+      // Get last sync date via direct query
+      const syncLogResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_sync_log?select=sync_date&order=sync_date.desc&limit=1`,
+        {
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      const syncLogData = await syncLogResponse.json();
+      const lastSyncDate = syncLogData.length > 0 ? new Date(syncLogData[0].sync_date) : null;
       
       setDbStats({
         totalMedications: medCount || 0,
         totalMappings: mappingCount || 0,
         totalCacheEntries: cacheCount || 0,
-        lastSyncDate: syncLog ? new Date(syncLog.sync_date) : null
+        lastSyncDate
       });
     } catch (error) {
       console.error('Error fetching RxNorm database stats:', error);
+      toast.error(
+        language === 'pt' 
+          ? 'Erro ao obter estatísticas do banco de dados' 
+          : 'Error fetching database statistics'
+      );
     }
   };
 
