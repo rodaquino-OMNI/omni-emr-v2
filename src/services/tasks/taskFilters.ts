@@ -13,38 +13,50 @@ export interface TaskFilter {
 }
 
 export const filterTasks = async (filter: TaskFilter): Promise<Task[]> => {
-  let filteredTasks = [...mockTasks];
+  // Optimize by creating a single filter function that combines all criteria
+  const now = new Date();
   
-  if (filter.patientId) {
-    filteredTasks = filteredTasks.filter(task => task.patientId === filter.patientId);
+  // Fast path for no filters
+  if (!hasActiveFilters(filter)) {
+    const sortedTasks = [...mockTasks].sort(
+      (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    );
+    return sortedTasks;
   }
-  
-  if (filter.sector) {
-    filteredTasks = filteredTasks.filter(task => task.sector === filter.sector);
-  }
-  
-  if (filter.status) {
-    filteredTasks = filteredTasks.filter(task => task.status === filter.status);
-  }
-  
-  if (filter.priority) {
-    filteredTasks = filteredTasks.filter(task => task.priority === filter.priority);
-  }
-  
-  if (filter.type) {
-    filteredTasks = filteredTasks.filter(task => task.type === filter.type);
-  }
-  
-  if (filter.showDelayed) {
-    const now = new Date();
-    filteredTasks = filteredTasks.filter(task => {
+
+  // Filter in a single pass through the array
+  const filteredTasks = mockTasks.filter(task => {
+    // Check each filter criteria
+    if (filter.patientId && task.patientId !== filter.patientId) return false;
+    if (filter.sector && task.sector !== filter.sector) return false;
+    if (filter.status && task.status !== filter.status) return false;
+    if (filter.priority && task.priority !== filter.priority) return false;
+    if (filter.type && task.type !== filter.type) return false;
+    
+    // Special handling for delayed tasks
+    if (filter.showDelayed) {
       const dueDate = new Date(task.dueDate);
-      return dueDate < now && task.status === 'pending';
-    });
-  }
+      if (!(dueDate < now && task.status === 'pending')) return false;
+    }
+    
+    // If we made it here, the task passed all filters
+    return true;
+  });
   
   // Sort by due date (ascending)
-  filteredTasks.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-  
-  return filteredTasks;
+  return filteredTasks.sort(
+    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+  );
 };
+
+// Helper function to check if any filters are active
+function hasActiveFilters(filter: TaskFilter): boolean {
+  return Boolean(
+    filter.patientId || 
+    filter.sector || 
+    filter.status || 
+    filter.priority || 
+    filter.type || 
+    filter.showDelayed
+  );
+}

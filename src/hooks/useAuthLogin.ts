@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Session, Provider } from '@supabase/supabase-js';
 import { User, UserRole, Language } from '../types/auth';
-import { signInWithProvider, signInWithEmail, signUpWithEmail, mapSupabaseUserToUser } from '../utils/authUtils';
+import { signInWithProvider, signInWithEmail, signUpWithEmail } from '../utils/authUtils';
 import { generateCSRFToken } from '../utils/csrfUtils';
 import { toast } from 'sonner';
 
@@ -14,6 +14,21 @@ export const useAuthLogin = (
   resetLoginAttempts: () => void,
   language: Language
 ) => {
+  // Common error handler function to reduce duplication
+  const handleAuthError = (error: any, context: string) => {
+    console.error(`${context} error:`, error);
+    
+    const errorMessage = error?.message || 
+      (language === 'pt' ? 'Erro de autenticação' : 'Authentication error');
+      
+    toast.error(
+      language === 'pt' ? `Erro de ${context}` : `${context} error`, 
+      { description: errorMessage }
+    );
+    
+    throw error;
+  };
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     
@@ -23,35 +38,31 @@ export const useAuthLogin = (
       
       console.log('Attempting login with email:', email);
       const { user: authUser, session: authSession } = await signInWithEmail(email, password);
-      console.log('Login response:', { authUser, authSession });
       
-      if (authUser) {
-        // For mock users, authUser will already be our User type
-        if ('role' in authUser) {
-          console.log('Setting mock user:', authUser);
-          setUser(authUser as unknown as User);
-        } else {
-          // Need to await since mapSupabaseUserToUser returns a Promise<User>
-          console.log('Mapping Supabase user to our User type');
-          const mappedUser = await mapSupabaseUserToUser(authUser);
-          console.log('Mapped user:', mappedUser);
-          setUser(mappedUser);
-        }
-        
-        setSession(authSession);
-        
-        // Reset login attempts on successful login
-        resetLoginAttempts();
-      } else {
-        console.error('No user returned from login');
+      if (!authUser) {
         throw new Error(language === 'pt' 
           ? 'Falha ao fazer login: Credenciais inválidas' 
           : 'Login failed: Invalid credentials');
       }
+      
+      // Process user data
+      if ('role' in authUser) {
+        // For mock users
+        setUser(authUser as unknown as User);
+      } else {
+        // For real Supabase users
+        const mappedUser = await import('../utils/authUtils').then(
+          module => module.mapSupabaseUserToUser(authUser)
+        );
+        setUser(mappedUser);
+      }
+      
+      setSession(authSession);
+      
+      // Reset login attempts on successful login
+      resetLoginAttempts();
     } catch (error) {
-      console.error('Login error:', error);
-      setIsLoading(false);
-      throw error; // Let the component handle the error display
+      handleAuthError(error, language === 'pt' ? 'login' : 'login');
     } finally {
       setIsLoading(false);
     }
@@ -61,22 +72,10 @@ export const useAuthLogin = (
     try {
       // Generate new CSRF token for the OAuth flow
       generateCSRFToken();
-      
       await signInWithProvider(provider);
-      // No need to set user or session here, the auth state change listener will handle it
+      // Auth state change listener will handle user/session updates
     } catch (error) {
-      console.error('Social login error:', error);
-      
-      // Display error to user
-      toast.error(language === 'pt'
-        ? 'Erro de login social'
-        : 'Social login error', {
-        description: language === 'pt' 
-          ? `Não foi possível fazer login com ${provider}.`
-          : `Could not sign in with ${provider}.`
-      });
-      
-      throw error;
+      handleAuthError(error, language === 'pt' ? 'login social' : 'social login');
     }
   };
 
@@ -87,9 +86,7 @@ export const useAuthLogin = (
     setIsLoading(true);
     
     try {
-      console.log('Starting signup process in useAuthLogin:', { email, name, role });
       const result = await signUpWithEmail(email, password, name, role);
-      console.log('Signup result:', result);
       
       // Show success message
       toast.success(language === 'pt' 
@@ -107,19 +104,16 @@ export const useAuthLogin = (
         session: result.session
       };
     } catch (error: any) {
-      console.error('Signup error:', error);
-      
+      // Handle specific Supabase errors
       let errorMessage = error.message || 
         (language === 'pt' ? 'Falha ao criar conta' : 'Failed to create account');
         
-      // Handle specific Supabase errors
       if (error.message?.includes('User already registered')) {
         errorMessage = language === 'pt' 
           ? 'Este email já está registrado' 
           : 'This email is already registered';
       }
       
-      // Show error to user via toast (component will also display the error)
       toast.error(language === 'pt' ? 'Erro de registro' : 'Registration error', {
         description: errorMessage
       });

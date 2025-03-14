@@ -18,6 +18,8 @@ export const useOrderAlertsCheck = () => {
   const [showAIModal, setShowAIModal] = useState(false);
   
   const checkForAlerts = async (activeTab: OrderType, orderData: any) => {
+    if (isSubmitting) return { hasAlerts: false, alerts: [] };
+    
     setIsSubmitting(true);
     
     try {
@@ -25,51 +27,25 @@ export const useOrderAlertsCheck = () => {
       // Simulating API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Simulating AI-generated alerts for demonstration
-      if (activeTab === 'medication') {
-        const medicationName = orderData.medication?.medicationName?.toLowerCase() || '';
-        
-        // Generate mock alerts based on medication name
-        if (medicationName.includes('warfarin') || medicationName.includes('coumadin')) {
-          setAlerts([
-            {
-              type: 'warning',
-              message: 'Potential interaction with patient\'s current aspirin therapy. Consider monitoring INR more frequently.',
-              overridden: false
-            }
-          ]);
-        } else if (medicationName.includes('penicillin') || medicationName.includes('amoxicillin')) {
-          setAlerts([
-            {
-              type: 'critical',
-              message: 'Patient has documented penicillin allergy. Consider alternative antibiotic.',
-              overridden: false
-            }
-          ]);
-        } else if (medicationName && Math.random() > 0.5) {
-          // Random warning for demo purposes
-          setAlerts([
-            {
-              type: 'info',
-              message: 'This medication may cause drowsiness. Advise patient to avoid driving.',
-              overridden: false
-            }
-          ]);
-        } else {
-          setAlerts([]);
-        }
-      } else {
-        // For other order types
-        setAlerts([]);
-      }
+      // Generate new alerts based on the order data
+      const newAlerts = generateMockAlerts(activeTab, orderData);
       
-      // Show AI verification modal only if there are alerts
-      const hasAlerts = alerts.length > 0;
+      // Update state with new alerts
+      setAlerts(newAlerts);
+      
+      // Determine if we need to show the AI modal
+      const hasAlerts = newAlerts.length > 0;
       setShowAIModal(hasAlerts);
-      return { hasAlerts, alerts };
+      
+      return { hasAlerts, alerts: newAlerts };
       
     } catch (error) {
       console.error('Error checking for alerts:', error);
+      
+      // Clear alerts in case of error
+      setAlerts([]);
+      
+      // Show error toast
       toast({
         variant: 'destructive',
         title: language === 'pt' ? 'Erro' : 'Error',
@@ -77,6 +53,7 @@ export const useOrderAlertsCheck = () => {
           ? 'Falha ao verificar alertas. Deseja prosseguir mesmo assim?' 
           : 'Failed to check for alerts. Do you want to proceed anyway?'
       });
+      
       return { hasAlerts: false, alerts: [] };
     } finally {
       setIsSubmitting(false);
@@ -99,6 +76,36 @@ export const useOrderAlertsCheck = () => {
     }
     
     return proceed ? alerts : null;
+  };
+  
+  // Extracted function to generate mock alerts based on order data
+  const generateMockAlerts = (activeTab: OrderType, orderData: any): OrderAlert[] => {
+    if (activeTab === 'medication') {
+      const medicationName = orderData.medication?.medicationName?.toLowerCase() || '';
+      
+      if (medicationName.includes('warfarin') || medicationName.includes('coumadin')) {
+        return [{
+          type: 'warning',
+          message: 'Potential interaction with patient\'s current aspirin therapy. Consider monitoring INR more frequently.',
+          overridden: false
+        }];
+      } else if (medicationName.includes('penicillin') || medicationName.includes('amoxicillin')) {
+        return [{
+          type: 'critical',
+          message: 'Patient has documented penicillin allergy. Consider alternative antibiotic.',
+          overridden: false
+        }];
+      } else if (medicationName && Math.random() > 0.5) {
+        // Random warning for demo purposes
+        return [{
+          type: 'info',
+          message: 'This medication may cause drowsiness. Advise patient to avoid driving.',
+          overridden: false
+        }];
+      }
+    }
+    
+    return [];
   };
   
   return {

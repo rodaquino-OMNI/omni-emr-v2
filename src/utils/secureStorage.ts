@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 // be derived from user-specific information in a secure way
 const SECRET_KEY = 'OMNICare-Session-Security-Key';
 
+// Track if we're currently in an error state to prevent recursion
+let errorHandling = false;
+
 export const secureStorage = {
   setItem: <T>(key: string, value: T): void => {
     try {
@@ -16,12 +19,37 @@ export const secureStorage = {
     } catch (error) {
       console.error('Error encrypting and storing data:', error);
       
-      // Show a toast only to admin users to prevent information leakage
-      const userRole = secureStorage.getItem<string>('user_role', '');
-      if (userRole === 'admin') {
-        toast.error('Storage encryption error', {
-          description: 'Failed to securely store data. This may affect application security.'
-        });
+      // Only show toast if we're not already handling an error
+      if (!errorHandling) {
+        errorHandling = true;
+        
+        try {
+          // Try to get user role directly from sessionStorage to avoid recursion
+          const encryptedRole = sessionStorage.getItem('user_role');
+          let userRole = '';
+          
+          if (encryptedRole) {
+            try {
+              const bytes = CryptoJS.AES.decrypt(encryptedRole, SECRET_KEY);
+              const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+              if (decryptedString) {
+                userRole = JSON.parse(decryptedString);
+              }
+            } catch (innerError) {
+              // Silently fail on decrypt error
+              console.error('Error decrypting role during error handling', innerError);
+            }
+          }
+          
+          // Only show toast to admin users
+          if (userRole === 'admin') {
+            toast.error('Storage encryption error', {
+              description: 'Failed to securely store data. This may affect application security.'
+            });
+          }
+        } finally {
+          errorHandling = false;
+        }
       }
     }
   },
@@ -39,12 +67,37 @@ export const secureStorage = {
     } catch (error) {
       console.error('Error decrypting and retrieving data:', error);
       
-      // Show a toast only to admin users to prevent information leakage
-      const userRole = secureStorage.getItem<string>('user_role', '');
-      if (userRole === 'admin') {
-        toast.error('Storage decryption error', {
-          description: 'Failed to retrieve securely stored data. This may affect application security.'
-        });
+      // Only show toast if we're not already handling an error
+      if (!errorHandling) {
+        errorHandling = true;
+        
+        try {
+          // Try to get user role directly from sessionStorage to avoid recursion
+          const encryptedRole = sessionStorage.getItem('user_role');
+          let userRole = '';
+          
+          if (encryptedRole) {
+            try {
+              const bytes = CryptoJS.AES.decrypt(encryptedRole, SECRET_KEY);
+              const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+              if (decryptedString) {
+                userRole = JSON.parse(decryptedString);
+              }
+            } catch (innerError) {
+              // Silently fail on decrypt error
+              console.error('Error decrypting role during error handling', innerError);
+            }
+          }
+          
+          // Only show toast to admin users
+          if (userRole === 'admin') {
+            toast.error('Storage decryption error', {
+              description: 'Failed to retrieve securely stored data. This may affect application security.'
+            });
+          }
+        } finally {
+          errorHandling = false;
+        }
       }
       
       return defaultValue;
