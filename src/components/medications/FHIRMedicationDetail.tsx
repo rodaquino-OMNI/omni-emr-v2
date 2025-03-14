@@ -4,6 +4,7 @@ import { AlertTriangle, Clock, Calendar, Info, User, FileText } from 'lucide-rea
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { extractPractitionerName } from '@/utils/fhir/fhirExtractors';
 
 interface FHIRMedicationDetailProps {
   medicationRequestId: string;
@@ -40,12 +41,8 @@ const FHIRMedicationDetail = ({ medicationRequestId }: FHIRMedicationDetailProps
             .eq('id', medicationData.requester_id)
             .single();
             
-          if (practitionerData && practitionerData.name) {
-            // Extract practitioner name from FHIR format
-            const nameObj = typeof practitionerData.name === 'object' ? practitionerData.name : {};
-            const given = Array.isArray(nameObj.given) ? nameObj.given.join(' ') : '';
-            const family = nameObj.family || '';
-            setPractitionerName(`${given} ${family}`.trim() || 'Unknown Provider');
+          if (practitionerData) {
+            setPractitionerName(extractPractitionerName(practitionerData));
           }
         }
         

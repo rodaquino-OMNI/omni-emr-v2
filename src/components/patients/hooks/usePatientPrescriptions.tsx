@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { extractTextFromCodeableConcept } from '@/utils/fhir/fhirExtractors';
 
 export const usePatientPrescriptions = (patientId: string) => {
-  const [prescriptions, setPrescriptions] = useState([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
@@ -35,7 +36,7 @@ export const usePatientPrescriptions = (patientId: string) => {
           
           // Transform legacy data to match our new format
           const transformedData = legacyData?.flatMap(prescription => 
-            prescription.prescription_items.map(item => ({
+            prescription.prescription_items.map((item: any) => ({
               id: item.id,
               name: item.name,
               dosage: item.dosage,
@@ -52,12 +53,12 @@ export const usePatientPrescriptions = (patientId: string) => {
           setPrescriptions(transformedData);
         } else {
           // Transform FHIR data
-          const transformedFhirData = medicationRequests.map(req => {
-            // Fix: Handle potentially undefined or null values safely
-            const medicationCodeableConcept = req.medication_codeable_concept || {};
-            const medicationName = typeof medicationCodeableConcept === 'object' && 'text' in medicationCodeableConcept 
-              ? String(medicationCodeableConcept.text)
-              : '';
+          const transformedFhirData = medicationRequests.map((req: any) => {
+            // Safely extract medication name using our utility function
+            const medicationName = extractTextFromCodeableConcept(
+              req.medication_codeable_concept, 
+              'Unknown Medication'
+            );
               
             // Safely get first dosage instruction
             const dosageInstructions = Array.isArray(req.dosage_instruction) ? req.dosage_instruction : [];
