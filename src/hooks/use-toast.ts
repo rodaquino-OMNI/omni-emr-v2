@@ -19,7 +19,7 @@ export const toast = {
   default: (message: string, options?: ToastOptions) => sonnerToast(message, options),
   
   // Allow direct invocation for default toast
-  (message: string, options?: ToastOptions) => sonnerToast(message, options)
+  (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options)
 };
 
 export const useToast = () => {
