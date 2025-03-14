@@ -4,22 +4,26 @@ import { Prescription, PrescriptionItem } from './types';
 
 // Helper function to transform Supabase prescription data to our app format
 export const transformPrescription = async (prescription: any): Promise<Prescription> => {
+  if (!prescription) {
+    throw new Error("Cannot transform undefined or null prescription");
+  }
+
   // Fetch patient name from profiles
   const { data: patientData } = await supabase
     .from('profiles')
     .select('name')
     .eq('id', prescription.patient_id)
-    .single();
+    .maybeSingle();
 
   // Fetch doctor name from profiles  
   const { data: doctorData } = await supabase
     .from('profiles')
     .select('name')
     .eq('id', prescription.doctor_id)
-    .single();
+    .maybeSingle();
 
   // Fetch prescription items
-  const { data: items } = await supabase
+  const { data: items = [] } = await supabase
     .from('prescription_items')
     .select('*')
     .eq('prescription_id', prescription.id);

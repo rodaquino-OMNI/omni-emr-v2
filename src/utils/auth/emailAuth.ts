@@ -7,6 +7,11 @@ import { mapSupabaseUserToUser } from '../userMappingUtils';
 
 export const signInWithEmail = async (email: string, password: string) => {
   try {
+    // Basic validation
+    if (!email || !password) {
+      throw new Error('Email and password are required');
+    }
+    
     // Check if this is a mock user
     const mockUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
     
@@ -46,6 +51,12 @@ export const signInWithEmail = async (email: string, password: string) => {
     });
     
     if (error) throw error;
+    
+    // If data is null or undefined, create an empty response to prevent destructuring errors
+    if (!data) {
+      console.warn('Supabase returned null data for email sign-in');
+      return { user: null, session: null };
+    }
     
     // Log audit event for real user login
     if (data?.user) {

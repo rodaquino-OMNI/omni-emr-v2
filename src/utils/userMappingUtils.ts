@@ -26,7 +26,7 @@ export const mapSupabaseUserToUser = async (supabaseUser: any): Promise<User | n
     
     // If profile exists, use it
     if (profile) {
-      const role = profile.role as UserRole;
+      const role = (profile.role as UserRole) || 'patient';
       return {
         id: supabaseUser.id,
         email: profile.email || supabaseUser.email || '',
@@ -37,11 +37,12 @@ export const mapSupabaseUserToUser = async (supabaseUser: any): Promise<User | n
     }
     
     // Fallback to metadata if profile doesn't exist
-    const role = (supabaseUser.user_metadata?.role as UserRole) || 'patient';
+    const metadata = supabaseUser.user_metadata || {};
+    const role = (metadata.role as UserRole) || 'patient';
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      name: supabaseUser.user_metadata?.name || 'User',
+      name: metadata.name || 'User',
       role: role,
       permissions: rolePermissions[role] || []
     };
@@ -49,11 +50,12 @@ export const mapSupabaseUserToUser = async (supabaseUser: any): Promise<User | n
     console.error('Error mapping Supabase user:', error);
     
     // Fallback to basic mapping
-    const role = (supabaseUser.user_metadata?.role as UserRole) || 'patient';
+    const metadata = supabaseUser.user_metadata || {};
+    const role = (metadata.role as UserRole) || 'patient';
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      name: supabaseUser.user_metadata?.name || 'User',
+      name: metadata.name || 'User',
       role: role,
       permissions: rolePermissions[role] || []
     };

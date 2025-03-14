@@ -33,14 +33,26 @@ export function useAsync<T>(initialData: T | null = null): AsyncState<T> {
     errorMessage?: string
   ): Promise<T | null> => {
     try {
+      if (!promise || typeof promise.then !== 'function') {
+        console.error("Invalid promise passed to useAsync.run", promise);
+        throw new Error("Invalid promise passed to run function");
+      }
+      
       setIsLoading(true);
       setError(null);
       
       const result = await promise;
+      
+      // Ensure result is not undefined
+      if (result === undefined) {
+        console.warn("Promise resolved with undefined value");
+      }
+      
       setData(result);
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
+      console.error("Error in useAsync.run:", error);
       setError(error);
       
       if (errorMessage) {
@@ -48,7 +60,9 @@ export function useAsync<T>(initialData: T | null = null): AsyncState<T> {
           ? `Erro: ${errorMessage}`
           : `Error: ${errorMessage}`;
         
-        toast.error(message);
+        toast.error(message, {
+          description: error.message,
+        });
       }
       return null;
     } finally {
@@ -60,6 +74,8 @@ export function useAsync<T>(initialData: T | null = null): AsyncState<T> {
     if (!lastPromise) return null;
     
     const promise = lastPromise();
+    if (!promise) return null;
+    
     return run(promise);
   }, [lastPromise, run]);
   
