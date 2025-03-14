@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -23,10 +22,10 @@ const LaboratoryOrderForm = ({ onDataChange, data }: LaboratoryOrderFormProps) =
   const [formData, setFormData] = useState<Partial<LaboratoryOrder>>(data || {
     tests: [],
     frequency: 'once',
-    clinicalReason: ''
+    clinicalReason: '',
+    priority: 'routine'
   });
   
-  // Available frequency options
   const frequencyOptions = [
     { value: 'once', label: language === 'pt' ? 'Uma vez' : 'Once' },
     { value: 'daily', label: language === 'pt' ? 'Diariamente' : 'Daily' },
@@ -34,7 +33,6 @@ const LaboratoryOrderForm = ({ onDataChange, data }: LaboratoryOrderFormProps) =
     { value: 'monthly', label: language === 'pt' ? 'Mensalmente' : 'Monthly' }
   ];
   
-  // Mock lab tests
   const allLabTests = [
     { id: 'cbc', name: language === 'pt' ? 'Hemograma completo' : 'Complete Blood Count (CBC)' },
     { id: 'bmp', name: language === 'pt' ? 'Painel metabólico básico' : 'Basic Metabolic Panel (BMP)' },
@@ -50,16 +48,14 @@ const LaboratoryOrderForm = ({ onDataChange, data }: LaboratoryOrderFormProps) =
   ];
   
   useEffect(() => {
-    // Pass form data to parent component when it changes
     onDataChange(formData);
-  }, [formData]);
+  }, [formData, onDataChange]);
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
     
     if (term.length > 1) {
-      // Filter lab tests based on search term
       const results = allLabTests.filter(test => 
         test.name.toLowerCase().includes(term.toLowerCase())
       );
@@ -219,8 +215,8 @@ const LaboratoryOrderForm = ({ onDataChange, data }: LaboratoryOrderFormProps) =
             {language === 'pt' ? 'Prioridade' : 'Priority'}
           </Label>
           <RadioGroup 
-            defaultValue={formData.priority || "routine"}
-            onValueChange={(value) => handleInputChange('priority', value)}
+            value={formData.priority || "routine"}
+            onValueChange={(value: 'routine' | 'urgent' | 'stat') => handleInputChange('priority', value)}
           >
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center space-x-2">

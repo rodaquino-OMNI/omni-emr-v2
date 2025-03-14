@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,7 +25,10 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
-  const [formData, setFormData] = useState<Partial<MedicationOrder>>(data || {});
+  const [formData, setFormData] = useState<Partial<MedicationOrder>>(data || {
+    substitutionAllowed: true,
+    priority: 'routine'
+  });
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   
@@ -43,9 +45,9 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
         ? `${Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} days` 
         : formData.duration
     });
-  }, [formData, startDate, endDate]);
+  }, [formData, startDate, endDate, onDataChange]);
   
-  const handleInputChange = (field: keyof MedicationOrder, value: string) => {
+  const handleInputChange = (field: keyof MedicationOrder, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -105,7 +107,18 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
             id="medication-search"
             placeholder={language === 'pt' ? 'Digite para buscar...' : 'Type to search...'}
             value={searchTerm}
-            onChange={handleSearchChange}
+            onChange={(e) => {
+              const term = e.target.value;
+              setSearchTerm(term);
+              
+              if (term.length > 1) {
+                searchMedications(term);
+                setShowSearch(true);
+              } else {
+                setSearchResults([]);
+                setShowSearch(false);
+              }
+            }}
             className="pr-10"
           />
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -117,7 +130,14 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
                   <li 
                     key={med.id}
                     className="px-3 py-2 hover:bg-muted cursor-pointer"
-                    onClick={() => selectMedication(med)}
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        medicationName: med.name
+                      }));
+                      setSearchTerm(med.name);
+                      setShowSearch(false);
+                    }}
                   >
                     <div className="font-medium">{med.name}</div>
                     <div className="text-xs text-muted-foreground">{med.generic}</div>
@@ -244,7 +264,7 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
           {language === 'pt' ? 'Substituição Permitida' : 'Substitution Allowed'}
         </Label>
         <RadioGroup 
-          defaultValue={formData.substitutionAllowed?.toString() || "true"}
+          value={formData.substitutionAllowed ? "true" : "false"}
           onValueChange={(value) => handleInputChange('substitutionAllowed', value === 'true')}
         >
           <div className="flex items-center space-x-2">
@@ -267,8 +287,8 @@ const MedicationOrderForm = ({ onDataChange, data }: MedicationOrderFormProps) =
           {language === 'pt' ? 'Prioridade' : 'Priority'}
         </Label>
         <RadioGroup 
-          defaultValue={formData.priority || "routine"}
-          onValueChange={(value) => handleInputChange('priority', value)}
+          value={formData.priority || "routine"}
+          onValueChange={(value: 'routine' | 'urgent' | 'stat') => handleInputChange('priority', value)}
         >
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center space-x-2">
