@@ -18,8 +18,11 @@ type ToastFunction = {
   info: (message: string, options?: ToastOptions) => ToastT;
   default: (message: string, options?: ToastOptions) => ToastT;
   
-  // Also allow direct invocation as a function
+  // Direct invocation as a function
   (message: string, options?: ToastOptions): ToastT;
+  
+  // Add toast property for compatibility with shadcn/ui
+  toast: typeof sonnerToast;
 };
 
 // Create the toast object with function properties
@@ -28,16 +31,17 @@ export const toast: ToastFunction = Object.assign(
   (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options),
   // Methods
   {
-    success: (message: string, options?: ToastOptions) => sonnerToast.success(message, options),
-    error: (message: string, options?: ToastOptions) => sonnerToast.error(message, options),
-    warning: (message: string, options?: ToastOptions) => sonnerToast.warning(message, options),
-    info: (message: string, options?: ToastOptions) => sonnerToast.info(message, options),
-    default: (message: string, options?: ToastOptions) => sonnerToast(message, options),
+    success: (message: string, options?: ToastOptions): ToastT => sonnerToast.success(message, options),
+    error: (message: string, options?: ToastOptions): ToastT => sonnerToast.error(message, options),
+    warning: (message: string, options?: ToastOptions): ToastT => sonnerToast.warning(message, options),
+    info: (message: string, options?: ToastOptions): ToastT => sonnerToast.info(message, options),
+    default: (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options),
+    toast: sonnerToast
   }
 );
 
 export const useToast = () => {
-  const { language } = useTranslationHook();
+  const { language } = useLanguageHook();
   
   // Create toast function with translation support
   const translatedToast: ToastFunction & {
@@ -51,7 +55,8 @@ export const useToast = () => {
     networkError: () => ToastT;
     sessionExpired: () => ToastT;
     validationError: () => ToastT;
-    toasts?: any; // Add this property to make it compatible with Shadcn UI toast
+    toast: typeof sonnerToast;
+    toasts: any; // For shadcn/ui compatibility
   } = Object.assign(
     // Base function
     (message: string, options?: ToastOptions): ToastT => {
@@ -140,7 +145,7 @@ export const useToast = () => {
 };
 
 // Helper hook to get language without circular imports
-const useTranslationHook = () => {
+const useLanguageHook = () => {
   const context = useLanguage();
   return { language: context.language };
 };
