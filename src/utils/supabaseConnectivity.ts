@@ -1,6 +1,7 @@
 
 import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { verifyRequiredTables } from './supabaseTableCheck';
 
 // Global connection state
 let isConnected = false;
@@ -28,6 +29,9 @@ export const checkConnectivity = async (showToasts = false): Promise<boolean> =>
           description: 'Your application is properly connected to the backend.',
           duration: 3000,
         });
+        
+        // If connected, also verify tables exist
+        await verifyRequiredTables();
       } else {
         toast.error('Cannot connect to Supabase', {
           description: 'Check your internet connection or Supabase configuration.',

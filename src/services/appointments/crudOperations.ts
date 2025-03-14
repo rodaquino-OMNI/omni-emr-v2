@@ -1,6 +1,6 @@
 
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
-import { Appointment } from './types';
+import { Appointment, AppointmentStatus, AppointmentType } from './types';
 import { mockAppointments } from './mockData';
 
 // Get all appointments
@@ -17,7 +17,25 @@ export const getAllAppointments = async (): Promise<Appointment[]> => {
       return mockAppointments;
     }
     
-    return data as Appointment[];
+    // Map the database fields to our Appointment type
+    return data.map(row => ({
+      id: row.id,
+      patientId: row.patient_id,
+      patientName: row.patient_name,
+      providerId: row.provider_id,
+      providerName: row.provider_name,
+      title: row.title,
+      notes: row.notes,
+      date: row.date,
+      time: row.time,
+      duration: row.duration,
+      location: row.location,
+      type: row.type as AppointmentType,
+      status: row.status as AppointmentStatus,
+      reminder_sent: row.reminder_sent,
+      created_at: row.created_at,
+      updated_at: row.updated_at
+    }));
   } catch (error) {
     console.error('Exception fetching appointments:', error);
     // Fall back to mock data if there's an exception
@@ -40,7 +58,25 @@ export const getAppointmentsByDate = async (date: string): Promise<Appointment[]
       return mockAppointments.filter(a => a.date === date);
     }
     
-    return data as Appointment[];
+    // Map the database fields to our Appointment type
+    return data.map(row => ({
+      id: row.id,
+      patientId: row.patient_id,
+      patientName: row.patient_name,
+      providerId: row.provider_id,
+      providerName: row.provider_name,
+      title: row.title,
+      notes: row.notes,
+      date: row.date,
+      time: row.time,
+      duration: row.duration,
+      location: row.location,
+      type: row.type as AppointmentType,
+      status: row.status as AppointmentStatus,
+      reminder_sent: row.reminder_sent,
+      created_at: row.created_at,
+      updated_at: row.updated_at
+    }));
   } catch (error) {
     console.error('Exception fetching appointments by date:', error);
     // Fall back to mock data if there's an exception
@@ -65,13 +101,23 @@ export const getAppointmentsByPatient = async (patientId: string): Promise<Appoi
     }
     
     return data.map(row => ({
-      ...row,
+      id: row.id,
       patientId: row.patient_id,
-      providerId: row.provider_id,
       patientName: row.patient_name,
+      providerId: row.provider_id,
       providerName: row.provider_name,
-      reminder_sent: row.reminder_sent
-    })) as Appointment[];
+      title: row.title,
+      notes: row.notes,
+      date: row.date,
+      time: row.time,
+      duration: row.duration,
+      location: row.location,
+      type: row.type as AppointmentType,
+      status: row.status as AppointmentStatus,
+      reminder_sent: row.reminder_sent,
+      created_at: row.created_at,
+      updated_at: row.updated_at
+    }));
   } catch (error) {
     console.error('Exception fetching appointments by patient:', error);
     // Fall back to mock data if there's an exception
@@ -96,13 +142,23 @@ export const getAppointmentsByProvider = async (providerId: string): Promise<App
     }
     
     return data.map(row => ({
-      ...row,
+      id: row.id,
       patientId: row.patient_id,
-      providerId: row.provider_id,
       patientName: row.patient_name,
+      providerId: row.provider_id,
       providerName: row.provider_name,
-      reminder_sent: row.reminder_sent
-    })) as Appointment[];
+      title: row.title,
+      notes: row.notes,
+      date: row.date,
+      time: row.time,
+      duration: row.duration,
+      location: row.location,
+      type: row.type as AppointmentType,
+      status: row.status as AppointmentStatus,
+      reminder_sent: row.reminder_sent,
+      created_at: row.created_at,
+      updated_at: row.updated_at
+    }));
   } catch (error) {
     console.error('Exception fetching appointments by provider:', error);
     // Fall back to mock data if there's an exception
@@ -174,8 +230,8 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
       time: data.time,
       duration: data.duration,
       location: data.location,
-      type: data.type,
-      status: data.status,
+      type: data.type as AppointmentType,
+      status: data.status as AppointmentStatus,
       reminder_sent: data.reminder_sent,
       created_at: data.created_at,
       updated_at: data.updated_at
@@ -295,8 +351,8 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
       time: data.time,
       duration: data.duration,
       location: data.location,
-      type: data.type,
-      status: data.status,
+      type: data.type as AppointmentType,
+      status: data.status as AppointmentStatus,
       reminder_sent: data.reminder_sent,
       created_at: data.created_at,
       updated_at: data.updated_at
