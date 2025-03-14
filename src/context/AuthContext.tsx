@@ -30,6 +30,9 @@ interface AuthContextType {
   session: Session | null;
   hasPermission: (permission: string) => boolean;
   canAccessPatientData: (patientId: string) => boolean;
+  lastActivity?: number;
+  sessionTimeoutMinutes?: number;
+  setSessionTimeoutMinutes?: (minutes: number) => void;
 }
 
 // Create context with a default undefined value

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { toast } from 'sonner';
@@ -9,12 +10,14 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 import { secureStorage } from '@/utils/secureStorage';
 import { checkConnectivity } from '@/utils/supabaseConnectivity';
+import { Phone, Mail } from 'lucide-react';
 
 // Import our components
 import LoginHeader from '@/components/auth/LoginHeader';
 import LanguageToggle from '@/components/auth/LanguageToggle';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
 import EmailLoginForm from '@/components/auth/EmailLoginForm';
+import PhoneLoginForm from '@/components/auth/PhoneLoginForm';
 import { useLoginForm } from '@/hooks/useLoginForm';
 import SupabaseConnectionStatus from '@/components/ui/SupabaseConnectionStatus';
 
@@ -29,13 +32,23 @@ const Login = () => {
     setEmail,
     password,
     setPassword,
+    phone,
+    setPhone,
+    verificationCode,
+    setVerificationCode,
     isSubmitting,
     validationErrors,
     setValidationErrors,
     handleSubmit,
+    handlePhoneSubmit,
+    handleVerifySubmit,
     handleSocialLogin,
     forgotPassword,
-    toggleForgotPassword
+    toggleForgotPassword,
+    usePhoneLogin,
+    togglePhoneLogin,
+    verificationSent,
+    resetForm
   } = useLoginForm();
   
   // Check Supabase connectivity on page load
@@ -98,7 +111,7 @@ const Login = () => {
                 />
               </div>
 
-              {!forgotPassword && (
+              {!forgotPassword && !usePhoneLogin && (
                 <>
                   <SocialLoginButtons 
                     isSubmitting={isSubmitting}
@@ -119,20 +132,64 @@ const Login = () => {
                 </>
               )}
               
-              <EmailLoginForm
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                handleSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
-                validationErrors={validationErrors}
-                setValidationErrors={setValidationErrors}
-                language={language}
-                t={t}
-                forgotPassword={forgotPassword}
-                toggleForgotPassword={toggleForgotPassword}
-              />
+              {/* Toggle between email and phone login */}
+              {!forgotPassword && (
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    type="button"
+                    variant={usePhoneLogin ? "outline" : "default"}
+                    className="flex-1"
+                    onClick={() => usePhoneLogin && togglePhoneLogin()}
+                    disabled={isSubmitting || !usePhoneLogin}
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    {language === 'pt' ? 'Email' : 'Email'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={usePhoneLogin ? "default" : "outline"}
+                    className="flex-1"
+                    onClick={() => !usePhoneLogin && togglePhoneLogin()}
+                    disabled={isSubmitting || usePhoneLogin}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    {language === 'pt' ? 'Telefone' : 'Phone'}
+                  </Button>
+                </div>
+              )}
+              
+              {usePhoneLogin ? (
+                <PhoneLoginForm
+                  phone={phone}
+                  setPhone={setPhone}
+                  verificationCode={verificationCode}
+                  setVerificationCode={setVerificationCode}
+                  handlePhoneSubmit={handlePhoneSubmit}
+                  handleVerifySubmit={handleVerifySubmit}
+                  isSubmitting={isSubmitting}
+                  verificationSent={verificationSent}
+                  validationErrors={validationErrors}
+                  setValidationErrors={setValidationErrors}
+                  language={language}
+                  t={t}
+                  resetForm={resetForm}
+                />
+              ) : (
+                <EmailLoginForm
+                  email={email}
+                  setEmail={setEmail}
+                  password={password}
+                  setPassword={setPassword}
+                  handleSubmit={handleSubmit}
+                  isSubmitting={isSubmitting}
+                  validationErrors={validationErrors}
+                  setValidationErrors={setValidationErrors}
+                  language={language}
+                  t={t}
+                  forgotPassword={forgotPassword}
+                  toggleForgotPassword={toggleForgotPassword}
+                />
+              )}
             </div>
             
             <div className="mt-4 text-center text-xs text-muted-foreground">
