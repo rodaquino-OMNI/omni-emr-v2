@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -159,7 +160,8 @@ export const useLoginForm = () => {
     try {
       const result = await signInWithPhone(phone);
       
-      if ('data' in result && result.success) {
+      // Safely check the shape of the result
+      if (result && 'success' in result && result.success) {
         setVerificationSent(true);
         toast.success(
           language === 'pt' ? "Código enviado" : "Code sent",
@@ -169,7 +171,7 @@ export const useLoginForm = () => {
               : "A verification code has been sent to your phone."
           }
         );
-      } else if ('user' in result && result.user) {
+      } else if (result && 'user' in result && result.user) {
         toast.success(
           language === 'pt' ? "Login bem-sucedido" : "Login successful",
           {

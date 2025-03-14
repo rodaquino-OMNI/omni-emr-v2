@@ -1,3 +1,4 @@
+
 import { Session, Provider } from '@supabase/supabase-js';
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 import { User, UserRole } from '../types/auth';
@@ -104,7 +105,8 @@ export const signInWithPhone = async (phone: string, password?: string) => {
         { method: 'phone' }
       );
       
-      return { data, success: true };
+      // Return an object with a consistent format that includes success flag
+      return { data, success: true, user: null, session: null };
     } else {
       // This is a login flow with phone + password
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -131,7 +133,7 @@ export const signInWithPhone = async (phone: string, password?: string) => {
         }
       }
       
-      return data;
+      return { ...data, success: true };
     }
   } catch (error) {
     console.error('Phone sign-in error:', error);
