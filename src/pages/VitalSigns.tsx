@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
@@ -19,13 +20,15 @@ const MOCK_PATIENTS = [
   { id: '4', name: 'Sarah Williams', mrn: 'MRN004', age: 29, gender: 'Female', roomNumber: '201' },
 ];
 
+type PatientData = typeof MOCK_PATIENTS[0];
+
 const VitalSigns = () => {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { canManagePatientFluidBalance } = usePermissions(user);
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
   
-  const fetchPatients = async () => {
+  const fetchPatients = async (): Promise<PatientData[]> => {
     try {
       // In a real implementation, we would fetch from Supabase
       // const { data, error } = await supabase.from('patients').select('id, first_name, last_name, mrn, date_of_birth, gender');
@@ -48,7 +51,7 @@ const VitalSigns = () => {
     }
   };
   
-  const { data: patients, isLoading } = useAsync<typeof MOCK_PATIENTS>(fetchPatients);
+  const { data: patients, isLoading } = useAsync<PatientData>(fetchPatients);
   
   return (
     <div className="min-h-screen flex bg-background">
