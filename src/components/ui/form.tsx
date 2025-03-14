@@ -40,7 +40,18 @@ const FormField = <
   )
 }
 
-const useFormField = () => {
+// Define a proper return type for useFormField
+interface UseFormFieldReturn {
+  id: string
+  name: string
+  formItemId: string
+  formDescriptionId: string
+  formMessageId: string
+  formItemHasError: boolean
+  error?: { message?: string }
+}
+
+const useFormField = (): UseFormFieldReturn => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
   const formContext = useFormContext()
@@ -57,6 +68,7 @@ const useFormField = () => {
       formDescriptionId: "",
       formMessageId: "",
       formItemHasError: false,
+      error: undefined
     }
   }
 
@@ -64,7 +76,7 @@ const useFormField = () => {
   
   // Safe destructuring with fallback
   const formState = formContext?.formState || {}
-  const { errors } = formState
+  const errors = formState.errors || {}
 
   // Only try to access errors if name exists and errors object exists
   const error = name && errors ? errors[name] : undefined
@@ -81,6 +93,7 @@ const useFormField = () => {
     formDescriptionId,
     formMessageId,
     formItemHasError: !!error,
+    error
   }
 }
 
