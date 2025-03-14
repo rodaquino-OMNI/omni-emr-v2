@@ -1,26 +1,159 @@
 
 import { UserRole } from '../types/auth';
 
-/**
- * Category-based permissions for improved organization
- */
+// Define all permissions by category for better organization
 export const permissionCategories = {
-  clinical: 'Clinical activities and decisions',
-  nursing: 'Nursing care and documentation',
-  administrative: 'Administrative tasks',
-  system: 'System administration',
-  pharmacy: 'Pharmacy operations',
-  laboratory: 'Laboratory functions',
-  radiology: 'Radiology functions',
-  patient: 'Patient self-service',
-  shared: 'Shared functionality',
-  access: 'Access control'
+  // Clinical assessment and documentation
+  clinical: [
+    'create_clinical_notes',
+    'edit_records',
+    'finalize_clinical_documentation',
+    'sign_clinical_notes',
+    'perform_initial_assessment',
+    'perform_ongoing_assessment',
+    'document_medical_decision_making',
+    'create_diagnoses',
+    'update_problem_list',
+    'document_clinical_findings',
+    'create_treatment_plan'
+  ],
+  
+  // Medication management
+  medication: [
+    'prescribe_medications',
+    'administer_medications',
+    'verify_medications',
+    'medication_reconciliation',
+    'check_medication_interactions',
+    'document_medication_effectiveness',
+    'document_adverse_reactions'
+  ],
+  
+  // Diagnostic and laboratory
+  diagnostic: [
+    'order_diagnostic_tests',
+    'create_order_sets',
+    'specify_test_urgency',
+    'document_results_context',
+    'alert_critical_values',
+    'perform_laboratory_tests',
+    'enter_test_results'
+  ],
+  
+  // Patient care
+  care: [
+    'document_vital_signs',
+    'document_fluid_balance',
+    'manage_fluid_balance',
+    'create_care_plan',
+    'implement_care_plan',
+    'manage_care_transitions',
+    'document_nursing_interventions',
+    'provide_patient_education'
+  ],
+  
+  // Emergency care
+  emergency: [
+    'perform_triage',
+    'assign_acuity_level',
+    'perform_emergency_treatment',
+    'order_emergent_diagnostics',
+    'implement_emergency_protocols',
+    'document_emergency_care'
+  ],
+  
+  // Telemedicine
+  telemedicine: [
+    'telemedicine',
+    'conduct_virtual_visit',
+    'document_telemedicine_findings',
+    'manage_remote_care'
+  ],
+  
+  // Hospital workflows
+  hospital: [
+    'determine_discharge_readiness',
+    'create_discharge_orders',
+    'complete_discharge_summary',
+    'perform_admission_assessment',
+    'document_inpatient_care',
+    'coordinate_home_care'
+  ],
+  
+  // Access controls
+  access: [
+    'view_patients',
+    'edit_patients',
+    'view_records',
+    'edit_records',
+    'view_medications',
+    'view_own_medications',
+    'view_lab_orders',
+    'view_lab_results',
+    'view_imaging_orders',
+    'view_imaging_results',
+    'view_schedule',
+    'view_own_appointments',
+    'view_messages',
+    'view_vitals',
+    'view_own_vitals',
+    'view_fluid_balance',
+    'view_own_fluid_balance',
+    'view_all_patients',
+    'view_assigned_patients',
+    'view_specialty_patients',
+    'view_analytics',
+    'view_orders',
+    'view_allergies',
+    'view_diagnoses',
+    'view_care_plans',
+    'view_appointments',
+    'view_own_records'
+  ],
+  
+  // Actions
+  actions: [
+    'create_orders',
+    'sign_orders',
+    'schedule_appointments',
+    'schedule_own_appointments',
+    'request_appointments',
+    'manage_appointments',
+    'document_assessments',
+    'document_assisted_care',
+    'order_specialty_tests',
+    'assist_patient_care',
+    'message_care_team',
+    'triage_patient_messages',
+    'respond_clinical_messages',
+    'approve_refill_requests'
+  ],
+  
+  // Patient portal
+  portal: [
+    'upload_home_monitoring',
+    'report_symptoms',
+    'request_medication_refills',
+    'complete_questionnaires',
+    'update_personal_demographics'
+  ],
+  
+  // Administrative
+  administrative: [
+    'manage_demographic_info',
+    'view_insurance_info',
+    'manage_billing_info',
+    'register_patients',
+    'verify_insurance',
+    'process_referrals'
+  ]
 };
 
-/**
- * Permissions shared by all authenticated users
- */
-export const sharedPermissions: string[] = [
+// Flatten all permissions for easier lookup
+export const allPermissions = Object.values(permissionCategories).flat();
+
+// Shared permissions that all authenticated users have
+export const sharedPermissions = [
   'system_login',
   'manage_password',
   'view_notifications',
@@ -38,113 +171,274 @@ export const sharedPermissions: string[] = [
   'check_system_status'
 ];
 
-/**
- * Role-based permission assignments - used as fallback when database isn't available
- */
+// Define role-specific permissions
 export const rolePermissions: Record<UserRole, string[]> = {
-  admin: ['all'], // Admins have all permissions
-  
-  system_administrator: ['all'], // System administrators have all permissions
-  
+  // Physicians have comprehensive clinical permissions
   doctor: [
-    // Clinical permissions
-    'create_prescriptions', 'sign_prescriptions', 'place_medical_orders', 'create_diagnoses',
-    'sign_medical_documents', 'create_treatment_plans', 'order_consultations', 
-    'finalize_clinical_documentation', 'create_directives', 'access_medical_history', 
-    'override_alerts', 'create_clinical_pathways', 'discuss_sensitive_results', 
-    'order_blood_products', 'certify_medical_necessity', 'sign_medical_clearances',
+    // Clinical assessment and documentation
+    'create_clinical_notes',
+    'edit_records',
+    'finalize_clinical_documentation',
+    'sign_clinical_notes',
+    'document_medical_decision_making',
+    'create_diagnoses',
+    'update_problem_list',
+    'document_clinical_findings',
+    'create_treatment_plan',
     
-    // Access permissions
-    'view_patients', 'edit_patients', 'view_records', 'edit_records', 'view_medications',
-    'prescribe_medications', 'view_schedule', 'schedule_appointments', 'view_messages',
-    'telemedicine', 'manage_vitals', 'manage_fluid_balance', 'view_analytics', 'view_all_patients'
+    // Medication management
+    'prescribe_medications',
+    'medication_reconciliation',
+    'check_medication_interactions',
+    'document_medication_effectiveness',
+    'document_adverse_reactions',
+    
+    // Diagnostic and laboratory
+    'order_diagnostic_tests',
+    'create_order_sets',
+    'specify_test_urgency',
+    'document_results_context',
+    
+    // Patient care
+    'create_care_plan',
+    'manage_care_transitions',
+    
+    // Emergency care
+    'order_emergent_diagnostics',
+    'document_emergency_care',
+    
+    // Telemedicine
+    'telemedicine',
+    'conduct_virtual_visit',
+    'document_telemedicine_findings',
+    'manage_remote_care',
+    
+    // Hospital workflows
+    'determine_discharge_readiness',
+    'create_discharge_orders',
+    'complete_discharge_summary',
+    
+    // Access controls
+    'view_patients',
+    'edit_patients',
+    'view_records',
+    'edit_records',
+    'view_medications',
+    'view_lab_orders',
+    'view_lab_results',
+    'view_imaging_orders',
+    'view_imaging_results',
+    'view_schedule',
+    'view_vitals',
+    'view_fluid_balance',
+    'view_all_patients',
+    'view_analytics',
+    'view_orders',
+    'view_allergies',
+    'view_diagnoses',
+    'view_care_plans',
+    'view_appointments',
+    
+    // Actions
+    'create_orders',
+    'sign_orders',
+    'schedule_appointments',
+    'document_assessments',
+    'order_specialty_tests',
+    'respond_clinical_messages',
+    'approve_refill_requests'
   ],
   
+  // Nursing staff have patient care and assessment permissions
   nurse: [
-    // Nursing permissions
-    'administer_medications', 'document_fluid_balance', 'record_vital_signs', 'implement_care_plans',
-    'document_wound_care', 'process_admissions_discharges', 'manage_iv_lines', 'collect_specimens',
-    'document_patient_education', 'conduct_nursing_assessments', 'implement_orders', 
-    'document_shift_handover', 'reconcile_medications', 'document_daily_care', 'perform_triage',
+    // Clinical assessment and documentation
+    'create_clinical_notes',
+    'perform_initial_assessment',
+    'perform_ongoing_assessment',
     
-    // Access permissions
-    'view_patients', 'edit_patients', 'view_medications', 'view_records', 'schedule_appointments',
-    'view_schedule', 'manage_vitals', 'manage_fluid_balance', 'view_assigned_patients',
-    'document_assessments', 'view_orders', 'create_clinical_notes'
+    // Medication management
+    'administer_medications',
+    'medication_reconciliation',
+    'document_medication_effectiveness',
+    
+    // Patient care
+    'document_vital_signs',
+    'document_fluid_balance',
+    'manage_fluid_balance',
+    'implement_care_plan',
+    'document_nursing_interventions',
+    'provide_patient_education',
+    
+    // Emergency care
+    'perform_triage',
+    'assign_acuity_level',
+    'implement_emergency_protocols',
+    
+    // Hospital workflows
+    'perform_admission_assessment',
+    'document_inpatient_care',
+    'coordinate_home_care',
+    
+    // Access controls
+    'view_patients',
+    'edit_patients',
+    'view_records',
+    'view_medications',
+    'view_lab_orders',
+    'view_lab_results',
+    'view_vitals',
+    'view_fluid_balance',
+    'view_assigned_patients',
+    'view_orders',
+    'view_allergies',
+    'view_diagnoses',
+    'view_care_plans',
+    
+    // Actions
+    'document_assessments',
+    'assist_patient_care',
+    'triage_patient_messages',
+    'schedule_appointments'
   ],
   
-  administrative: [
-    // Administrative permissions
-    'register_patients', 'update_demographics', 'verify_insurance', 'manage_appointments',
-    'manage_billing_codes', 'scan_documents', 'manage_correspondence', 'process_referrals',
-    'process_information_release', 'manage_check_in_out', 'manage_non_clinical_communication',
-    'manage_wait_times', 'generate_forms', 'archive_records', 'schedule_facilities', 'collect_feedback',
-    
-    // Access permissions
-    'view_patients', 'schedule_appointments', 'view_schedule', 'manage_demographic_info',
-    'view_insurance_info', 'manage_billing_info'
-  ],
-  
+  // Pharmacists focus on medication management
   pharmacist: [
-    // Pharmacy permissions
-    'verify_medications', 'manage_pharmacy_inventory', 'check_medication_interactions',
-    'document_dispensing', 'provide_pharmacy_consultations', 'document_iv_preparations',
-    'evaluate_medication_use', 'manage_antibiotic_stewardship', 'document_medication_teaching',
-    'manage_medication_protocols', 'verify_chemotherapy', 'manage_controlled_substances',
-    'manage_formulary', 'manage_medication_alerts', 'provide_pharmacokinetic_services',
+    // Medication management
+    'verify_medications',
+    'check_medication_interactions',
+    'medication_reconciliation',
+    'document_medication_effectiveness',
+    'document_adverse_reactions',
     
-    // Access permissions
-    'view_patients', 'view_medications', 'view_records', 'view_allergies', 'view_diagnoses'
+    // Access controls
+    'view_patients',
+    'view_medications',
+    'view_records',
+    'view_allergies',
+    'view_diagnoses',
+    
+    // Actions
+    'approve_refill_requests'
   ],
   
+  // Laboratory technicians handle lab specimens and results
   lab_technician: [
-    // Laboratory permissions
-    'process_lab_specimens', 'enter_lab_results', 'document_quality_control',
-    'maintain_lab_equipment', 'document_specimen_rejection', 'manage_lab_workflow',
-    'notify_critical_values', 'manage_lab_inventory', 'document_test_methodology',
-    'manage_reference_ranges', 'track_lab_performance', 'manage_lab_schedule',
-    'track_specimen_storage', 'document_lab_certifications', 'manage_point_of_care_testing',
+    // Diagnostic and laboratory
+    'perform_laboratory_tests',
+    'enter_test_results',
+    'alert_critical_values',
     
-    // Access permissions
-    'view_patients', 'view_lab_orders', 'view_lab_results'
+    // Access controls
+    'view_patients',
+    'view_lab_orders',
+    'view_lab_results'
   ],
   
+  // Radiology technicians handle imaging studies
   radiology_technician: [
-    // Radiology permissions
-    'document_imaging_studies', 'assess_image_quality', 'document_radiation_dose',
-    'document_patient_positioning', 'select_imaging_protocols', 'document_contrast_administration',
-    'document_equipment_quality', 'document_patient_preparation', 'manage_imaging_schedule',
-    'manage_imaging_inventory', 'provide_technical_notes', 'troubleshoot_image_acquisition',
-    'manage_image_storage', 'manage_modality_worklist', 'implement_radiation_safety',
+    // Diagnostic and laboratory
+    'document_imaging_studies',
+    'document_radiation_dose',
     
-    // Access permissions
-    'view_patients', 'view_imaging_orders', 'view_imaging_results'
+    // Access controls
+    'view_patients',
+    'view_imaging_orders',
+    'view_imaging_results'
   ],
   
+  // Administrative staff handle registration and scheduling
+  administrative: [
+    // Administrative
+    'register_patients',
+    'verify_insurance',
+    'manage_demographic_info',
+    'view_insurance_info',
+    'manage_billing_info',
+    'process_referrals',
+    
+    // Access controls
+    'view_patients',
+    'view_schedule',
+    'view_appointments',
+    
+    // Actions
+    'schedule_appointments',
+    'manage_appointments'
+  ],
+  
+  // Patients access their own information
   patient: [
-    // Patient permissions
-    'update_personal_demographics', 'request_appointments', 'send_secure_messages',
-    'complete_questionnaires', 'request_medication_refills', 'view_own_records',
-    'report_symptoms', 'track_health_goals', 'submit_consent_forms', 'report_patient_outcomes',
-    'update_insurance_info', 'access_educational_materials', 'view_health_summary',
-    'participate_in_telemedicine', 'upload_documents',
+    // Portal
+    'upload_home_monitoring',
+    'report_symptoms',
+    'request_medication_refills',
+    'complete_questionnaires',
+    'update_personal_demographics',
     
-    // Access permissions
-    'view_own_records', 'view_own_medications', 'view_own_appointments', 'view_own_vitals',
-    'view_own_fluid_balance', 'schedule_own_appointments', 'message_care_team'
+    // Access controls
+    'view_own_records',
+    'view_own_medications',
+    'view_own_appointments',
+    'view_own_vitals',
+    'view_own_fluid_balance',
+    
+    // Actions
+    'schedule_own_appointments',
+    'message_care_team'
   ],
   
-  specialist: [
-    // Clinical permissions (subset of doctor)
-    'view_specialty_patients', 'view_records', 'view_medications', 'prescribe_medications',
-    'edit_records', 'telemedicine', 'view_schedule', 'create_treatment_plans',
-    'order_specialty_tests', 'create_clinical_notes', 'sign_clinical_notes', 'create_orders', 'sign_orders'
-  ],
-  
+  // Caregivers assist patients
   caregiver: [
-    // Caregiver permissions
-    'view_patients', 'view_medications', 'view_records', 'view_vitals', 'view_fluid_balance',
-    'assist_patient_care', 'view_care_plans', 'document_assisted_care', 'view_appointments',
-    'request_appointments', 'message_care_team'
-  ]
+    // Access controls (for assigned patients only)
+    'view_patients',
+    'view_medications',
+    'view_records',
+    'view_vitals',
+    'view_fluid_balance',
+    'view_appointments',
+    
+    // Actions
+    'assist_patient_care',
+    'document_assisted_care',
+    'request_appointments',
+    'message_care_team'
+  ],
+  
+  // Specialists have focused clinical permissions
+  specialist: [
+    // Clinical assessment and documentation
+    'create_clinical_notes',
+    'edit_records',
+    'sign_clinical_notes',
+    'document_medical_decision_making',
+    'document_clinical_findings',
+    'create_treatment_plan',
+    
+    // Medication management
+    'prescribe_medications',
+    
+    // Diagnostic and laboratory
+    'order_diagnostic_tests',
+    'document_results_context',
+    
+    // Telemedicine
+    'telemedicine',
+    'conduct_virtual_visit',
+    
+    // Access controls
+    'view_specialty_patients',
+    'view_records',
+    'view_medications',
+    'view_schedule',
+    
+    // Actions
+    'create_orders',
+    'sign_orders'
+  ],
+  
+  // System administrators have full system access
+  system_administrator: ['all'],
+  
+  // Administrators have full access
+  admin: ['all']
 };

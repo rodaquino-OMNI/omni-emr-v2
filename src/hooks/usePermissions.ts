@@ -7,7 +7,14 @@ import {
   getUserPermissions as fetchPermissions,
   canPerformClinicalDocumentation,
   canPerformMedicationAction,
-  canPerformAppointmentAction
+  canPerformAppointmentAction,
+  canPerformClinicalAssessment,
+  canPerformEmergencyCare,
+  canPerformCareCoordination,
+  canPerformTelemedicine,
+  canManageFluidBalance,
+  canPerformTriageAssessment,
+  canDocumentMedicalDecisionMaking
 } from '../utils/permissionUtils';
 
 export const usePermissions = (user: User | null) => {
@@ -59,6 +66,35 @@ export const usePermissions = (user: User | null) => {
     return canPerformAppointmentAction(user, action);
   }, [user]);
   
+  // New clinical workflow specific functions
+  const checkClinicalAssessment = useCallback((action: 'initial' | 'ongoing'): boolean => {
+    return canPerformClinicalAssessment(user, action);
+  }, [user]);
+  
+  const checkEmergencyCare = useCallback((action: 'triage' | 'treatment'): boolean => {
+    return canPerformEmergencyCare(user, action);
+  }, [user]);
+  
+  const checkCareCoordination = useCallback((action: 'planning' | 'transition'): boolean => {
+    return canPerformCareCoordination(user, action);
+  }, [user]);
+  
+  const canConductTelemedicine = useCallback((): boolean => {
+    return canPerformTelemedicine(user);
+  }, [user]);
+  
+  const canManagePatientFluidBalance = useCallback((): boolean => {
+    return canManageFluidBalance(user);
+  }, [user]);
+  
+  const canPerformTriage = useCallback((): boolean => {
+    return canPerformTriageAssessment(user);
+  }, [user]);
+  
+  const canDocumentDecisionMaking = useCallback((): boolean => {
+    return canDocumentMedicalDecisionMaking(user);
+  }, [user]);
+  
   // Function to get user role display name
   const getRoleDisplayName = useCallback((): string => {
     if (!user) return '';
@@ -87,6 +123,13 @@ export const usePermissions = (user: User | null) => {
     checkClinicalDocPermission,
     checkMedicationPermission,
     checkAppointmentPermission,
+    checkClinicalAssessment,
+    checkEmergencyCare,
+    checkCareCoordination,
+    canConductTelemedicine,
+    canManagePatientFluidBalance,
+    canPerformTriage,
+    canDocumentDecisionMaking,
     getRoleDisplayName
   };
 };

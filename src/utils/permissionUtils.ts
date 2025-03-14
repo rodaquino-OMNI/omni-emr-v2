@@ -82,16 +82,18 @@ export const getUserPermissions = async (user: User | null): Promise<string[]> =
   if (!user) return [];
   
   try {
-    // Try to get permissions from the database using a custom query
-    // instead of the RPC that was causing the error
+    // Try to fetch permissions from the database
     const { data, error } = await supabase
-      .from('role_permissions')
-      .select('permissions(name)')
-      .eq('role', user.role);
+      .from('permissions')
+      .select(`
+        name,
+        role_permissions!inner(role)
+      `)
+      .eq('role_permissions.role', user.role);
     
     if (!error && data && data.length > 0) {
       // Extract permission names from the returned data
-      const permissionNames = data.map(item => item.permissions?.name).filter(Boolean) as string[];
+      const permissionNames = data.map(item => item.name);
       return permissionNames;
     }
   } catch (e) {
@@ -180,4 +182,83 @@ export const canPerformAppointmentAction = (user: User | null, action: 'schedule
     default:
       return false;
   }
+};
+
+// New clinical workflow specific permission checks
+export const canPerformClinicalAssessment = (user: User | null, action: 'initial' | 'ongoing'): boolean => {
+  if (!user) return false;
+  
+  if (user.role === 'doctor' || user.role === 'admin' || user.role === 'system_administrator') {
+    return true;
+  }
+  
+  switch (action) {
+    case 'initial':
+      return hasPermission(user, 'perform_initial_assessment');
+    case 'ongoing':
+      return hasPermission(user, 'perform_ongoing_assessment');
+    default:
+      return false;
+  }
+};
+
+export const canPerformEmergencyCare = (user: User | null, action: 'triage' | 'treatment'): boolean => {
+  if (!user) return false;
+  
+  if (user.role === 'doctor' || user.role === 'admin' || user.role === 'system_administrator') {
+    return true;
+  }
+  
+  switch (action) {
+    case 'triage':
+      return hasPermission(user, 'perform_triage');
+    case 'treatment':
+      return hasPermission(user, 'perform_emergency_treatment');
+    default:
+      return false;
+  }
+};
+
+export const canPerformCareCoordination = (user: User | null, action: 'planning' | 'transition'): boolean => {
+  if (!user) return false;
+  
+  if (user.role === 'doctor' || user.role === 'admin' || user.role === 'system_administrator') {
+    return true;
+  }
+  
+  switch (action) {
+    case 'planning':
+      return hasPermission(user, 'create_care_plan');
+    case 'transition':
+      return hasPermission(user, 'manage_care_transitions');
+    default:
+      return false;
+  }
+};
+
+export const canPerformTelemedicine = (user: User | null): boolean => {
+  if (!user) return false;
+  
+  return hasPermission(user, 'telemedicine');
+};
+
+export const canManageFluidBalance = (user: User | null): boolean => {
+  if (!user) return false;
+  
+  return hasPermission(user, 'document_fluid_balance') || 
+         hasPermission(user, 'manage_fluid_balance');
+};
+
+export const canPerformTriageAssessment = (user: User | null): boolean => {
+  if (!user) return false;
+  
+  return user.role === 'nurse' || 
+         hasPermission(user, 'perform_triage');
+};
+
+export const canDocumentMedicalDecisionMaking = (user: User | null): boolean => {
+  if (!user) return false;
+  
+  return user.role === 'doctor' || 
+         hasPermission(user, 'document_medical_decision_making');
 };
