@@ -297,11 +297,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_auth_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_role: {
         Args: {
           user_id: string
         }
         Returns: string
+      }
+      get_user_role_cached: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      is_authenticated: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       user_has_role: {
         Args: {

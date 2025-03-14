@@ -1,3 +1,4 @@
+
 export type CommonTranslationKey =
   | 'search'
   | 'back'
@@ -141,7 +142,7 @@ export const commonTranslations = {
     unknown: 'Desconhecido',
     cancelled: 'Cancelado',
     welcomeTo: 'Bem-vindo ao',
-    appDescription: 'Plataforma abrangente de gestão de saúde para profissionais médicos',
+    appDescription: 'Sua plataforma de saúde.',
     goToDashboard: 'Ir para o Painel',
     createAccount: 'Criar Conta',
     userAdmin: 'Administração de Usuários',
@@ -216,7 +217,7 @@ export const commonTranslations = {
     unknown: 'Unknown',
     cancelled: 'Cancelled',
     welcomeTo: 'Welcome to',
-    appDescription: 'Comprehensive healthcare management platform for medical professionals',
+    appDescription: 'Your healthcare platform.',
     goToDashboard: 'Go to Dashboard',
     createAccount: 'Create Account',
     userAdmin: 'User Administration',
