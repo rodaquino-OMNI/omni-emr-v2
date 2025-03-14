@@ -1,5 +1,5 @@
 
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet } from 'lucide-react';
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -8,6 +8,7 @@ export type SidebarItem = {
   translationKey: string;
   permissionRequired?: string;
   priority: number;
+  roles?: string[]; // Specific roles that can see this item
   children?: Omit<SidebarItem, 'children'>[];
 };
 
@@ -46,6 +47,7 @@ export const sidebarItems: SidebarItem[] = [
     path: '/records',
     icon: FileText,
     translationKey: 'records',
+    permissionRequired: 'view_records',
     priority: 5
   },
   {
@@ -53,6 +55,7 @@ export const sidebarItems: SidebarItem[] = [
     path: '/vitals',
     icon: Activity,
     translationKey: 'vitals',
+    permissionRequired: 'view_vitals',
     priority: 6
   },
   {
@@ -60,6 +63,7 @@ export const sidebarItems: SidebarItem[] = [
     path: '/fluid-balance',
     icon: Droplet, 
     translationKey: 'fluidBalance',
+    permissionRequired: 'manage_fluid_balance',
     priority: 7
   },
   {
@@ -67,6 +71,7 @@ export const sidebarItems: SidebarItem[] = [
     path: '/medications',
     icon: Pill,
     translationKey: 'medications',
+    permissionRequired: 'view_medications',
     priority: 8
   },
   {
@@ -74,6 +79,7 @@ export const sidebarItems: SidebarItem[] = [
     path: '/prescriptions',
     icon: ClipboardList,
     translationKey: 'prescriptions',
+    permissionRequired: 'view_prescriptions',
     priority: 9
   },
   {
@@ -99,10 +105,34 @@ export const sidebarItems: SidebarItem[] = [
     priority: 12
   },
   {
+    name: 'Orders',
+    path: '/orders',
+    icon: ClipboardList,
+    translationKey: 'orders',
+    permissionRequired: 'view_orders',
+    priority: 13
+  },
+  {
+    name: 'Analytics',
+    path: '/analytics',
+    icon: BarChart,
+    translationKey: 'analytics',
+    permissionRequired: 'view_analytics',
+    priority: 14,
+    roles: ['admin', 'doctor', 'system_administrator']
+  },
+  {
     name: 'Help & Support',
     path: '/help',
     icon: HelpCircle,
     translationKey: 'help',
-    priority: 13
+    priority: 15
+  },
+  {
+    name: 'Settings',
+    path: '/settings',
+    icon: Settings,
+    translationKey: 'settings',
+    priority: 16
   }
 ];

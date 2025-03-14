@@ -1,11 +1,12 @@
+
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import { useTranslation } from '../../hooks/useTranslation';
 import SidebarLogo from './SidebarLogo';
 import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import { sidebarItems } from '@/config/sidebarConfig';
-import { hasPermission } from '@/utils/permissions/index';
 
 interface SidebarContentProps {
   onItemClick?: () => void;
@@ -14,10 +15,17 @@ interface SidebarContentProps {
 const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const permissions = usePermissions(user);
   
-  // Filter and sort items by priority
+  // Filter items based on user permissions and role
   const visibleItems = sidebarItems
-    .filter(item => hasPermission(user, item.permissionRequired || ''))
+    .filter(item => {
+      // If no permission required, show to everyone
+      if (!item.permissionRequired) return true;
+      
+      // Check if user has the required permission
+      return permissions.hasPermission(item.permissionRequired);
+    })
     .sort((a, b) => a.priority - b.priority);
   
   return (

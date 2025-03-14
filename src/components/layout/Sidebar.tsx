@@ -1,13 +1,22 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocation } from 'react-router-dom';
 import SidebarContent from './SidebarContent';
 import { SidebarMobileToggle, SidebarCloseButton } from './SidebarToggle';
 
 const Sidebar = () => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  
+  // Close the sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      setIsOpen(false);
+    }
+  }, [location.pathname, isMobile]);
   
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
