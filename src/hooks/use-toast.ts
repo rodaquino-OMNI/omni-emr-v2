@@ -10,17 +10,31 @@ export type ToastOptions = {
   className?: string;
 };
 
-export const toast = {
+type ToastFunction = {
   // Basic methods
-  success: (message: string, options?: ToastOptions) => sonnerToast.success(message, options),
-  error: (message: string, options?: ToastOptions) => sonnerToast.error(message, options),
-  warning: (message: string, options?: ToastOptions) => sonnerToast.warning(message, options),
-  info: (message: string, options?: ToastOptions) => sonnerToast.info(message, options),
-  default: (message: string, options?: ToastOptions) => sonnerToast(message, options),
+  success: (message: string, options?: ToastOptions) => ToastT;
+  error: (message: string, options?: ToastOptions) => ToastT;
+  warning: (message: string, options?: ToastOptions) => ToastT;
+  info: (message: string, options?: ToastOptions) => ToastT;
+  default: (message: string, options?: ToastOptions) => ToastT;
   
-  // Allow direct invocation for default toast
-  (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options)
+  // Also allow direct invocation as a function
+  (message: string, options?: ToastOptions): ToastT;
 };
+
+// Create the toast object with function properties
+export const toast: ToastFunction = Object.assign(
+  // Base function
+  (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options),
+  // Methods
+  {
+    success: (message: string, options?: ToastOptions) => sonnerToast.success(message, options),
+    error: (message: string, options?: ToastOptions) => sonnerToast.error(message, options),
+    warning: (message: string, options?: ToastOptions) => sonnerToast.warning(message, options),
+    info: (message: string, options?: ToastOptions) => sonnerToast.info(message, options),
+    default: (message: string, options?: ToastOptions) => sonnerToast(message, options),
+  }
+);
 
 export const useToast = () => {
   const { language } = useTranslationHook();
