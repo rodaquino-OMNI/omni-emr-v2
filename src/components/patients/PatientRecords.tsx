@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAIInsights } from '@/hooks/useAIInsights';
 import AIInsights from '../ai/AIInsights';
@@ -23,7 +22,7 @@ const PatientRecords = ({ patientId }: PatientRecordsProps) => {
   const [loading, setLoading] = useState(true);
   
   // Get AI insights specifically for labs/records
-  const { insights, loading: insightsLoading } = useAIInsights(patientId, ['labs']);
+  const { insights, isLoading: insightsLoading } = useAIInsights(patientId, ['labs']);
   
   useEffect(() => {
     // This would normally be an API call to fetch the patient's medical records

@@ -22,7 +22,7 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
   
   const patient = samplePatients.find(p => p.id === patientId);
   
-  const { insights, loading: insightsLoading } = useAIInsights(
+  const { insights, isLoading: insightsLoading } = useAIInsights(
     patientId, 
     ['vitals', 'labs', 'medications', 'tasks', 'general']
   );

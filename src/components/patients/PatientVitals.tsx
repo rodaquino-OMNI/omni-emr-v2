@@ -22,7 +22,7 @@ const PatientVitals = ({ patientId }: PatientVitalsProps) => {
   const canManageVitals = permissions.canManagePatientFluidBalance();
   
   // Get AI insights specifically for vitals
-  const { insights, loading: insightsLoading } = useAIInsights(patientId, ['vitals']);
+  const { insights, isLoading: insightsLoading } = useAIInsights(patientId, ['vitals']);
   
   // Mock function for recording vitals - in a real app this would connect to Supabase
   const recordVitals = async () => {
