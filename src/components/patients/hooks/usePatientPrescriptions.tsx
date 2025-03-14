@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getPatientPrescriptions } from '../../../services/prescriptionService';
+import { getPatientPrescriptions } from '../../../services/prescriptions';
 
 export const usePatientPrescriptions = (patientId: string) => {
   const [prescriptions, setPrescriptions] = useState([]);
