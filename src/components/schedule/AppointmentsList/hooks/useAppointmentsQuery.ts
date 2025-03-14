@@ -19,11 +19,15 @@ export const useAppointmentsQuery = ({ selectedDate, patientId, limit }: UseAppo
   const fetchAppointments = useFetchAppointments();
   
   // Fetch appointments based on provided filters
-  const { data: appointments = [], isLoading, error } = useQuery({
+  const queryResult = useQuery({
     queryKey: ['appointments', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null, patientId],
     queryFn: () => fetchAppointments(selectedDate, patientId),
     enabled: !!(selectedDate || patientId),
   });
+  
+  const appointments = queryResult.data || [];
+  const isLoading = queryResult.isLoading;
+  const error = queryResult.error;
   
   // Sort appointments by time
   const sortedAppointments = sortAppointmentsByTime(appointments);

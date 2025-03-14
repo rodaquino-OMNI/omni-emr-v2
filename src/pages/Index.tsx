@@ -8,7 +8,8 @@ import { useTranslation } from '../hooks/useTranslation';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const auth = useAuth();
+  const isAuthenticated = auth?.isAuthenticated || false;
   const { t } = useTranslation();
   
   useEffect(() => {

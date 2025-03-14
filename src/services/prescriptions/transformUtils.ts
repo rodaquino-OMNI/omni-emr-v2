@@ -15,7 +15,7 @@ export const transformPrescription = async (prescription: any): Promise<Prescrip
     .eq('id', prescription.patient_id)
     .maybeSingle();
 
-  const patientData = patientResponse?.data || null;
+  const patientName = patientResponse?.data?.name || 'Unknown Patient';
 
   // Fetch doctor name from profiles  
   const doctorResponse = await supabase
@@ -24,7 +24,7 @@ export const transformPrescription = async (prescription: any): Promise<Prescrip
     .eq('id', prescription.doctor_id)
     .maybeSingle();
 
-  const doctorData = doctorResponse?.data || null;
+  const doctorName = doctorResponse?.data?.name || 'Unknown Doctor';
 
   // Fetch prescription items
   const itemsResponse = await supabase
@@ -57,9 +57,9 @@ export const transformPrescription = async (prescription: any): Promise<Prescrip
   return {
     id: prescription.id,
     patientId: prescription.patient_id,
-    patientName: patientData?.name || 'Unknown Patient',
+    patientName: patientName,
     doctorId: prescription.doctor_id,
-    doctorName: doctorData?.name || 'Unknown Doctor',
+    doctorName: doctorName,
     date: prescription.date,
     status: prescription.status as 'active' | 'completed' | 'cancelled',
     notes: prescription.notes,

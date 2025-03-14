@@ -16,15 +16,15 @@ const AppointmentsList = ({ className, selectedDate, patientId, limit }: Appoint
   const { t } = useTranslation();
   
   // Use the custom hook for appointments querying
-  const { 
-    sortedAndLimitedAppointments = [], 
-    isLoading = false, 
-    error = null 
-  } = useAppointmentsQuery({ 
+  const queryResult = useAppointmentsQuery({ 
     selectedDate, 
     patientId, 
     limit 
-  }) || {};
+  });
+  
+  const sortedAndLimitedAppointments = queryResult?.sortedAndLimitedAppointments || [];
+  const isLoading = queryResult?.isLoading || false;
+  const error = queryResult?.error || null;
 
   if (isLoading) {
     return (
