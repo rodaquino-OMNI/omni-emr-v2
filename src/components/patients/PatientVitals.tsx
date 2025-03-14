@@ -18,7 +18,7 @@ const PatientVitals = ({ patientId }: PatientVitalsProps) => {
   const { user } = useAuth();
   // Fix: Extract the boolean value directly instead of providing the function
   const permissions = usePermissions(user);
-  const canManageVitals = permissions.canManagePatientFluidBalance;
+  const canManageVitals = permissions.canManagePatientFluidBalance();
   
   // Get AI insights specifically for vitals
   const { insights } = useAIInsights(patientId, ['vitals']);
