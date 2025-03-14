@@ -51,7 +51,7 @@ const VitalSigns = () => {
     }
   };
   
-  const { data: patients, isLoading } = useAsync<PatientData>(fetchPatients);
+  const { data: patients, isLoading } = useAsync<PatientData[]>(fetchPatients);
   
   return (
     <div className="min-h-screen flex bg-background">
