@@ -65,11 +65,7 @@ export const useCriticalResults = (userId?: string) => {
       setResults(mockResults);
     } catch (error) {
       console.error('Error fetching critical results:', error);
-      toast({
-        title: t('errorOccurred'),
-        description: t('errorFetchingCriticalResults'),
-        variant: 'destructive'
-      });
+      toast.error(t('errorFetchingCriticalResults'));
     } finally {
       setIsLoading(false);
     }
@@ -99,17 +95,10 @@ export const useCriticalResults = (userId?: string) => {
         )
       );
       
-      toast({
-        title: t('success'),
-        description: t('criticalResultAcknowledged'),
-      });
+      toast.success(t('criticalResultAcknowledged'));
     } catch (error) {
       console.error('Error acknowledging critical result:', error);
-      toast({
-        title: t('errorOccurred'),
-        description: t('errorAcknowledgingResult'),
-        variant: 'destructive'
-      });
+      toast.error(t('errorAcknowledgingResult'));
       throw error;
     }
   };
