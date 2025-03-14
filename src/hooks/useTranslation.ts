@@ -1,70 +1,53 @@
 
-import { useContext } from "react";
-import { LanguageContext } from "../context/LanguageContext";
-import { translations } from "../i18n/translations";
+import { useContext } from 'react';
+import { LanguageContext } from '../context/LanguageContext';
+import translations from '../i18n/translations';
+import { Language } from '../types/auth';
 
-/**
- * Custom hook for accessing the current language and translation function
- * with built-in validation to catch missing translations
- */
 export const useTranslation = () => {
-  const context = useContext(LanguageContext);
-  
-  if (!context) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
-  }
-  
-  const { language } = context;
+  const { language, setLanguage, toggleLanguage } = useContext(LanguageContext);
 
-  /**
-   * Translates a key into the current language
-   * @param key The translation key to look up
-   * @returns The translated string or the key itself if translation is missing
-   */
+  if (!language) {
+    console.warn('useTranslation: No language set in context, defaulting to "en"');
+  }
+
   const t = (key: string): string => {
-    // Allow any string to be used as a translation key
-    // Safe navigation through the translations object
-    const translatedText = translations?.[language]?.[key];
+    const currentLanguage = language || 'en';
+    const keys = key.split('.');
+    let result: any = translations;
     
-    // If translation is missing, log error and return the key as fallback
-    if (translatedText === undefined) {
-      console.error(`Missing translation for key: ${key} in language: ${language}`);
-      return String(key);
+    // Navigate through nested properties
+    for (const k of keys) {
+      if (result && typeof result === 'object' && k in result) {
+        result = result[k];
+      } else {
+        console.warn(`Translation key not found: ${key}`);
+        return key;
+      }
     }
     
-    return translatedText;
-  };
-
-  /**
-   * Checks if a translation exists for the given key in the current language
-   * @param key The translation key to check
-   * @returns True if the translation exists, false otherwise
-   */
-  const hasTranslation = (key: string): boolean => {
-    return translations?.[language]?.[key] !== undefined;
-  };
-
-  /**
-   * Validates a set of keys to ensure they all have translations
-   * @param keys Array of translation keys to validate
-   * @returns Object with validation result and any missing keys
-   */
-  const validateTranslations = (keys: string[]): { 
-    valid: boolean; 
-    missingKeys: string[] 
-  } => {
-    const missingKeys = keys.filter(key => !hasTranslation(key));
-    return {
-      valid: missingKeys.length === 0,
-      missingKeys
-    };
+    // Get translation for current language
+    if (result && typeof result === 'object' && currentLanguage in result) {
+      return result[currentLanguage];
+    }
+    
+    // Fallback to English if translation not found
+    if (result && typeof result === 'object' && 'en' in result) {
+      console.warn(`Translation not found for key ${key} in language ${currentLanguage}, falling back to English`);
+      return result.en;
+    }
+    
+    // Return key if no translation found
+    console.warn(`No translation found for ${key}`);
+    return key;
   };
 
   return {
     t,
-    hasTranslation,
-    validateTranslations,
-    language,
-    availableLanguages: ['en', 'pt']
+    language: language as Language,
+    setLanguage,
+    toggleLanguage
   };
 };
+
+export default useTranslation;
