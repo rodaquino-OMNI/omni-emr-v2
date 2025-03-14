@@ -11,8 +11,11 @@ import { UsersTranslationKey, usersTranslations } from './categories/users';
 // Make TranslationKey a string to allow any string literal
 export type TranslationKey = string;
 
+// Define translations as a simple Record type with string keys
+export type TranslationsType = Record<string, string>;
+
 // Combine all translation categories
-export const translations = {
+export const translations: Record<string, TranslationsType> = {
   en: {
     ...commonTranslations.en,
     ...patientsTranslations?.en,
@@ -43,8 +46,8 @@ export const validateAllTranslations = (): {
   const allKeys = Object.keys(translations.en).concat(Object.keys(translations.pt));
   const uniqueKeys = [...new Set(allKeys)];
   
-  const missingInEnglish = uniqueKeys.filter(key => translations.en[key as TranslationKey] === undefined);
-  const missingInPortuguese = uniqueKeys.filter(key => translations.pt[key as TranslationKey] === undefined);
+  const missingInEnglish = uniqueKeys.filter(key => translations.en[key] === undefined);
+  const missingInPortuguese = uniqueKeys.filter(key => translations.pt[key] === undefined);
   
   return {
     missingInEnglish,

@@ -1,12 +1,12 @@
 
 import { useLanguage } from "../context/LanguageContext";
-import { translations, TranslationKey } from "../i18n/translations";
+import { translations } from "../i18n/translations";
 
 export const useTranslation = () => {
   const { language } = useLanguage();
   
   // Function to translate a key with validation
-  const t = (key: TranslationKey): string => {
+  const t = (key: string): string => {
     // Get translation in current language
     const translation = translations[language]?.[key];
     
@@ -110,13 +110,13 @@ export const useTranslation = () => {
     
     // Check all keys for each language
     Object.keys(translations.en).forEach((key) => {
-      if (!translations.pt[key as TranslationKey]) {
+      if (!translations.pt[key]) {
         missingKeys.pt.push(key);
       }
     });
     
     Object.keys(translations.pt).forEach((key) => {
-      if (!translations.en[key as TranslationKey]) {
+      if (!translations.en[key]) {
         missingKeys.en.push(key);
       }
     });

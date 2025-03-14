@@ -1,5 +1,5 @@
 
-import { translations, TranslationKey } from '@/i18n/translations';
+import { translations } from '@/i18n/translations';
 
 /**
  * Validates that all translations exist in both languages
@@ -13,13 +13,13 @@ export const validateTranslations = () => {
   
   // Check all keys for each language
   Object.keys(translations.en).forEach((key) => {
-    if (!translations.pt[key as TranslationKey]) {
+    if (!translations.pt[key]) {
       missingKeys.pt.push(key);
     }
   });
   
   Object.keys(translations.pt).forEach((key) => {
-    if (!translations.en[key as TranslationKey]) {
+    if (!translations.en[key]) {
       missingKeys.en.push(key);
     }
   });
@@ -39,10 +39,10 @@ export const validateComponentTranslations = <T extends readonly string[]>(keys:
   };
   
   keys.forEach((key) => {
-    if (!translations.en[key as TranslationKey]) {
+    if (!translations.en[key]) {
       missingKeys.en.push(key as string);
     }
-    if (!translations.pt[key as TranslationKey]) {
+    if (!translations.pt[key]) {
       missingKeys.pt.push(key as string);
     }
   });

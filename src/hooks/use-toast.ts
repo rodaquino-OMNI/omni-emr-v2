@@ -8,6 +8,8 @@ export type ToastOptions = {
   icon?: React.ReactNode;
   id?: string;
   className?: string;
+  variant?: 'default' | 'destructive';
+  title?: string;
 };
 
 type ToastFunction = {
@@ -21,8 +23,21 @@ type ToastFunction = {
   // Direct invocation as a function
   (message: string, options?: ToastOptions): ToastT;
   
-  // Add toast property for compatibility with shadcn/ui
+  // Common scenario methods
+  saved: () => ToastT;
+  deleted: () => ToastT;
+  updated: () => ToastT;
+  created: () => ToastT;
+  loginSuccess: () => ToastT;
+  logoutSuccess: () => ToastT;
+  permissionDenied: () => ToastT;
+  networkError: () => ToastT;
+  sessionExpired: () => ToastT;
+  validationError: () => ToastT;
+  
+  // Add properties for shadcn/ui compatibility
   toast: typeof sonnerToast;
+  toasts: any[];
 };
 
 // Create the toast object with function properties
@@ -36,7 +51,30 @@ export const toast: ToastFunction = Object.assign(
     warning: (message: string, options?: ToastOptions): ToastT => sonnerToast.warning(message, options),
     info: (message: string, options?: ToastOptions): ToastT => sonnerToast.info(message, options),
     default: (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options),
-    toast: sonnerToast
+    
+    // Common scenarios with pre-defined messages
+    saved: (): ToastT => sonnerToast.success('Successfully saved'),
+    deleted: (): ToastT => sonnerToast.success('Successfully deleted'),
+    updated: (): ToastT => sonnerToast.success('Successfully updated'),
+    created: (): ToastT => sonnerToast.success('Successfully created'),
+    loginSuccess: (): ToastT => sonnerToast.success('Successfully logged in'),
+    logoutSuccess: (): ToastT => sonnerToast.success('Successfully logged out'),
+    permissionDenied: (): ToastT => sonnerToast.error('Permission denied', { 
+      description: 'You do not have permission to perform this action'
+    }),
+    networkError: (): ToastT => sonnerToast.error('Network error', { 
+      description: 'Please check your connection and try again'
+    }),
+    sessionExpired: (): ToastT => sonnerToast.error('Session expired', { 
+      description: 'Please log in again'
+    }),
+    validationError: (): ToastT => sonnerToast.error('Validation error', { 
+      description: 'Please check the fields and try again'
+    }),
+    
+    // Add for compatibility with shadcn/ui toast
+    toast: sonnerToast,
+    toasts: [] // Add empty array for shadcn compatibility
   }
 );
 
@@ -44,20 +82,7 @@ export const useToast = () => {
   const { language } = useLanguageHook();
   
   // Create toast function with translation support
-  const translatedToast: ToastFunction & {
-    saved: () => ToastT;
-    deleted: () => ToastT;
-    updated: () => ToastT;
-    created: () => ToastT;
-    loginSuccess: () => ToastT;
-    logoutSuccess: () => ToastT;
-    permissionDenied: () => ToastT;
-    networkError: () => ToastT;
-    sessionExpired: () => ToastT;
-    validationError: () => ToastT;
-    toast: typeof sonnerToast;
-    toasts: any; // For shadcn/ui compatibility
-  } = Object.assign(
+  const translatedToast: ToastFunction = Object.assign(
     // Base function
     (message: string, options?: ToastOptions): ToastT => {
       return sonnerToast(message, options);

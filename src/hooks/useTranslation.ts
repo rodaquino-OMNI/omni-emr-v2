@@ -1,16 +1,13 @@
 
-import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { Language } from '../types/auth';
-import { translations, TranslationKey } from '../i18n/translations';
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 
 /**
  * Custom hook for accessing the current language and translation function
  * with built-in validation to catch missing translations
  */
 export const useTranslation = () => {
-  const auth = useContext(AuthContext);
-  const language = auth?.language || 'en';
+  const { language } = useLanguage();
 
   /**
    * Translates a key into the current language
@@ -20,7 +17,7 @@ export const useTranslation = () => {
   const t = (key: string): string => {
     // Allow any string to be used as a translation key
     // Safe navigation through the translations object
-    const translatedText = translations?.[language]?.[key as TranslationKey];
+    const translatedText = translations?.[language]?.[key];
     
     // If translation is missing, log error and return the key as fallback
     if (translatedText === undefined) {
@@ -37,7 +34,7 @@ export const useTranslation = () => {
    * @returns True if the translation exists, false otherwise
    */
   const hasTranslation = (key: string): boolean => {
-    return translations?.[language]?.[key as TranslationKey] !== undefined;
+    return translations?.[language]?.[key] !== undefined;
   };
 
   /**
@@ -61,6 +58,6 @@ export const useTranslation = () => {
     hasTranslation,
     validateTranslations,
     language,
-    availableLanguages: ['en', 'pt'] as Language[]
+    availableLanguages: ['en', 'pt']
   };
 };
