@@ -8,7 +8,7 @@ export const useSocialLogin = (language: Language) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { loginWithSocial } = useAuth();
 
-  const handleSocialLogin = useCallback(async (provider: 'google' | 'facebook' | 'twitter' | 'github' | 'azure') => {
+  const handleSocialLogin = useCallback(async (provider: 'google' | 'facebook' | 'twitter' | 'azure') => {
     try {
       setIsSubmitting(true);
       await loginWithSocial(provider);
