@@ -9,24 +9,30 @@ export const transformPrescription = async (prescription: any): Promise<Prescrip
   }
 
   // Fetch patient name from profiles
-  const { data: patientData } = await supabase
+  const patientResponse = await supabase
     .from('profiles')
     .select('name')
     .eq('id', prescription.patient_id)
     .maybeSingle();
 
+  const patientData = patientResponse?.data || null;
+
   // Fetch doctor name from profiles  
-  const { data: doctorData } = await supabase
+  const doctorResponse = await supabase
     .from('profiles')
     .select('name')
     .eq('id', prescription.doctor_id)
     .maybeSingle();
 
+  const doctorData = doctorResponse?.data || null;
+
   // Fetch prescription items
-  const { data: items = [] } = await supabase
+  const itemsResponse = await supabase
     .from('prescription_items')
     .select('*')
     .eq('prescription_id', prescription.id);
+
+  const items = itemsResponse?.data || [];
 
   // Transform prescription items format with proper type casting
   const transformedItems: PrescriptionItem[] = items ? items.map(item => ({

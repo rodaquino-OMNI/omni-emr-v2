@@ -17,14 +17,14 @@ const AppointmentsList = ({ className, selectedDate, patientId, limit }: Appoint
   
   // Use the custom hook for appointments querying
   const { 
-    sortedAndLimitedAppointments, 
-    isLoading, 
-    error 
+    sortedAndLimitedAppointments = [], 
+    isLoading = false, 
+    error = null 
   } = useAppointmentsQuery({ 
     selectedDate, 
     patientId, 
     limit 
-  });
+  }) || {};
 
   if (isLoading) {
     return (
@@ -44,7 +44,7 @@ const AppointmentsList = ({ className, selectedDate, patientId, limit }: Appoint
 
   return (
     <div className={cn("space-y-3", className)}>
-      {sortedAndLimitedAppointments.length > 0 ? (
+      {(sortedAndLimitedAppointments.length > 0) ? (
         sortedAndLimitedAppointments.map(appointment => (
           <AppointmentCard key={appointment.id} appointment={appointment} />
         ))

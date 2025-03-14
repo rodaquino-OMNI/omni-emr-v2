@@ -13,12 +13,15 @@ export const mapSupabaseUserToUser = async (supabaseUser: any): Promise<User | n
   
   try {
     // Get user profile from profiles table
-    const { data: profile, error } = await supabase
+    const profileResponse = await supabase
       .from('profiles')
       .select('*')
       .eq('id', supabaseUser.id)
       .maybeSingle();
       
+    const profile = profileResponse?.data || null;
+    const error = profileResponse?.error || null;
+    
     if (error) {
       console.error('Error fetching user profile:', error);
       throw error;

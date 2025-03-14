@@ -42,13 +42,16 @@ export const signInWithEmail = async (email: string, password: string) => {
     }
     
     // For non-mock users, use Supabase authentication
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const response = await supabase.auth.signInWithPassword({
       email,
       password,
       options: {
         captchaToken: window.localStorage.getItem('captcha_token') || undefined,
       }
     });
+    
+    const data = response?.data;
+    const error = response?.error;
     
     if (error) throw error;
     

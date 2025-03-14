@@ -20,7 +20,8 @@ export function useAsync<T>(initialData: T | null = null): AsyncState<T> {
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [lastPromise, setLastPromise] = useState<() => Promise<T>|null>(() => null);
-  const { language } = useAuth();
+  const auth = useAuth();
+  const language = auth?.language || 'en';
 
   const reset = useCallback(() => {
     setData(initialData);
@@ -73,10 +74,10 @@ export function useAsync<T>(initialData: T | null = null): AsyncState<T> {
   const retry = useCallback(async (): Promise<T | null> => {
     if (!lastPromise) return null;
     
-    const promise = lastPromise();
-    if (!promise) return null;
+    const promiseFn = lastPromise();
+    if (!promiseFn) return null;
     
-    return run(promise);
+    return run(promiseFn);
   }, [lastPromise, run]);
   
   useEffect(() => {
