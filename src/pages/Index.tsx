@@ -22,7 +22,9 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="max-w-3xl text-center">
-        <h1 className="text-4xl font-bold text-primary mb-4">{t('welcomeTo')} {t('appName')}</h1>
+        <h1 className="text-4xl font-bold text-primary mb-4">
+          {t('appName')}
+        </h1>
         <p className="text-xl text-muted-foreground mb-8">
           {t('appDescription')}
         </p>
