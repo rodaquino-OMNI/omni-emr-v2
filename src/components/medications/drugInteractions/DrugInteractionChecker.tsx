@@ -1,8 +1,8 @@
 
 import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import { Rotate } from "lucide-react";
-import { checkDrugInteractions } from '@/services/rxnorm/rxnormService';
+import { RefreshCw } from "lucide-react";
+import { checkDrugInteractions, formatInteractionsForDisplay } from '@/services/rxnorm/rxnormInteractions';
 import DrugInteractionSearch from './DrugInteractionSearch';
 import MedicationList from './MedicationList';
 import InteractionResults from './InteractionResults';
@@ -63,14 +63,10 @@ const DrugInteractionChecker: React.FC = () => {
       }, {});
 
       const results = await checkDrugInteractions(rxcuis);
-
-      // Map RxCUIs to medication names in the interaction results
-      const processedInteractions = results.map(interaction => ({
-        ...interaction,
-        drugs: interaction.drugs.map(rxcui => medicationNames[rxcui] || rxcui)
-      }));
-
-      setInteractions(processedInteractions);
+      
+      // Format the interactions for display
+      const formattedInteractions = formatInteractionsForDisplay(results, medicationNames);
+      setInteractions(formattedInteractions);
     } catch (error) {
       console.error("Error checking drug interactions:", error);
       setError("Failed to check drug interactions. Please try again.");
@@ -102,7 +98,7 @@ const DrugInteractionChecker: React.FC = () => {
               disabled={isChecking}
               className="gap-2"
             >
-              {isChecking && <Rotate className="h-4 w-4 animate-spin" />}
+              {isChecking && <RefreshCw className="h-4 w-4 animate-spin" />}
               Check Interactions
             </Button>
           </div>

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
-import { searchMedications } from "@/services/rxnorm/rxnormService";
+import { searchMedicationsByName } from "@/services/rxnorm/rxnormSearch";
 
 interface DrugInteractionSearchProps {
   onAddMedication: (medication: { rxcui: string; name: string }) => void;
@@ -31,7 +31,7 @@ const DrugInteractionSearch: React.FC<DrugInteractionSearchProps> = ({ onAddMedi
 
       setIsSearching(true);
       try {
-        const results = await searchMedications(debouncedSearchTerm);
+        const results = await searchMedicationsByName(debouncedSearchTerm);
         setSearchResults(results);
       } catch (error) {
         console.error("Error searching medications:", error);
