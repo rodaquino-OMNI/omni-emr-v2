@@ -10,6 +10,7 @@ import VitalsChartTooltip from '@/components/vitals/components/VitalsChartToolti
 import VitalsTimeRangeSelector from '@/components/vitals/components/VitalsTimeRangeSelector';
 import VitalsChartLines from '@/components/vitals/components/VitalsChartLines';
 import VitalsReferenceLines from '@/components/vitals/components/VitalsReferenceLines';
+import { Button } from './button';
 
 type VitalsChartProps = {
   patientId: string;
@@ -21,10 +22,21 @@ const VitalsChart: React.FC<VitalsChartProps> = ({ patientId, type, timeRange = 
   const { t } = useTranslation();
   const [data, setData] = useState<VitalDataPoint[]>([]);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRangeType>(timeRange);
+  const [showAbnormalAlert, setShowAbnormalAlert] = useState(false);
   
   useEffect(() => {
     const mockData = generateMockVitalsData(type, patientId, selectedTimeRange);
     setData(mockData);
+    
+    // Check if there are abnormal values to show alert
+    const hasAbnormal = mockData.some(item => {
+      if (type === 'bloodPressure') {
+        return item.value.isAbnormal;
+      }
+      return item.isAbnormal;
+    });
+    
+    setShowAbnormalAlert(hasAbnormal);
   }, [type, patientId, selectedTimeRange]);
   
   const config = getVitalChartConfig(type, t);
@@ -44,12 +56,20 @@ const VitalsChart: React.FC<VitalsChartProps> = ({ patientId, type, timeRange = 
     return item.isAbnormal;
   });
 
+  // Time range buttons based on the design
+  const timeRangeButtons = [
+    { label: '24h', value: '24h' },
+    { label: '3d', value: '3d' },
+    { label: '7d', value: '7d' as TimeRangeType, active: true },
+    { label: '30d', value: '30d' }
+  ];
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-medium">{config.label}</h3>
-          {hasAbnormalValues && (
+          {showAbnormalAlert && (
             <div className="flex items-center">
               <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full flex items-center gap-0.5">
                 <AlertTriangle className="h-3 w-3" />
@@ -59,30 +79,40 @@ const VitalsChart: React.FC<VitalsChartProps> = ({ patientId, type, timeRange = 
           )}
         </div>
         
-        <VitalsTimeRangeSelector 
-          selectedTimeRange={selectedTimeRange} 
-          onChange={setSelectedTimeRange}
-          size="sm"
-        />
+        <div className="flex items-center space-x-1">
+          {timeRangeButtons.map((btn) => (
+            <Button
+              key={btn.value}
+              size="sm"
+              variant={selectedTimeRange === btn.value ? "default" : "outline"}
+              className="h-7 px-2 text-xs"
+              onClick={() => setSelectedTimeRange(btn.value as TimeRangeType)}
+            >
+              {btn.label}
+            </Button>
+          ))}
+        </div>
       </div>
       
       <div className="h-60">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
-            margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+            margin={{ top: 5, right: 5, left: 10, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
             <XAxis 
               dataKey="date"
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11 }}
               tickLine={false}
+              axisLine={{ stroke: '#e5e7eb' }}
             />
             <YAxis 
               tickFormatter={formatYAxis}
               domain={config.domain}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11 }}
               tickLine={false}
+              axisLine={{ stroke: '#e5e7eb' }}
             />
             <Tooltip content={renderTooltipContent} />
             

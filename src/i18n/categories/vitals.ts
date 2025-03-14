@@ -31,7 +31,8 @@ export type VitalsTranslationKey =
   | 'recent'
   | 'selectPatientToViewVitals'
   | 'room'
-  | 'mrn';
+  | 'mrn'
+  | 'normal';
 
 export const vitalsTranslations = {
   pt: {
@@ -66,7 +67,8 @@ export const vitalsTranslations = {
     recent: 'Recentes',
     selectPatientToViewVitals: 'Selecione um paciente para visualizar os sinais vitais',
     room: 'Quarto',
-    mrn: 'MRN'
+    mrn: 'MRN',
+    normal: 'Normal'
   },
   en: {
     vitals: 'Vital Signs',
@@ -100,6 +102,7 @@ export const vitalsTranslations = {
     recent: 'Recent',
     selectPatientToViewVitals: 'Select a patient to view vital signs',
     room: 'Room',
-    mrn: 'MRN'
+    mrn: 'MRN',
+    normal: 'Normal'
   }
 };

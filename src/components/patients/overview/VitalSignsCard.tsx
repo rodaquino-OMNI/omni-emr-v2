@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import VitalsChart from '@/components/ui/VitalsChart';
@@ -19,8 +19,9 @@ const VitalSignsCard = ({ patient }: VitalSignsCardProps) => {
             <Activity className="h-5 w-5 text-red-600" />
             Vital Signs
           </CardTitle>
-          <Link to={`/vitals?patientId=${patient.id}`} className="text-xs text-primary hover:underline">
+          <Link to={`/vitals?patientId=${patient.id}`} className="text-sm text-primary flex items-center hover:underline">
             View History
+            <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
         <CardDescription>Last recorded 2 hours ago</CardDescription>
@@ -50,7 +51,7 @@ const VitalSignsCard = ({ patient }: VitalSignsCardProps) => {
             </div>
           </div>
           
-          <div className="h-40">
+          <div className="h-44 mt-2">
             <VitalsChart patientId={patient.id} type="heartRate" />
           </div>
         </div>
