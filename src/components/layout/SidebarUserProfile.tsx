@@ -13,11 +13,11 @@ interface SidebarUserProfileProps {
 
 const SidebarUserProfile = ({ user, onClick }: SidebarUserProfileProps) => {
   const { t } = useTranslation();
-  const permissions = usePermissions(user);
   
   if (!user) return null;
   
   // Get proper display name for user role
+  const permissions = usePermissions(user);
   const roleDisplayName = permissions.getRoleDisplayName();
   
   return (

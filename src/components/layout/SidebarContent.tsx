@@ -20,6 +20,9 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
   // Filter items based on user permissions and role
   const visibleItems = sidebarItems
     .filter(item => {
+      // If user is not logged in, don't show any restricted items
+      if (!user) return !item.permissionRequired;
+      
       // If no permission required, show to everyone
       if (!item.permissionRequired) return true;
       

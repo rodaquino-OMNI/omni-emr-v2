@@ -19,9 +19,12 @@ const HeaderUserMenu = () => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  
+  // Only call usePermissions if user exists
   const permissions = usePermissions(user);
   
-  const roleDisplayName = permissions.getRoleDisplayName();
+  // Only access properties if permissions exist
+  const roleDisplayName = permissions?.getRoleDisplayName() || '';
   const isAdmin = user?.role === 'admin' || user?.role === 'system_administrator';
   
   return (
