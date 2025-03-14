@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Database, RefreshCw, Trash2, FileSpreadsheet } from 'lucide-react';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { clearExpiredCache, syncFrequentlyUsedMedications } from '@/services/rxnorm/rxnormService';
+import { clearExpiredCache, syncFrequentlyUsedMedications } from '@/services/rxnorm';
 
 interface DatabaseStats {
   totalMedications: number;
@@ -26,11 +25,8 @@ const RxNormAdminPanel: React.FC = () => {
     lastSyncDate: null
   });
 
-  // Fetch database statistics
   const fetchStats = async () => {
     try {
-      // Due to type constraints, we need to perform direct queries to count rows
-      // Get total medications count via direct query
       const medCountQuery = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_items?select=count`,
         {
@@ -44,7 +40,6 @@ const RxNormAdminPanel: React.FC = () => {
       );
       const medCount = parseInt(medCountQuery.headers.get('content-range')?.split('/')[1] || '0');
       
-      // Get total mappings count
       const mappingCountQuery = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_anvisa_mappings?select=count`,
         {
@@ -58,7 +53,6 @@ const RxNormAdminPanel: React.FC = () => {
       );
       const mappingCount = parseInt(mappingCountQuery.headers.get('content-range')?.split('/')[1] || '0');
       
-      // Get total cache entries count
       const cacheCountQuery = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_search_cache?select=count`,
         {
@@ -72,7 +66,6 @@ const RxNormAdminPanel: React.FC = () => {
       );
       const cacheCount = parseInt(cacheCountQuery.headers.get('content-range')?.split('/')[1] || '0');
       
-      // Get last sync date via direct query
       const syncLogResponse = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rxnorm_sync_log?select=sync_date&order=sync_date.desc&limit=1`,
         {
@@ -124,7 +117,6 @@ const RxNormAdminPanel: React.FC = () => {
           }
         );
         
-        // Refresh stats
         fetchStats();
       } else {
         toast.error(
@@ -163,7 +155,6 @@ const RxNormAdminPanel: React.FC = () => {
             : 'Cache cleared successfully'
         );
         
-        // Refresh stats
         fetchStats();
       } else {
         toast.error(

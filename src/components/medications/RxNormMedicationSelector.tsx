@@ -15,7 +15,7 @@ import {
   getDisplayTerms,
   getNDCsByRxCUI,
   getSpellingSuggestions
-} from '@/services/rxnorm/rxnormService';
+} from '@/services/rxnorm';
 import { RxNormMedication, RxNormDisplayTerm, RxNormNDC } from '@/types/rxnorm';
 
 interface RxNormMedicationSelectorProps {

@@ -6,7 +6,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RxNormMedicationSelector from '../components/medications/RxNormMedicationSelector';
 import RxNormAdminPanel from '../components/medications/RxNormAdminPanel';
-import DrugInteractionChecker from '../components/medications/DrugInteractionChecker';
+import DrugInteractionChecker from '../components/medications/drugInteractions/DrugInteractionChecker';
 import { Database, GitBranch, FileSearch, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
