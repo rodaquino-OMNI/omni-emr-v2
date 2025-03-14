@@ -20,7 +20,7 @@ const VitalsChartLinesWrapper: React.FC<VitalsChartLinesWrapperProps> = ({
   width,
   height
 }) => {
-  const { t } = useTranslation();
+  const { t, hasTranslation } = useTranslation();
   
   // Now we can safely use the VitalsChartLines component here
   // by passing the translated text
