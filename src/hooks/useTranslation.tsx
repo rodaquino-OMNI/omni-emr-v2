@@ -1,4 +1,3 @@
-
 import { useAuth } from "../context/AuthContext";
 import { translations, TranslationKey } from "../i18n/translations";
 
@@ -16,11 +15,11 @@ export const useTranslation = () => {
     // Validation in development mode
     if (process.env.NODE_ENV === 'development') {
       if (!translation) {
-        console.warn(`Missing translation for key "${key}" in language "${language}"`);
+        console.warn(`Missing translation for key "${String(key)}" in language "${language}"`);
       }
     }
     
-    return translation || fallback || key;
+    return translation || fallback || String(key);
   };
   
   // Function to translate a plain text (not from translation keys)

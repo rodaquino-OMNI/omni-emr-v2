@@ -1,17 +1,27 @@
 
-import { TranslationCategories } from './categories';
+import { 
+  authTranslations, 
+  commonTranslations, 
+  patientsTranslations, 
+  appointmentsTranslations, 
+  medicationsTranslations, 
+  tasksTranslations, 
+  ordersTranslations, 
+  medicalHistoryTranslations, 
+  usersTranslations 
+} from './categories';
 
 // Define the translation key type based on all possible keys
 export type TranslationKey = 
-  | keyof typeof TranslationCategories.auth.en 
-  | keyof typeof TranslationCategories.common.en
-  | keyof typeof TranslationCategories.medications.en
-  | keyof typeof TranslationCategories.patients.en
-  | keyof typeof TranslationCategories.appointments.en
-  | keyof typeof TranslationCategories.tasks.en
-  | keyof typeof TranslationCategories.orders.en
-  | keyof typeof TranslationCategories.medicalHistory.en
-  | keyof typeof TranslationCategories.users.en
+  | keyof typeof authTranslations.en 
+  | keyof typeof commonTranslations.en
+  | keyof typeof medicationsTranslations.en
+  | keyof typeof patientsTranslations.en
+  | keyof typeof appointmentsTranslations.en
+  | keyof typeof tasksTranslations.en
+  | keyof typeof ordersTranslations.en
+  | keyof typeof medicalHistoryTranslations.en
+  | keyof typeof usersTranslations.en
   // Additional vital signs related keys
   | 'vitals'
   | 'heartRate'
@@ -53,15 +63,15 @@ export type TranslationKey =
 // Define the translations for each language
 export const translations = {
   en: {
-    ...TranslationCategories.auth.en,
-    ...TranslationCategories.common.en,
-    ...TranslationCategories.medications.en,
-    ...TranslationCategories.patients.en,
-    ...TranslationCategories.appointments.en,
-    ...TranslationCategories.tasks.en,
-    ...TranslationCategories.orders.en,
-    ...TranslationCategories.medicalHistory.en,
-    ...TranslationCategories.users.en,
+    ...authTranslations.en,
+    ...commonTranslations.en,
+    ...medicationsTranslations.en,
+    ...patientsTranslations.en,
+    ...appointmentsTranslations.en,
+    ...tasksTranslations.en,
+    ...ordersTranslations.en,
+    ...medicalHistoryTranslations.en,
+    ...usersTranslations.en,
     // Add vital signs translations
     vitals: 'Vital Signs',
     heartRate: 'Heart Rate',
@@ -101,15 +111,15 @@ export const translations = {
     vitalSignsRecordedDescription: 'Patient vital signs have been successfully recorded'
   },
   pt: {
-    ...TranslationCategories.auth.pt,
-    ...TranslationCategories.common.pt,
-    ...TranslationCategories.medications.pt,
-    ...TranslationCategories.patients.pt,
-    ...TranslationCategories.appointments.pt,
-    ...TranslationCategories.tasks.pt,
-    ...TranslationCategories.orders.pt,
-    ...TranslationCategories.medicalHistory.pt,
-    ...TranslationCategories.users.pt,
+    ...authTranslations.pt,
+    ...commonTranslations.pt,
+    ...medicationsTranslations.pt,
+    ...patientsTranslations.pt,
+    ...appointmentsTranslations.pt,
+    ...tasksTranslations.pt,
+    ...ordersTranslations.pt,
+    ...medicalHistoryTranslations.pt,
+    ...usersTranslations.pt,
     // Add Portuguese translations for vital signs
     vitals: 'Sinais Vitais',
     heartRate: 'Frequência Cardíaca',
