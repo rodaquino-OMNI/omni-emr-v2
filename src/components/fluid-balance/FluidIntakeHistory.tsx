@@ -33,7 +33,7 @@ const FluidIntakeHistory: React.FC<FluidIntakeHistoryProps> = ({ patientId, refr
           .from('fluid_intakes')
           .select('*')
           .eq('patient_id', patientId)
-          .order('timestamp', { ascending: false });
+          .order('timestamp', { ascending: false }) as { data: any[]; error: any };
           
         if (fetchError) {
           throw fetchError;

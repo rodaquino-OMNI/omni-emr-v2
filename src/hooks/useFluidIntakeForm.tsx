@@ -50,7 +50,7 @@ export const useFluidIntakeForm = ({ patientId, onSuccess }: UseFluidIntakeFormP
       
       const { error: insertError } = await supabase
         .from('fluid_intakes')
-        .insert(fluidIntakeData);
+        .insert(fluidIntakeData) as { error: any };
         
       if (insertError) {
         throw insertError;
