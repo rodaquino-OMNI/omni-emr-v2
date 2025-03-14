@@ -31,7 +31,7 @@ const AdmissionDischargeWorkflow = ({ patientId, patientName }: AdmissionDischar
   // Mock functions for workflow actions
   const handleAdmissionOrder = () => {
     toast.success(t('admissionOrderCreated'), {
-      description: t('admissionOrderForPatient', { name: patientName })
+      description: t('admissionOrderForPatient')
     });
   };
   
@@ -49,7 +49,7 @@ const AdmissionDischargeWorkflow = ({ patientId, patientName }: AdmissionDischar
   
   const handleDischargeOrder = () => {
     toast.success(t('dischargeOrderCreated'), {
-      description: t('patientMarkedForDischarge', { name: patientName })
+      description: t('patientMarkedForDischarge')
     });
   };
   

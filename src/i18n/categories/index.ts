@@ -10,6 +10,7 @@ import { usersTranslations, UsersTranslationKey } from './users';
 import { vitalsTranslations, VitalsTranslationKey } from './vitals';
 import { medicalHistoryTranslations, MedicalHistoryTranslationKey } from './medicalHistory';
 import { hospitalTranslations, HospitalTranslationKey } from './hospital';
+import { emergencyTranslations, EmergencyTranslationKey } from './emergency';
 
 export type TranslationCategories = {
   common: typeof commonTranslations.en;
@@ -23,6 +24,7 @@ export type TranslationCategories = {
   vitals: typeof vitalsTranslations.en;
   medicalHistory: typeof medicalHistoryTranslations.en;
   hospital: typeof hospitalTranslations.en;
+  emergency: typeof emergencyTranslations.en;
 };
 
 export type TranslationKey =
@@ -36,7 +38,8 @@ export type TranslationKey =
   | UsersTranslationKey
   | VitalsTranslationKey
   | MedicalHistoryTranslationKey
-  | HospitalTranslationKey;
+  | HospitalTranslationKey
+  | EmergencyTranslationKey;
 
 export const allTranslations = {
   common: commonTranslations,
@@ -49,5 +52,6 @@ export const allTranslations = {
   users: usersTranslations,
   vitals: vitalsTranslations,
   medicalHistory: medicalHistoryTranslations,
-  hospital: hospitalTranslations
+  hospital: hospitalTranslations,
+  emergency: emergencyTranslations
 };

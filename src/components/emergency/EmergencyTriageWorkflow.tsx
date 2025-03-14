@@ -52,7 +52,7 @@ const EmergencyTriageWorkflow = ({ patientId, patientName }: EmergencyTriageWork
     setTriageLevel(level);
     
     toast.success(t('triageLevelAssigned'), {
-      description: t('patientHasBeenTriaged', { level: t(level) })
+      description: t('patientHasBeenTriaged')
     });
   };
   
@@ -108,7 +108,7 @@ const EmergencyTriageWorkflow = ({ patientId, patientName }: EmergencyTriageWork
             <div className="p-4 border rounded-lg">
               <h3 className="font-medium mb-2">{t('patientInformation')}</h3>
               <p><strong>{t('name')}:</strong> {patientName}</p>
-              <p><strong>{t('id')}:</strong> {patientId}</p>
+              <p><strong>{t('patientId')}:</strong> {patientId}</p>
               
               {/* Chief Complaint Input */}
               <div className="mt-4">
@@ -210,7 +210,11 @@ const EmergencyTriageWorkflow = ({ patientId, patientName }: EmergencyTriageWork
               <div className="p-4 border rounded-lg">
                 <h3 className="font-medium mb-2">{t('currentTriageLevel')}</h3>
                 <div className={`px-4 py-2 rounded-md inline-block ${getTriageLevelColor(triageLevel)}`}>
-                  {t(triageLevel)}
+                  {triageLevel === 'immediate' && t('immediate')}
+                  {triageLevel === 'emergent' && t('emergent')}
+                  {triageLevel === 'urgent' && t('urgent')}
+                  {triageLevel === 'semi-urgent' && t('semiUrgent')}
+                  {triageLevel === 'non-urgent' && t('nonUrgent')}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {t('triageTimestamp')}: {new Date().toLocaleTimeString()}

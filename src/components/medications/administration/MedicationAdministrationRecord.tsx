@@ -183,7 +183,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="py-2 text-left">{t('medication')}</th>
+                <th className="py-2 text-left">{t('medications')}</th>
                 <th className="py-2 text-left">{t('dosage')}</th>
                 <th className="py-2 text-left">{t('route')}</th>
                 <th className="py-2 text-left">{t('scheduledTime')}</th>
