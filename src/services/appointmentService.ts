@@ -1,3 +1,4 @@
+
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 
 export type AppointmentType = 'in-person' | 'telemedicine' | 'phone';
@@ -160,24 +161,28 @@ let mockAppointments = generateMockAppointments();
 
 // Get all appointments
 export const getAllAppointments = async (): Promise<Appointment[]> => {
+  // Using mock data until appointments table is created in Supabase
   console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments;
 };
 
 // Get appointments by date
 export const getAppointmentsByDate = async (date: string): Promise<Appointment[]> => {
+  // Using mock data until appointments table is created in Supabase
   console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments.filter(a => a.date === date);
 };
 
 // Get appointments by patient ID
 export const getAppointmentsByPatient = async (patientId: string): Promise<Appointment[]> => {
+  // Using mock data until appointments table is created in Supabase
   console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments.filter(a => a.patientId === patientId);
 };
 
 // Get appointments by provider ID
 export const getAppointmentsByProvider = async (providerId: string): Promise<Appointment[]> => {
+  // Using mock data until appointments table is created in Supabase
   console.log('Using mock appointments - no appointments table exists in Supabase yet');
   return mockAppointments.filter(a => a.providerId === providerId);
 };

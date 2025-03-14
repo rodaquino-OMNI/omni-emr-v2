@@ -1,4 +1,3 @@
-
 import { supabase, logAuditEvent } from "@/integrations/supabase/client";
 import { User } from '@/context/AuthContext';
 
@@ -119,7 +118,7 @@ const transformPrescription = async (prescription: any): Promise<Prescription> =
     // Ensure the type is one of the allowed values
     type: (item.type === 'medication' || item.type === 'procedure' || 
           item.type === 'lab_test' || item.type === 'imaging') 
-          ? item.type as 'medication' | 'procedure' | 'lab_test' | 'imaging'
+          ? (item.type as 'medication' | 'procedure' | 'lab_test' | 'imaging')
           : 'medication', // Default fallback
     details: item.details,
     dosage: item.dosage,
@@ -247,7 +246,7 @@ export const createPrescription = async (
       const prescriptionItems = prescription.items.map(item => ({
         prescription_id: data.id,
         name: item.name,
-        type: item.type, // This is now typed correctly
+        type: item.type,
         details: item.details,
         dosage: item.dosage,
         frequency: item.frequency,

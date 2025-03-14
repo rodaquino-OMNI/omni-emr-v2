@@ -14,7 +14,10 @@ interface AuthContextType {
     success: boolean;
     error?: AuthError;
   }>;
-  loginWithSocial: (provider: Provider) => Promise<void>;
+  loginWithSocial: (provider: Provider) => Promise<{
+    success: boolean;
+    error?: AuthError;
+  }>;
   signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{
     user: User | null;
     session: Session | null;

@@ -28,20 +28,12 @@ function hasActiveFilters(filter: TaskFilter): boolean {
 // Optimized filter tasks function with better performance
 export const filterTasks = async (filter: TaskFilter): Promise<Task[]> => {
   try {
-    // Check if we have tasks table in Supabase yet
-    const { error } = await supabase.from('tasks').select('count').limit(1).single();
-    
-    if (error) {
-      // Table doesn't exist yet, use mock data
-      console.warn('No tasks table found in Supabase, using mock data');
-      throw new Error('No tasks table found');
-    }
-    
-    console.log('Supabase tasks table exists, but we need to implement the queries');
-    // Since we don't have proper implementation yet, fall back to mock data
-    throw new Error('Tasks table implementation incomplete');
+    // We'll implement Supabase queries when the tasks table is created
+    // For now, we'll use mock data
+    console.warn('Using mock tasks data until tasks table is created in Supabase');
+    throw new Error('Tasks table not implemented yet');
   } catch (error) {
-    console.warn('Falling back to mock tasks data due to Supabase error');
+    console.warn('Falling back to mock tasks data');
   }
   
   // Use mock data with optimized filtering
