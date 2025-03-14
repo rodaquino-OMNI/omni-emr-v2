@@ -9,13 +9,16 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_records', 'edit_records', 'schedule_appointments',
     'telemedicine', 'view_schedule', 'manage_vitals', 'manage_fluid_balance',
     'view_analytics', 'view_all_patients', 'create_treatment_plans',
-    'order_lab_tests', 'view_clinical_decision_support'
+    'order_lab_tests', 'view_clinical_decision_support', 'create_clinical_notes',
+    'sign_clinical_notes', 'cosign_clinical_notes', 'create_orders',
+    'sign_orders', 'override_alerts'
   ],
   nurse: [
     'view_patients', 'edit_patients', 'view_medications',
     'view_records', 'schedule_appointments', 'view_schedule',
     'manage_vitals', 'manage_fluid_balance', 'administer_medications',
-    'view_assigned_patients', 'execute_care_plans', 'document_assessments'
+    'view_assigned_patients', 'execute_care_plans', 'document_assessments',
+    'create_clinical_notes', 'view_orders'
   ],
   caregiver: [
     'view_patients', 'view_medications', 'view_records',
@@ -30,7 +33,8 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_patients', 'view_records', 'view_medications',
     'view_vitals', 'view_fluid_balance', 'view_schedule',
     'prescribe_medications', 'edit_records', 'telemedicine',
-    'view_specialty_patients', 'order_specialty_tests'
+    'view_specialty_patients', 'order_specialty_tests', 'create_clinical_notes',
+    'sign_clinical_notes', 'create_orders', 'sign_orders'
   ],
   administrative: [
     'view_patients', 'schedule_appointments', 'view_schedule',
