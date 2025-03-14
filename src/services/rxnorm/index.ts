@@ -9,3 +9,4 @@ export * from './rxnormMappings';
 export * from './rxnormCache';
 export * from './rxnormSync';
 export * from './rxnormTypes';
+export * from './mockRxnormService';

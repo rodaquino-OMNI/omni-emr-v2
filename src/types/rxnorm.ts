@@ -31,11 +31,12 @@ export interface RxNormConcept {
 
 // NDC (National Drug Code) record
 export interface RxNormNDC {
-  ndcItem: string;
-  packaging: string;
+  ndcItem?: string;
+  packaging?: string;
   ndc: string;
   rxcui: string;
   status: string;
+  source?: string; // Adding the missing source property
 }
 
 // Autocomplete suggestion type

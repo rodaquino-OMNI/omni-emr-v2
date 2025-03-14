@@ -1,81 +1,20 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { RxNormMedication, RxNormMedicationDetails, RxNormConcept, RxNormNDC } from '@/types/rxnorm';
-import { Json } from '@/integrations/supabase/types';
-import { RXNORM_API_BASE_URL } from './rxnormTypes';
+import { RxNormMedicationDetails, RxNormNDC } from '@/types/rxnorm';
+import { RXNORM_API_BASE_URL, RxNormNDCResponse } from './rxnormTypes';
+import { mockGetMedicationDetails, mockGetMedicationNDCs, shouldUseMocks } from './mockRxnormService';
 
 /**
- * Search for a medication in RxNorm by its RxCUI code
+ * Get medication details from RxNorm
  */
-export const getMedicationByRxCUI = async (rxcui: string): Promise<RxNormMedication | null> => {
-  try {
-    // Check cache first
-    const { data: cachedResult, error: cacheError } = await supabase
-      .from('rxnorm_items')
-      .select('*')
-      .eq('rxcui', rxcui)
-      .maybeSingle();
-
-    if (cachedResult && !cacheError) {
-      return {
-        rxcui: cachedResult.rxcui,
-        name: cachedResult.name,
-        tty: cachedResult.term_type
-      };
-    }
-
-    const response = await fetch(
-      `${RXNORM_API_BASE_URL}/rxcui/${rxcui}/allProperties?prop=names`
-    );
-
-    if (!response.ok) {
-      throw new Error(`RxNorm API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    if (!data.propConceptGroup) {
-      return null;
-    }
-    
-    const nameProps = data.propConceptGroup.propConcept.filter(
-      (prop: any) => prop.propName === 'RxNorm Name'
-    );
-    
-    if (nameProps.length === 0) {
-      return null;
-    }
-    
-    const medication: RxNormMedication = {
-      rxcui,
-      name: nameProps[0].propValue
-    };
-    
-    // Cache the result
-    const { error: insertError } = await supabase.from('rxnorm_items').insert({
-      rxcui: medication.rxcui,
-      name: medication.name,
-      term_type: medication.tty || 'SCD',
-      last_updated: new Date().toISOString()
-    });
-
-    if (insertError) {
-      console.error('Error caching medication:', insertError);
-    }
-    
-    return medication;
-  } catch (error) {
-    console.error('Error getting medication by RxCUI:', error);
-    return null;
+export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicationDetails> => {
+  // Use mocks if configured or in test environment
+  if (shouldUseMocks()) {
+    return mockGetMedicationDetails(rxcui);
   }
-};
 
-/**
- * Get medication details including ingredients, dosage form, etc.
- */
-export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicationDetails | null> => {
   try {
-    // Check if we have the details cached
+    // First check the cache
     const { data: cachedDetails, error: cacheError } = await supabase
       .from('rxnorm_details_cache')
       .select('*')
@@ -83,10 +22,11 @@ export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicat
       .maybeSingle();
 
     if (cachedDetails && !cacheError) {
-      // Properly cast the JSON results to the expected type using a double cast
-      return (cachedDetails.details as unknown as RxNormMedicationDetails);
+      console.log('Using cached medication details for rxcui:', rxcui);
+      return cachedDetails.details as RxNormMedicationDetails;
     }
 
+    // Fetch from RxNorm API
     const response = await fetch(
       `${RXNORM_API_BASE_URL}/rxcui/${rxcui}/allrelated`
     );
@@ -96,71 +36,82 @@ export const getMedicationDetails = async (rxcui: string): Promise<RxNormMedicat
     }
 
     const data = await response.json();
-    
-    // Process and structure the medication details
     const details: RxNormMedicationDetails = {
       rxcui,
-      name: data.relatedGroup?.rxcuiName || '',
-      ingredients: extractConceptsByType(data, 'IN'),
-      brandNames: extractConceptsByType(data, 'BN'),
-      dosageForms: extractConceptsByType(data, 'DF'),
-      strengths: extractConceptsByType(data, 'SCDC')
+      name: '',
+      ingredients: [],
+      brandNames: [],
+      dosageForms: [],
+      strengths: []
     };
+
+    // Process the response to extract relevant details
+    if (data.allRelatedGroup?.conceptGroup) {
+      // Extract ingredients, brand names, dose forms, etc.
+      data.allRelatedGroup.conceptGroup.forEach((group: any) => {
+        if (group.tty === 'IN' && group.conceptProperties) {
+          details.ingredients = group.conceptProperties;
+        } else if (group.tty === 'BN' && group.conceptProperties) {
+          details.brandNames = group.conceptProperties;
+        } else if (group.tty === 'DF' && group.conceptProperties) {
+          details.dosageForms = group.conceptProperties;
+        }
+      });
+    }
+
+    // Get the name of the medication
+    const nameResponse = await fetch(
+      `${RXNORM_API_BASE_URL}/rxcui/${rxcui}/property?propName=name`
+    );
     
-    // Cache the details with proper type casting
+    if (nameResponse.ok) {
+      const nameData = await nameResponse.json();
+      if (nameData.propConceptGroup?.propConcept?.[0]?.propValue) {
+        details.name = nameData.propConceptGroup.propConcept[0].propValue;
+      }
+    }
+
+    // Cache the results
     const { error: insertError } = await supabase.from('rxnorm_details_cache').insert({
       rxcui,
-      details: details as unknown as Json,
+      details,
       created_at: new Date().toISOString()
     });
 
     if (insertError) {
       console.error('Error caching medication details:', insertError);
     }
-    
+
     return details;
   } catch (error) {
     console.error('Error getting medication details:', error);
-    return null;
+    throw error;
   }
 };
 
 /**
- * Helper function to extract concepts by type from RxNorm API response
- */
-const extractConceptsByType = (data: any, type: string): RxNormConcept[] => {
-  if (!data.relatedGroup?.conceptGroup) {
-    return [];
-  }
-  
-  const group = data.relatedGroup.conceptGroup.find((g: any) => g.tty === type);
-  
-  if (!group || !group.conceptProperties) {
-    return [];
-  }
-  
-  return group.conceptProperties.map((prop: any) => ({
-    rxcui: prop.rxcui,
-    name: prop.name
-  }));
-};
-
-/**
- * Get NDCs (National Drug Codes) for a medication by RxCUI
+ * Get National Drug Codes (NDCs) for a specific RxNorm concept
  */
 export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
+  // Use mocks if configured or in test environment
+  if (shouldUseMocks()) {
+    return mockGetMedicationNDCs(rxcui);
+  }
+
   try {
-    // Query the cache table directly
-    const { data: cachedResult, error: cacheError } = await supabase
+    // First check the cache
+    const { data: cachedNDCs, error: cacheError } = await supabase
       .from('rxnorm_ndc_cache')
       .select('*')
       .eq('rxcui', rxcui)
       .maybeSingle();
 
-    if (cachedResult && !cacheError) {
-      return (cachedResult.ndcs as unknown as RxNormNDC[]);
+    if (cachedNDCs && !cacheError) {
+      console.log('Using cached NDCs for rxcui:', rxcui);
+      return cachedNDCs.ndcs as RxNormNDC[];
     }
 
+    // Fetch from RxNorm API
     const response = await fetch(
       `${RXNORM_API_BASE_URL}/rxcui/${rxcui}/ndcs`
     );
@@ -169,36 +120,57 @@ export const getNDCsByRxCUI = async (rxcui: string): Promise<RxNormNDC[]> => {
       throw new Error(`RxNorm API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    let ndcs: RxNormNDC[] = [];
+    const data: RxNormNDCResponse = await response.json();
+    const ndcs: RxNormNDC[] = [];
     
     if (data.ndcGroup?.ndcList?.ndc) {
-      ndcs = data.ndcGroup.ndcList.ndc.map((ndc: string) => ({
-        ndc,
-        rxcui,
-        ndcItem: '',
-        packaging: '',
-        status: 'ACTIVE'
-      }));
-    }
-    
-    // Store in cache directly
-    const { error: insertError } = await supabase
-      .from('rxnorm_ndc_cache')
-      .insert({
-        rxcui,
-        ndcs: ndcs as unknown as Json,
-        created_at: new Date().toISOString()
+      data.ndcGroup.ndcList.ndc.forEach((ndc: string) => {
+        ndcs.push({ 
+          ndc, 
+          rxcui, 
+          status: 'active',
+          source: 'RxNorm API'
+        });
       });
+    }
+
+    // Cache the results
+    const { error: insertError } = await supabase.from('rxnorm_ndc_cache').insert({
+      rxcui,
+      ndcs,
+      created_at: new Date().toISOString()
+    });
 
     if (insertError) {
       console.error('Error caching NDCs:', insertError);
     }
-    
+
     return ndcs;
   } catch (error) {
-    console.error('Error getting NDCs by RxCUI:', error);
+    console.error('Error getting NDCs:', error);
     return [];
+  }
+};
+
+/**
+ * Map RxNorm to ANVISA (Brazil's medication codes)
+ */
+export const mapRxNormToANVISA = async (rxcui: string): Promise<string | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('rxnorm_anvisa_mappings')
+      .select('anvisa_code')
+      .eq('rxnorm_code', rxcui)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching ANVISA mapping:', error);
+      return null;
+    }
+
+    return data?.anvisa_code || null;
+  } catch (error) {
+    console.error('Error mapping RxNorm to ANVISA:', error);
+    return null;
   }
 };
