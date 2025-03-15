@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import React, { useContext } from 'react';
+import { LanguageContext } from '../context/LanguageContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
@@ -10,8 +10,13 @@ interface LanguageSwitcherProps {
 }
 
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'default' }) => {
-  const { language, toggleLanguage } = useLanguage();
+  const { language, setLanguage } = useContext(LanguageContext);
   const { t } = useTranslation();
+  
+  // Helper function to toggle language
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'pt' : 'en');
+  };
   
   if (variant === 'icon') {
     return (
