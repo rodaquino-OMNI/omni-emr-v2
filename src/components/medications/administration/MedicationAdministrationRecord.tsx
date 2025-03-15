@@ -179,9 +179,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
       setShowScanner(false);
       resetScannerState();
     } else {
-      toast.error(t('verificationFailed'), {
-        description: t('scanBothPatientAndMedication')
-      });
+      toast.error(t('verificationFailed'));
     }
   };
   
@@ -206,9 +204,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
       })
     );
     
-    toast.success(t('medicationAdministered'), {
-      description: t('medicationAdministrationRecorded')
-    });
+    toast.success(t('medicationAdministered'));
   };
   
   const handleHold = (recordId: string) => {
@@ -233,9 +229,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
       })
     );
     
-    toast.success(t('medicationHeld'), {
-      description: t('medicationMarkedAsHeld')
-    });
+    toast.success(t('medicationHeld'));
   };
   
   const handleMissed = (recordId: string) => {
@@ -268,9 +262,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
       })
     );
     
-    toast.info(t('medicationMissed'), {
-      description: t('missedDoseDocumented')
-    });
+    toast.info(t('medicationMissed'));
     
     setShowMissedDialog(false);
     setSelectedRecord(null);
@@ -301,9 +293,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
       })
     );
     
-    toast.success(t('ivRateUpdated'), {
-      description: t('ivCalculationComplete')
-    });
+    toast.success(t('ivRateUpdated'));
     
     setShowIVCalculator(false);
     setSelectedRecord(null);
@@ -365,9 +355,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
   };
   
   const handleAddAdministration = () => {
-    toast.info(t('featureNotImplemented'), {
-      description: t('medicationAdministrationFormWouldOpen')
-    });
+    toast.info(t('featureNotImplemented'));
   };
   
   return (
