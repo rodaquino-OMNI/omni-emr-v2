@@ -51,6 +51,20 @@ export const translations = {
     recordFluidBalance: 'Record Fluid Balance',
     nurseDashboard: 'Nurse Dashboard',
     
+    // Quick actions translations for various roles
+    quickActions: 'Quick Actions',
+    newConsultation: 'New Consultation',
+    patientRecords: 'Patient Records',
+    newPrescription: 'New Prescription',
+    labOrders: 'Lab Orders',
+    verifyPrescriptions: 'Verify Prescriptions',
+    medicationRecords: 'Medication Records',
+    myAppointments: 'My Appointments',
+    myMedications: 'My Medications',
+    myRecords: 'My Records',
+    managePatients: 'Manage Patients',
+    scheduleAppointment: 'Schedule Appointment',
+    
     // Connection and offline mode
     connectionLost: 'Connection lost',
     connectionRestored: 'Connection restored',
@@ -97,6 +111,20 @@ export const translations = {
     fluidOutput: 'Saída de Fluidos',
     recordFluidBalance: 'Registrar Balanço Hídrico',
     nurseDashboard: 'Painel da Enfermagem',
+    
+    // Quick actions translations for various roles
+    quickActions: 'Ações Rápidas',
+    newConsultation: 'Nova Consulta',
+    patientRecords: 'Registros do Paciente',
+    newPrescription: 'Nova Prescrição',
+    labOrders: 'Pedidos de Laboratório',
+    verifyPrescriptions: 'Verificar Prescrições',
+    medicationRecords: 'Registros de Medicação',
+    myAppointments: 'Minhas Consultas',
+    myMedications: 'Meus Medicamentos',
+    myRecords: 'Meus Registros',
+    managePatients: 'Gerenciar Pacientes',
+    scheduleAppointment: 'Agendar Consulta',
     
     // Connection and offline mode
     connectionLost: 'Conexão perdida',
