@@ -14,13 +14,16 @@ export type UserRole =
   | 'radiology_technician'
   | 'system_administrator';
 
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
 export interface User {
   id: string;
   email: string;
   name: string;
   role: UserRole;
   permissions: string[];
-  avatar?: string; // Added avatar property as optional
+  approvalStatus?: ApprovalStatus; // Added for clinical staff approval workflow
+  avatar?: string; // Optional avatar property
 }
 
 export type Language = 'en' | 'pt';

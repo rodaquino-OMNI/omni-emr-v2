@@ -14,6 +14,10 @@ export const signUpWithEmail = async (email: string, password: string, name: str
     return { user: mockUser, session: null };
   }
   
+  // Clinical roles that require admin approval
+  const clinicalRoles: UserRole[] = ['doctor', 'nurse', 'specialist', 'pharmacist', 'lab_technician', 'radiology_technician'];
+  const requiresApproval = clinicalRoles.includes(role);
+  
   // For real users, use Supabase authentication
   console.log('Calling supabase.auth.signUp with:', { email, password, name, role });
   const { data, error } = await supabase.auth.signUp({
@@ -22,7 +26,8 @@ export const signUpWithEmail = async (email: string, password: string, name: str
     options: {
       data: {
         name,
-        role
+        role,
+        requires_approval: requiresApproval
       },
       emailRedirectTo: `${window.location.origin}/auth/callback`
     }
@@ -43,7 +48,7 @@ export const signUpWithEmail = async (email: string, password: string, name: str
         'register',
         'user',
         data.user.id,
-        { role }
+        { role, requires_approval: requiresApproval }
       );
     } catch (auditError) {
       console.error('Error logging audit event:', auditError);
@@ -56,7 +61,9 @@ export const signUpWithEmail = async (email: string, password: string, name: str
         id: data.user.id,
         email: email,
         name: name,
-        role: role
+        role: role,
+        // Set approval status based on role
+        approval_status: requiresApproval ? 'pending' : 'approved'
       };
       
       console.log('Manually inserting profile:', profileData);
@@ -85,6 +92,39 @@ export const signUpWithEmail = async (email: string, password: string, name: str
   
   return { 
     user: mappedUser, 
-    session: data.session 
+    session: data.session,
+    success: true
   };
+};
+
+// Function to handle password reset request
+export const requestPasswordReset = async (email: string) => {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) throw error;
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Password reset error:', error);
+    throw error;
+  }
+};
+
+// Function to update password after reset
+export const updatePassword = async (newPassword: string) => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    
+    if (error) throw error;
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Update password error:', error);
+    throw error;
+  }
 };

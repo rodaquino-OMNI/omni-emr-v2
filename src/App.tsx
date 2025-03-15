@@ -1,175 +1,118 @@
 
-import React, { useState, useEffect } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { checkConnectivity, monitorConnectivity } from "./utils/supabaseConnectivity";
-import { toast } from "sonner";
-import { useTranslation } from "./hooks/useTranslation";
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { Toaster } from './components/ui/sonner';
+import ErrorBoundary from './components/ErrorBoundary';
+import './App.css';
 
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import AuthCallback from "./pages/AuthCallback";
-import Dashboard from "./pages/Dashboard";
-import Patients from "./pages/Patients";
-import PatientProfile from "./pages/PatientProfile";
-import Records from "./pages/Records";
-import RecordView from "./pages/RecordView";
-import Medications from "./pages/Medications";
-import MedicationView from "./pages/MedicationView";
-import PrescribeMedication from "./pages/PrescribeMedication";
-import Prescriptions from "./pages/Prescriptions";
-import PrescriptionView from "./pages/PrescriptionView";
-import Schedule from "./pages/Schedule";
-import Settings from "./pages/Settings";
-import Help from "./pages/Help";
-import Telemedicine from "./pages/Telemedicine";
-import Admin from "./pages/Admin";
-import Unauthorized from "./pages/Unauthorized";
-import NotFound from "./pages/NotFound";
-import Messages from "./pages/Messages";
-import Tasks from "./pages/Tasks";
-import TaskDetail from "./pages/TaskDetail";
-import MedicalHistory from "./pages/MedicalHistory";
-import Notifications from "./pages/Notifications";
-import VitalSigns from "./pages/VitalSigns";
-import FluidBalance from "./pages/FluidBalance";
-import Orders from './pages/Orders';
-import CriticalResults from './pages/CriticalResults';
-import VisitNotes from './pages/VisitNotes';
-import ProtectedRoute from "./components/auth/ProtectedRoute";
+// Lazy-loaded pages
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Patients = lazy(() => import('./pages/Patients'));
+const PatientProfile = lazy(() => import('./pages/PatientProfile'));
+const VitalSigns = lazy(() => import('./pages/VitalSigns'));
+const MedicalHistory = lazy(() => import('./pages/MedicalHistory'));
+const Prescriptions = lazy(() => import('./pages/Prescriptions'));
+const PrescribeMedication = lazy(() => import('./pages/PrescribeMedication'));
+const PrescriptionView = lazy(() => import('./pages/PrescriptionView'));
+const Medications = lazy(() => import('./pages/Medications'));
+const MedicationView = lazy(() => import('./pages/MedicationView'));
+const MedicationAdministration = lazy(() => import('./pages/MedicationAdministration'));
+const RxNormManagement = lazy(() => import('./pages/RxNormManagement'));
+const Records = lazy(() => import('./pages/Records'));
+const RecordView = lazy(() => import('./pages/RecordView'));
+const ClinicalDocumentation = lazy(() => import('./pages/ClinicalDocumentation'));
+const VisitNotes = lazy(() => import('./pages/VisitNotes'));
+const Schedule = lazy(() => import('./pages/Schedule'));
+const Orders = lazy(() => import('./pages/Orders'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const TaskDetail = lazy(() => import('./pages/TaskDetail'));
+const Messages = lazy(() => import('./pages/Messages'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const CriticalResults = lazy(() => import('./pages/CriticalResults'));
+const EmergencyCare = lazy(() => import('./pages/EmergencyCare'));
+const HospitalWorkflows = lazy(() => import('./pages/HospitalWorkflows'));
+const FluidBalance = lazy(() => import('./pages/FluidBalance'));
+const Telemedicine = lazy(() => import('./pages/Telemedicine'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Help = lazy(() => import('./pages/Help'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Unauthorized = lazy(() => import('./pages/Unauthorized'));
+const Index = lazy(() => import('./pages/Index'));
 
-// Create a connection status component
-const ConnectionStatus = () => {
-  const [isConnected, setIsConnected] = useState<boolean | null>(null);
-  const { language } = useTranslation();
-
-  useEffect(() => {
-    // Set up connection monitoring
-    return monitorConnectivity((connected) => {
-      if (isConnected === true && !connected) {
-        // Connection lost
-        toast.error(
-          language === 'pt' ? 'Conexão perdida' : 'Connection lost',
-          {
-            description: language === 'pt'
-              ? 'Funcionando em modo offline. Algumas funcionalidades podem estar indisponíveis.'
-              : 'Working in offline mode. Some features may be unavailable.',
-            duration: 5000
-          }
-        );
-      } else if (isConnected === false && connected) {
-        // Connection restored
-        toast.success(
-          language === 'pt' ? 'Conexão restaurada' : 'Connection restored',
-          {
-            description: language === 'pt'
-              ? 'Todas as funcionalidades estão disponíveis novamente.'
-              : 'All features are available again.',
-            duration: 5000
-          }
-        );
-      }
-      
-      setIsConnected(connected);
-    }, 30000); // Check every 30 seconds
-  }, [isConnected, language]);
-  
-  return null; // This component doesn't render anything
-};
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-    },
-  },
-});
-
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner closeButton position="top-right" />
-            <ConnectionStatus />
+const App = () => {
+  return (
+    <ErrorBoundary>
+      <AuthProvider>
+        <Toaster position="top-right" />
+        <Router>
+          <Suspense 
+            fallback={
+              <div className="min-h-screen flex justify-center items-center bg-background">
+                <div className="animate-pulse">Carregando...</div>
+              </div>
+            }
+          >
             <Routes>
+              {/* Landing page */}
               <Route path="/" element={<Index />} />
+              
+              {/* Auth routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/unauthorized" element={<Unauthorized />} />
               
+              {/* Protected routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
-                
                 <Route path="/patients" element={<Patients />} />
-                <Route path="/patients/:id" element={<PatientProfile />} />
-                <Route path="/patients/:id/medical-history" element={<MedicalHistory />} />
-                
-                <Route path="/records" element={<Records />} />
-                <Route path="/records/:id" element={<RecordView />} />
-                
-                <Route path="/visit-notes" element={<VisitNotes />} />
-                
-                <Route path="/medications" element={<Medications />} />
-                <Route path="/medications/:id" element={<MedicationView />} />
-                
+                <Route path="/patient/:id" element={<PatientProfile />} />
+                <Route path="/vitals/:patientId?" element={<VitalSigns />} />
+                <Route path="/medical-history/:patientId?" element={<MedicalHistory />} />
                 <Route path="/prescriptions" element={<Prescriptions />} />
-                <Route path="/prescriptions/:id" element={<PrescriptionView />} />
-                
+                <Route path="/prescribe" element={<PrescribeMedication />} />
+                <Route path="/prescription/:id" element={<PrescriptionView />} />
+                <Route path="/medications" element={<Medications />} />
+                <Route path="/medication/:id" element={<MedicationView />} />
+                <Route path="/medication-admin" element={<MedicationAdministration />} />
+                <Route path="/rxnorm-management" element={<RxNormManagement />} />
+                <Route path="/records" element={<Records />} />
+                <Route path="/record/:id" element={<RecordView />} />
+                <Route path="/clinical-documentation" element={<ClinicalDocumentation />} />
+                <Route path="/visit-notes" element={<VisitNotes />} />
+                <Route path="/schedule" element={<Schedule />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/tasks" element={<Tasks />} />
+                <Route path="/task/:id" element={<TaskDetail />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/notifications" element={<Notifications />} />
-                
-                <Route path="/tasks" element={<Tasks />} />
-                <Route path="/tasks/:id" element={<TaskDetail />} />
-                
-                <Route path="/vitals" element={<VitalSigns />} />
-                <Route path="/fluid-balance" element={<FluidBalance />} />
                 <Route path="/critical-results" element={<CriticalResults />} />
-                
-                <Route element={<ProtectedRoute requiredPermission="prescribe_medications" />}>
-                  <Route path="/prescribe/:patientId?" element={<PrescribeMedication />} />
-                  <Route path="/prescribe" element={<PrescribeMedication />} />
-                  <Route path="/prescribe-medication" element={<Navigate to="/prescribe" replace />} />
-                  <Route path="/prescribe-medication/:patientId" element={<Navigate to="/prescribe/:patientId" replace />} />
-                </Route>
-                
-                <Route element={<ProtectedRoute requiredPermission="telemedicine" />}>
-                  <Route path="/telemedicine" element={<Telemedicine />} />
-                </Route>
-                
-                <Route element={<ProtectedRoute requiredPermission="view_schedule" />}>
-                  <Route path="/schedule" element={<Schedule />} />
-                </Route>
-                
-                <Route element={<ProtectedRoute requiredPermission="all" />}>
-                  <Route path="/admin" element={<Admin />} />
-                </Route>
-                
+                <Route path="/emergency-care" element={<EmergencyCare />} />
+                <Route path="/hospital-workflows" element={<HospitalWorkflows />} />
+                <Route path="/fluid-balance" element={<FluidBalance />} />
+                <Route path="/telemedicine" element={<Telemedicine />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="/help" element={<Help />} />
-                
-                <Route path="/orders" element={<Orders />} />
               </Route>
               
-              <Route path="*" element={<NotFound />} />
+              {/* Error routes */}
+              <Route path="/unauthorized" element={<Unauthorized />} />
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
-          </TooltipProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+          </Suspense>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;
