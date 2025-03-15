@@ -18,6 +18,8 @@ interface VisitNoteDetailProps {
 }
 
 const VisitNoteDetail: React.FC<VisitNoteDetailProps> = ({ note, onRefresh }) => {
+  console.log("VisitNoteDetail rendering with note:", note);
+  
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { hasPermission } = usePermissions(user);
@@ -40,6 +42,19 @@ const VisitNoteDetail: React.FC<VisitNoteDetailProps> = ({ note, onRefresh }) =>
       onRefresh();
     }
   };
+  
+  if (!note) {
+    console.error("VisitNoteDetail: note prop is null or undefined");
+    return (
+      <Card className="w-full">
+        <CardContent className="py-10">
+          <p className="text-center text-muted-foreground">
+            {language === 'pt' ? 'Nota de visita não encontrada' : 'Visit note not found'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card className="w-full">

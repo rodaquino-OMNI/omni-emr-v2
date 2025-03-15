@@ -13,6 +13,20 @@ interface VitalSignsViewProps {
 const VitalSignsView: React.FC<VitalSignsViewProps> = ({ vitalSigns, showHeader = true }) => {
   const { t, language } = useTranslation();
   
+  // Add null check for vitalSigns
+  if (!vitalSigns) {
+    console.error('VitalSignsView: vitalSigns prop is null or undefined');
+    return (
+      <Card className="w-full">
+        <CardContent className="py-4">
+          <p className="text-center text-muted-foreground">
+            {language === 'pt' ? 'Dados de sinais vitais não disponíveis' : 'Vital signs data not available'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
