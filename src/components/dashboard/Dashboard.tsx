@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Users, Calendar, ClipboardList, ArrowRight, AlertTriangle, Pill, FileText, MessageSquare, Video, Droplet, ClipboardCheck } from 'lucide-react';
@@ -59,9 +58,7 @@ const Dashboard = ({ className }: DashboardProps) => {
   const { language } = useTranslation();
   const { user } = useAuth();
   
-  // Sample data with translations based on user role
   const getStats = () => {
-    // Base stats for all roles
     const baseStats = [
       { 
         title: language === 'pt' ? "Total de Pacientes" : "Total Patients", 
@@ -101,7 +98,6 @@ const Dashboard = ({ className }: DashboardProps) => {
       }
     ];
     
-    // Nurse-specific stats at the top
     if (user?.role === 'nurse') {
       return [
         { 
@@ -136,7 +132,6 @@ const Dashboard = ({ className }: DashboardProps) => {
       ];
     }
 
-    // Additional stats for doctors
     if (user?.role === 'doctor') {
       return [
         ...baseStats,
@@ -156,7 +151,6 @@ const Dashboard = ({ className }: DashboardProps) => {
       ];
     }
     
-    // Additional stats for regular nurses (non-specialized dashboard)
     if (user?.role === 'nurse' && user.role !== 'nurse') {
       return [
         ...baseStats,
@@ -175,7 +169,6 @@ const Dashboard = ({ className }: DashboardProps) => {
       ];
     }
     
-    // Stats for admin
     if (user?.role === 'admin') {
       return [
         ...baseStats,
@@ -205,13 +198,8 @@ const Dashboard = ({ className }: DashboardProps) => {
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Nurse-specific Quick Actions - at the very top for nurses */}
       {user?.role === 'nurse' && <QuickActions />}
-      
-      {/* Doctor Quick Actions - at the very top for doctors */}
       {user?.role === 'doctor' && <QuickActions />}
-      
-      {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <StatCard 
@@ -225,17 +213,9 @@ const Dashboard = ({ className }: DashboardProps) => {
           />
         ))}
       </div>
-      
-      {/* Role-specific KPIs */}
       <RoleDashboardKPIs />
-      
-      {/* Alerts Section */}
       <DashboardAlerts />
-      
-      {/* Quick Actions - for non-doctors and non-nurses */}
       {user?.role !== 'doctor' && user?.role !== 'nurse' && <QuickActions />}
-      
-      {/* Recent Patients Section */}
       <div className="glass-card p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">
