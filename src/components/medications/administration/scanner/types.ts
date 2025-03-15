@@ -31,7 +31,7 @@ export interface MedicationScannerProps {
 
 export interface ScanItemProps {
   title: string;
-  entity: (PatientData & { name: string; mrn: string }) | (MedicationData & { medicationName: string }) | null;
+  entity: PatientData | MedicationData | null;
   entityType: 'patient' | 'medication';
   entityName?: string;
   isScanned: boolean;

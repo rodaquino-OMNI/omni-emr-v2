@@ -12,6 +12,22 @@ const ScanItem: React.FC<ScanItemProps> = ({
   isScanned,
   icon
 }) => {
+  // Helper function to safely get the display text based on entity type
+  const getDisplayText = () => {
+    if (!entity) return "";
+    
+    if (entityType === 'patient' && 'name' in entity && 'mrn' in entity) {
+      return `${entity.name} • ${entity.mrn}`;
+    } else if (entityType === 'medication') {
+      if (entityName) {
+        return entityName;
+      } else if ('medicationName' in entity) {
+        return entity.medicationName;
+      }
+    }
+    return "";
+  };
+  
   return (
     <Card className={`p-3 ${isScanned ? 'bg-green-50 border-green-200' : ''}`}>
       <div className="flex items-center text-sm font-medium mb-2">
@@ -21,9 +37,7 @@ const ScanItem: React.FC<ScanItemProps> = ({
       </div>
       {entity && (
         <div className="text-xs">
-          {entityType === 'patient' 
-            ? `${entity.name} • ${entity.mrn}` 
-            : entityName || entity.medicationName}
+          {getDisplayText()}
         </div>
       )}
     </Card>
