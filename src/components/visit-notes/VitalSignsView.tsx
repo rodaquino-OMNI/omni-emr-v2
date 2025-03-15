@@ -2,7 +2,7 @@
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarClock, Heart, Activity, Thermometer, Lungs, Droplet, BarChart2 } from 'lucide-react';
+import { CalendarClock, Heart, Activity, Thermometer, Wind, Droplet, BarChart2 } from 'lucide-react';
 import type { VitalSigns } from '@/services/visitNotes/visitNoteService';
 
 interface VitalSignsViewProps {
@@ -82,7 +82,7 @@ const VitalSignsView: React.FC<VitalSignsViewProps> = ({ vitalSigns, showHeader 
           
           {vitalSigns.respiratoryRate !== undefined && (
             <div className="flex items-start gap-2">
-              <Lungs className="h-5 w-5 text-purple-500 mt-0.5" />
+              <Wind className="h-5 w-5 text-purple-500 mt-0.5" />
               <div>
                 <p className="text-sm text-muted-foreground">
                   {language === 'pt' ? 'Frequência Respiratória' : 'Respiratory Rate'}
