@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { OrderType } from '@/types/orders';
+import { Shield } from 'lucide-react';
 
 export interface OrderAlert {
   type: 'critical' | 'warning' | 'info';
@@ -62,6 +63,15 @@ export const useOrderAlertsCheck = () => {
     setIsSubmitting(true);
     
     try {
+      // Show toast to indicate AI is analyzing the order
+      toast({
+        title: language === 'pt' ? 'Verificando pedido' : 'Verifying order',
+        description: language === 'pt' 
+          ? 'Nossa IA está analisando o pedido para garantir a segurança' 
+          : 'Our AI is analyzing the order to ensure safety',
+        icon: <Shield className="h-4 w-4 text-purple-600" />,
+      });
+      
       // In a real app, this would call a Supabase function or API endpoint
       // that uses an AI service to check for alerts
       try {
@@ -100,6 +110,18 @@ export const useOrderAlertsCheck = () => {
       const hasAlerts = newAlerts.length > 0;
       setShowAIModal(hasAlerts);
       
+      // Show success toast if no alerts were found
+      if (!hasAlerts) {
+        toast({
+          title: language === 'pt' ? 'Verificação concluída' : 'Verification completed',
+          description: language === 'pt'
+            ? 'Nenhum problema foi encontrado pela IA'
+            : 'No issues were found by the AI',
+          variant: 'success',
+          icon: <Shield className="h-4 w-4 text-green-600" />,
+        });
+      }
+      
       return { hasAlerts, alerts: newAlerts };
       
     } catch (error) {
@@ -132,6 +154,16 @@ export const useOrderAlertsCheck = () => {
       
       setAlerts(updatedAlerts);
       
+      // Show a toast to acknowledge the alert override
+      toast({
+        title: language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden',
+        description: language === 'pt'
+          ? 'Os alertas foram ignorados com uma justificativa clínica'
+          : 'Alerts have been overridden with clinical justification',
+        variant: 'warning',
+        icon: <Shield className="h-4 w-4 text-amber-600" />,
+      });
+      
       // In a real app, we would log these overrides to the audit log
       try {
         // This is a placeholder for real implementation
@@ -155,8 +187,18 @@ export const useOrderAlertsCheck = () => {
       return updatedAlerts;
     }
     
+    if (!proceed) {
+      toast({
+        title: language === 'pt' ? 'Pedido cancelado' : 'Order cancelled',
+        description: language === 'pt'
+          ? 'O pedido foi cancelado devido aos alertas de segurança'
+          : 'The order was cancelled due to safety alerts',
+        variant: 'info',
+      });
+    }
+    
     return proceed ? alerts : null;
-  }, [alerts]);
+  }, [alerts, language]);
   
   return {
     alerts,
