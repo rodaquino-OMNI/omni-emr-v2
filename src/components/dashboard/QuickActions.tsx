@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Pill, Calendar, FileText, MessageSquare, Video, Users, ClipboardList, Activity, Droplet } from 'lucide-react';
+import { Pill, Calendar, FileText, MessageSquare, Video, Users, ClipboardList, Activity, Droplet, ClipboardCheck, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -36,6 +36,20 @@ const QuickActions = () => {
       link: '/schedule',
       color: 'bg-green-100 text-green-800',
       permissionRequired: 'schedule_appointments'
+    },
+    {
+      title: language === 'pt' ? 'Notas de Visita' : 'Visit Notes',
+      icon: <ClipboardCheck className="h-5 w-5" />,
+      link: '/visit-notes',
+      color: 'bg-amber-100 text-amber-800',
+      permissionRequired: 'view_records'
+    },
+    {
+      title: language === 'pt' ? 'Alta do Paciente' : 'Discharge Patient',
+      icon: <LogOut className="h-5 w-5" />,
+      link: '/visit-notes',
+      color: 'bg-indigo-100 text-indigo-800',
+      permissionRequired: 'view_records'
     },
     {
       title: language === 'pt' ? 'Nova Evolução' : 'New Progress Note',

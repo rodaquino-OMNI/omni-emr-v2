@@ -32,6 +32,14 @@ export const translations = {
     ...hospitalTranslations.en,
     ...telemedicineTranslations.en,
     
+    // Visit Notes and Discharge related translations
+    visitNotes: 'Visit Notes',
+    discharge: 'Discharge',
+    dischargePatient: 'Discharge Patient',
+    dischargeNotes: 'Discharge Notes',
+    dischargeInstructions: 'Discharge Instructions',
+    dischargeDate: 'Discharge Date',
+    
     // Connection and offline mode
     connectionLost: 'Connection lost',
     connectionRestored: 'Connection restored',
@@ -59,6 +67,14 @@ export const translations = {
     ...emergencyTranslations.pt,
     ...hospitalTranslations.pt,
     ...telemedicineTranslations.pt,
+    
+    // Visit Notes and Discharge related translations
+    visitNotes: 'Notas de Visita',
+    discharge: 'Alta',
+    dischargePatient: 'Alta do Paciente',
+    dischargeNotes: 'Notas de Alta',
+    dischargeInstructions: 'Instruções de Alta',
+    dischargeDate: 'Data da Alta',
     
     // Connection and offline mode
     connectionLost: 'Conexão perdida',

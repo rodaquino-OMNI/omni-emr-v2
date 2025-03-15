@@ -8,7 +8,7 @@ import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import { sidebarItems } from '@/config/sidebarConfig';
 import { Link } from 'react-router-dom';
-import { Stethoscope, BookUser, FileHeart, FlaskConical } from 'lucide-react';
+import { Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck } from 'lucide-react';
 
 interface SidebarContentProps {
   onItemClick?: () => void;
@@ -26,6 +26,13 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
       path: '/schedule',
       icon: Stethoscope,
       translationKey: 'newConsultation',
+      priority: 0
+    },
+    {
+      name: 'Visit Notes',
+      path: '/visit-notes',
+      icon: ClipboardCheck,
+      translationKey: 'visitNotes',
       priority: 0
     },
     {

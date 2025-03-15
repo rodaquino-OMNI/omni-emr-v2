@@ -41,6 +41,7 @@ import VitalSigns from "./pages/VitalSigns";
 import FluidBalance from "./pages/FluidBalance";
 import Orders from './pages/Orders';
 import CriticalResults from './pages/CriticalResults';
+import VisitNotes from './pages/VisitNotes';
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // Create a connection status component
@@ -118,6 +119,8 @@ const App = () => (
                 
                 <Route path="/records" element={<Records />} />
                 <Route path="/records/:id" element={<RecordView />} />
+                
+                <Route path="/visit-notes" element={<VisitNotes />} />
                 
                 <Route path="/medications" element={<Medications />} />
                 <Route path="/medications/:id" element={<MedicationView />} />

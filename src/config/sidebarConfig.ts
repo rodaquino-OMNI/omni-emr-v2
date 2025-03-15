@@ -1,5 +1,5 @@
 
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical } from 'lucide-react';
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -28,19 +28,27 @@ export const sidebarItems: SidebarItem[] = [
     priority: 2
   },
   {
+    name: 'Visit Notes',
+    path: '/visit-notes',
+    icon: ClipboardCheck,
+    translationKey: 'visitNotes',
+    permissionRequired: 'view_records',
+    priority: 3
+  },
+  {
     name: 'Schedule',
     path: '/schedule',
     icon: Calendar,
     translationKey: 'schedule',
     permissionRequired: 'view_schedule',
-    priority: 3
+    priority: 4
   },
   {
     name: 'Tasks',
     path: '/tasks',
     icon: ListChecks,
     translationKey: 'tasks',
-    priority: 4
+    priority: 5
   },
   {
     name: 'Clinical Documentation',
@@ -48,7 +56,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: FileText,
     translationKey: 'records',
     permissionRequired: 'view_records',
-    priority: 5
+    priority: 6
   },
   {
     name: 'Vital Signs',
@@ -56,7 +64,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Activity,
     translationKey: 'vitals',
     permissionRequired: 'view_vitals',
-    priority: 6
+    priority: 7
   },
   {
     name: 'Fluid Balance',
@@ -64,7 +72,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Droplet, 
     translationKey: 'fluidBalance',
     permissionRequired: 'manage_fluid_balance',
-    priority: 7
+    priority: 8
   },
   {
     name: 'Medications',
@@ -72,7 +80,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Pill,
     translationKey: 'medications',
     permissionRequired: 'view_medications',
-    priority: 8
+    priority: 9
   },
   {
     name: 'Prescriptions',
@@ -80,21 +88,21 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardList,
     translationKey: 'prescriptions',
     permissionRequired: 'view_prescriptions',
-    priority: 9
+    priority: 10
   },
   {
     name: 'Messages',
     path: '/messages',
     icon: MessageSquare,
     translationKey: 'messages',
-    priority: 10
+    priority: 11
   },
   {
     name: 'Notifications',
     path: '/notifications',
     icon: Bell,
     translationKey: 'notifications',
-    priority: 11
+    priority: 12
   },
   {
     name: 'Telemedicine',
@@ -102,7 +110,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Video,
     translationKey: 'telemedicine',
     permissionRequired: 'telemedicine',
-    priority: 12
+    priority: 13
   },
   {
     name: 'Orders',
@@ -110,7 +118,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardList,
     translationKey: 'orders',
     permissionRequired: 'view_orders',
-    priority: 13
+    priority: 14
   },
   {
     name: 'Analytics',
@@ -118,7 +126,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: BarChart,
     translationKey: 'analytics',
     permissionRequired: 'view_analytics',
-    priority: 14,
+    priority: 15,
     roles: ['admin', 'doctor', 'system_administrator']
   },
   {
@@ -126,13 +134,13 @@ export const sidebarItems: SidebarItem[] = [
     path: '/help',
     icon: HelpCircle,
     translationKey: 'help',
-    priority: 15
+    priority: 16
   },
   {
     name: 'Settings',
     path: '/settings',
     icon: Settings,
     translationKey: 'settings',
-    priority: 16
+    priority: 17
   }
 ];
