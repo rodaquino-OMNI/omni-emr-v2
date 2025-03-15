@@ -32,6 +32,13 @@ export const translations = {
     ...hospitalTranslations.en,
     ...telemedicineTranslations.en,
     
+    // App basics
+    appName: "OmniCare",
+    appDescription: "Complete healthcare management solution",
+    createAccount: "Create Account",
+    signIn: "Sign in",
+    goToDashboard: "Go to Dashboard",
+    
     // Visit Notes and Discharge related translations
     visitNotes: 'Visit Notes',
     discharge: 'Discharge',
@@ -92,6 +99,13 @@ export const translations = {
     ...emergencyTranslations.pt,
     ...hospitalTranslations.pt,
     ...telemedicineTranslations.pt,
+    
+    // App basics
+    appName: "OmniCare",
+    appDescription: "Solução completa de gestão em saúde",
+    createAccount: "Criar Conta",
+    signIn: "Entrar",
+    goToDashboard: "Ir para o Painel",
     
     // Visit Notes and Discharge related translations
     visitNotes: 'Notas de Visita',

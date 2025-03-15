@@ -4,7 +4,7 @@ import TranslationDiagnostics from '@/components/debug/TranslationDiagnostics';
 
 export const translationRoutes: RouteObject[] = [
   {
-    path: '/translation-diagnostics',
+    path: '/debug/translation-diagnostics',
     element: <TranslationDiagnostics />
   }
 ];
