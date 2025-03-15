@@ -24,24 +24,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import NewVisitNoteForm from "@/components/visit-notes/NewVisitNoteForm";
 
 const VisitNotes: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("active");
-  
-  const handleDischarge = (patientId: string) => {
-    // This would typically open a discharge form or process
-    toast.info(t('dischargePatient'), {
-      description: `Starting discharge process for patient ${patientId}`,
-      duration: 3000,
-    });
-    // In a real app, you might navigate to a discharge form or open a modal
-    // navigate(`/patients/${patientId}/discharge`);
-  };
-
-  // Mock visit notes data
-  const visitNotes = [
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [notes, setNotes] = useState([
     {
       id: "vn1",
       patientId: "p123",
@@ -69,10 +64,29 @@ const VisitNotes: React.FC = () => {
       title: "Post-Op Check",
       summary: "Patient discharged. Recovery progressing as expected."
     }
-  ];
+  ]);
+  
+  const handleDischarge = (patientId: string) => {
+    // This would typically open a discharge form or process
+    toast.info(t('dischargePatient'), {
+      description: `Starting discharge process for patient ${patientId}`,
+      duration: 3000,
+    });
+    // In a real app, you might navigate to a discharge form or open a modal
+    // navigate(`/patients/${patientId}/discharge`);
+  };
+
+  const handleFormClose = () => {
+    setIsFormOpen(false);
+  };
+  
+  const handleFormSuccess = () => {
+    // In a real app, we would refresh the notes list from the API
+    // For now, we'll just rely on the mock data
+  };
 
   // Filter notes based on active tab
-  const filteredNotes = visitNotes.filter(note => 
+  const filteredNotes = notes.filter(note => 
     activeTab === "all" || 
     (activeTab === "active" && note.status === "active") ||
     (activeTab === "discharged" && note.status === "discharged")
@@ -102,10 +116,20 @@ const VisitNotes: React.FC = () => {
             {t('dateRange')}
           </Button>
           
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            {t('new')} {t('visitNotes')}
-          </Button>
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                {t('new')} {t('visitNote')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[800px]">
+              <NewVisitNoteForm 
+                onClose={handleFormClose} 
+                onSuccess={handleFormSuccess}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       
