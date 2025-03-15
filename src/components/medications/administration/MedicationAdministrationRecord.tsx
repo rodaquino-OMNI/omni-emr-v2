@@ -157,9 +157,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
   
   const handleAdminister = (recordId: string) => {
     if (!canAdministerMedications) {
-      toast.error(t('permissionDenied'), {
-        description: t('cannotAdministerMedications')
-      });
+      toast.error(t('permissionDenied'));
       return;
     }
     
@@ -215,9 +213,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
   
   const handleHold = (recordId: string) => {
     if (!canAdministerMedications) {
-      toast.error(t('permissionDenied'), {
-        description: t('cannotAdministerMedications')
-      });
+      toast.error(t('permissionDenied'));
       return;
     }
     
@@ -244,9 +240,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
   
   const handleMissed = (recordId: string) => {
     if (!canAdministerMedications) {
-      toast.error(t('permissionDenied'), {
-        description: t('cannotAdministerMedications')
-      });
+      toast.error(t('permissionDenied'));
       return;
     }
     
