@@ -1,4 +1,5 @@
 
+// Update the existing file with new fields and types
 export type NoteType = 'progress' | 'admission' | 'consultation' | 'procedure' | 'discharge';
 
 export type NoteStatus = 'draft' | 'pending_cosign' | 'signed' | 'cosigned';
@@ -20,6 +21,9 @@ export interface ClinicalNote {
   cosignedAt?: Date;
   aiGenerated: boolean;
   aiAssistance?: string;
+  offlineId?: string; // For offline-created notes
+  needsSync?: boolean; // Flag for notes that need to be synced
+  lastSyncAttempt?: Date; // Last sync attempt timestamp
 }
 
 export interface NoteTemplate {
@@ -33,4 +37,9 @@ export interface NoteTemplate {
     content: string;
     required: boolean;
   }>;
+}
+
+export interface NoteValidator {
+  validate: (note: ClinicalNote) => { valid: boolean, errors: string[] };
+  requiredFields: string[];
 }

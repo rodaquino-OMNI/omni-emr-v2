@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -13,12 +14,15 @@ import {
   SheetTitle
 } from '@/components/ui/sheet';
 import { useAuth } from '@/context/AuthContext';
-import { FileText, FilePlus, Search } from 'lucide-react';
+import { FileText, FilePlus, Search, Wifi, WifiOff } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import NotesList from '@/components/clinical-documentation/NotesList';
 import NoteTemplateSelector from '@/components/clinical-documentation/NoteTemplateSelector';
 import NoteEditor from '@/components/clinical-documentation/NoteEditor';
 import { ClinicalNote, NoteTemplate, NoteStatus, NoteType } from '@/types/clinicalNotes';
+import { noteService } from '@/services/clinicalNotes/noteService';
+import { templateService } from '@/services/clinicalNotes/templateService';
+import OfflineSyncIndicator from '@/components/clinical-documentation/components/OfflineSyncIndicator';
 
 const ClinicalDocumentationPage = () => {
   const navigate = useNavigate();
@@ -39,6 +43,21 @@ const ClinicalDocumentationPage = () => {
   
   const [notes, setNotes] = useState<ClinicalNote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  // Monitor online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   
   useEffect(() => {
     fetchNotes();
@@ -47,56 +66,60 @@ const ClinicalDocumentationPage = () => {
   const fetchNotes = async () => {
     setLoading(true);
     try {
-      // This would be an API call in a real app
-      await new Promise(resolve => setTimeout(resolve, 500));
+      let fetchedNotes: ClinicalNote[] = [];
       
-      // Mock data
-      const mockNotes: ClinicalNote[] = [
-        {
-          id: '1',
-          patientId: patientId || '1',
-          authorId: '123',
-          authorName: 'Dr. Sarah Johnson',
-          type: 'progress',
-          title: 'Daily Progress Note',
-          content: '## Subjective\nPatient reports feeling better today. Pain has decreased from 7/10 to 3/10.\n\n## Objective\nVital signs stable. Temperature 36.7°C, BP 122/78, HR 72.\n\n## Assessment\nImproving as expected post-procedure.\n\n## Plan\nContinue current medications. Follow up in 1 week.',
-          status: 'signed',
-          createdAt: new Date('2023-06-15T10:30:00'),
-          updatedAt: new Date('2023-06-15T11:15:00'),
-          signedAt: new Date('2023-06-15T11:15:00'),
-          aiGenerated: false
-        },
-        {
-          id: '2',
-          patientId: patientId || '1',
-          authorId: '456',
-          authorName: 'Dr. Michael Chen',
-          type: 'consultation',
-          title: 'Cardiology Consultation',
-          content: '## Reason for Consultation\nEvaluation of newly diagnosed atrial fibrillation.\n\n## History\nPatient with new onset palpitations and dyspnea on exertion.\n\n## Examination\nIrregularly irregular rhythm noted. No S3 or S4 gallops.\n\n## Impression\nParoxysmal atrial fibrillation.\n\n## Recommendations\nInitiate rate control with metoprolol. Consider anticoagulation based on CHA2DS2-VASc score.',
-          status: 'signed',
-          createdAt: new Date('2023-06-10T14:00:00'),
-          updatedAt: new Date('2023-06-10T15:30:00'),
-          signedAt: new Date('2023-06-10T15:30:00'),
-          aiGenerated: false
-        },
-        {
-          id: '3',
-          patientId: patientId || '1',
-          authorId: '123',
-          authorName: 'Dr. Sarah Johnson',
-          type: 'progress',
-          title: 'Follow-up Note',
-          content: '## Subjective\nPatient continues to improve. No new symptoms reported.\n\n## Objective\nVital signs: Temperature 36.5°C, BP 118/76, HR 68.\n\n## Assessment\nContinued improvement. All lab values returning to normal range.\n\n## Plan\nDecrease follow-up frequency to biweekly. Continue medications as prescribed.',
-          status: 'draft',
-          createdAt: new Date('2023-06-18T09:15:00'),
-          updatedAt: new Date('2023-06-18T09:45:00'),
-          aiGenerated: true
-        }
-      ];
+      // Fetch notes from service (which handles online/offline)
+      if (patientId) {
+        fetchedNotes = await noteService.getNotesByPatient(patientId);
+      } else {
+        // Mocked notes for demo
+        fetchedNotes = [
+          {
+            id: '1',
+            patientId: patientId || '1',
+            authorId: '123',
+            authorName: 'Dr. Sarah Johnson',
+            type: 'progress',
+            title: 'Daily Progress Note',
+            content: '## Subjective\nPatient reports feeling better today. Pain has decreased from 7/10 to 3/10.\n\n## Objective\nVital signs stable. Temperature 36.7°C, BP 122/78, HR 72.\n\n## Assessment\nImproving as expected post-procedure.\n\n## Plan\nContinue current medications. Follow up in 1 week.',
+            status: 'signed',
+            createdAt: new Date('2023-06-15T10:30:00'),
+            updatedAt: new Date('2023-06-15T11:15:00'),
+            signedAt: new Date('2023-06-15T11:15:00'),
+            aiGenerated: false
+          },
+          {
+            id: '2',
+            patientId: patientId || '1',
+            authorId: '456',
+            authorName: 'Dr. Michael Chen',
+            type: 'consultation',
+            title: 'Cardiology Consultation',
+            content: '## Reason for Consultation\nEvaluation of newly diagnosed atrial fibrillation.\n\n## History\nPatient with new onset palpitations and dyspnea on exertion.\n\n## Examination\nIrregularly irregular rhythm noted. No S3 or S4 gallops.\n\n## Impression\nParoxysmal atrial fibrillation.\n\n## Recommendations\nInitiate rate control with metoprolol. Consider anticoagulation based on CHA2DS2-VASc score.',
+            status: 'signed',
+            createdAt: new Date('2023-06-10T14:00:00'),
+            updatedAt: new Date('2023-06-10T15:30:00'),
+            signedAt: new Date('2023-06-10T15:30:00'),
+            aiGenerated: false
+          },
+          {
+            id: '3',
+            patientId: patientId || '1',
+            authorId: '123',
+            authorName: 'Dr. Sarah Johnson',
+            type: 'progress',
+            title: 'Follow-up Note',
+            content: '## Subjective\nPatient continues to improve. No new symptoms reported.\n\n## Objective\nVital signs: Temperature 36.5°C, BP 118/76, HR 68.\n\n## Assessment\nContinued improvement. All lab values returning to normal range.\n\n## Plan\nDecrease follow-up frequency to biweekly. Continue medications as prescribed.',
+            status: 'draft',
+            createdAt: new Date('2023-06-18T09:15:00'),
+            updatedAt: new Date('2023-06-18T09:45:00'),
+            aiGenerated: true
+          }
+        ];
+      }
       
       // Filter notes based on type and status
-      let filteredNotes = [...mockNotes];
+      let filteredNotes = [...fetchedNotes];
       
       if (noteTypeFilter !== 'all') {
         filteredNotes = filteredNotes.filter(note => note.type === noteTypeFilter);
@@ -198,60 +221,75 @@ const ClinicalDocumentationPage = () => {
                 {language === 'pt' ? 'Documentação Clínica' : 'Clinical Documentation'}
               </h1>
               
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative">
-                  <Input
-                    type="text"
-                    placeholder={language === 'pt' ? "Buscar notas..." : "Search notes..."}
-                    className="w-full h-9 pl-3 pr-9 rounded-md border"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                </div>
-                
-                <Select
-                  value={noteTypeFilter}
-                  onValueChange={setNoteTypeFilter}
-                >
-                  <SelectTrigger className="h-9 w-[180px]">
-                    <SelectValue placeholder={language === 'pt' ? "Tipo de nota" : "Note type"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {noteTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                >
-                  <SelectTrigger className="h-9 w-[180px]">
-                    <SelectValue placeholder={language === 'pt' ? "Status" : "Status"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statuses.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                {canCreateNotes && (
-                  <Button 
-                    className="h-9 flex items-center gap-1"
-                    onClick={() => setIsNewNoteOpen(true)}
-                  >
-                    <FilePlus className="h-4 w-4" />
-                    {language === 'pt' ? 'Nova Nota' : 'New Note'}
-                  </Button>
+              <div className="flex items-center gap-2">
+                {isOnline ? (
+                  <div className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                    <Wifi className="h-3 w-3" />
+                    {language === 'pt' ? 'Online' : 'Online'}
+                  </div>
+                ) : (
+                  <div className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1">
+                    <WifiOff className="h-3 w-3" />
+                    {language === 'pt' ? 'Offline' : 'Offline'}
+                  </div>
                 )}
+                <OfflineSyncIndicator />
               </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder={language === 'pt' ? "Buscar notas..." : "Search notes..."}
+                  className="w-full h-9 pl-3 pr-9 rounded-md border"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+              
+              <Select
+                value={noteTypeFilter}
+                onValueChange={setNoteTypeFilter}
+              >
+                <SelectTrigger className="h-9 w-[180px]">
+                  <SelectValue placeholder={language === 'pt' ? "Tipo de nota" : "Note type"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {noteTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
+                <SelectTrigger className="h-9 w-[180px]">
+                  <SelectValue placeholder={language === 'pt' ? "Status" : "Status"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {statuses.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {canCreateNotes && (
+                <Button 
+                  className="h-9 flex items-center gap-1"
+                  onClick={() => setIsNewNoteOpen(true)}
+                >
+                  <FilePlus className="h-4 w-4" />
+                  {language === 'pt' ? 'Nova Nota' : 'New Note'}
+                </Button>
+              )}
             </div>
             
             <div className="glass-card p-6">

@@ -13,6 +13,8 @@ interface NoteEditorContainerProps {
   noteTitle: string;
   activeTab: 'editor' | 'preview';
   isRequestingAI: boolean;
+  isOfflineMode?: boolean;
+  requiredFieldsError?: string[];
   setActiveTab: (tab: 'editor' | 'preview') => void;
   handleSectionChange: (sectionTitle: string, content: string) => void;
   requestAIAssistance: () => void;
@@ -24,6 +26,8 @@ const NoteEditorContainer = ({
   noteTitle,
   activeTab,
   isRequestingAI,
+  isOfflineMode = false,
+  requiredFieldsError = [],
   setActiveTab,
   handleSectionChange,
   requestAIAssistance
@@ -48,6 +52,7 @@ const NoteEditorContainer = ({
           <AIAssistButton 
             isRequestingAI={isRequestingAI}
             onClick={requestAIAssistance}
+            disabled={isOfflineMode}
           />
         </div>
         
@@ -57,6 +62,7 @@ const NoteEditorContainer = ({
           sections={sections}
           noteTitle={noteTitle}
           handleSectionChange={handleSectionChange}
+          requiredFieldsError={requiredFieldsError}
         />
       </CardContent>
     </Card>

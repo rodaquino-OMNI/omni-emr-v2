@@ -1,9 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { ClinicalNote, NoteTemplate, NoteStatus } from '@/types/clinicalNotes';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { templateService } from '@/services/clinicalNotes/templateService';
+import { noteService } from '@/services/clinicalNotes/noteService';
+import { offlineStorage } from '@/services/clinicalNotes/offlineStorage';
 
 export const useNoteEditor = (
   template: NoteTemplate,
@@ -26,6 +29,25 @@ export const useNoteEditor = (
   const [sections, setSections] = useState<{ [key: string]: string }>({});
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [isRequestingAI, setIsRequestingAI] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [requiredFieldsError, setRequiredFieldsError] = useState<string[]>([]);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+
+  // Check connectivity status
+  useEffect(() => {
+    const checkConnectivity = () => {
+      setIsOfflineMode(!navigator.onLine);
+    };
+    
+    window.addEventListener('online', checkConnectivity);
+    window.addEventListener('offline', checkConnectivity);
+    checkConnectivity();
+    
+    return () => {
+      window.removeEventListener('online', checkConnectivity);
+      window.removeEventListener('offline', checkConnectivity);
+    };
+  }, []);
 
   useEffect(() => {
     // Initialize sections from template
@@ -62,27 +84,131 @@ export const useNoteEditor = (
       ...prev,
       [sectionTitle]: content
     }));
+    
+    // Clear validation errors when user starts typing
+    if (requiredFieldsError.includes(sectionTitle)) {
+      setRequiredFieldsError(prev => prev.filter(field => field !== sectionTitle));
+    }
   };
 
-  const handleSave = (status: NoteStatus) => {
-    if (!user || !onSave) return;
+  const validateNote = useCallback(() => {
+    const missingFields = templateService.validateRequiredSections(template, sections);
+    setRequiredFieldsError(missingFields);
+    return missingFields.length === 0;
+  }, [sections, template]);
+
+  const handleSave = async (status: NoteStatus) => {
+    if (!user) return;
     
-    const content = compileNoteContent();
-    const updatedNote: ClinicalNote = {
-      id: existingNote?.id || `note-${Date.now()}`,
-      patientId,
-      authorId: user.id,
-      authorName: user.name,
-      type: template.type,
-      title: note.title || template.name,
-      content,
-      status,
-      createdAt: existingNote?.createdAt || new Date(),
-      updatedAt: new Date(),
-      aiGenerated: note.aiGenerated || false
-    };
+    // For signed notes, validate required fields
+    if (status === 'signed' || status === 'cosigned') {
+      const isValid = validateNote();
+      if (!isValid) {
+        toast.error(
+          language === 'pt' ? 'Campos obrigatórios incompletos' : 'Required fields incomplete',
+          {
+            description: language === 'pt'
+              ? 'Preencha todos os campos obrigatórios antes de assinar a nota.'
+              : 'Please complete all required fields before signing the note.'
+          }
+        );
+        return;
+      }
+    }
     
-    onSave(updatedNote, status);
+    setIsSaving(true);
+    try {
+      const content = compileNoteContent();
+      const updatedNote: ClinicalNote = {
+        id: existingNote?.id || `note-${Date.now()}`,
+        patientId,
+        authorId: user.id,
+        authorName: user.name,
+        type: template.type,
+        title: note.title || template.name,
+        content,
+        status,
+        createdAt: existingNote?.createdAt || new Date(),
+        updatedAt: new Date(),
+        aiGenerated: note.aiGenerated || false,
+        needsSync: isOfflineMode // Mark for sync if offline
+      };
+      
+      // Save the note
+      const savedNote = await noteService.saveNote(updatedNote, status);
+      
+      // If we're offline, also save to local storage
+      if (isOfflineMode) {
+        offlineStorage.saveNote(savedNote);
+        
+        toast.info(
+          language === 'pt' ? 'Nota salva offline' : 'Note saved offline',
+          {
+            description: language === 'pt'
+              ? 'A nota será sincronizada quando a conexão for restaurada.'
+              : 'The note will be synced when connection is restored.'
+          }
+        );
+      }
+      
+      if (onSave) {
+        onSave(savedNote, status);
+      }
+      
+      toast.success(
+        language === 'pt' ? 'Nota salva com sucesso' : 'Note saved successfully',
+        {
+          description: language === 'pt'
+            ? `A nota foi ${status === 'signed' ? 'assinada' : status === 'cosigned' ? 'coassinada' : 'salva'} com sucesso.`
+            : `The note has been ${status === 'signed' ? 'signed' : status === 'cosigned' ? 'cosigned' : 'saved'} successfully.`
+        }
+      );
+    } catch (error) {
+      console.error('Error saving note:', error);
+      toast.error(
+        language === 'pt' ? 'Erro ao salvar nota' : 'Error saving note',
+        {
+          description: language === 'pt'
+            ? 'Ocorreu um erro ao salvar a nota. Tente novamente.'
+            : 'An error occurred while saving the note. Please try again.'
+        }
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const requestCosignature = async (cosignerId: string) => {
+    if (!existingNote?.id) return;
+    
+    try {
+      const success = await noteService.requestCosignature(existingNote.id, cosignerId);
+      
+      if (success) {
+        toast.success(
+          language === 'pt' ? 'Solicitação de coassinatura enviada' : 'Cosignature request sent',
+          {
+            description: language === 'pt'
+              ? 'A solicitação de coassinatura foi enviada com sucesso.'
+              : 'The cosignature request has been sent successfully.'
+          }
+        );
+        return true;
+      } else {
+        throw new Error('Failed to request cosignature');
+      }
+    } catch (error) {
+      console.error('Error requesting cosignature:', error);
+      toast.error(
+        language === 'pt' ? 'Erro ao solicitar coassinatura' : 'Error requesting cosignature',
+        {
+          description: language === 'pt'
+            ? 'Ocorreu um erro ao solicitar a coassinatura. Tente novamente.'
+            : 'An error occurred while requesting the cosignature. Please try again.'
+        }
+      );
+      return false;
+    }
   };
 
   const requestAIAssistance = async () => {
@@ -138,10 +264,15 @@ export const useNoteEditor = (
     sections,
     activeTab,
     isRequestingAI,
+    isSaving,
+    isOfflineMode,
+    requiredFieldsError,
     setActiveTab,
     handleTitleChange,
     handleSectionChange,
     handleSave,
-    requestAIAssistance
+    requestCosignature,
+    requestAIAssistance,
+    validateNote
   };
 };

@@ -1,38 +1,34 @@
 
+// Update the existing component
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Wand2 } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface AIAssistButtonProps {
-  isRequestingAI: boolean;
   onClick: () => void;
+  isRequestingAI: boolean;
+  disabled?: boolean;
 }
 
 const AIAssistButton = ({ 
-  isRequestingAI, 
-  onClick 
+  onClick, 
+  isRequestingAI,
+  disabled = false
 }: AIAssistButtonProps) => {
   const { language } = useTranslation();
   
   return (
-    <Button
-      variant="outline"
-      className="w-full justify-center"
-      onClick={onClick}
-      disabled={isRequestingAI}
+    <Button 
+      variant="outline" 
+      onClick={onClick} 
+      disabled={isRequestingAI || disabled}
+      className="border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800"
     >
-      {isRequestingAI ? (
-        <>
-          <div className="animate-spin mr-2 h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-          {language === 'pt' ? 'Gerando com IA...' : 'Generating with AI...'}
-        </>
-      ) : (
-        <>
-          <Wand2 className="mr-2 h-4 w-4" />
-          {language === 'pt' ? 'Gerar conteúdo com IA' : 'Generate content with AI'}
-        </>
-      )}
+      <Sparkles className="h-4 w-4 mr-2" />
+      {isRequestingAI 
+        ? (language === 'pt' ? 'Gerando conteúdo...' : 'Generating content...') 
+        : (language === 'pt' ? 'Assistência de IA' : 'AI Assistance')}
     </Button>
   );
 };

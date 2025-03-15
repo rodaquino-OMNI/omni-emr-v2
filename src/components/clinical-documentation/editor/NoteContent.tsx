@@ -11,6 +11,7 @@ interface NoteContentProps {
   sections: { [key: string]: string };
   noteTitle: string;
   handleSectionChange: (sectionTitle: string, content: string) => void;
+  requiredFieldsError?: string[];
 }
 
 const NoteContent = ({ 
@@ -18,7 +19,8 @@ const NoteContent = ({
   template, 
   sections,
   noteTitle,
-  handleSectionChange 
+  handleSectionChange,
+  requiredFieldsError = []
 }: NoteContentProps) => {
   return (
     <>
@@ -29,6 +31,8 @@ const NoteContent = ({
             sectionTitle={section.title}
             content={sections[section.title] || ''}
             onChange={(content) => handleSectionChange(section.title, content)}
+            isRequired={section.required}
+            hasError={requiredFieldsError.includes(section.title)}
           />
         ))}
       </TabsContent>

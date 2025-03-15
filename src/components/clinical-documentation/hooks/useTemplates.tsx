@@ -1,97 +1,56 @@
 
 import { useState, useEffect } from 'react';
 import { NoteTemplate, NoteType } from '@/types/clinicalNotes';
+import { templateService } from '@/services/clinicalNotes/templateService';
+import { offlineStorage } from '@/services/clinicalNotes/offlineStorage';
 
 export const useTemplates = (selectedType?: NoteType) => {
   const [templates, setTemplates] = useState<NoteTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // Update online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
-    // Mock API call to get templates
     const fetchTemplates = async () => {
       setLoading(true);
       try {
-        // This would be an API call in a real app
-        const mockTemplates: NoteTemplate[] = [
-          {
-            id: '1',
-            type: 'progress',
-            name: 'Standard Progress Note',
-            isDefault: true,
-            template: '',
-            sections: [
-              { title: 'Subjective', content: '', required: true },
-              { title: 'Objective', content: '', required: true },
-              { title: 'Assessment', content: '', required: true },
-              { title: 'Plan', content: '', required: true }
-            ]
-          },
-          {
-            id: '2',
-            type: 'admission',
-            name: 'Hospital Admission Note',
-            isDefault: true,
-            template: '',
-            sections: [
-              { title: 'Chief Complaint', content: '', required: true },
-              { title: 'History of Present Illness', content: '', required: true },
-              { title: 'Past Medical History', content: '', required: true },
-              { title: 'Medications', content: '', required: true },
-              { title: 'Allergies', content: '', required: true },
-              { title: 'Review of Systems', content: '', required: true },
-              { title: 'Physical Examination', content: '', required: true },
-              { title: 'Assessment', content: '', required: true },
-              { title: 'Plan', content: '', required: true }
-            ]
-          },
-          {
-            id: '3',
-            type: 'consultation',
-            name: 'Specialist Consultation',
-            isDefault: true,
-            template: '',
-            sections: [
-              { title: 'Reason for Consultation', content: '', required: true },
-              { title: 'History', content: '', required: true },
-              { title: 'Examination', content: '', required: true },
-              { title: 'Impression', content: '', required: true },
-              { title: 'Recommendations', content: '', required: true }
-            ]
-          },
-          {
-            id: '4',
-            type: 'procedure',
-            name: 'Procedure Note',
-            isDefault: true,
-            template: '',
-            sections: [
-              { title: 'Procedure Performed', content: '', required: true },
-              { title: 'Indication', content: '', required: true },
-              { title: 'Procedure Description', content: '', required: true },
-              { title: 'Findings', content: '', required: true },
-              { title: 'Complications', content: '', required: true },
-              { title: 'Post-procedure Plan', content: '', required: true }
-            ]
-          },
-          {
-            id: '5',
-            type: 'discharge',
-            name: 'Discharge Summary',
-            isDefault: true,
-            template: '',
-            sections: [
-              { title: 'Admission Date', content: '', required: true },
-              { title: 'Discharge Date', content: '', required: true },
-              { title: 'Admission Diagnosis', content: '', required: true },
-              { title: 'Discharge Diagnosis', content: '', required: true },
-              { title: 'Hospital Course', content: '', required: true },
-              { title: 'Medications at Discharge', content: '', required: true },
-              { title: 'Follow-up Instructions', content: '', required: true }
-            ]
-          }
-        ];
+        let fetchedTemplates: NoteTemplate[] = [];
         
-        setTemplates(mockTemplates);
+        if (isOnline) {
+          // Try to fetch from service
+          fetchedTemplates = await templateService.getTemplatesByType(selectedType);
+          
+          // Store templates for offline use
+          offlineStorage.saveTemplates(fetchedTemplates);
+        } else {
+          // Use cached templates when offline
+          fetchedTemplates = offlineStorage.getTemplates();
+          
+          // If no offline templates, use fallback templates
+          if (fetchedTemplates.length === 0) {
+            fetchedTemplates = await templateService.getTemplatesByType(selectedType);
+          }
+          
+          // Filter by selected type if needed
+          if (selectedType && fetchedTemplates.length > 0) {
+            fetchedTemplates = fetchedTemplates.filter(t => t.type === selectedType);
+          }
+        }
+        
+        setTemplates(fetchedTemplates);
       } catch (error) {
         console.error('Error fetching templates:', error);
       } finally {
@@ -100,14 +59,11 @@ export const useTemplates = (selectedType?: NoteType) => {
     };
     
     fetchTemplates();
-  }, []);
-
-  const filteredTemplates = selectedType 
-    ? templates.filter(template => template.type === selectedType)
-    : templates;
+  }, [selectedType, isOnline]);
 
   return {
-    templates: filteredTemplates,
-    loading
+    templates,
+    loading,
+    isOnline
   };
 };

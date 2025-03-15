@@ -1,57 +1,106 @@
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Save, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Save, FilePenLine, MoreHorizontal, FileQuestion } from 'lucide-react';
 import { NoteStatus } from '@/types/clinicalNotes';
 import { useTranslation } from '@/hooks/useTranslation';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import SignatureModal from './SignatureModal';
 
 interface NoteEditorHeaderProps {
   title: string;
   onTitleChange: (title: string) => void;
   onSave: (status: NoteStatus) => void;
   onCancel: () => void;
+  isSaving?: boolean;
+  isOfflineMode?: boolean;
+  requiredFieldsError?: string[];
+  validateNote?: () => boolean;
 }
 
 const NoteEditorHeader = ({ 
   title, 
   onTitleChange, 
   onSave, 
-  onCancel 
+  onCancel,
+  isSaving = false,
+  isOfflineMode = false,
+  requiredFieldsError = [],
+  validateNote = () => true
 }: NoteEditorHeaderProps) => {
   const { language } = useTranslation();
+  const [signatureModalOpen, setSignatureModalOpen] = useState(false);
   
+  const handleSignClick = () => {
+    // Run validation before opening signature modal
+    validateNote();
+    setSignatureModalOpen(true);
+  };
+
   return (
-    <div className="flex items-center justify-between">
-      <div className="space-y-1">
-        <Input
-          value={title}
-          onChange={e => onTitleChange(e.target.value)}
-          placeholder={language === 'pt' ? 'Título da nota' : 'Note title'}
-          className="text-lg font-semibold"
-        />
+    <div className="space-y-3">
+      {isOfflineMode && (
+        <div className="p-2 bg-amber-50 text-amber-800 border border-amber-200 rounded-md flex items-center gap-2 text-sm">
+          <FileQuestion className="h-4 w-4 text-amber-500" />
+          {language === 'pt' 
+            ? 'Você está trabalhando offline. Suas alterações serão sincronizadas quando a conexão for restaurada.' 
+            : 'You are working offline. Your changes will be synchronized when connection is restored.'}
+        </div>
+      )}
+      
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex-1">
+          <Input
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            placeholder={language === 'pt' ? "Título da nota..." : "Note title..."}
+            className="font-medium text-lg h-10"
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onSave('draft')}
+            disabled={isSaving}
+          >
+            <Save className="h-4 w-4 mr-1" />
+            {language === 'pt' ? 'Salvar rascunho' : 'Save draft'}
+          </Button>
+          
+          <Button 
+            onClick={handleSignClick}
+            disabled={isSaving}
+            className="gap-1"
+          >
+            <FilePenLine className="h-4 w-4" />
+            {language === 'pt' ? 'Assinar' : 'Sign'}
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onCancel}>
+                {language === 'pt' ? 'Cancelar' : 'Cancel'}
+              </DropdownMenuItem>
+              {/* More options can be added here */}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          onClick={onCancel}
-        >
-          {language === 'pt' ? 'Cancelar' : 'Cancel'}
-        </Button>
-        <Button 
-          variant="outline" 
-          onClick={() => onSave('draft')}
-        >
-          <Save className="mr-1 h-4 w-4" />
-          {language === 'pt' ? 'Salvar rascunho' : 'Save draft'}
-        </Button>
-        <Button 
-          onClick={() => onSave('signed')}
-        >
-          <Check className="mr-1 h-4 w-4" />
-          {language === 'pt' ? 'Assinar e salvar' : 'Sign & save'}
-        </Button>
-      </div>
+      
+      <SignatureModal 
+        open={signatureModalOpen}
+        onOpenChange={setSignatureModalOpen}
+        onSign={onSave}
+        hasMissingFields={requiredFieldsError.length > 0}
+        missingFields={requiredFieldsError}
+      />
     </div>
   );
 };
