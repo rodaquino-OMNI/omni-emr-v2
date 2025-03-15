@@ -18,6 +18,8 @@ const alertVariants = cva(
           "border-amber-200 text-amber-800 dark:border-amber-800 dark:text-amber-300 [&>svg]:text-amber-600 dark:bg-amber-950/30 bg-amber-50",
         info:
           "border-blue-200 text-blue-800 dark:border-blue-800 dark:text-blue-300 [&>svg]:text-blue-600 dark:bg-blue-950/30 bg-blue-50",
+        transition: 
+          "border-purple-200 text-purple-800 dark:border-purple-800 dark:text-purple-300 [&>svg]:text-purple-600 dark:bg-purple-950/30 bg-purple-50",
       },
     },
     defaultVariants: {
