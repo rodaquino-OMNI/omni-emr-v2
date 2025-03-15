@@ -2,8 +2,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { ClipboardList, Calendar, ChevronRight } from 'lucide-react';
+import { ClipboardList, Calendar, ChevronRight, User, Clock } from 'lucide-react';
 import { extractTextFromCodeableConcept, extractPatientName } from '@/utils/fhir/fhirExtractors';
+import { Badge } from '@/components/ui/badge';
 
 type PrescriptionCardProps = {
   prescription: any;
@@ -48,15 +49,15 @@ const PrescriptionCard = ({ prescription, className }: PrescriptionCardProps) =>
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'completed':
       case 'on-hold':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'cancelled':
       case 'stopped':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -67,7 +68,8 @@ const PrescriptionCard = ({ prescription, className }: PrescriptionCardProps) =>
 
   return (
     <Link to={detailLink}>
-      <div className={cn("glass-card p-4 cursor-pointer hover:shadow-md transition-shadow", className)}>
+      <div className={cn("glass-card p-4 hover:shadow-md transition-shadow border border-border/50 relative", className)}>
+        <div className="absolute top-0 left-0 w-1 h-full rounded-l-md bg-gradient-to-b from-medical-purple to-medical-blue"></div>
         <div className="flex items-center gap-4">
           <div className="h-10 w-10 rounded-full bg-medical-purple/10 flex items-center justify-center">
             <ClipboardList className="h-5 w-5 text-medical-purple" />
@@ -78,19 +80,26 @@ const PrescriptionCard = ({ prescription, className }: PrescriptionCardProps) =>
               <h3 className="font-medium truncate">
                 {isFhirFormat ? medicationName : `Prescription for ${patientName}`}
               </h3>
-              <span className={cn("text-xs px-2 py-1 rounded-full capitalize", getStatusStyle(status))}>
+              <Badge className={cn("border", getStatusStyle(status))}>
                 {status}
-              </span>
+              </Badge>
             </div>
             
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 <span>{formatDate(prescriptionDate)}</span>
               </div>
-              <div>
-                By: {providerName || 'Unknown Provider'}
+              <div className="flex items-center gap-1">
+                <User className="h-3 w-3" />
+                <span>{providerName || 'Unknown Provider'}</span>
               </div>
+              {prescription.priority === 'high' && (
+                <div className="text-medical-red font-medium flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  High Priority
+                </div>
+              )}
             </div>
           </div>
           
@@ -98,18 +107,21 @@ const PrescriptionCard = ({ prescription, className }: PrescriptionCardProps) =>
         </div>
         
         {!isFhirFormat && prescription.items && prescription.items.length > 0 && (
-          <div className="mt-3 border-t pt-2">
+          <div className="mt-3 pt-3 border-t border-border/50">
             <p className="text-xs text-muted-foreground">
               {prescription.items.length} item{prescription.items.length !== 1 ? 's' : ''}: 
-              {prescription.items.map((item: any) => item.name).join(', ')}
+              <span className="font-medium ml-1">
+                {prescription.items.slice(0, 2).map((item: any) => item.name).join(', ')}
+                {prescription.items.length > 2 ? '...' : ''}
+              </span>
             </p>
           </div>
         )}
         
         {isFhirFormat && prescription.dosage_instruction && prescription.dosage_instruction.length > 0 && (
-          <div className="mt-3 border-t pt-2">
+          <div className="mt-3 pt-3 border-t border-border/50">
             <p className="text-xs text-muted-foreground">
-              Dosage: {prescription.dosage_instruction[0]?.text || 'No specific instructions'}
+              <span className="font-medium">Dosage:</span> {prescription.dosage_instruction[0]?.text || 'No specific instructions'}
             </p>
           </div>
         )}

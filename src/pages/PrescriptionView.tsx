@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import { usePrescriptionDetails } from '../hooks/prescriptions/usePrescriptionDetails';
@@ -9,6 +9,8 @@ import {
   PrescriptionItems, 
   LoadingState 
 } from '../components/prescriptions/view';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const PrescriptionViewPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,15 @@ const PrescriptionViewPage = () => {
         <Header />
         <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
           <div className="max-w-6xl mx-auto w-full">
+            <div className="mb-6">
+              <Link to="/prescriptions">
+                <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to prescriptions
+                </Button>
+              </Link>
+            </div>
+            
             {loading ? (
               <LoadingState error={null} />
             ) : error || !prescription ? (

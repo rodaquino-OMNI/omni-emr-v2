@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Pill, AlertTriangle } from 'lucide-react';
+import { Pill, AlertTriangle, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Patient } from '../PatientCard';
@@ -8,6 +8,8 @@ import { usePatientPrescriptions } from '../hooks/usePatientPrescriptions';
 import { canPerformMedicationAction } from '@/utils/permissions/medicationManagement';
 import { useAuth } from '@/context/AuthContext';
 import { extractTextFromCodeableConcept } from '@/utils/fhir/fhirExtractors';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 type MedicationsCardProps = {
   patient: Patient;
@@ -57,61 +59,72 @@ const MedicationsCard = ({ patient, prescriptions: initialPrescriptions }: Medic
   };
   
   return (
-    <Card>
-      <CardHeader className="pb-2">
+    <Card className="border border-border overflow-hidden">
+      <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-900/10 dark:to-transparent">
         <div className="flex justify-between items-center">
           <CardTitle className="text-md flex items-center gap-2">
-            <Pill className="h-5 w-5 text-blue-600" />
+            <Pill className="h-5 w-5 text-medical-blue" />
             Medications
           </CardTitle>
           <div className="flex items-center gap-2">
             {canPrescribe && (
-              <Link 
-                to={`/prescribe?patientId=${patient.id}`} 
-                className="text-xs text-primary hover:underline"
+              <Button 
+                asChild
+                variant="ghost" 
+                size="sm" 
+                className="h-8 text-xs text-primary hover:text-primary hover:bg-primary/10"
               >
-                Prescribe
-              </Link>
+                <Link to={`/prescribe/${patient.id}`}>
+                  Prescribe
+                </Link>
+              </Button>
             )}
-            <Link 
-              to={`/medications?patientId=${patient.id}`} 
-              className="text-xs text-primary hover:underline"
+            <Button 
+              asChild
+              variant="ghost" 
+              size="sm" 
+              className="h-8 text-xs text-primary hover:text-primary hover:bg-primary/10"
             >
-              View All
-            </Link>
+              <Link to={`/medications?patientId=${patient.id}`}>
+                <span>View All</span>
+                <ExternalLink className="ml-1 h-3 w-3" />
+              </Link>
+            </Button>
           </div>
         </div>
         <CardDescription>Current medications</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-3 pt-2">
           {loading ? (
             <div className="text-center py-4 text-muted-foreground text-sm">
               Loading medications...
             </div>
           ) : displayPrescriptions && displayPrescriptions.length > 0 ? (
             displayPrescriptions.slice(0, 3).map((prescription, index) => (
-              <div key={index} className="flex items-start gap-3 p-2 rounded-md hover:bg-slate-50">
-                <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
+              <div key={index} className="flex items-start gap-3 p-2 rounded-md hover:bg-slate-50 transition-colors border border-transparent hover:border-border">
+                <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 shrink-0">
                   <Pill className="h-4 w-4" />
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-sm">{getMedicationName(prescription)}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm truncate">{getMedicationName(prescription)}</div>
                   <div className="text-xs text-muted-foreground">{getMedicationDosage(prescription)}</div>
                   {prescription.nextDose && (
                     <div className="text-xs text-blue-600 mt-1">Next dose: {prescription.nextDose}</div>
                   )}
                 </div>
-                {getStatus(prescription) === 'on-hold' && (
-                  <div className="px-2 py-1 text-xs bg-amber-50 text-amber-800 rounded-full">
-                    On Hold
-                  </div>
-                )}
-                {getStatus(prescription) === 'active' && prescription.priority === 'high' && (
-                  <div className="px-2 py-1 text-xs bg-red-50 text-red-800 rounded-full">
-                    High Priority
-                  </div>
-                )}
+                <div className="shrink-0">
+                  {getStatus(prescription) === 'on-hold' && (
+                    <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200">
+                      On Hold
+                    </Badge>
+                  )}
+                  {getStatus(prescription) === 'active' && prescription.priority === 'high' && (
+                    <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200">
+                      High Priority
+                    </Badge>
+                  )}
+                </div>
               </div>
             ))
           ) : (
