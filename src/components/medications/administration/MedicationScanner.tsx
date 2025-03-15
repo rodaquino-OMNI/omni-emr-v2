@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   Dialog,
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Check, X, Scan, QrCode, User, Pill, AlertTriangle } from 'lucide-react';
+import { Check, X, Scan, QrCode, User, Pill, AlertTriangle, Camera } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface PatientData {
@@ -58,36 +58,135 @@ const MedicationScanner = ({
   const [activeTab, setActiveTab] = useState<'camera' | 'manual'>('camera');
   const [manualPatientId, setManualPatientId] = useState('');
   const [manualMedicationCode, setManualMedicationCode] = useState('');
+  const [scanning, setScanning] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const handleManualSubmit = () => {
+    // For manual entry, we'll verify against the EHR system
     if (manualPatientId) {
-      onPatientScan(manualPatientId);
+      verifyPatientWithEHR(manualPatientId)
+        .then(verified => {
+          if (verified) {
+            onPatientScan(manualPatientId);
+            toast.success(t('patientVerified'));
+          } else {
+            toast.error(t('patientVerificationFailed'));
+          }
+        })
+        .catch(() => toast.error(t('ehrConnectionError')));
     }
+    
     if (manualMedicationCode) {
-      onMedicationScan(manualMedicationCode);
+      verifyMedicationWithEHR(manualMedicationCode)
+        .then(verified => {
+          if (verified) {
+            onMedicationScan(manualMedicationCode);
+            toast.success(t('medicationVerified'));
+          } else {
+            toast.error(t('medicationVerificationFailed'));
+          }
+        })
+        .catch(() => toast.error(t('ehrConnectionError')));
     }
   };
   
-  // In a real app, this would use the device camera
-  // For this demo, we'll simulate scanning after a delay
-  const simulateScan = (type: 'patient' | 'medication') => {
-    const simulateButton = document.getElementById(`simulate-${type}-scan`);
-    if (simulateButton) {
-      simulateButton.textContent = t('scanning');
-      simulateButton.setAttribute('disabled', 'true');
-      
+  // Mock EHR verification functions - in a real app these would connect to the EHR API
+  const verifyPatientWithEHR = async (patientId: string): Promise<boolean> => {
+    // Simulate API call to EHR system
+    return new Promise(resolve => {
       setTimeout(() => {
-        if (type === 'patient' && patient) {
-          onPatientScan(patient.id);
-          toast.success(t('patientScanned'));
-        } else if (type === 'medication' && medication) {
-          onMedicationScan(medication.id);
-          toast.success(t('medicationScanned'));
-        }
-        
-        simulateButton.textContent = t('scanComplete');
-      }, 1500);
+        // In real implementation, this would check against the hospital EHR system
+        resolve(patient?.id === patientId || patient?.mrn === patientId);
+      }, 800);
+    });
+  };
+  
+  const verifyMedicationWithEHR = async (medicationCode: string): Promise<boolean> => {
+    // Simulate API call to EHR system
+    return new Promise(resolve => {
+      setTimeout(() => {
+        // In real implementation, this would check against the hospital pharmacy system
+        resolve(medication?.id === medicationCode);
+      }, 800);
+    });
+  };
+  
+  // In a real app, this would use a barcode scanning library like zxing or quagga
+  useEffect(() => {
+    if (activeTab === 'camera' && open && !scanning) {
+      initCamera();
     }
+    
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
+  }, [activeTab, open, scanning]);
+  
+  const initCamera = async () => {
+    if (!navigator.mediaDevices || !videoRef.current) {
+      setError(t('cameraNotSupported'));
+      return;
+    }
+    
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        setScanning(true);
+        setError(null);
+      }
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+      setError(t('cameraAccessDenied'));
+    }
+  };
+  
+  const captureBarcode = () => {
+    if (videoRef.current && canvasRef.current && scanning) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      
+      if (context) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // In a real app, you would process the image to detect barcodes
+        // For this demo, we'll simulate successful scanning
+        simulateScan();
+      }
+    }
+  };
+  
+  // Simulate barcode scanning for demo purposes
+  const simulateScan = (type?: 'patient' | 'medication') => {
+    setScanning(false);
+    
+    // If a specific type was requested, scan that; otherwise alternate
+    const scanType = type || (!patientScanned ? 'patient' : !medicationScanned ? 'medication' : 'patient');
+    
+    toast.success(t('scanning'));
+    
+    setTimeout(() => {
+      if (scanType === 'patient' && patient) {
+        onPatientScan(patient.id);
+        toast.success(t('patientScanned'));
+      } else if (scanType === 'medication' && medication) {
+        onMedicationScan(medication.id);
+        toast.success(t('medicationScanned'));
+      }
+      
+      setScanning(true);
+    }, 1500);
   };
   
   return (
@@ -148,7 +247,7 @@ const MedicationScanner = ({
           <Tabs defaultValue="camera" value={activeTab} onValueChange={(value) => setActiveTab(value as 'camera' | 'manual')}>
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="camera">
-                <QrCode className="h-4 w-4 mr-1" />
+                <Camera className="h-4 w-4 mr-1" />
                 {t('scanBarcode')}
               </TabsTrigger>
               <TabsTrigger value="manual">
@@ -157,15 +256,55 @@ const MedicationScanner = ({
             </TabsList>
             
             <TabsContent value="camera" className="space-y-4">
-              <div className="text-center py-6 border-2 border-dashed rounded-md bg-muted">
-                <QrCode className="h-10 w-10 mx-auto text-muted-foreground" />
-                <p className="text-sm text-muted-foreground mt-2">{t('cameraScanPlaceholder')}</p>
+              {error && (
+                <div className="text-center p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-700 text-sm">
+                  {error}
+                </div>
+              )}
+              
+              <div className="relative">
+                <div className="border-2 border-dashed rounded-md overflow-hidden bg-muted aspect-video">
+                  <video 
+                    ref={videoRef} 
+                    autoPlay 
+                    playsInline 
+                    className={`w-full h-full object-cover ${scanning ? 'opacity-100' : 'opacity-50'}`}
+                    onPlay={() => setScanning(true)}
+                  />
+                  <canvas ref={canvasRef} className="hidden" />
+                  
+                  {!scanning && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                      <QrCode className="h-10 w-10 text-muted-foreground animate-pulse" />
+                    </div>
+                  )}
+                  
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="h-full w-full flex flex-col items-center justify-center">
+                      <div className="w-3/4 h-1/3 border-2 border-primary rounded-lg"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-3 right-3">
+                  <Button 
+                    size="sm" 
+                    variant="default" 
+                    className="rounded-full h-10 w-10 p-0"
+                    onClick={() => captureBarcode()}
+                  >
+                    <Camera className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="text-center text-sm text-muted-foreground">
+                {scanning ? t('positionBarcodeInFrame') : t('preparingCamera')}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <Button 
                   variant="outline" 
-                  id="simulate-patient-scan"
                   onClick={() => simulateScan('patient')}
                   disabled={patientScanned}
                 >
@@ -173,7 +312,6 @@ const MedicationScanner = ({
                 </Button>
                 <Button 
                   variant="outline" 
-                  id="simulate-medication-scan"
                   onClick={() => simulateScan('medication')}
                   disabled={medicationScanned}
                 >
@@ -187,21 +325,23 @@ const MedicationScanner = ({
                 <div>
                   <label className="text-sm font-medium mb-1 block">{t('patientId')}</label>
                   <Input 
-                    placeholder={t('enterPatientId')}
+                    placeholder={t('enterPatientIdOrMRN')}
                     value={manualPatientId} 
                     onChange={(e) => setManualPatientId(e.target.value)} 
                   />
+                  <p className="text-xs text-muted-foreground mt-1">{t('enterPatientIdOrMRNHint')}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">{t('medicationCode')}</label>
                   <Input 
-                    placeholder={t('enterMedicationCode')}
+                    placeholder={t('enterMedicationBarcode')}
                     value={manualMedicationCode} 
                     onChange={(e) => setManualMedicationCode(e.target.value)} 
                   />
+                  <p className="text-xs text-muted-foreground mt-1">{t('enterMedicationBarcodeHint')}</p>
                 </div>
                 <Button className="w-full" onClick={handleManualSubmit}>
-                  {t('submitCodes')}
+                  {t('verifyIDs')}
                 </Button>
               </div>
             </TabsContent>
