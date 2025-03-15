@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Users, Calendar, ClipboardList, ArrowRight, AlertTriangle, Pill, FileText, MessageSquare, Video, Droplet, ClipboardCheck } from 'lucide-react';
@@ -151,7 +152,9 @@ const Dashboard = ({ className }: DashboardProps) => {
       ];
     }
     
-    if (user?.role === 'nurse' && user.role !== 'nurse') {
+    // Fix the type error by correcting this condition
+    // The original was incorrectly checking if the role is 'nurse' but not 'nurse'
+    if (user?.role === 'nurse') {
       return [
         ...baseStats,
         { 
