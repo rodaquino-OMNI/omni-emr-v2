@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Check } from 'lucide-react';
 import { ScanItemProps } from './types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const ScanItem: React.FC<ScanItemProps> = ({
   title,
@@ -12,6 +13,8 @@ const ScanItem: React.FC<ScanItemProps> = ({
   isScanned,
   icon
 }) => {
+  const { t } = useTranslation();
+  
   // Helper function to safely get the display text based on entity type
   const getDisplayText = () => {
     if (!entity) return "";

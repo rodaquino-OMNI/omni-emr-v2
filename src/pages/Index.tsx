@@ -3,9 +3,10 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Languages } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import TranslatedText from '@/components/common/TranslatedText';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -45,6 +46,15 @@ const Index = () => {
               </Button>
             </>
           )}
+        </div>
+        
+        <div className="mt-12">
+          <Button variant="link" asChild className="gap-2">
+            <Link to="/translation-diagnostics">
+              <Languages className="h-4 w-4" />
+              {language === 'pt' ? 'Diagnóstico de Traduções' : 'Translation Diagnostics'}
+            </Link>
+          </Button>
         </div>
       </div>
     </div>
