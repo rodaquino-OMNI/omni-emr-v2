@@ -19,7 +19,7 @@ export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ childr
     try {
       const storedLanguage = localStorage.getItem('language');
       return (storedLanguage === 'en' || storedLanguage === 'pt') 
-        ? storedLanguage 
+        ? storedLanguage as Language
         : 'en';
     } catch (error) {
       console.error('Error accessing localStorage:', error);
@@ -41,4 +41,14 @@ export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ childr
       {children}
     </LanguageContext.Provider>
   );
+};
+
+// Export a hook for easier context consumption
+export const useLanguageContext = () => {
+  const context = React.useContext(LanguageContext);
+  if (!context) {
+    console.warn('useLanguageContext: Context not available, using default values');
+    return { language: 'en' as Language, setLanguage: () => {} };
+  }
+  return context;
 };

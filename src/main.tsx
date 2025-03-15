@@ -16,9 +16,11 @@ const root = createRoot(rootElement);
 // Render the app with error handling
 try {
   root.render(
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
+    <React.StrictMode>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </React.StrictMode>
   );
 } catch (error) {
   console.error("Error rendering application:", error);

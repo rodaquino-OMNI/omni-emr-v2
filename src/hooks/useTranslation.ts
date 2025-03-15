@@ -6,10 +6,22 @@ import { Language } from '../types/auth';
 
 export const useTranslation = () => {
   // Safely get context or use default
-  const context = useContext(LanguageContext);
+  let language: Language = 'en';
+  let setLanguage: (lang: Language) => void = () => {};
   
-  // If context is not available (outside provider), use English as fallback
-  const language: Language = context?.language || 'en';
+  try {
+    // Try to access the context, but fail gracefully if it's not available
+    const context = useContext(LanguageContext);
+    
+    if (context) {
+      language = context.language;
+      setLanguage = context.setLanguage;
+    } else {
+      console.warn('useTranslation: LanguageContext not available, using default language');
+    }
+  } catch (error) {
+    console.error('Error accessing LanguageContext:', error);
+  }
   
   const t = (key: string): string => {
     try {
@@ -41,5 +53,5 @@ export const useTranslation = () => {
     );
   };
   
-  return { t, language, hasTranslation };
+  return { t, language, hasTranslation, setLanguage };
 };
