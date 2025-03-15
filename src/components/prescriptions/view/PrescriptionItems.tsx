@@ -18,15 +18,15 @@ const PrescriptionItems = ({ prescription }: PrescriptionItemsProps) => {
   
   // Filter items based on search term
   const filteredItems = prescription.items.filter(item => 
-    item.medicationName.toLowerCase().includes(searchTerm.toLowerCase())
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   // Sort items based on sort order
   const sortedItems = [...filteredItems].sort((a, b) => {
     if (sortOrder === 'asc') {
-      return a.medicationName.localeCompare(b.medicationName);
+      return a.name.localeCompare(b.name);
     } else {
-      return b.medicationName.localeCompare(a.medicationName);
+      return b.name.localeCompare(a.name);
     }
   });
   
