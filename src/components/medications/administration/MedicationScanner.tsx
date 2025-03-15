@@ -79,8 +79,10 @@ const MedicationScanner = ({
       setTimeout(() => {
         if (type === 'patient' && patient) {
           onPatientScan(patient.id);
+          toast.success(t('patientScanned'));
         } else if (type === 'medication' && medication) {
           onMedicationScan(medication.id);
+          toast.success(t('medicationScanned'));
         }
         
         simulateButton.textContent = t('scanComplete');
