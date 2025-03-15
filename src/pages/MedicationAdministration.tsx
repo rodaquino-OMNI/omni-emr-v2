@@ -5,6 +5,7 @@ import Sidebar from '../components/layout/Sidebar';
 import { useTranslation } from '../hooks/useTranslation';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import MedicationAdministrationRecord from '@/components/medications/administration/MedicationAdministrationRecord';
+import { Shield } from 'lucide-react';
 
 // Mock data for the patient list
 const MOCK_PATIENTS = [
@@ -26,9 +27,12 @@ const MedicationAdministrationPage = () => {
         <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-semibold">
-                {t('medicationAdministration')}
-              </h1>
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                <h1 className="text-2xl font-semibold">
+                  {t('medicationAdministration')}
+                </h1>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
