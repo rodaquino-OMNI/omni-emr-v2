@@ -64,8 +64,7 @@ export const useOrderAlertsCheck = () => {
     
     try {
       // Show toast to indicate AI is analyzing the order
-      toast({
-        title: language === 'pt' ? 'Verificando pedido' : 'Verifying order',
+      toast(language === 'pt' ? 'Verificando pedido' : 'Verifying order', {
         description: language === 'pt' 
           ? 'Nossa IA está analisando o pedido para garantir a segurança' 
           : 'Our AI is analyzing the order to ensure safety',
@@ -112,12 +111,10 @@ export const useOrderAlertsCheck = () => {
       
       // Show success toast if no alerts were found
       if (!hasAlerts) {
-        toast({
-          title: language === 'pt' ? 'Verificação concluída' : 'Verification completed',
+        toast.success(language === 'pt' ? 'Verificação concluída' : 'Verification completed', {
           description: language === 'pt'
             ? 'Nenhum problema foi encontrado pela IA'
             : 'No issues were found by the AI',
-          variant: 'success',
           icon: <Shield className="h-4 w-4 text-green-600" />,
         });
       }
@@ -155,12 +152,10 @@ export const useOrderAlertsCheck = () => {
       setAlerts(updatedAlerts);
       
       // Show a toast to acknowledge the alert override
-      toast({
-        title: language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden',
+      toast.warning(language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden', {
         description: language === 'pt'
           ? 'Os alertas foram ignorados com uma justificativa clínica'
           : 'Alerts have been overridden with clinical justification',
-        variant: 'warning',
         icon: <Shield className="h-4 w-4 text-amber-600" />,
       });
       
@@ -188,12 +183,10 @@ export const useOrderAlertsCheck = () => {
     }
     
     if (!proceed) {
-      toast({
-        title: language === 'pt' ? 'Pedido cancelado' : 'Order cancelled',
+      toast.info(language === 'pt' ? 'Pedido cancelado' : 'Order cancelled', {
         description: language === 'pt'
           ? 'O pedido foi cancelado devido aos alertas de segurança'
-          : 'The order was cancelled due to safety alerts',
-        variant: 'info',
+          : 'The order was cancelled due to safety alerts'
       });
     }
     
