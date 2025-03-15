@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Users, Calendar, ClipboardList, ArrowRight, AlertTriangle, Pill, FileText, MessageSquare, Video, Droplet, ClipboardCheck } from 'lucide-react';
@@ -152,24 +151,8 @@ const Dashboard = ({ className }: DashboardProps) => {
       ];
     }
     
-    // Fixed the comparison here - using type equality instead of value equality
-    if (user?.role === 'nurse') {
-      return [
-        ...baseStats,
-        { 
-          title: language === 'pt' ? "Medicamentos Pendentes" : "Medications Due", 
-          value: 18, 
-          icon: <Pill className="h-5 w-5" />,
-          linkTo: "/medications?status=due"
-        },
-        { 
-          title: language === 'pt' ? "Avaliações Pendentes" : "Pending Assessments", 
-          value: 9, 
-          icon: <FileText className="h-5 w-5" />,
-          linkTo: "/tasks?type=assessment"
-        }
-      ];
-    }
+    // Remove the duplicate nurse role check that's causing the type error
+    // The first nurse check above already handles this case
     
     if (user?.role === 'admin') {
       return [
