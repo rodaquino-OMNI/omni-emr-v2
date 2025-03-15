@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 interface UseMedicationFormProps {
   patientId?: string;

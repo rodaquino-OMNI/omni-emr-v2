@@ -68,19 +68,23 @@ export const useOrderCreator = (
       // This would be an API call in a real app
       console.log('New order created:', newOrder);
       
-      toast.success(language === 'pt' ? 'Pedido criado' : 'Order created', {
+      toast({
+        title: language === 'pt' ? 'Pedido criado' : 'Order created',
         description: language === 'pt' 
           ? 'O pedido foi criado com sucesso' 
-          : 'The order has been created successfully'
+          : 'The order has been created successfully',
+        variant: "success"
       });
       
       onOrderCreated(newOrder);
     } catch (error) {
       console.error('Error creating order:', error);
-      toast.error(language === 'pt' ? 'Erro' : 'Error', {
+      toast({
+        title: language === 'pt' ? 'Erro' : 'Error',
         description: language === 'pt' 
           ? 'Falha ao criar pedido' 
-          : 'Failed to create order'
+          : 'Failed to create order',
+        variant: "destructive"
       });
     }
   };
