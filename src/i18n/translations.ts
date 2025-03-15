@@ -1,4 +1,3 @@
-
 import { authTranslations } from './categories/auth';
 import { commonTranslations } from './categories/common';
 import { medicalHistoryTranslations } from './categories/medicalHistory';
@@ -17,21 +16,6 @@ import { vitalsTranslations } from './categories/vitals';
 // All translations in one object
 export const translations = {
   en: {
-    ...authTranslations.en,
-    ...commonTranslations.en,
-    ...medicalHistoryTranslations.en,
-    ...medicationsTranslations.en,
-    ...ordersTranslations.en,
-    ...patientsTranslations.en,
-    ...validationTranslations.en,
-    ...vitalsTranslations.en,
-    ...tasksTranslations.en,
-    ...appointmentsTranslations.en,
-    ...usersTranslations.en,
-    ...emergencyTranslations.en,
-    ...hospitalTranslations.en,
-    ...telemedicineTranslations.en,
-    
     // App basics
     appName: "OmniCare",
     appDescription: "Complete healthcare management solution",
@@ -83,23 +67,20 @@ export const translations = {
     offlineNavigation: 'Working with limited functionality. Some features require a server connection.',
     offlineNavigationAvailable: 'Navigation is available in offline mode.',
     continueToDashboard: 'Continue to Dashboard',
+    
+    // Medication autocomplete translations
+    loading: 'Loading',
+    advancedSearch: 'Advanced Search',
+    medicationFound: 'Medication found',
+    medicationNotFound: 'No medications found',
+    searchByName: 'Search by name',
+    selectAMedication: 'Select a medication',
+    recentlyUsed: 'Recently used',
+    popularMedications: 'Popular medications',
+    pressEnterToSearch: 'Press Enter to search',
+    typeToSearch: 'Type to search',
   },
   pt: {
-    ...authTranslations.pt,
-    ...commonTranslations.pt,
-    ...medicalHistoryTranslations.pt,
-    ...medicationsTranslations.pt,
-    ...ordersTranslations.pt,
-    ...patientsTranslations.pt,
-    ...validationTranslations.pt,
-    ...vitalsTranslations.pt,
-    ...tasksTranslations.pt,
-    ...appointmentsTranslations.pt,
-    ...usersTranslations.pt,
-    ...emergencyTranslations.pt,
-    ...hospitalTranslations.pt,
-    ...telemedicineTranslations.pt,
-    
     // App basics
     appName: "OmniCare",
     appDescription: "Solução completa de gestão em saúde",
@@ -151,6 +132,18 @@ export const translations = {
     offlineNavigation: 'Funcionando com funcionalidades limitadas. Alguns recursos requerem conexão com o servidor.',
     offlineNavigationAvailable: 'Navegação disponível no modo offline.',
     continueToDashboard: 'Continuar para o Dashboard',
+    
+    // Medication autocomplete translations
+    loading: 'Carregando',
+    advancedSearch: 'Busca Avançada',
+    medicationFound: 'Medicamento encontrado',
+    medicationNotFound: 'Nenhum medicamento encontrado',
+    searchByName: 'Buscar por nome',
+    selectAMedication: 'Selecione um medicamento',
+    recentlyUsed: 'Usados recentemente',
+    popularMedications: 'Medicamentos populares',
+    pressEnterToSearch: 'Pressione Enter para buscar',
+    typeToSearch: 'Digite para buscar',
   }
 };
 
