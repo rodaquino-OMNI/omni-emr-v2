@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Check, X, Scan, QrCode, User, Pill, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PatientData {
   id: string;

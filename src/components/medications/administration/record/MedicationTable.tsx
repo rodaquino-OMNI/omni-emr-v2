@@ -6,30 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { AlertCircle, Check, X, Clock, Info, Pill, Activity } from 'lucide-react';
 import MedicationActions from './MedicationActions';
 import MedicationDetails from './MedicationDetails';
-
-interface PatientData {
-  id: string;
-  name: string;
-  allergies: string[];
-  roomNumber: string;
-  mrn: string;
-}
-
-interface AdministrationRecord {
-  id: string;
-  medicationName: string;
-  dosage: string;
-  route: string;
-  scheduledTime: string;
-  status: 'scheduled' | 'administered' | 'missed' | 'held';
-  administeredBy?: string;
-  administeredAt?: string;
-  notes?: string;
-  medicationType?: 'regular' | 'antibiotic' | 'analgesic' | 'critical' | 'prn';
-  isIV?: boolean;
-  ivRate?: number;
-  ivDuration?: number;
-}
+import { AdministrationRecord, PatientData } from './types';
 
 interface MedicationTableProps {
   administrationRecords: AdministrationRecord[];
