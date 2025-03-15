@@ -7,6 +7,7 @@ import { AlertCircle, Check, X, Clock, Info, Pill, Activity } from 'lucide-react
 import MedicationActions from './MedicationActions';
 import MedicationDetails from './MedicationDetails';
 import { AdministrationRecord, PatientData } from './types';
+import { toast } from '@/hooks/use-toast';
 
 interface MedicationTableProps {
   administrationRecords: AdministrationRecord[];
