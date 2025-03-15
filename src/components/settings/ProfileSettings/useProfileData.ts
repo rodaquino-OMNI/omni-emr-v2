@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ProfileData, ProfileFormData } from './types';
+import { format } from 'date-fns';
 
 export function useProfileData() {
   const { user } = useAuth();
@@ -17,6 +18,8 @@ export function useProfileData() {
   });
   const [loading, setLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchProfileDetails = async () => {
@@ -24,6 +27,8 @@ export function useProfileData() {
         setIsFetching(false);
         return;
       }
+      
+      setSyncError(null);
       
       try {
         const { data, error } = await supabase
@@ -47,9 +52,13 @@ export function useProfileData() {
             phone: profileData.phone || '',
             bio: profileData.bio || ''
           });
+          
+          // Set last synced time
+          setLastSynced(format(new Date(), 'PPpp'));
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
+        setSyncError('Failed to load profile data');
         toast.error('Failed to load profile data');
       } finally {
         setIsFetching(false);
@@ -57,6 +66,39 @@ export function useProfileData() {
     };
     
     fetchProfileDetails();
+    
+    // Set up subscription for real-time updates
+    const profilesSubscription = supabase
+      .channel('profiles-changes')
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'profiles',
+        filter: `id=eq.${user?.id}` 
+      }, (payload) => {
+        // Update local data when remote changes occur
+        if (payload.new) {
+          const profileData = payload.new as unknown as ProfileData;
+          setFormData(current => ({
+            ...current,
+            name: profileData.name || user?.name || current.name,
+            email: profileData.email || user?.email || current.email,
+            role: profileData.role || user?.role || current.role,
+            department: profileData.department || current.department,
+            phone: profileData.phone || current.phone,
+            bio: profileData.bio || current.bio
+          }));
+          
+          // Update last synced time
+          setLastSynced(format(new Date(), 'PPpp'));
+        }
+      })
+      .subscribe();
+    
+    return () => {
+      // Clean up subscription
+      supabase.removeChannel(profilesSubscription);
+    };
   }, [user]);
 
   const updateProfile = async (e: React.FormEvent) => {
@@ -68,8 +110,12 @@ export function useProfileData() {
     }
     
     setLoading(true);
+    setSyncError(null);
     
     try {
+      // Add a timestamp for the update
+      const timestamp = new Date().toISOString();
+      
       // Update profile in the database including new fields
       const { error } = await supabase
         .from('profiles')
@@ -79,7 +125,7 @@ export function useProfileData() {
           department: formData.department,
           phone: formData.phone,
           bio: formData.bio,
-          updated_at: new Date().toISOString()
+          updated_at: timestamp
         })
         .eq('id', user.id);
       
@@ -87,9 +133,13 @@ export function useProfileData() {
         throw error;
       }
       
+      // Set last synced time
+      setLastSynced(format(new Date(), 'PPpp'));
+      
       toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
+      setSyncError('Failed to update profile');
       toast.error('Failed to update profile');
     } finally {
       setLoading(false);
@@ -107,6 +157,8 @@ export function useProfileData() {
     formData,
     loading,
     isFetching,
+    lastSynced,
+    syncError,
     updateProfile,
     handleInputChange
   };

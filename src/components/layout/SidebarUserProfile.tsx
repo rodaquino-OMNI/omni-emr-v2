@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User, Settings } from 'lucide-react';
+import { User, Settings, Database } from 'lucide-react';
 import { User as UserType } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useTranslation } from '@/hooks/useTranslation';
+import { Badge } from '@/components/ui/badge';
 
 interface SidebarUserProfileProps {
   user: UserType | null;
@@ -39,7 +40,12 @@ const SidebarUserProfile = ({ user, onClick }: SidebarUserProfileProps) => {
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-medium truncate">{user.name}</div>
+          <div className="font-medium truncate flex items-center">
+            {user.name}
+            <Badge variant="data" className="ml-1.5 py-0 px-1.5">
+              <Database className="h-2.5 w-2.5" />
+            </Badge>
+          </div>
           <div className="text-xs capitalize">{roleDisplayName}</div>
         </div>
         <Settings className="h-4 w-4 text-muted-foreground" />
