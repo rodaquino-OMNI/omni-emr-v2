@@ -3,10 +3,24 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import LoginContainer from '@/components/auth/login/LoginContainer';
 import ApprovalPendingMessage from '@/components/auth/ApprovalPendingMessage';
+import { useTranslation } from '@/hooks/useTranslation';
+import { checkSupabaseConnection } from '@/integrations/supabase/client';
 
 const Login = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const { t, language } = useTranslation();
   const [isPendingApproval, setIsPendingApproval] = useState(false);
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean | null>(null);
+  
+  useEffect(() => {
+    // Check Supabase connection
+    const checkConnection = async () => {
+      const isConnected = await checkSupabaseConnection();
+      setIsSupabaseConnected(isConnected);
+    };
+    
+    checkConnection();
+  }, []);
   
   useEffect(() => {
     // Check if user is authenticated but has a pending approval status
@@ -28,7 +42,12 @@ const Login = () => {
   }
   
   // Otherwise, show login container
-  return <LoginContainer />;
+  return <LoginContainer 
+    t={t} 
+    language={language} 
+    isSupabaseConnected={isSupabaseConnected}
+    setIsSupabaseConnected={setIsSupabaseConnected}
+  />;
 };
 
 export default Login;

@@ -10,7 +10,7 @@ const Register = () => {
   
   return (
     <div className="min-h-screen flex flex-col justify-center bg-background">
-      <LoginHeader />
+      <LoginHeader t={t} language={language} />
       
       <div className="container max-w-lg px-4 py-8 mx-auto">
         <Card className="w-full shadow-md">

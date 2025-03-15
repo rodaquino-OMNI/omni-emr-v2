@@ -12,6 +12,7 @@ interface AuthContextType {
   setLanguage: (lang: Language) => void;
   login: (email: string, password: string) => Promise<{
     success: boolean;
+    pendingApproval?: boolean;
     error?: AuthError;
   }>;
   loginWithSocial: (provider: Provider) => Promise<{
@@ -23,8 +24,10 @@ interface AuthContextType {
     error?: AuthError;
   }>;
   signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{
+    success: boolean;
     user: User | null;
     session: Session | null;
+    error?: AuthError;
   }>;
   logout: () => Promise<void>;
   session: Session | null;

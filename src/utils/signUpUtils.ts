@@ -11,7 +11,7 @@ export const signUpWithEmail = async (email: string, password: string, name: str
   const mockUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (mockUser) {
     console.log('Mock user found, returning success');
-    return { user: mockUser, session: null };
+    return { user: mockUser, session: null, success: true };
   }
   
   // Clinical roles that require admin approval

@@ -1,6 +1,6 @@
 
 import { User as SupabaseUser } from '@supabase/supabase-js';
-import { User, UserRole } from '../types/auth';
+import { User, UserRole, ApprovalStatus } from '../types/auth';
 import { supabase } from '../integrations/supabase/client';
 import { getUserPermissions } from './permissions/roleChecks';
 
@@ -30,14 +30,11 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
     }
 
     // Check if user account is approved
-    const approvalStatus = profileData.approval_status || 'approved';
+    const approvalStatus = (profileData.approval_status as ApprovalStatus) || 'approved';
     
     // Clinical roles that need approval
     const clinicalRoles: UserRole[] = ['doctor', 'nurse', 'specialist', 'pharmacist', 'lab_technician', 'radiology_technician'];
     const requiresApproval = clinicalRoles.includes(profileData.role as UserRole);
-    
-    // If the account requires approval and is not approved, set permissions to empty
-    let permissions: string[] = [];
     
     // Validate the role is one of our allowed roles
     const validRoles: UserRole[] = [
@@ -60,6 +57,7 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
     };
 
     // Only get permissions if account is approved or doesn't require approval
+    let permissions: string[] = [];
     if (approvalStatus === 'approved' || !requiresApproval) {
       // Get permissions for this user
       permissions = await getUserPermissions(baseUser);

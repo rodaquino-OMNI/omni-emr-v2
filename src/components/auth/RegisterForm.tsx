@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -79,7 +78,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ language, t }) => {
       if (result.success) {
         setRegistrationComplete(true);
         
-        // For clinical roles, show a different message about approval
         if (isClinicalRole) {
           toast.success(
             language === 'pt' ? 'Conta criada com sucesso!' : 'Account created successfully!',
@@ -119,7 +117,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ language, t }) => {
     }
   };
   
-  // If registration is complete, show success message
   if (registrationComplete) {
     return (
       <div className="space-y-6 text-center">
