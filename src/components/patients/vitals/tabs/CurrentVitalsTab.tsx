@@ -1,110 +1,86 @@
 
-import React, { useState } from 'react';
-import VitalsChart from '@/components/ui/VitalsChart';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/useTranslation';
-import { TimeRangeType } from '@/components/vitals/types/vitalsTypes';
-import { Activity, Thermometer, Droplets, Lungs } from 'lucide-react';
+import { Heart, Activity, Thermometer, BarChart2, Droplet, Stethoscope } from 'lucide-react';
 
 interface CurrentVitalsTabProps {
+  loading?: boolean;
   patientId: string;
 }
 
-const CurrentVitalsTab: React.FC<CurrentVitalsTabProps> = ({ patientId }) => {
+const CurrentVitalsTab: React.FC<CurrentVitalsTabProps> = ({ loading = false, patientId }) => {
   const { t } = useTranslation();
-  const [timeRange] = useState<TimeRangeType>('24h');
   
-  const vitalCardClasses = "bg-white shadow-sm border border-border rounded-lg p-4 hover:shadow-md transition-shadow";
-  
-  const getVitalIcon = (type: string) => {
-    switch (type) {
-      case 'heartRate':
-        return <Activity className="h-4 w-4 text-red-500" />;
-      case 'bloodPressure':
-        return <Activity className="h-4 w-4 text-blue-500" />;
-      case 'temperature':
-        return <Thermometer className="h-4 w-4 text-orange-500" />;
-      case 'oxygenSaturation':
-        return <Droplets className="h-4 w-4 text-green-500" />;
-      case 'respiratoryRate':
-        return <Lungs className="h-4 w-4 text-purple-500" />;
-      default:
-        return <Activity className="h-4 w-4" />;
-    }
+  // Mock data for demonstration
+  const vitalsData = {
+    heartRate: '78 bpm',
+    bloodPressure: '120/80 mmHg',
+    temperature: '36.6 °C',
+    respiratoryRate: '18 rpm',
+    oxygenSaturation: '98 %',
+    painLevel: '0/10'
   };
   
+  const vitalsSigns = [
+    { 
+      name: t('heartRate'), 
+      value: vitalsData.heartRate, 
+      icon: <Heart className="h-5 w-5 text-red-500" />,
+      trend: 'stable'
+    },
+    { 
+      name: t('bloodPressure'), 
+      value: vitalsData.bloodPressure, 
+      icon: <Activity className="h-5 w-5 text-blue-500" />,
+      trend: 'stable'
+    },
+    { 
+      name: t('temperature'), 
+      value: vitalsData.temperature, 
+      icon: <Thermometer className="h-5 w-5 text-orange-500" />,
+      trend: 'stable'
+    },
+    { 
+      name: t('respiratoryRate'), 
+      value: vitalsData.respiratoryRate, 
+      icon: <Stethoscope className="h-5 w-5 text-purple-500" />,
+      trend: 'stable'
+    },
+    { 
+      name: t('oxygenSaturation'), 
+      value: vitalsData.oxygenSaturation, 
+      icon: <Droplet className="h-5 w-5 text-blue-400" />,
+      trend: 'stable'
+    },
+    { 
+      name: t('painLevel'), 
+      value: vitalsData.painLevel, 
+      icon: <BarChart2 className="h-5 w-5 text-gray-500" />,
+      trend: 'stable'
+    }
+  ];
+  
   return (
-    <div>
-      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className={vitalCardClasses}>
-          <div className="text-sm text-muted-foreground flex items-center gap-1.5">
-            {getVitalIcon('bloodPressure')}
-            {t('bloodPressure')}
-          </div>
-          <div className="text-2xl font-semibold mt-1">120/80 <span className="text-sm font-normal">mmHg</span></div>
-          <div className="text-sm text-green-600 flex items-center gap-1">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-500 mt-0.5"></span>
-            {t('normal')}
-          </div>
-        </div>
-        
-        <div className={vitalCardClasses}>
-          <div className="text-sm text-muted-foreground flex items-center gap-1.5">
-            {getVitalIcon('heartRate')}
-            {t('heartRate')}
-          </div>
-          <div className="text-2xl font-semibold mt-1">78 <span className="text-sm font-normal">bpm</span></div>
-          <div className="text-sm text-green-600 flex items-center gap-1">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-500 mt-0.5"></span>
-            {t('normal')}
-          </div>
-        </div>
-        
-        <div className={vitalCardClasses}>
-          <div className="text-sm text-muted-foreground flex items-center gap-1.5">
-            {getVitalIcon('temperature')}
-            {t('temperature')}
-          </div>
-          <div className="text-2xl font-semibold mt-1">36.7 <span className="text-sm font-normal">°C</span></div>
-          <div className="text-sm text-green-600 flex items-center gap-1">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-500 mt-0.5"></span>
-            {t('normal')}
-          </div>
-        </div>
-        
-        <div className={vitalCardClasses}>
-          <div className="text-sm text-muted-foreground flex items-center gap-1.5">
-            {getVitalIcon('oxygenSaturation')}
-            {t('oxygenSaturation')}
-          </div>
-          <div className="text-2xl font-semibold mt-1">98<span className="text-sm font-normal">%</span></div>
-          <div className="text-sm text-green-600 flex items-center gap-1">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-500 mt-0.5"></span>
-            {t('normal')}
-          </div>
-        </div>
-      </div>
-      
-      <div className="space-y-6">
-        <div className="glass-card p-5">
-          <VitalsChart patientId={patientId} type="heartRate" timeRange={timeRange} />
-        </div>
-        
-        <div className="glass-card p-5">
-          <VitalsChart patientId={patientId} type="bloodPressure" timeRange={timeRange} />
-        </div>
-        
-        <div className="glass-card p-5">
-          <VitalsChart patientId={patientId} type="temperature" timeRange={timeRange} />
-        </div>
-        
-        <div className="glass-card p-5">
-          <VitalsChart patientId={patientId} type="oxygenSaturation" timeRange={timeRange} />
-        </div>
-        
-        <div className="glass-card p-5">
-          <VitalsChart patientId={patientId} type="respiratoryRate" timeRange={timeRange} />
-        </div>
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {vitalsSigns.map((vital, index) => (
+        <Card key={index}>
+          <CardHeader className="flex flex-row items-center justify-between py-4">
+            <CardTitle className="text-sm font-medium">
+              {vital.name}
+            </CardTitle>
+            {vital.icon}
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <div className="text-2xl font-bold">{vital.value}</div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };

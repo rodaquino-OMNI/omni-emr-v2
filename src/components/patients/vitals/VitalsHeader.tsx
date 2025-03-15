@@ -27,7 +27,7 @@ const VitalsHeader: React.FC<VitalsHeaderProps> = ({
           </span>
         </h2>
         <p className="text-sm text-muted-foreground">
-          {t('lastRecordedTime', { time: '2 hours ago' })}
+          {t('lastRecordedTime')}
         </p>
       </div>
       

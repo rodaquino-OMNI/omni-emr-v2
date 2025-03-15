@@ -169,6 +169,9 @@ const Dashboard = ({ className }: DashboardProps) => {
 
   return (
     <div className={cn("space-y-6", className)}>
+      {/* Quick Actions - now at the very top for doctors */}
+      {user?.role === 'doctor' && <QuickActions />}
+      
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
@@ -190,8 +193,8 @@ const Dashboard = ({ className }: DashboardProps) => {
       {/* Alerts Section */}
       <DashboardAlerts />
       
-      {/* Quick Actions */}
-      <QuickActions />
+      {/* Quick Actions - for non-doctors */}
+      {user?.role !== 'doctor' && <QuickActions />}
       
       {/* Recent Patients Section */}
       <div className="glass-card p-6">
