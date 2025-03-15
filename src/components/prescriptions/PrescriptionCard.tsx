@@ -2,9 +2,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { ClipboardList, Calendar, ChevronRight, User, Clock } from 'lucide-react';
+import { ClipboardList, Calendar, ChevronRight, User, Clock, Database, FileText } from 'lucide-react';
 import { extractTextFromCodeableConcept, extractPatientName } from '@/utils/fhir/fhirExtractors';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type PrescriptionCardProps = {
   prescription: any;
@@ -70,13 +71,54 @@ const PrescriptionCard = ({ prescription, className }: PrescriptionCardProps) =>
     <Link to={detailLink}>
       <div className={cn("glass-card p-4 hover:shadow-md transition-shadow border border-border/50 relative", className)}>
         <div className="absolute top-0 left-0 w-1 h-full rounded-l-md bg-gradient-to-b from-medical-purple to-medical-blue"></div>
-        <div className="flex items-center gap-4">
+        
+        {/* Format indicator badge */}
+        <div className="absolute top-2 right-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="outline" className={cn(
+                  "flex items-center gap-1 text-xs py-0.5",
+                  isFhirFormat 
+                    ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300" 
+                    : "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300"
+                )}>
+                  {isFhirFormat ? (
+                    <>
+                      <FileText className="h-3 w-3" />
+                      <span>FHIR</span>
+                    </>
+                  ) : (
+                    <>
+                      <Database className="h-3 w-3" />
+                      <span>Legacy</span>
+                    </>
+                  )}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-sm font-medium">
+                  {isFhirFormat 
+                    ? "FHIR Medication Request Format" 
+                    : "Legacy Prescription Format"}
+                </p>
+                <p className="text-xs mt-1">
+                  {isFhirFormat
+                    ? "Using standardized FHIR structure for interoperability"
+                    : "Using original database structure for backwards compatibility"}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        
+        <div className="flex items-center gap-4 mt-1">
           <div className="h-10 w-10 rounded-full bg-medical-purple/10 flex items-center justify-center">
             <ClipboardList className="h-5 w-5 text-medical-purple" />
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pr-16">
               <h3 className="font-medium truncate">
                 {isFhirFormat ? medicationName : `Prescription for ${patientName}`}
               </h3>

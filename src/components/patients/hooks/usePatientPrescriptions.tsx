@@ -6,11 +6,20 @@ import { extractTextFromCodeableConcept } from '@/utils/fhir/fhirExtractors';
 export const usePatientPrescriptions = (patientId: string) => {
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dataStats, setDataStats] = useState<{
+    fhirCount: number,
+    legacyCount: number,
+    totalCount: number,
+    hasDualSources: boolean
+  } | null>(null);
   
   useEffect(() => {
     const fetchPrescriptions = async () => {
       setLoading(true);
       try {
+        let fhirData: any[] = [];
+        let legacyData: any[] = [];
+        
         // First try to fetch from the FHIR medication_requests table
         let { data: medicationRequests, error: fhirError } = await supabase
           .from('medication_requests')
@@ -18,42 +27,43 @@ export const usePatientPrescriptions = (patientId: string) => {
           .eq('subject_id', patientId)
           .order('authored_on', { ascending: false });
         
-        if (fhirError || !medicationRequests || medicationRequests.length === 0) {
-          // Fallback to legacy prescription data
-          const { data: legacyData, error: legacyError } = await supabase
-            .from('prescriptions')
-            .select(`
-              id, 
-              date, 
-              status, 
-              notes,
-              prescription_items(id, name, dosage, frequency, duration, instructions, start_date, end_date, status)
-            `)
-            .eq('patient_id', patientId)
-            .order('date', { ascending: false });
-            
-          if (legacyError) throw legacyError;
+        if (!fhirError && medicationRequests && medicationRequests.length > 0) {
+          fhirData = medicationRequests;
+        }
           
-          // Transform legacy data to match our new format
-          const transformedData = legacyData?.flatMap(prescription => 
-            prescription.prescription_items.map((item: any) => ({
-              id: item.id,
-              name: item.name,
-              dosage: item.dosage,
-              frequency: item.frequency,
-              instructions: item.instructions,
-              status: prescription.status,
-              startDate: item.start_date,
-              endDate: item.end_date,
-              nextDose: calculateNextDose(item.frequency),
-              priority: 'routine' // Default priority for legacy data
-            }))
-          ) || [];
+        // Also fetch legacy prescription data
+        const { data: legacyPrescriptions, error: legacyError } = await supabase
+          .from('prescriptions')
+          .select(`
+            id, 
+            date, 
+            status, 
+            notes,
+            prescription_items(id, name, dosage, frequency, duration, instructions, start_date, end_date, status)
+          `)
+          .eq('patient_id', patientId)
+          .order('date', { ascending: false });
           
-          setPrescriptions(transformedData);
-        } else {
+        if (!legacyError && legacyPrescriptions && legacyPrescriptions.length > 0) {
+          legacyData = legacyPrescriptions;
+        }
+        
+        // Calculate statistics about our data sources
+        const fhirCount = fhirData.length;
+        const legacyCount = legacyData.length;
+        const totalCount = fhirCount + legacyCount;
+        const hasDualSources = fhirCount > 0 && legacyCount > 0;
+        
+        setDataStats({
+          fhirCount,
+          legacyCount,
+          totalCount,
+          hasDualSources
+        });
+        
+        if (fhirCount > 0) {
           // Transform FHIR data
-          const transformedFhirData = medicationRequests.map((req: any) => {
+          const transformedFhirData = fhirData.map((req: any) => {
             // Safely extract medication name using our utility function
             const medicationName = extractTextFromCodeableConcept(
               req.medication_codeable_concept, 
@@ -74,11 +84,68 @@ export const usePatientPrescriptions = (patientId: string) => {
               startDate: req.authored_on,
               endDate: null,
               nextDose: calculateNextDose(extractFrequency(dosageInst)),
-              priority: req.priority || 'routine'
+              priority: req.priority || 'routine',
+              // Preserve original FHIR data
+              medication_codeable_concept: req.medication_codeable_concept,
+              dosage_instruction: req.dosage_instruction,
+              authored_on: req.authored_on,
+              requesterName: req.requester?.name,
+              dataSource: 'fhir'
             };
           });
           
-          setPrescriptions(transformedFhirData);
+          if (legacyCount > 0) {
+            // Transform legacy data to match our new format
+            const transformedLegacyData = legacyData.flatMap(prescription => 
+              prescription.prescription_items.map((item: any) => ({
+                id: item.id,
+                name: item.name,
+                dosage: item.dosage,
+                frequency: item.frequency,
+                instructions: item.instructions,
+                status: prescription.status,
+                startDate: item.start_date,
+                endDate: item.end_date,
+                nextDose: calculateNextDose(item.frequency),
+                priority: 'routine', // Default priority for legacy data
+                date: prescription.date,
+                patientId: patientId,
+                doctorName: "Unknown Provider", // Will be fetched separately if needed
+                // Add metadata about the data source
+                dataSource: 'legacy'
+              }))
+            ) || [];
+            
+            // Combine both data sources
+            setPrescriptions([...transformedFhirData, ...transformedLegacyData]);
+          } else {
+            setPrescriptions(transformedFhirData);
+          }
+        } else if (legacyCount > 0) {
+          // Only legacy data is available
+          const transformedLegacyData = legacyData.flatMap(prescription => 
+            prescription.prescription_items.map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              dosage: item.dosage,
+              frequency: item.frequency,
+              instructions: item.instructions,
+              status: prescription.status,
+              startDate: item.start_date,
+              endDate: item.end_date,
+              nextDose: calculateNextDose(item.frequency),
+              priority: 'routine', // Default priority for legacy data
+              date: prescription.date,
+              patientId: patientId,
+              doctorName: "Unknown Provider",
+              dataSource: 'legacy'
+            }))
+          ) || [];
+          
+          setPrescriptions(transformedLegacyData);
+        } else {
+          // No data available
+          setPrescriptions([]);
         }
       } catch (error) {
         console.error('Error fetching prescriptions:', error);
@@ -93,7 +160,7 @@ export const usePatientPrescriptions = (patientId: string) => {
     }
   }, [patientId]);
   
-  return { prescriptions, loading };
+  return { prescriptions, loading, dataStats };
 };
 
 // Helper functions

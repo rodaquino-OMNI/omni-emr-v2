@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Pill, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Pill, AlertTriangle, ExternalLink, FileText, Database, ArrowLeftRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Patient } from '../PatientCard';
@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import { extractTextFromCodeableConcept } from '@/utils/fhir/fhirExtractors';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type MedicationsCardProps = {
   patient: Patient;
@@ -18,7 +19,7 @@ type MedicationsCardProps = {
 
 const MedicationsCard = ({ patient, prescriptions: initialPrescriptions }: MedicationsCardProps) => {
   const { user } = useAuth();
-  const { prescriptions, loading } = usePatientPrescriptions(patient.id);
+  const { prescriptions, loading, dataStats } = usePatientPrescriptions(patient.id);
   
   // Use provided prescriptions or fetched ones
   const displayPrescriptions = initialPrescriptions || prescriptions;
@@ -58,13 +59,51 @@ const MedicationsCard = ({ patient, prescriptions: initialPrescriptions }: Medic
     return medication.status || 'unknown';
   };
   
+  // Determine if a medication is using FHIR format
+  const isFhirFormat = (medication: any): boolean => {
+    return !!medication.medication_codeable_concept || medication.dataSource === 'fhir';
+  };
+  
   return (
     <Card className="border border-border overflow-hidden">
       <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-900/10 dark:to-transparent">
         <div className="flex justify-between items-center">
           <CardTitle className="text-md flex items-center gap-2">
             <Pill className="h-5 w-5 text-medical-blue" />
-            Medications
+            <div className="flex items-center gap-2">
+              Medications
+              
+              {dataStats?.hasDualSources && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950 text-xs flex items-center gap-1 px-2">
+                        <ArrowLeftRight className="h-3 w-3 text-blue-600" />
+                        <span>Dual Format</span>
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="space-y-2 max-w-xs">
+                        <p className="font-medium">Enhanced Data Processing</p>
+                        <p className="text-sm">This view combines medications from both FHIR and legacy formats with automatic normalization.</p>
+                        {dataStats && (
+                          <div className="grid grid-cols-2 gap-2 mt-1 text-xs">
+                            <div className="flex items-center gap-1">
+                              <FileText className="h-3 w-3 text-blue-500" />
+                              <span>FHIR: {dataStats.fhirCount}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Database className="h-3 w-3 text-green-500" />
+                              <span>Legacy: {dataStats.legacyCount}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </CardTitle>
           <div className="flex items-center gap-2">
             {canPrescribe && (
@@ -107,7 +146,33 @@ const MedicationsCard = ({ patient, prescriptions: initialPrescriptions }: Medic
                   <Pill className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">{getMedicationName(prescription)}</div>
+                  <div className="font-medium text-sm truncate flex items-center gap-2">
+                    {getMedicationName(prescription)}
+                    
+                    {/* Data source indicator */}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          {isFhirFormat(prescription) ? (
+                            <Badge variant="outline" className="h-4 text-[10px] px-1 bg-blue-50 text-blue-600 border-blue-200">
+                              <FileText className="h-2 w-2 mr-0.5" />
+                              FHIR
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="h-4 text-[10px] px-1 bg-green-50 text-green-600 border-green-200">
+                              <Database className="h-2 w-2 mr-0.5" />
+                              Legacy
+                            </Badge>
+                          )}
+                        </TooltipTrigger>
+                        <TooltipContent side="right" align="start" className="text-xs">
+                          {isFhirFormat(prescription) 
+                            ? "Using FHIR standard format" 
+                            : "Using legacy data format"}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <div className="text-xs text-muted-foreground">{getMedicationDosage(prescription)}</div>
                   {prescription.nextDose && (
                     <div className="text-xs text-blue-600 mt-1">Next dose: {prescription.nextDose}</div>
