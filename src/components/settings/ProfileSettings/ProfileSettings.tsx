@@ -4,6 +4,7 @@ import ProfileSectionHeader from './ProfileSectionHeader';
 import ProfileForm from './ProfileForm';
 import ProfileLoadingState from './ProfileLoadingState';
 import { useProfileData } from './useProfileData';
+import RoleDashboardKPIs from '@/components/dashboard/RoleDashboardKPIs';
 
 const ProfileSettings = () => {
   const { formData, loading, isFetching, updateProfile, handleInputChange } = useProfileData();
@@ -26,6 +27,11 @@ const ProfileSettings = () => {
           onSubmit={updateProfile}
           onInputChange={handleInputChange}
         />
+      </div>
+      
+      {/* Performance Metrics - Last Block */}
+      <div className="mt-8">
+        <RoleDashboardKPIs />
       </div>
     </div>
   );

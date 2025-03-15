@@ -17,7 +17,11 @@ import {
   Cell
 } from 'recharts';
 
-const RoleDashboardKPIs = () => {
+interface RoleDashboardKPIsProps {
+  customTitle?: string;
+}
+
+const RoleDashboardKPIs: React.FC<RoleDashboardKPIsProps> = ({ customTitle }) => {
   const { user } = useAuth();
   const { language } = useTranslation();
 
@@ -43,7 +47,7 @@ const RoleDashboardKPIs = () => {
   return (
     <div className="glass-card p-6">
       <h2 className="text-lg font-semibold mb-4">
-        {language === 'pt' ? 'Métricas de Desempenho' : 'Performance Metrics'}
+        {customTitle || (language === 'pt' ? 'Métricas de Desempenho' : 'Performance Metrics')}
       </h2>
       {content}
     </div>
