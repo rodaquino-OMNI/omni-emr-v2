@@ -22,8 +22,8 @@ const ScanItem: React.FC<ScanItemProps> = ({
       {entity && (
         <div className="text-xs">
           {entityType === 'patient' 
-            ? `${entity.name} • ${(entity as any).mrn}` 
-            : entityName || entity.medicationName}
+            ? `${(entity as any).name} • ${(entity as any).mrn}` 
+            : entityName || (entity as any).medicationName}
         </div>
       )}
     </Card>

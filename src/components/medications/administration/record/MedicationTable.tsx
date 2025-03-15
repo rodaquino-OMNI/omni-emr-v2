@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Badge } from '@/components/ui/badge';
@@ -115,7 +116,7 @@ const MedicationTable: React.FC<MedicationTableProps> = ({
                       <PopoverContent className="w-80 bg-red-50 border-red-200">
                         <div className="font-semibold text-red-700">{t('allergyWarning')}</div>
                         <div className="text-red-600 mt-1">
-                          {t('patientHasAllergy', { medication: record.medicationName })}
+                          {t('patientHasAllergy')}
                         </div>
                       </PopoverContent>
                     </Popover>
