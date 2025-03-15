@@ -1,12 +1,16 @@
 
 import { Pill, Calendar, FileText, MessageSquare, Video, Users, ClipboardList, Activity, Droplet, ClipboardCheck, Syringe, FlaskConical } from 'lucide-react';
 import { QuickAction } from '../types/quickActionTypes';
+import React from 'react';
+
+// Define icons outside of the data array to avoid JSX in .ts file
+const createIconProps = () => ({ className: "h-5 w-5" });
 
 export const getQuickActions = (language: string): QuickAction[] => [
   // Nurse primary actions
   {
     title: language === 'pt' ? 'Administrar Medicação' : 'Administer Medication',
-    icon: <Pill className="h-5 w-5" />,
+    icon: React.createElement(Pill, createIconProps()),
     link: '/medications',
     color: 'bg-green-100 text-green-800',
     permissionRequired: 'administer_medications',
@@ -14,7 +18,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Balanço Hídrico' : 'Fluid Balance',
-    icon: <Droplet className="h-5 w-5" />,
+    icon: React.createElement(Droplet, createIconProps()),
     link: '/fluid-balance',
     color: 'bg-blue-100 text-blue-800',
     permissionRequired: 'manage_fluid_balance',
@@ -22,7 +26,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Notas de Visita' : 'Visit Notes',
-    icon: <ClipboardCheck className="h-5 w-5" />,
+    icon: React.createElement(ClipboardCheck, createIconProps()),
     link: '/visit-notes',
     color: 'bg-amber-100 text-amber-800',
     permissionRequired: 'view_records',
@@ -30,7 +34,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Registrar Sinais Vitais' : 'Record Vital Signs',
-    icon: <Activity className="h-5 w-5" />,
+    icon: React.createElement(Activity, createIconProps()),
     link: '/vitals',
     color: 'bg-red-100 text-red-800',
     permissionRequired: 'document_vital_signs',
@@ -40,7 +44,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   // Doctor primary actions
   {
     title: language === 'pt' ? 'Nova Consulta' : 'New Consultation',
-    icon: <Calendar className="h-5 w-5" />,
+    icon: React.createElement(Calendar, createIconProps()),
     link: '/schedule',
     color: 'bg-indigo-100 text-indigo-800',
     permissionRequired: 'schedule_appointments',
@@ -48,7 +52,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Nova Prescrição' : 'New Prescription',
-    icon: <Pill className="h-5 w-5" />,
+    icon: React.createElement(Pill, createIconProps()),
     link: '/prescribe',
     color: 'bg-blue-100 text-blue-800',
     permissionRequired: 'prescribe_medications',
@@ -56,7 +60,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Registros do Paciente' : 'Patient Records',
-    icon: <FileText className="h-5 w-5" />,
+    icon: React.createElement(FileText, createIconProps()),
     link: '/records',
     color: 'bg-purple-100 text-purple-800',
     permissionRequired: 'view_records',
@@ -64,7 +68,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Telemedicina' : 'Telemedicine',
-    icon: <Video className="h-5 w-5" />,
+    icon: React.createElement(Video, createIconProps()),
     link: '/telemedicine',
     color: 'bg-violet-100 text-violet-800',
     permissionRequired: 'telemedicine',
@@ -74,7 +78,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   // Administrative staff actions
   {
     title: language === 'pt' ? 'Agendar Consulta' : 'Schedule Appointment',
-    icon: <Calendar className="h-5 w-5" />,
+    icon: React.createElement(Calendar, createIconProps()),
     link: '/schedule',
     color: 'bg-emerald-100 text-emerald-800',
     permissionRequired: 'schedule_appointments',
@@ -82,7 +86,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Gerenciar Pacientes' : 'Manage Patients',
-    icon: <Users className="h-5 w-5" />,
+    icon: React.createElement(Users, createIconProps()),
     link: '/patients',
     color: 'bg-sky-100 text-sky-800',
     roles: ['administrative', 'doctor', 'nurse']
@@ -91,7 +95,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   // Lab technician actions
   {
     title: language === 'pt' ? 'Resultados de Laboratório' : 'Lab Results',
-    icon: <FlaskConical className="h-5 w-5" />,
+    icon: React.createElement(FlaskConical, createIconProps()),
     link: '/orders',
     color: 'bg-fuchsia-100 text-fuchsia-800',
     permissionRequired: 'view_lab_results',
@@ -101,7 +105,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   // Pharmacist actions
   {
     title: language === 'pt' ? 'Verificar Prescrições' : 'Verify Prescriptions',
-    icon: <ClipboardList className="h-5 w-5" />,
+    icon: React.createElement(ClipboardList, createIconProps()),
     link: '/prescriptions',
     color: 'bg-lime-100 text-lime-800',
     permissionRequired: 'verify_prescriptions',
@@ -111,7 +115,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   // Patient actions
   {
     title: language === 'pt' ? 'Minhas Mensagens' : 'My Messages',
-    icon: <MessageSquare className="h-5 w-5" />,
+    icon: React.createElement(MessageSquare, createIconProps()),
     link: '/messages',
     color: 'bg-green-100 text-green-800',
     permissionRequired: 'message_care_team',
@@ -119,7 +123,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Meus Medicamentos' : 'My Medications',
-    icon: <Pill className="h-5 w-5" />,
+    icon: React.createElement(Pill, createIconProps()),
     link: '/medications',
     color: 'bg-purple-100 text-purple-800',
     permissionRequired: 'view_own_medications',
@@ -127,7 +131,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Meus Registros' : 'My Records',
-    icon: <FileText className="h-5 w-5" />,
+    icon: React.createElement(FileText, createIconProps()),
     link: '/records',
     color: 'bg-indigo-100 text-indigo-800',
     permissionRequired: 'view_own_records',
@@ -135,7 +139,7 @@ export const getQuickActions = (language: string): QuickAction[] => [
   },
   {
     title: language === 'pt' ? 'Agendar Consulta' : 'Schedule Appointment',
-    icon: <Calendar className="h-5 w-5" />,
+    icon: React.createElement(Calendar, createIconProps()),
     link: '/schedule',
     color: 'bg-teal-100 text-teal-800',
     permissionRequired: 'schedule_own_appointments',
