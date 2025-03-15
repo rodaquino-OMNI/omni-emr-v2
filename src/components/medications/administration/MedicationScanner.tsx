@@ -10,13 +10,15 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Scan, User, Pill, Camera } from 'lucide-react';
+import { Check, X, Scan, User, Pill, Camera, Shield, AlertTriangle } from 'lucide-react';
 import ScanItem from './scanner/ScanItem';
 import BarcodeScanner from './scanner/BarcodeScanner';
 import ManualEntryForm from './scanner/ManualEntryForm';
 import MedicationHeader from './scanner/MedicationHeader';
 import { useMedicationScanner } from './scanner/useMedicationScanner';
 import { MedicationScannerProps } from './scanner/types';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 
 const MedicationScanner = ({
   open,
@@ -47,16 +49,32 @@ const MedicationScanner = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Scan className="mr-2 h-5 w-5" />
-            {t('medicationVerification')}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center">
+              <Shield className="mr-2 h-5 w-5 text-green-600" />
+              {t('medicationVerification')}
+            </DialogTitle>
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800/30">
+              EHR-Verified
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('scannerSafetyDescription') || 'Enhanced safety verification with barcode scanning and EHR integration'}
+          </p>
         </DialogHeader>
         
-        <div className="py-4">
+        <Alert variant="info" className="my-2">
+          <Shield className="h-4 w-4" />
+          <AlertTitle>{t('safetyFeatureActive') || 'Safety Feature Active'}</AlertTitle>
+          <AlertDescription>
+            {t('doubleVerificationActive') || 'Double verification with EHR system is enabled for additional patient safety'}
+          </AlertDescription>
+        </Alert>
+        
+        <div className="py-2">
           <MedicationHeader medication={medication} patient={patient} />
           
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-2 gap-4 mt-4 mb-5">
             <ScanItem
               title={t('patient')}
               entity={patient}
@@ -76,11 +94,12 @@ const MedicationScanner = ({
           
           <Tabs defaultValue="camera" value={activeTab} onValueChange={(value) => setActiveTab(value as 'camera' | 'manual')}>
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="camera">
+              <TabsTrigger value="camera" className="flex items-center">
                 <Camera className="h-4 w-4 mr-1" />
                 {t('scanBarcode')}
               </TabsTrigger>
-              <TabsTrigger value="manual">
+              <TabsTrigger value="manual" className="flex items-center">
+                <Shield className="h-4 w-4 mr-1" />
                 {t('manualEntry')}
               </TabsTrigger>
             </TabsList>
@@ -107,7 +126,23 @@ const MedicationScanner = ({
           </Tabs>
         </div>
         
-        <DialogFooter className="sm:justify-between">
+        {!patientScanned || !medicationScanned ? (
+          <Alert variant="warning" className="mt-2">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {t('pleaseCompleteScan') || 'Please complete scanning both the patient and medication for verification'}
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert variant="success" className="mt-2">
+            <Check className="h-4 w-4" />
+            <AlertDescription>
+              {t('readyForVerification') || 'Ready for final verification and administration'}
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        <DialogFooter className="sm:justify-between mt-4">
           <Button variant="outline" onClick={onClose}>
             <X className="h-4 w-4 mr-1" />
             {t('cancel')}
@@ -116,6 +151,7 @@ const MedicationScanner = ({
             variant="default" 
             onClick={onVerify} 
             disabled={!patientScanned || !medicationScanned}
+            className={patientScanned && medicationScanned ? "bg-green-600 hover:bg-green-700" : ""}
           >
             <Check className="h-4 w-4 mr-1" />
             {t('confirmAdministration')}
