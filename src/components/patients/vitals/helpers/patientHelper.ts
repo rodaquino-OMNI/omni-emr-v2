@@ -1,11 +1,17 @@
 
-// Mock patient data to use when viewing vitals
-export const getPatientName = (id: string): string => {
-  const patients: Record<string, string> = {
-    '1': 'John Doe',
-    '2': 'Jane Smith',
-    '3': 'Michael Johnson',
-    '4': 'Sarah Williams',
-  };
-  return patients[id] || 'Unknown Patient';
+import { MOCK_PATIENTS } from '@/pages/VitalSigns';
+
+export const getPatientName = (patientId: string): string => {
+  // Try to find the patient in the MOCK_PATIENTS array
+  try {
+    const patient = MOCK_PATIENTS.find(p => p.id === patientId);
+    if (patient) {
+      return patient.name;
+    }
+  } catch (error) {
+    console.error('Error getting patient name:', error);
+  }
+  
+  // Fallback if patient not found
+  return `Patient ID: ${patientId}`;
 };

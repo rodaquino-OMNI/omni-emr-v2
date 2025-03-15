@@ -1,4 +1,5 @@
 
+import { vitalsTranslations as vitals } from './categories/vitals';
 import { auth } from './categories/auth';
 import { common } from './categories/common';
 import { medicalHistory } from './categories/medicalHistory';
@@ -6,7 +7,6 @@ import { medications } from './categories/medications';
 import { orders } from './categories/orders';
 import { patients } from './categories/patients';
 import { validations } from './categories/validations';
-import { vitals } from './categories/vitals';
 import { tasks } from './categories/tasks';
 import { appointments } from './categories/appointments';
 import { users } from './categories/users';
@@ -73,3 +73,6 @@ export const translations = {
     continueToDashboard: 'Continuar para o Dashboard',
   }
 };
+
+// Type for translation keys
+export type TranslationKey = keyof typeof translations.en;

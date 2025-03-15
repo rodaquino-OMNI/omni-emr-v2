@@ -6,7 +6,7 @@ import Sidebar from '../components/layout/Sidebar';
 import { useTranslation } from '../hooks/useTranslation';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Filter, Clock, ArrowLeft } from 'lucide-react';
+import { PlusCircle, Filter, Clock, ArrowLeft, Activity } from 'lucide-react';
 import PatientVitals from '@/components/patients/PatientVitals';
 import { supabase } from '@/integrations/supabase/client';
 import { useAsync } from '@/hooks/useAsync';
@@ -14,7 +14,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { useAuth } from '@/context/AuthContext';
 
 // Mock data for the patient list
-const MOCK_PATIENTS = [
+export const MOCK_PATIENTS = [
   { id: '1', name: 'John Doe', mrn: 'MRN001', age: 45, gender: 'Male', roomNumber: '101' },
   { id: '2', name: 'Jane Smith', mrn: 'MRN002', age: 32, gender: 'Female', roomNumber: '102' },
   { id: '3', name: 'Michael Johnson', mrn: 'MRN003', age: 58, gender: 'Male', roomNumber: '103' },
@@ -26,9 +26,11 @@ type PatientData = typeof MOCK_PATIENTS[0];
 const VitalSigns = () => {
   const { t, language } = useTranslation();
   const { user } = useAuth();
-  const { canManagePatientFluidBalance } = usePermissions(user);
+  const { hasPermission } = usePermissions(user);
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
   const location = useLocation();
+  
+  const canManagePatientVitals = hasPermission('document_vital_signs');
   
   // Check if patientId is passed in URL params
   useEffect(() => {
@@ -42,18 +44,6 @@ const VitalSigns = () => {
   const fetchPatients = async (): Promise<PatientData[]> => {
     try {
       // In a real implementation, we would fetch from Supabase
-      // const { data, error } = await supabase.from('patients').select('id, first_name, last_name, mrn, date_of_birth, gender');
-      // if (error) throw error;
-      // return data.map(p => ({
-      //   id: p.id,
-      //   name: `${p.first_name} ${p.last_name}`,
-      //   mrn: p.mrn,
-      //   // Calculate age from date_of_birth
-      //   age: new Date().getFullYear() - new Date(p.date_of_birth).getFullYear(),
-      //   gender: p.gender,
-      //   roomNumber: 'N/A'
-      // }));
-      
       // For now, use mock data
       return MOCK_PATIENTS;
     } catch (error) {
@@ -73,13 +63,14 @@ const VitalSigns = () => {
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-semibold flex items-center">
+              <h1 className="text-2xl font-semibold flex items-center gap-2">
                 {selectedPatient && (
                   <Button variant="ghost" size="sm" className="mr-2 -ml-3" onClick={() => setSelectedPatient(null)}>
                     <ArrowLeft className="h-4 w-4 mr-1" />
-                    Back
+                    {t('back')}
                   </Button>
                 )}
+                <Activity className="h-5 w-5 text-primary" />
                 {t('vitals')}
               </h1>
               
@@ -92,7 +83,7 @@ const VitalSigns = () => {
                   <Clock className="h-4 w-4" />
                   {t('recent')}
                 </Button>
-                {canManagePatientFluidBalance && (
+                {canManagePatientVitals && !selectedPatient && (
                   <Button size="sm" className="gap-1">
                     <PlusCircle className="h-4 w-4" />
                     {t('recordVitals')}
@@ -106,8 +97,13 @@ const VitalSigns = () => {
                 // Patient list view (when no patient is selected)
                 <>
                   <div className="lg:col-span-1">
-                    <div className="glass-card p-4">
-                      <h2 className="text-lg font-medium mb-3">{t('patients')}</h2>
+                    <div className="glass-card p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+                      <h2 className="text-lg font-medium mb-3 flex items-center gap-2">
+                        {t('patients')}
+                        <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
+                          {Array.isArray(patients) ? patients.length : 0}
+                        </span>
+                      </h2>
                       <div className="overflow-auto max-h-[calc(100vh-200px)]">
                         <div className="rounded-md border">
                           <Table>
@@ -149,9 +145,11 @@ const VitalSigns = () => {
                   </div>
                   
                   <div className="lg:col-span-2">
-                    <div className="glass-card p-6 flex items-center justify-center h-64">
+                    <div className="glass-card p-6 flex items-center justify-center h-64 bg-white rounded-lg shadow-sm border border-gray-100">
                       <div className="text-center text-muted-foreground">
-                        {t('selectPatientToViewVitals')}
+                        <Activity className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
+                        <p className="text-lg font-medium text-muted-foreground">{t('selectPatientToViewVitals')}</p>
+                        <p className="text-sm mt-2 max-w-md">Select a patient from the list to view their vital signs and monitoring data.</p>
                       </div>
                     </div>
                   </div>
@@ -159,7 +157,7 @@ const VitalSigns = () => {
               ) : (
                 // Patient vitals view (when a patient is selected)
                 <div className="lg:col-span-3">
-                  <div className="glass-card p-6">
+                  <div className="glass-card p-6 bg-white rounded-lg shadow-sm border border-gray-100">
                     <PatientVitals patientId={selectedPatient} />
                   </div>
                 </div>

@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { FileText, Printer, PlusCircle } from 'lucide-react';
+import { PlusCircle, Printer, Clock, ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface VitalsHeaderProps {
   patientName: string;
@@ -10,28 +10,45 @@ interface VitalsHeaderProps {
   onRecordVitals: () => void;
 }
 
-const VitalsHeader: React.FC<VitalsHeaderProps> = ({
-  patientName,
-  canManageVitals,
-  onRecordVitals
+const VitalsHeader: React.FC<VitalsHeaderProps> = ({ 
+  patientName, 
+  canManageVitals, 
+  onRecordVitals 
 }) => {
   const { t } = useTranslation();
   
   return (
-    <div className="flex justify-between items-center">
-      <h2 className="text-xl font-semibold">{patientName}</h2>
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-2">
+      <div>
+        <h2 className="text-xl font-semibold flex items-center gap-2">
+          {patientName} 
+          <span className="text-muted-foreground font-normal text-base">
+            - {t('vitalSignsSummary')}
+          </span>
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {t('lastRecordedTime', { time: '2 hours ago' })}
+        </p>
+      </div>
       
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <FileText className="h-4 w-4" />
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" className="gap-1">
+          <Clock className="h-4 w-4" />
           {t('viewHistory')}
+          <ChevronRight className="h-4 w-4" />
         </Button>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        
+        <Button variant="outline" size="sm" className="gap-1">
           <Printer className="h-4 w-4" />
           {t('print')}
         </Button>
+        
         {canManageVitals && (
-          <Button size="sm" className="gap-1.5" onClick={onRecordVitals}>
+          <Button 
+            size="sm" 
+            className="gap-1 bg-green-600 hover:bg-green-700"
+            onClick={onRecordVitals}
+          >
             <PlusCircle className="h-4 w-4" />
             {t('recordVitals')}
           </Button>

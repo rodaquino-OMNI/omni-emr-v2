@@ -100,7 +100,7 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
           <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 rounded">
             <div className="h-6 w-6 border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
           </div>
-        ) : (
+        ) : data.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
@@ -126,6 +126,10 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
               <VitalsChartLines type={type} data={data} config={config} />
             </LineChart>
           </ResponsiveContainer>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 rounded">
+            <p className="text-sm text-muted-foreground">{t('noDataAvailable')}</p>
+          </div>
         )}
       </div>
       

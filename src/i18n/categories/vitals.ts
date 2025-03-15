@@ -37,7 +37,8 @@ export type VitalsTranslationKey =
   | 'lastRecordedTime'
   | 'errorRecordingVitals'
   | 'errorRecordingVitalsDescription'
-  | 'patients';
+  | 'patients'
+  | 'noDataAvailable';
 
 export const vitalsTranslations = {
   pt: {
@@ -78,7 +79,8 @@ export const vitalsTranslations = {
     lastRecordedTime: 'Último registro há {time}',
     errorRecordingVitals: 'Erro ao registrar sinais vitais',
     errorRecordingVitalsDescription: 'Ocorreu um erro ao registrar os sinais vitais do paciente',
-    patients: 'Pacientes'
+    patients: 'Pacientes',
+    noDataAvailable: 'Não há dados disponíveis'
   },
   en: {
     vitals: 'Vital Signs',
@@ -118,6 +120,7 @@ export const vitalsTranslations = {
     lastRecordedTime: 'Last recorded {time}',
     errorRecordingVitals: 'Error recording vital signs',
     errorRecordingVitalsDescription: 'There was an error recording the patient\'s vital signs',
-    patients: 'Patients'
+    patients: 'Patients',
+    noDataAvailable: 'No data available'
   }
 };

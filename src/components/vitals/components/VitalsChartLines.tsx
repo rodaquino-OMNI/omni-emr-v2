@@ -3,6 +3,7 @@ import React from 'react';
 import { Line } from 'recharts';
 import { VitalType, VitalDataPoint } from '../types/vitalsTypes';
 import { VitalChartConfig } from '../types/vitalsTypes';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface VitalsChartLinesProps {
   type: VitalType;
@@ -11,6 +12,8 @@ interface VitalsChartLinesProps {
 }
 
 const VitalsChartLines: React.FC<VitalsChartLinesProps> = ({ type, data, config }) => {
+  const { t } = useTranslation();
+  
   // Custom dot renderer to show abnormal values in red
   const renderDot = (props: any, dataIndex: number, isAbnormal: boolean) => {
     const { cx, cy } = props;
@@ -87,9 +90,5 @@ const VitalsChartLines: React.FC<VitalsChartLinesProps> = ({ type, data, config 
     />
   );
 };
-
-// Import t function for translations
-import { useTranslation } from '@/hooks/useTranslation';
-const { t } = useTranslation();
 
 export default VitalsChartLines;
