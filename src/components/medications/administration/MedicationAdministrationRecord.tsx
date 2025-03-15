@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -62,7 +61,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
   const permissions = usePermissions(user);
   const canAdministerMedications = permissions.checkMedicationPermission('administer');
   
-  // State for medication administration
   const [administrationRecords, setAdministrationRecords] = useState<AdministrationRecord[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<AdministrationRecord | null>(null);
   const [showMissedDialog, setShowMissedDialog] = useState(false);
@@ -73,10 +71,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
   const [scannedMedicationCode, setScannedMedicationCode] = useState('');
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   
-  // Fetch patient data and medication records
   useEffect(() => {
-    // In a real app, we would fetch this data from an API
-    // For now, we'll use mock data
     const mockPatient: PatientData = {
       id: patientId,
       name: "John Doe",
@@ -160,7 +155,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     setAdministrationRecords(mockMedications);
   }, [patientId]);
   
-  // Function to handle medication administration
   const handleAdminister = (recordId: string) => {
     if (!canAdministerMedications) {
       toast.error(t('permissionDenied'), {
@@ -176,13 +170,9 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     setShowScanner(true);
   };
   
-  // Verify scanned data and complete administration
   const handleVerify = () => {
     if (!selectedRecord) return;
     
-    // In a real app, we would verify the scanned patient ID against the patient ID
-    // and the scanned medication code against the medication
-    // For demo purposes, we'll just check if both values are non-empty
     if (scannedPatientId && scannedMedicationCode) {
       const now = new Date();
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -223,7 +213,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     });
   };
   
-  // Function to handle medication being held
   const handleHold = (recordId: string) => {
     if (!canAdministerMedications) {
       toast.error(t('permissionDenied'), {
@@ -232,7 +221,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
       return;
     }
     
-    // We would normally open a dialog to capture the reason
     const reason = 'Clinical decision';
     
     setAdministrationRecords(records =>
@@ -254,7 +242,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     });
   };
   
-  // Function to mark medication as missed
   const handleMissed = (recordId: string) => {
     if (!canAdministerMedications) {
       toast.error(t('permissionDenied'), {
@@ -270,7 +257,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     setShowMissedDialog(true);
   };
   
-  // Function to confirm missed medication
   const confirmMissed = () => {
     if (!selectedRecord || !missedReason) return;
     
@@ -297,7 +283,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     setMissedReason('');
   };
   
-  // Function to open IV calculator
   const handleIVCalculator = (recordId: string) => {
     const record = administrationRecords.find(r => r.id === recordId);
     if (!record) return;
@@ -306,7 +291,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     setShowIVCalculator(true);
   };
   
-  // Function to update IV rate
   const handleUpdateIVRate = (rate: number, duration: number) => {
     if (!selectedRecord) return;
     
@@ -331,7 +315,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     setSelectedRecord(null);
   };
   
-  // Get status badge color
   const getStatusBadge = (status: AdministrationRecord['status']) => {
     switch (status) {
       case 'administered':
@@ -357,7 +340,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     }
   };
   
-  // Get medication type icon
   const getMedicationTypeIcon = (type: string) => {
     switch (type) {
       case 'antibiotic':
@@ -388,9 +370,7 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
     }
   };
   
-  // Record a new administration
   const handleAddAdministration = () => {
-    // In a real app, this would open a form to add details
     toast.info(t('featureNotImplemented'), {
       description: t('medicationAdministrationFormWouldOpen')
     });
@@ -561,7 +541,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
         </CardContent>
       </Card>
       
-      {/* Missed medication dialog */}
       <Dialog open={showMissedDialog} onOpenChange={setShowMissedDialog}>
         <DialogContent>
           <DialogHeader>
@@ -594,7 +573,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
         </DialogContent>
       </Dialog>
       
-      {/* Scanning verification dialog */}
       <MedicationScanner 
         open={showScanner}
         onClose={() => setShowScanner(false)}
@@ -607,7 +585,6 @@ const MedicationAdministrationRecord = ({ patientId }: MedicationAdministrationR
         medicationScanned={!!scannedMedicationCode}
       />
       
-      {/* IV Calculator dialog */}
       <IVCalculator 
         open={showIVCalculator}
         onClose={() => setShowIVCalculator(false)}

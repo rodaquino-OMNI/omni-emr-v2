@@ -55,7 +55,9 @@ export const savePortugueseNameMapping = async (
   comments?: string
 ): Promise<boolean> => {
   try {
-    const userId = supabase.auth.getUser().then(user => user.data.user?.id);
+    // Get the user ID first, then use it in the insert operation
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id;
     
     const { error } = await supabase.from('rxnorm_portuguese_mappings').insert({
       rxnorm_code: rxnormCode,
