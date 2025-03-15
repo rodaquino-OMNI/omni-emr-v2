@@ -3,6 +3,7 @@ import { ClinicalNote, NoteStatus } from "@/types/clinicalNotes";
 import { offlineStorage } from "./offlineStorage";
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
+import { mapDbToNote, mapNoteToDb, DbClinicalNote } from "./noteMappers";
 
 export const noteService = {
   /**
@@ -14,14 +15,15 @@ export const noteService = {
       const { data, error } = await supabase
         .from('clinical_notes')
         .select('*')
-        .eq('patientId', patientId)
-        .order('createdAt', { ascending: false });
+        .eq('patient_id', patientId)
+        .order('created_at', { ascending: false });
 
       if (error) {
         throw error;
       }
 
-      return data as ClinicalNote[];
+      // Convert database records to application model
+      return (data as DbClinicalNote[]).map(mapDbToNote);
     } catch (error) {
       console.error("Error fetching notes from API, falling back to offline storage:", error);
       
@@ -47,7 +49,8 @@ export const noteService = {
         throw error;
       }
 
-      return data as ClinicalNote;
+      // Convert database record to application model
+      return mapDbToNote(data as DbClinicalNote);
     } catch (error) {
       console.error("Error fetching note from API, falling back to offline storage:", error);
       
@@ -86,10 +89,13 @@ export const noteService = {
       // Always save to offline storage first (for offline resilience)
       offlineStorage.saveNote(updatedNote);
 
+      // Convert note to database format
+      const dbNote = mapNoteToDb(updatedNote);
+
       // Try to save to Supabase if online
       const { data, error } = await supabase
         .from('clinical_notes')
-        .upsert(updatedNote)
+        .upsert(dbNote)
         .select()
         .single();
 
@@ -98,7 +104,8 @@ export const noteService = {
       }
 
       console.log("Note saved to database:", data);
-      return data as ClinicalNote;
+      // Convert database response back to application model
+      return mapDbToNote(data as DbClinicalNote);
     } catch (error) {
       console.error("Error saving note to API, saved to offline storage only:", error);
       
@@ -157,10 +164,13 @@ export const noteService = {
         
         if (!note) continue;
         
+        // Convert to database format before saving
+        const dbNote = mapNoteToDb(note);
+        
         // Try to save to Supabase
         const { error } = await supabase
           .from('clinical_notes')
-          .upsert(note);
+          .upsert(dbNote);
         
         if (error) {
           throw error;

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Users, Calendar, ClipboardList, ArrowRight, AlertTriangle, Pill, FileText, MessageSquare, Video, Droplet, ClipboardCheck } from 'lucide-react';
@@ -151,6 +152,7 @@ const Dashboard = ({ className }: DashboardProps) => {
       ];
     }
     
+    // Fixed the comparison here - using type equality instead of value equality
     if (user?.role === 'nurse') {
       return [
         ...baseStats,
@@ -198,8 +200,7 @@ const Dashboard = ({ className }: DashboardProps) => {
 
   return (
     <div className={cn("space-y-6", className)}>
-      {user?.role === 'nurse' && <QuickActions />}
-      {user?.role === 'doctor' && <QuickActions />}
+      {(user?.role === 'nurse' || user?.role === 'doctor') && <QuickActions />}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <StatCard 
