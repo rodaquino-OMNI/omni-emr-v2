@@ -8,7 +8,7 @@ import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import { sidebarItems } from '@/config/sidebarConfig';
 import { Link } from 'react-router-dom';
-import { Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck } from 'lucide-react';
+import { Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck, Droplet, Pill, Activity } from 'lucide-react';
 
 interface SidebarContentProps {
   onItemClick?: () => void;
@@ -57,6 +57,38 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
       priority: 0
     }
   ];
+
+  // Create quick actions for nurses
+  const nurseQuickActions = [
+    {
+      name: 'Medication Administration',
+      path: '/medications',
+      icon: Pill,
+      translationKey: 'medicationAdministration',
+      priority: 0
+    },
+    {
+      name: 'Fluid Balance',
+      path: '/fluid-balance',
+      icon: Droplet,
+      translationKey: 'fluidBalance',
+      priority: 0
+    },
+    {
+      name: 'Visit Notes',
+      path: '/visit-notes',
+      icon: ClipboardCheck,
+      translationKey: 'visitNotes',
+      priority: 0
+    },
+    {
+      name: 'Vital Signs',
+      path: '/vitals',
+      icon: Activity,
+      translationKey: 'vitals',
+      priority: 0
+    },
+  ];
   
   // Filter items based on user permissions and role
   let visibleItems = sidebarItems
@@ -75,6 +107,11 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
   // For doctor role, add quick actions at the top
   if (user?.role === 'doctor') {
     visibleItems = [...doctorQuickActions, ...visibleItems];
+  }
+  
+  // For nurse role, add quick actions at the top
+  if (user?.role === 'nurse') {
+    visibleItems = [...nurseQuickActions, ...visibleItems];
   }
   
   return (
@@ -100,9 +137,30 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
           </div>
         )}
         
+        {/* Nurse quick actions section */}
+        {user?.role === 'nurse' && (
+          <div className="mb-4">
+            <div className="px-3 py-2">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                {t('nurseDashboard')}
+              </h3>
+            </div>
+            {nurseQuickActions.map((action) => (
+              <SidebarItem
+                key={action.path}
+                item={action}
+                onClick={onItemClick}
+              />
+            ))}
+          </div>
+        )}
+        
         {/* Regular menu items */}
         {visibleItems
-          .filter(item => !doctorQuickActions.some(action => action.path === item.path))
+          .filter(item => 
+            !doctorQuickActions.some(action => action.path === item.path) &&
+            !nurseQuickActions.some(action => action.path === item.path)
+          )
           .map((item) => (
             <SidebarItem
               key={item.path}

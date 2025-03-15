@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Pill, Calendar, FileText, MessageSquare, Video, Users, ClipboardList, Activity, Droplet, ClipboardCheck, LogOut } from 'lucide-react';
+import { Pill, Calendar, FileText, MessageSquare, Video, Users, ClipboardList, Activity, Droplet, ClipboardCheck, LogOut, Syringe, Flask } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -20,6 +20,38 @@ const QuickActions = () => {
   const { language } = useTranslation();
   const { t } = useTranslation();
   const permissions = usePermissions(user);
+
+  // Nurse-specific actions - positioned at the top if user is a nurse
+  const nurseActions: QuickAction[] = [
+    {
+      title: language === 'pt' ? 'Administrar Medicação' : 'Administer Medication',
+      icon: <Pill className="h-5 w-5" />,
+      link: '/medications',
+      color: 'bg-green-100 text-green-800',
+      permissionRequired: 'administer_medications'
+    },
+    {
+      title: language === 'pt' ? 'Balanço Hídrico' : 'Fluid Balance',
+      icon: <Droplet className="h-5 w-5" />,
+      link: '/fluid-balance',
+      color: 'bg-blue-100 text-blue-800',
+      permissionRequired: 'manage_fluid_balance'
+    },
+    {
+      title: language === 'pt' ? 'Notas de Visita' : 'Visit Notes',
+      icon: <ClipboardCheck className="h-5 w-5" />,
+      link: '/visit-notes',
+      color: 'bg-amber-100 text-amber-800',
+      permissionRequired: 'view_records'
+    },
+    {
+      title: language === 'pt' ? 'Registrar Sinais Vitais' : 'Record Vital Signs',
+      icon: <Activity className="h-5 w-5" />,
+      link: '/vitals',
+      color: 'bg-red-100 text-red-800',
+      permissionRequired: 'document_vital_signs'
+    },
+  ];
 
   const allActions: QuickAction[] = [
     // Clinical actions
@@ -127,20 +159,29 @@ const QuickActions = () => {
   ];
 
   // Filter actions based on user permissions
-  const filteredActions = allActions.filter(action => {
-    if (!action.permissionRequired) return true;
-    return permissions.hasPermission(action.permissionRequired);
-  });
+  const filteredActions = user?.role === 'nurse' 
+    ? nurseActions.filter(action => {
+        if (!action.permissionRequired) return true;
+        return permissions.hasPermission(action.permissionRequired);
+      })
+    : allActions.filter(action => {
+        if (!action.permissionRequired) return true;
+        return permissions.hasPermission(action.permissionRequired);
+      });
   
-  // Limit to 4 most relevant actions
-  const displayActions = filteredActions.slice(0, 4);
+  // Limit to 4 most relevant actions (for nurses show all nursing actions)
+  const displayActions = user?.role === 'nurse' 
+    ? filteredActions 
+    : filteredActions.slice(0, 4);
   
   if (displayActions.length === 0) return null;
 
   return (
     <div className="glass-card p-6">
       <h2 className="text-lg font-semibold mb-4">
-        {language === 'pt' ? 'Ações Rápidas' : 'Quick Actions'}
+        {user?.role === 'nurse' 
+          ? (language === 'pt' ? 'Ações da Enfermagem' : 'Nursing Actions')
+          : (language === 'pt' ? 'Ações Rápidas' : 'Quick Actions')}
       </h2>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

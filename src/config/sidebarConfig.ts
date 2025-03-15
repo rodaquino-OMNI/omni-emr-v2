@@ -1,5 +1,5 @@
 
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck } from 'lucide-react';
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck, Flask } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -20,51 +20,15 @@ export const sidebarItems: SidebarItem[] = [
     translationKey: 'dashboard',
     priority: 1
   },
+  // Nurse-focused items - moved to top positions with higher priority for nurse role
   {
-    name: 'Patients',
-    path: '/patients',
-    icon: Users,
-    translationKey: 'patients',
-    priority: 2
-  },
-  {
-    name: 'Visit Notes',
-    path: '/visit-notes',
-    icon: ClipboardCheck,
-    translationKey: 'visitNotes',
-    permissionRequired: 'view_records',
-    priority: 3
-  },
-  {
-    name: 'Schedule',
-    path: '/schedule',
-    icon: Calendar,
-    translationKey: 'schedule',
-    permissionRequired: 'view_schedule',
-    priority: 4
-  },
-  {
-    name: 'Tasks',
-    path: '/tasks',
-    icon: ListChecks,
-    translationKey: 'tasks',
-    priority: 5
-  },
-  {
-    name: 'Clinical Documentation',
-    path: '/records',
-    icon: FileText,
-    translationKey: 'records',
-    permissionRequired: 'view_records',
-    priority: 6
-  },
-  {
-    name: 'Vital Signs',
-    path: '/vitals',
-    icon: Activity,
-    translationKey: 'vitals',
-    permissionRequired: 'view_vitals',
-    priority: 7
+    name: 'Medication Administration',
+    path: '/medications',
+    icon: Pill,
+    translationKey: 'medicationAdministration',
+    permissionRequired: 'administer_medications',
+    priority: 2,
+    roles: ['nurse', 'doctor']
   },
   {
     name: 'Fluid Balance',
@@ -72,14 +36,53 @@ export const sidebarItems: SidebarItem[] = [
     icon: Droplet, 
     translationKey: 'fluidBalance',
     permissionRequired: 'manage_fluid_balance',
+    priority: 3,
+    roles: ['nurse', 'doctor']
+  },
+  {
+    name: 'Visit Notes',
+    path: '/visit-notes',
+    icon: ClipboardCheck,
+    translationKey: 'visitNotes',
+    permissionRequired: 'view_records',
+    priority: 4
+  },
+  {
+    name: 'Patients',
+    path: '/patients',
+    icon: Users,
+    translationKey: 'patients',
+    priority: 5
+  },
+  {
+    name: 'Vital Signs',
+    path: '/vitals',
+    icon: Activity,
+    translationKey: 'vitals',
+    permissionRequired: 'view_vitals',
+    priority: 6
+  },
+  {
+    name: 'Schedule',
+    path: '/schedule',
+    icon: Calendar,
+    translationKey: 'schedule',
+    permissionRequired: 'view_schedule',
+    priority: 7
+  },
+  {
+    name: 'Tasks',
+    path: '/tasks',
+    icon: ListChecks,
+    translationKey: 'tasks',
     priority: 8
   },
   {
-    name: 'Medications',
-    path: '/medications',
-    icon: Pill,
-    translationKey: 'medications',
-    permissionRequired: 'view_medications',
+    name: 'Clinical Documentation',
+    path: '/records',
+    icon: FileText,
+    translationKey: 'records',
+    permissionRequired: 'view_records',
     priority: 9
   },
   {

@@ -40,6 +40,17 @@ export const translations = {
     dischargeInstructions: 'Discharge Instructions',
     dischargeDate: 'Discharge Date',
     
+    // Nurse-specific functionality translations
+    medicationAdministration: 'Medication Administration',
+    administeredMedications: 'Administered Medications',
+    medicationsDue: 'Medications Due',
+    administer: 'Administer',
+    fluidBalance: 'Fluid Balance',
+    fluidIntake: 'Fluid Intake',
+    fluidOutput: 'Fluid Output',
+    recordFluidBalance: 'Record Fluid Balance',
+    nurseDashboard: 'Nurse Dashboard',
+    
     // Connection and offline mode
     connectionLost: 'Connection lost',
     connectionRestored: 'Connection restored',
@@ -75,6 +86,17 @@ export const translations = {
     dischargeNotes: 'Notas de Alta',
     dischargeInstructions: 'Instruções de Alta',
     dischargeDate: 'Data da Alta',
+    
+    // Nurse-specific functionality translations
+    medicationAdministration: 'Administração de Medicamentos',
+    administeredMedications: 'Medicamentos Administrados',
+    medicationsDue: 'Medicamentos Pendentes',
+    administer: 'Administrar',
+    fluidBalance: 'Balanço Hídrico',
+    fluidIntake: 'Entrada de Fluidos',
+    fluidOutput: 'Saída de Fluidos',
+    recordFluidBalance: 'Registrar Balanço Hídrico',
+    nurseDashboard: 'Painel da Enfermagem',
     
     // Connection and offline mode
     connectionLost: 'Conexão perdida',

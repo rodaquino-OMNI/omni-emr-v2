@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, Users, Calendar, ClipboardList, ArrowRight, AlertTriangle, Pill, FileText, MessageSquare, Video } from 'lucide-react';
+import { Activity, Users, Calendar, ClipboardList, ArrowRight, AlertTriangle, Pill, FileText, MessageSquare, Video, Droplet, ClipboardCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PatientList from '../patients/PatientList';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -61,6 +61,7 @@ const Dashboard = ({ className }: DashboardProps) => {
   
   // Sample data with translations based on user role
   const getStats = () => {
+    // Base stats for all roles
     const baseStats = [
       { 
         title: language === 'pt' ? "Total de Pacientes" : "Total Patients", 
@@ -99,6 +100,41 @@ const Dashboard = ({ className }: DashboardProps) => {
         linkTo: "/schedule"
       }
     ];
+    
+    // Nurse-specific stats at the top
+    if (user?.role === 'nurse') {
+      return [
+        { 
+          title: language === 'pt' ? "Medicamentos Pendentes" : "Medications Due", 
+          value: 18, 
+          icon: <Pill className="h-5 w-5" />,
+          linkTo: "/medications?status=due",
+          className: "border-green-200 bg-green-50", 
+        },
+        { 
+          title: language === 'pt' ? "Balanço Hídrico Pendente" : "Fluid Balance Due", 
+          value: 12, 
+          icon: <Droplet className="h-5 w-5" />,
+          linkTo: "/fluid-balance",
+          className: "border-blue-200 bg-blue-50",
+        },
+        { 
+          title: language === 'pt' ? "Notas de Visita" : "Visit Notes", 
+          value: 7, 
+          icon: <ClipboardCheck className="h-5 w-5" />,
+          linkTo: "/visit-notes",
+          className: "border-amber-200 bg-amber-50",
+        },
+        { 
+          title: language === 'pt' ? "Avaliações Pendentes" : "Pending Assessments", 
+          value: 9, 
+          icon: <FileText className="h-5 w-5" />,
+          linkTo: "/tasks?type=assessment",
+          className: "border-purple-200 bg-purple-50",
+        },
+        ...baseStats
+      ];
+    }
 
     // Additional stats for doctors
     if (user?.role === 'doctor') {
@@ -120,8 +156,8 @@ const Dashboard = ({ className }: DashboardProps) => {
       ];
     }
     
-    // Additional stats for nurses
-    if (user?.role === 'nurse') {
+    // Additional stats for regular nurses (non-specialized dashboard)
+    if (user?.role === 'nurse' && user.role !== 'nurse') {
       return [
         ...baseStats,
         { 
@@ -169,7 +205,10 @@ const Dashboard = ({ className }: DashboardProps) => {
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Quick Actions - now at the very top for doctors */}
+      {/* Nurse-specific Quick Actions - at the very top for nurses */}
+      {user?.role === 'nurse' && <QuickActions />}
+      
+      {/* Doctor Quick Actions - at the very top for doctors */}
       {user?.role === 'doctor' && <QuickActions />}
       
       {/* KPI Cards Grid */}
@@ -193,8 +232,8 @@ const Dashboard = ({ className }: DashboardProps) => {
       {/* Alerts Section */}
       <DashboardAlerts />
       
-      {/* Quick Actions - for non-doctors */}
-      {user?.role !== 'doctor' && <QuickActions />}
+      {/* Quick Actions - for non-doctors and non-nurses */}
+      {user?.role !== 'doctor' && user?.role !== 'nurse' && <QuickActions />}
       
       {/* Recent Patients Section */}
       <div className="glass-card p-6">
