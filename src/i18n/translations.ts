@@ -5,7 +5,7 @@ import { medicalHistoryTranslations } from './categories/medicalHistory';
 import { medicationsTranslations } from './categories/medications';
 import { ordersTranslations } from './categories/orders';
 import { patientsTranslations } from './categories/patients';
-import { validationsTranslations } from './categories/validations';
+import { validationTranslations } from './categories/validations';
 import { tasksTranslations } from './categories/tasks';
 import { appointmentsTranslations } from './categories/appointments';
 import { usersTranslations } from './categories/users';
@@ -23,7 +23,7 @@ export const translations = {
     ...medicationsTranslations.en,
     ...ordersTranslations.en,
     ...patientsTranslations.en,
-    ...validationsTranslations.en,
+    ...validationTranslations.en,
     ...vitalsTranslations.en,
     ...tasksTranslations.en,
     ...appointmentsTranslations.en,
@@ -51,7 +51,7 @@ export const translations = {
     ...medicationsTranslations.pt,
     ...ordersTranslations.pt,
     ...patientsTranslations.pt,
-    ...validationsTranslations.pt,
+    ...validationTranslations.pt,
     ...vitalsTranslations.pt,
     ...tasksTranslations.pt,
     ...appointmentsTranslations.pt,
