@@ -1,21 +1,30 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Check, AlertCircle, RefreshCw, Database, X } from 'lucide-react';
+import { Search, Check, AlertCircle, RefreshCw, Database, X, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   searchMedicationsByName,
-  getMedicationDetails,
-  mapRxNormToANVISA,
-  getDisplayTerms,
-  getNDCsByRxCUI,
   getSpellingSuggestions
-} from '@/services/rxnorm';
+} from '@/services/rxnorm/rxnormSearch';
+import {
+  getMedicationDetails,
+  getNDCsByRxCUI
+} from '@/services/rxnorm/rxnormDetails';
+import { 
+  searchMedicationsByBilingualName,
+  getPortugueseMedicationName,
+  getBilingualMedicationSuggestions
+} from '@/services/rxnorm/rxnormLanguageMapping';
 import { RxNormMedication, RxNormDisplayTerm, RxNormNDC } from '@/types/rxnorm';
+import { mapRxNormToANVISA } from '@/services/rxnorm/rxnormMappings';
 
 interface RxNormMedicationSelectorProps {
   onMedicationSelect: (medication: {
@@ -24,6 +33,7 @@ interface RxNormMedicationSelectorProps {
     anvisaCode: string | null;
     details: any;
     ndcs?: RxNormNDC[];
+    portugueseName?: string | null;
   }) => void;
   initialSearchTerm?: string;
 }
@@ -39,10 +49,13 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
   const [selectedMedication, setSelectedMedication] = useState<RxNormMedication | null>(null);
   const [medicationDetails, setMedicationDetails] = useState<any | null>(null);
   const [anvisaCode, setAnvisaCode] = useState<string | null>(null);
+  const [portugueseName, setPortugueseName] = useState<string | null>(null);
   const [autocompleteResults, setAutocompleteResults] = useState<RxNormDisplayTerm[]>([]);
   const [ndcCodes, setNdcCodes] = useState<RxNormNDC[]>([]);
   const [spellingSuggestions, setSpellingSuggestions] = useState<string[]>([]);
+  const [portugueseSuggestions, setPortugueseSuggestions] = useState<string[]>([]);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [searchMode, setSearchMode] = useState<'both' | 'english' | 'portuguese'>('both');
   
   const autocompleteRef = useRef<HTMLDivElement>(null);
 
@@ -74,10 +87,20 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       try {
         console.log('Calling getDisplayTerms for term:', term);
         setIsSearching(true);
+        
+        // Get suggestions in both languages
+        const { getDisplayTerms } = await import('@/services/rxnorm/rxnormSearch');
         const results = await getDisplayTerms(term, 10);
-        console.log('Autocomplete results:', results);
         setAutocompleteResults(results);
-        setShowAutocomplete(results.length > 0);
+        
+        // Also get Portuguese suggestions
+        if (language === 'pt' || searchMode !== 'english') {
+          const { englishSuggestions, portugueseSuggestions } = 
+            await getBilingualMedicationSuggestions(term);
+          setPortugueseSuggestions(portugueseSuggestions);
+        }
+        
+        setShowAutocomplete(results.length > 0 || portugueseSuggestions.length > 0);
       } catch (error) {
         console.error('Error fetching autocomplete results:', error);
       } finally {
@@ -107,12 +130,28 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     setShowAutocomplete(false);
     
     try {
-      const results = await searchMedicationsByName(searchTerm);
+      let results: RxNormMedication[] = [];
+      
+      // Use different search strategies based on mode
+      if (searchMode === 'both') {
+        results = await searchMedicationsByBilingualName(searchTerm);
+      } else if (searchMode === 'english') {
+        results = await searchMedicationsByName(searchTerm);
+      } else if (searchMode === 'portuguese') {
+        results = await searchMedicationsByBilingualName(searchTerm);
+        // Filter to just show those with Portuguese names
+        results = results.filter(med => 'portugueseName' in med);
+      }
+      
       setSearchResults(results);
       
       if (results.length === 0) {
-        const suggestions = await getSpellingSuggestions(searchTerm);
-        setSpellingSuggestions(suggestions);
+        // Get suggestions in both languages
+        const { englishSuggestions, portugueseSuggestions } = 
+          await getBilingualMedicationSuggestions(searchTerm);
+        
+        setSpellingSuggestions(englishSuggestions);
+        setPortugueseSuggestions(portugueseSuggestions);
         
         toast(t('noMedicationsFound'), {
           description: language === 'pt' 
@@ -122,6 +161,7 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
         });
       } else {
         setSpellingSuggestions([]);
+        setPortugueseSuggestions([]);
       }
     } catch (error) {
       console.error('Error searching for medications:', error);
@@ -149,16 +189,28 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       const ndcs = await getNDCsByRxCUI(medication.rxcui);
       setNdcCodes(ndcs);
       
+      // Get Portuguese name
+      let ptName = 'portugueseName' in medication ? 
+        (medication as any).portugueseName : null;
+      
+      if (!ptName) {
+        ptName = await getPortugueseMedicationName(medication.rxcui);
+        setPortugueseName(ptName);
+      } else {
+        setPortugueseName(ptName);
+      }
+      
       onMedicationSelect({
         name: medication.name,
         rxnormCode: medication.rxcui,
         anvisaCode: anvisa,
         details,
-        ndcs
+        ndcs,
+        portugueseName: ptName
       });
       
       toast(t('medicationSelected'), {
-        description: medication.name,
+        description: language === 'pt' && ptName ? ptName : medication.name,
         icon: <Check className="h-5 w-5 text-green-500" />
       });
     } catch (error) {
@@ -184,20 +236,67 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     setTimeout(() => handleSearch(), 100);
   };
 
+  const toggleSearchMode = (mode: 'both' | 'english' | 'portuguese') => {
+    setSearchMode(mode);
+    // Re-trigger search if there's a search term
+    if (searchTerm.length >= 3) {
+      setTimeout(() => handleSearch(), 100);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col space-y-1.5">
-        <Label htmlFor="medication-search">{t('searchRxNorm')}</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="medication-search">{t('searchRxNorm')}</Label>
+          
+          <div className="flex items-center space-x-2">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <div className="flex rounded-md border border-input p-0.5 bg-muted/40">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className={`px-2 py-1 ${searchMode === 'both' ? 'bg-background' : ''}`}
+                onClick={() => toggleSearchMode('both')}
+              >
+                {language === 'pt' ? 'Ambos' : 'Both'}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className={`px-2 py-1 ${searchMode === 'english' ? 'bg-background' : ''}`}
+                onClick={() => toggleSearchMode('english')}
+              >
+                {language === 'pt' ? 'Inglês' : 'English'}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className={`px-2 py-1 ${searchMode === 'portuguese' ? 'bg-background' : ''}`}
+                onClick={() => toggleSearchMode('portuguese')}
+              >
+                {language === 'pt' ? 'Português' : 'Portuguese'}
+              </Button>
+            </div>
+          </div>
+        </div>
+        
         <div className="flex space-x-2">
           <div className="relative flex-1">
             <Input
               id="medication-search"
-              placeholder={t('searchByName')}
+              placeholder={
+                searchMode === 'english' 
+                  ? t('searchByName') 
+                  : searchMode === 'portuguese'
+                    ? (language === 'pt' ? 'Pesquisar por nome em português' : 'Search by Portuguese name')
+                    : (language === 'pt' ? 'Pesquisar em ambos idiomas' : 'Search in both languages')
+              }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
               onFocus={() => {
-                if (searchTerm.length >= 2 && autocompleteResults.length > 0) {
+                if (searchTerm.length >= 2 && (autocompleteResults.length > 0 || portugueseSuggestions.length > 0)) {
                   setShowAutocomplete(true);
                 }
               }}
@@ -235,26 +334,60 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
                     ref={autocompleteRef}
                     className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg"
                   >
-                    {autocompleteResults.length > 0 ? (
-                      <ul className="max-h-60 overflow-y-auto py-1 text-sm">
-                        {autocompleteResults.map((term) => (
-                          <li
-                            key={`${term.rxcui}-${term.name}`}
-                            className="px-3 py-2 hover:bg-accent cursor-pointer"
-                            onClick={() => handleAutocompleteSelect(term)}
-                          >
-                            {term.name}
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              ({term.tty})
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : !isSearching && (
-                      <div className="p-2 text-sm text-muted-foreground">
-                        No results found
-                      </div>
-                    )}
+                    <Tabs defaultValue="english" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="english">
+                          {language === 'pt' ? 'Inglês' : 'English'}
+                        </TabsTrigger>
+                        <TabsTrigger value="portuguese">
+                          {language === 'pt' ? 'Português' : 'Portuguese'}
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="english" className="max-h-60 overflow-y-auto">
+                        {autocompleteResults.length > 0 ? (
+                          <ul className="py-1 text-sm">
+                            {autocompleteResults.map((term) => (
+                              <li
+                                key={`${term.rxcui}-${term.name}`}
+                                className="px-3 py-2 hover:bg-accent cursor-pointer"
+                                onClick={() => handleAutocompleteSelect(term)}
+                              >
+                                {term.name}
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                  ({term.tty})
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : !isSearching && (
+                          <div className="p-2 text-sm text-muted-foreground">
+                            {language === 'pt' ? 'Nenhum resultado encontrado' : 'No results found'}
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      <TabsContent value="portuguese" className="max-h-60 overflow-y-auto">
+                        {portugueseSuggestions.length > 0 ? (
+                          <ul className="py-1 text-sm">
+                            {portugueseSuggestions.map((term, index) => (
+                              <li
+                                key={`pt-${index}-${term}`}
+                                className="px-3 py-2 hover:bg-accent cursor-pointer"
+                                onClick={() => handleSuggestionClick(term)}
+                              >
+                                {term}
+                                <Badge variant="outline" className="ml-2 text-[10px]">PT</Badge>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : !isSearching && (
+                          <div className="p-2 text-sm text-muted-foreground">
+                            {language === 'pt' ? 'Nenhum resultado encontrado' : 'No results found'}
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 )}
               </>
@@ -293,6 +426,25 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
           </div>
         </div>
       )}
+      
+      {portugueseSuggestions.length > 0 && (
+        <div className="text-sm">
+          <p className="mb-1 text-muted-foreground">
+            {language === 'pt' ? 'Sugestões em português:' : 'Portuguese suggestions:'}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {portugueseSuggestions.map((suggestion) => (
+              <button
+                key={suggestion}
+                className="px-2 py-1 rounded bg-accent hover:bg-accent/80 text-accent-foreground text-xs"
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {searchResults.length > 0 && (
         <div className="rounded-md border border-border">
@@ -300,7 +452,7 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
             {language === 'pt' ? 'Resultados' : 'Results'} ({searchResults.length})
           </div>
           <div className="max-h-60 overflow-y-auto">
-            {searchResults.map((med) => (
+            {searchResults.map((med: any) => (
               <div
                 key={med.rxcui}
                 className={`px-4 py-2 border-b border-border last:border-0 hover:bg-muted cursor-pointer transition-colors ${
@@ -311,6 +463,12 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium">{med.name}</div>
+                    {med.portugueseName && (
+                      <div className="text-sm text-muted-foreground flex items-center">
+                        <Badge variant="outline" className="mr-1 text-[10px]">PT</Badge>
+                        {med.portugueseName}
+                      </div>
+                    )}
                     <div className="text-xs text-muted-foreground">
                       {t('rxnormCode')}: {med.rxcui}
                     </div>
@@ -329,6 +487,13 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
         <div className="rounded-md border border-border p-4 space-y-3">
           <div className="font-medium text-lg">{selectedMedication.name}</div>
           
+          {portugueseName && (
+            <div className="flex items-center text-sm bg-muted p-2 rounded">
+              <Badge className="mr-2">{language === 'pt' ? 'Nome em Português' : 'Portuguese Name'}</Badge>
+              <span>{portugueseName}</span>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs text-muted-foreground">{t('rxnormCode')}</Label>
@@ -344,6 +509,11 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
               <div>
                 <Label className="text-xs text-muted-foreground">{t('ingredientStrength')}</Label>
                 <div>{medicationDetails.ingredients.map((ing: any) => ing.name).join(', ')}</div>
+                {portugueseName && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {language === 'pt' ? 'Verifique no ANVISA' : 'Verify in ANVISA'}
+                  </div>
+                )}
               </div>
             )}
             

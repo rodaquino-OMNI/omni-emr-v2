@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RxNormMedicationSelector from '../components/medications/RxNormMedicationSelector';
 import RxNormAdminPanel from '../components/medications/RxNormAdminPanel';
 import DrugInteractionChecker from '../components/medications/drugInteractions/DrugInteractionChecker';
-import { Database, GitBranch, FileSearch, AlertCircle } from 'lucide-react';
+import MedicationTranslationsAdmin from '../components/admin/MedicationTranslationsAdmin';
+import { Database, GitBranch, FileSearch, AlertCircle, Languages } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const RxNormManagementPage = () => {
@@ -36,7 +37,7 @@ const RxNormManagementPage = () => {
             </div>
 
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="search" className="flex items-center gap-2">
                   <FileSearch className="h-4 w-4" />
                   {language === 'pt' ? 'Pesquisar Medicamentos' : 'Search Medications'}
@@ -44,6 +45,10 @@ const RxNormManagementPage = () => {
                 <TabsTrigger value="interactions" className="flex items-center gap-2">
                   <AlertCircle className="h-4 w-4" />
                   {language === 'pt' ? 'Interações' : 'Interactions'}
+                </TabsTrigger>
+                <TabsTrigger value="translations" className="flex items-center gap-2">
+                  <Languages className="h-4 w-4" />
+                  {language === 'pt' ? 'Traduções' : 'Translations'}
                 </TabsTrigger>
                 <TabsTrigger value="admin" className="flex items-center gap-2">
                   <GitBranch className="h-4 w-4" />
@@ -95,6 +100,10 @@ const RxNormManagementPage = () => {
               
               <TabsContent value="interactions">
                 <DrugInteractionChecker />
+              </TabsContent>
+              
+              <TabsContent value="translations">
+                <MedicationTranslationsAdmin />
               </TabsContent>
               
               <TabsContent value="admin">
