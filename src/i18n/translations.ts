@@ -1,36 +1,36 @@
 
-import { vitalsTranslations as vitals } from './categories/vitals';
-import { auth } from './categories/auth';
-import { common } from './categories/common';
-import { medicalHistory } from './categories/medicalHistory';
-import { medications } from './categories/medications';
-import { orders } from './categories/orders';
-import { patients } from './categories/patients';
-import { validations } from './categories/validations';
-import { tasks } from './categories/tasks';
-import { appointments } from './categories/appointments';
-import { users } from './categories/users';
-import { emergency } from './categories/emergency';
-import { hospital } from './categories/hospital';
-import { telemedicine } from './categories/telemedicine';
+import { authTranslations } from './categories/auth';
+import { commonTranslations } from './categories/common';
+import { medicalHistoryTranslations } from './categories/medicalHistory';
+import { medicationsTranslations } from './categories/medications';
+import { ordersTranslations } from './categories/orders';
+import { patientsTranslations } from './categories/patients';
+import { validationsTranslations } from './categories/validations';
+import { tasksTranslations } from './categories/tasks';
+import { appointmentsTranslations } from './categories/appointments';
+import { usersTranslations } from './categories/users';
+import { emergencyTranslations } from './categories/emergency';
+import { hospitalTranslations } from './categories/hospital';
+import { telemedicineTranslations } from './categories/telemedicine';
+import { vitalsTranslations } from './categories/vitals';
 
 // All translations in one object
 export const translations = {
   en: {
-    ...auth.en,
-    ...common.en,
-    ...medicalHistory.en,
-    ...medications.en,
-    ...orders.en,
-    ...patients.en,
-    ...validations.en,
-    ...vitals.en,
-    ...tasks.en,
-    ...appointments.en,
-    ...users.en,
-    ...emergency.en,
-    ...hospital.en,
-    ...telemedicine.en,
+    ...authTranslations.en,
+    ...commonTranslations.en,
+    ...medicalHistoryTranslations.en,
+    ...medicationsTranslations.en,
+    ...ordersTranslations.en,
+    ...patientsTranslations.en,
+    ...validationsTranslations.en,
+    ...vitalsTranslations.en,
+    ...tasksTranslations.en,
+    ...appointmentsTranslations.en,
+    ...usersTranslations.en,
+    ...emergencyTranslations.en,
+    ...hospitalTranslations.en,
+    ...telemedicineTranslations.en,
     
     // Connection and offline mode
     connectionLost: 'Connection lost',
@@ -45,20 +45,20 @@ export const translations = {
     continueToDashboard: 'Continue to Dashboard',
   },
   pt: {
-    ...auth.pt,
-    ...common.pt,
-    ...medicalHistory.pt,
-    ...medications.pt,
-    ...orders.pt,
-    ...patients.pt,
-    ...validations.pt,
-    ...vitals.pt,
-    ...tasks.pt,
-    ...appointments.pt,
-    ...users.pt,
-    ...emergency.pt,
-    ...hospital.pt,
-    ...telemedicine.pt,
+    ...authTranslations.pt,
+    ...commonTranslations.pt,
+    ...medicalHistoryTranslations.pt,
+    ...medicationsTranslations.pt,
+    ...ordersTranslations.pt,
+    ...patientsTranslations.pt,
+    ...validationsTranslations.pt,
+    ...vitalsTranslations.pt,
+    ...tasksTranslations.pt,
+    ...appointmentsTranslations.pt,
+    ...usersTranslations.pt,
+    ...emergencyTranslations.pt,
+    ...hospitalTranslations.pt,
+    ...telemedicineTranslations.pt,
     
     // Connection and offline mode
     connectionLost: 'Conexão perdida',

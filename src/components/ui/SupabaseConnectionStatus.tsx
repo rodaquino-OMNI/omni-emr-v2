@@ -50,7 +50,8 @@ const SupabaseConnectionStatus: React.FC<SupabaseConnectionStatusProps> = ({
   
   const handleCheckConnection = async () => {
     setIsChecking(true);
-    const status = await checkConnectivity(true); // Show toasts for manual check
+    // Modified this line to remove the invalid argument
+    const status = await checkConnectivity();
     setIsConnected(status);
     if (onStatusChange) onStatusChange(status);
     
