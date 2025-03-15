@@ -1911,6 +1911,45 @@ export type Database = {
         }
         Relationships: []
       }
+      rxnorm_portuguese_mappings: {
+        Row: {
+          anvisa_code: string | null
+          comments: string | null
+          created_at: string
+          created_by: string | null
+          english_name: string
+          id: string
+          is_verified: boolean
+          last_updated: string
+          portuguese_name: string
+          rxnorm_code: string
+        }
+        Insert: {
+          anvisa_code?: string | null
+          comments?: string | null
+          created_at?: string
+          created_by?: string | null
+          english_name: string
+          id?: string
+          is_verified?: boolean
+          last_updated?: string
+          portuguese_name: string
+          rxnorm_code: string
+        }
+        Update: {
+          anvisa_code?: string | null
+          comments?: string | null
+          created_at?: string
+          created_by?: string | null
+          english_name?: string
+          id?: string
+          is_verified?: boolean
+          last_updated?: string
+          portuguese_name?: string
+          rxnorm_code?: string
+        }
+        Relationships: []
+      }
       rxnorm_search_cache: {
         Row: {
           created_at: string
@@ -2108,6 +2147,36 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      gtrgm_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: {
+          "": unknown
+        }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
       insert_rxnorm_displayterms_cache: {
         Args: {
           term_param: string
@@ -2141,6 +2210,22 @@ export type Database = {
       migrate_to_fhir_model: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      set_limit: {
+        Args: {
+          "": number
+        }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: {
+          "": string
+        }
+        Returns: string[]
       }
       user_has_role: {
         Args: {

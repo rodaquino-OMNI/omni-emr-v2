@@ -5,11 +5,16 @@ import { RxNormMedication } from '@/types/rxnorm';
 /**
  * Types for mapping RxNorm (English) to Brazilian medication names
  */
-interface MedicationNameMapping {
+export interface MedicationNameMapping {
+  id: string;
   rxnormCode: string;
   englishName: string;
   portugueseName: string;
   anvisaCode?: string;
+  isVerified: boolean;
+  comments?: string;
+  createdBy?: string;
+  createdAt: string;
   lastUpdated: string;
 }
 
@@ -46,14 +51,19 @@ export const savePortugueseNameMapping = async (
   rxnormCode: string,
   englishName: string,
   portugueseName: string,
-  anvisaCode?: string
+  anvisaCode?: string,
+  comments?: string
 ): Promise<boolean> => {
   try {
+    const userId = supabase.auth.getUser().then(user => user.data.user?.id);
+    
     const { error } = await supabase.from('rxnorm_portuguese_mappings').insert({
       rxnorm_code: rxnormCode,
       english_name: englishName,
       portuguese_name: portugueseName,
       anvisa_code: anvisaCode,
+      comments: comments,
+      created_by: userId,
       last_updated: new Date().toISOString()
     });
     
@@ -65,6 +75,86 @@ export const savePortugueseNameMapping = async (
     return true;
   } catch (error) {
     console.error('Error saving RxNorm-Portuguese mapping:', error);
+    return false;
+  }
+};
+
+/**
+ * Get all mappings - used for admin purposes
+ */
+export const getAllPortugueseNameMappings = async (): Promise<MedicationNameMapping[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('rxnorm_portuguese_mappings')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (error) {
+      console.error('Error fetching Portuguese name mappings:', error);
+      return [];
+    }
+    
+    return data.map(item => ({
+      id: item.id,
+      rxnormCode: item.rxnorm_code,
+      englishName: item.english_name,
+      portugueseName: item.portuguese_name,
+      anvisaCode: item.anvisa_code,
+      isVerified: item.is_verified,
+      comments: item.comments,
+      createdBy: item.created_by,
+      createdAt: item.created_at,
+      lastUpdated: item.last_updated
+    }));
+  } catch (error) {
+    console.error('Error fetching RxNorm-Portuguese mappings:', error);
+    return [];
+  }
+};
+
+/**
+ * Verify a translation mapping (admin function)
+ */
+export const verifyPortugueseNameMapping = async (mappingId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('rxnorm_portuguese_mappings')
+      .update({ 
+        is_verified: true,
+        last_updated: new Date().toISOString()
+      })
+      .eq('id', mappingId);
+      
+    if (error) {
+      console.error('Error verifying mapping:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error verifying Portuguese mapping:', error);
+    return false;
+  }
+};
+
+/**
+ * Delete a translation mapping (admin function)
+ */
+export const deletePortugueseNameMapping = async (mappingId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('rxnorm_portuguese_mappings')
+      .delete()
+      .eq('id', mappingId);
+      
+    if (error) {
+      console.error('Error deleting mapping:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting Portuguese mapping:', error);
     return false;
   }
 };
