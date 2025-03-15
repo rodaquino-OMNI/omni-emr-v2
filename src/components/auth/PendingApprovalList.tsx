@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +40,7 @@ const PendingApprovalList = () => {
       
       if (error) throw error;
       
-      // Cast the role to UserRole to ensure type safety
+      // Type assertion to ensure correct typing of role
       const typedData = data?.map(user => ({
         ...user,
         role: user.role as UserRole
