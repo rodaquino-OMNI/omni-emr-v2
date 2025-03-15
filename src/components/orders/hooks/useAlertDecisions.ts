@@ -21,15 +21,14 @@ export const useAlertDecisions = (alerts: OrderAlert[], setAlerts: React.Dispatc
       setAlerts(updatedAlerts);
       
       // Show a toast to acknowledge the alert override
-      toast.warning(
-        language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden', 
-        {
-          description: language === 'pt'
-            ? 'Os alertas foram ignorados com uma justificativa clínica'
-            : 'Alerts have been overridden with clinical justification',
-          icon: <Shield className="h-4 w-4 text-amber-600" />,
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden', 
+        description: language === 'pt'
+          ? 'Os alertas foram ignorados com uma justificativa clínica'
+          : 'Alerts have been overridden with clinical justification',
+        variant: "warning",
+        icon: <Shield className="h-4 w-4 text-amber-600" />
+      });
       
       // In a real app, we would log these overrides to the audit log
       try {
@@ -55,14 +54,13 @@ export const useAlertDecisions = (alerts: OrderAlert[], setAlerts: React.Dispatc
     }
     
     if (!proceed) {
-      toast.info(
-        language === 'pt' ? 'Pedido cancelado' : 'Order cancelled', 
-        {
-          description: language === 'pt'
-            ? 'O pedido foi cancelado devido aos alertas de segurança'
-            : 'The order was cancelled due to safety alerts'
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Pedido cancelado' : 'Order cancelled', 
+        description: language === 'pt'
+          ? 'O pedido foi cancelado devido aos alertas de segurança'
+          : 'The order was cancelled due to safety alerts',
+        variant: "info"
+      });
     }
     
     return proceed ? alerts : null;

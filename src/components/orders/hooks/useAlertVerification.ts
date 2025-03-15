@@ -22,15 +22,14 @@ export const useAlertVerification = (
     
     try {
       // Show toast to indicate AI is analyzing the order
-      toast(
-        language === 'pt' ? 'Verificando pedido' : 'Verifying order',
-        {
-          description: language === 'pt' 
-            ? 'Nossa IA está analisando o pedido para garantir a segurança' 
-            : 'Our AI is analyzing the order to ensure safety',
-          icon: <Shield className="h-4 w-4 text-purple-600" />,
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Verificando pedido' : 'Verifying order',
+        description: language === 'pt' 
+          ? 'Nossa IA está analisando o pedido para garantir a segurança' 
+          : 'Our AI is analyzing the order to ensure safety',
+        variant: "default",
+        icon: <Shield className="h-4 w-4 text-purple-600" />
+      });
       
       // In a real app, this would call a Supabase function or API endpoint
       // that uses an AI service to check for alerts
@@ -72,15 +71,14 @@ export const useAlertVerification = (
       
       // Show success toast if no alerts were found
       if (!hasAlerts) {
-        toast.success(
-          language === 'pt' ? 'Verificação concluída' : 'Verification completed',
-          {
-            description: language === 'pt'
-              ? 'Nenhum problema foi encontrado pela IA'
-              : 'No issues were found by the AI',
-            icon: <Shield className="h-4 w-4 text-green-600" />,
-          }
-        );
+        toast({
+          title: language === 'pt' ? 'Verificação concluída' : 'Verification completed',
+          description: language === 'pt'
+            ? 'Nenhum problema foi encontrado pela IA'
+            : 'No issues were found by the AI',
+          variant: "success",
+          icon: <Shield className="h-4 w-4 text-green-600" />
+        });
       }
       
       return { hasAlerts, alerts: newAlerts };
@@ -89,14 +87,13 @@ export const useAlertVerification = (
       console.error('Error checking for alerts:', error);
       
       // Show error toast
-      toast.error(
-        language === 'pt' ? 'Erro' : 'Error',
-        {
-          description: language === 'pt' 
-            ? 'Falha ao verificar alertas. Deseja prosseguir mesmo assim?' 
-            : 'Failed to check for alerts. Do you want to proceed anyway?'
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Erro' : 'Error',
+        description: language === 'pt' 
+          ? 'Falha ao verificar alertas. Deseja prosseguir mesmo assim?' 
+          : 'Failed to check for alerts. Do you want to proceed anyway?',
+        variant: "destructive"
+      });
       
       return { hasAlerts: false, alerts: [] };
     } finally {
