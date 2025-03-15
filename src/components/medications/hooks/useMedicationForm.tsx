@@ -48,20 +48,23 @@ export const useMedicationForm = ({ patientId, onSuccess }: UseMedicationFormPro
       console.log('New medication created:', newMedication);
       
       // Success message and cleanup
-      toast.success(
-        language === 'pt' 
+      toast({
+        title: language === 'pt' 
           ? 'Medicamento adicionado com sucesso' 
-          : 'Medication added successfully'
-      );
+          : 'Medication added successfully',
+        variant: "success"
+      });
+      
       onSuccess();
       
     } catch (error) {
       console.error('Error creating medication:', error);
-      toast.error(
-        language === 'pt' 
+      toast({
+        title: language === 'pt' 
           ? 'Erro ao adicionar medicamento' 
-          : 'Error adding medication'
-      );
+          : 'Error adding medication',
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
