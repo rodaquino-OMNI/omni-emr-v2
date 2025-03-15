@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import LanguageSwitcher from '@/components/language/LanguageSwitcher';
 import { MedicationAutocomplete } from '@/components/medications/MedicationAutocomplete';
 import { MedicationSuggestion } from '@/hooks/useMedicationAutocomplete';
 import { useTranslation } from '@/hooks/useTranslation';
