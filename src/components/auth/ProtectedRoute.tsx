@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, AlertTriangle, Clock, LockIcon } from 'lucide-react';
+import { Shield, AlertTriangle, Clock, LockIcon, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { checkConnectivity } from '@/utils/supabaseConnectivity';
 
 interface ProtectedRouteProps {
   requiredPermission?: string;
@@ -17,6 +18,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   patientId
 }) => {
   const location = useLocation();
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [checkingConnectivity, setCheckingConnectivity] = useState(true);
   
   // Try to get auth context, handle gracefully if missing
   let auth;
@@ -24,7 +27,47 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     auth = useAuth();
   } catch (error) {
     console.error("Auth context error in ProtectedRoute:", error);
-    // If auth context fails, redirect to login
+    // Check if we need to enable offline mode
+    useEffect(() => {
+      const checkConnection = async () => {
+        setCheckingConnectivity(true);
+        const isConnected = await checkConnectivity();
+        if (!isConnected) {
+          setIsOfflineMode(true);
+          console.log("Enabling offline mode due to connection issues");
+        }
+        setCheckingConnectivity(false);
+      };
+      checkConnection();
+    }, []);
+    
+    if (checkingConnectivity) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-pulse">
+            <h1 className="text-2xl font-semibold text-primary">MedCare</h1>
+            <p className="text-muted-foreground">Checking connectivity...</p>
+          </div>
+        </div>
+      );
+    }
+    
+    // If connectivity check is done and we're offline, allow navigation
+    if (isOfflineMode) {
+      return (
+        <>
+          <div className="bg-yellow-50 text-yellow-800 px-4 py-2 flex items-center gap-2 text-sm border-b border-yellow-100">
+            <WifiOff className="h-4 w-4" />
+            <span>
+              Offline mode: Limited functionality available. Some features may not work correctly.
+            </span>
+          </div>
+          <Outlet />
+        </>
+      );
+    }
+    
+    // If auth context fails and we're not offline, redirect to login
     return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
   }
   
@@ -51,6 +94,47 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
+    );
+  }
+  
+  // Check if we need to enable offline mode
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!isAuthenticated) {
+        const isConnected = await checkConnectivity();
+        if (!isConnected) {
+          setIsOfflineMode(true);
+          console.log("Enabling offline mode due to connection issues");
+          
+          toast.warning(
+            language === 'pt' ? 'Modo offline ativado' : 'Offline mode enabled',
+            {
+              description: language === 'pt'
+                ? 'Funcionando com funcionalidades limitadas devido a problemas de conexão.'
+                : 'Working with limited functionality due to connection issues.',
+              duration: 5000
+            }
+          );
+        }
+      }
+    };
+    checkConnection();
+  }, [isAuthenticated, language]);
+  
+  // Allow navigation in offline mode
+  if (isOfflineMode) {
+    return (
+      <>
+        <div className="bg-yellow-50 text-yellow-800 px-4 py-2 flex items-center gap-2 text-sm border-b border-yellow-100">
+          <WifiOff className="h-4 w-4" />
+          <span>
+            {language === 'pt'
+              ? 'Modo offline: Funcionalidade limitada disponível. Alguns recursos podem não funcionar corretamente.'
+              : 'Offline mode: Limited functionality available. Some features may not work correctly.'}
+          </span>
+        </div>
+        <Outlet />
+      </>
     );
   }
   

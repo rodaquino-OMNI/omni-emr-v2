@@ -1,4 +1,5 @@
 
+import React, { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { checkConnectivity, monitorConnectivity } from "./utils/supabaseConnectivity";
+import { toast } from "sonner";
+import { useTranslation } from "./hooks/useTranslation";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -39,6 +43,45 @@ import Orders from './pages/Orders';
 import CriticalResults from './pages/CriticalResults';
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
+// Create a connection status component
+const ConnectionStatus = () => {
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const { language } = useTranslation();
+
+  useEffect(() => {
+    // Set up connection monitoring
+    return monitorConnectivity((connected) => {
+      if (isConnected === true && !connected) {
+        // Connection lost
+        toast.error(
+          language === 'pt' ? 'Conexão perdida' : 'Connection lost',
+          {
+            description: language === 'pt'
+              ? 'Funcionando em modo offline. Algumas funcionalidades podem estar indisponíveis.'
+              : 'Working in offline mode. Some features may be unavailable.',
+            duration: 5000
+          }
+        );
+      } else if (isConnected === false && connected) {
+        // Connection restored
+        toast.success(
+          language === 'pt' ? 'Conexão restaurada' : 'Connection restored',
+          {
+            description: language === 'pt'
+              ? 'Todas as funcionalidades estão disponíveis novamente.'
+              : 'All features are available again.',
+            duration: 5000
+          }
+        );
+      }
+      
+      setIsConnected(connected);
+    }, 30000); // Check every 30 seconds
+  }, [isConnected, language]);
+  
+  return null; // This component doesn't render anything
+};
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -58,6 +101,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner closeButton position="top-right" />
+            <ConnectionStatus />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />

@@ -1,103 +1,98 @@
 
-import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { verifyRequiredTables } from './supabaseTableCheck';
+import { supabase } from '@/integrations/supabase/client';
 
-// Global connection state
-let isConnected = false;
-let lastCheckTime = 0;
-const CHECK_INTERVAL = 60000; // 1 minute
-
-// Check Supabase connectivity
-export const checkConnectivity = async (showToasts = false): Promise<boolean> => {
-  const now = Date.now();
-  
-  // Don't check too frequently
-  if (now - lastCheckTime < CHECK_INTERVAL && lastCheckTime > 0) {
-    return isConnected;
-  }
-  
-  lastCheckTime = now;
-  
+/**
+ * Check if Supabase is accessible by making a simple query
+ * @returns Promise<boolean> True if connectivity is working
+ */
+export const checkConnectivity = async (): Promise<boolean> => {
   try {
-    // Try to connect to Supabase
-    isConnected = await checkSupabaseConnection();
-    
-    if (showToasts) {
-      if (isConnected) {
-        toast.success('Connected to Supabase successfully', {
-          description: 'Your application is properly connected to the backend.',
-          duration: 3000,
-        });
-        
-        // If connected, also verify tables exist
-        await verifyRequiredTables();
-      } else {
-        toast.error('Cannot connect to Supabase', {
-          description: 'Check your internet connection or Supabase configuration.',
-          duration: 5000,
-        });
-      }
+    // First check if network is available at all
+    if (!navigator.onLine) {
+      console.log('Browser reports network is offline');
+      return false;
     }
     
-    return isConnected;
+    // Simple query to check connectivity - just check if profiles table exists
+    const { count } = await supabase
+      .from('profiles')
+      .select('count', { count: 'exact', head: true })
+      .limit(1)
+      .throwOnError();
+      
+    // Also check if appointments table exists to verify database structure
+    const { count: appointmentsCount } = await supabase
+      .from('appointments')
+      .select('count', { count: 'exact', head: true })
+      .limit(1)
+      .throwOnError();
+
+    // If we get here, the connection is working
+    return true;
   } catch (error) {
-    console.error('Error checking Supabase connectivity:', error);
-    
-    if (showToasts) {
-      toast.error('Error checking Supabase connection', {
-        description: 'Failed to verify backend connectivity.',
-        duration: 5000,
-      });
-    }
-    
-    isConnected = false;
+    console.error('Supabase connectivity check failed:', error);
     return false;
   }
 };
 
-// Monitor Supabase authentication changes
-export const setupConnectivityMonitor = () => {
-  // Check initial connection
-  checkConnectivity();
+/**
+ * Periodically check connectivity and call the callback when status changes
+ * @param callback Function to call when connectivity status changes
+ * @param interval Time in ms between checks (default: 30000ms = 30s)
+ * @returns Cleanup function
+ */
+export const monitorConnectivity = (
+  callback: (isConnected: boolean) => void,
+  interval = 30000
+): () => void => {
+  let lastStatus: boolean | null = null;
   
-  // Set up interval to check connectivity
-  const intervalId = setInterval(() => {
-    checkConnectivity();
-  }, CHECK_INTERVAL);
-  
-  // Set up auth state change listener to verify connectivity
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-    checkConnectivity();
-  });
-  
-  // Cleanup function
-  return () => {
-    clearInterval(intervalId);
-    subscription.unsubscribe();
-  };
-};
-
-// Create a hook for components to use connectivity state
-export const createSupabaseStatusListener = (onConnected?: () => void, onDisconnected?: () => void) => {
   const checkStatus = async () => {
-    const connected = await checkConnectivity();
-    
-    if (connected && onConnected) {
-      onConnected();
-    } else if (!connected && onDisconnected) {
-      onDisconnected();
+    try {
+      const isConnected = await checkConnectivity();
+      
+      // Only call the callback if status has changed
+      if (lastStatus === null || lastStatus !== isConnected) {
+        lastStatus = isConnected;
+        callback(isConnected);
+      }
+    } catch (error) {
+      console.error('Error in connectivity monitor:', error);
+      // If error checking, assume disconnected
+      if (lastStatus !== false) {
+        lastStatus = false;
+        callback(false);
+      }
     }
   };
   
   // Check immediately
   checkStatus();
   
-  // Set up interval to check
-  const intervalId = setInterval(checkStatus, CHECK_INTERVAL);
+  // Set up interval
+  const intervalId = setInterval(checkStatus, interval);
+  
+  // Also check when browser online/offline status changes
+  const handleOnline = () => {
+    console.log('Browser reports online');
+    checkStatus();
+  };
+  
+  const handleOffline = () => {
+    console.log('Browser reports offline');
+    if (lastStatus !== false) {
+      lastStatus = false;
+      callback(false);
+    }
+  };
+  
+  window.addEventListener('online', handleOnline);
+  window.addEventListener('offline', handleOffline);
   
   // Return cleanup function
   return () => {
     clearInterval(intervalId);
+    window.removeEventListener('online', handleOnline);
+    window.removeEventListener('offline', handleOffline);
   };
 };

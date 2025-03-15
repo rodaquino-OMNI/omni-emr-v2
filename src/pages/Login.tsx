@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { toast } from 'sonner';
@@ -30,6 +30,7 @@ const Login = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean | null>(null);
+  const [connectionChecked, setConnectionChecked] = useState(false);
   
   // Check Supabase connectivity on page load
   useEffect(() => {
@@ -37,20 +38,23 @@ const Login = () => {
       try {
         const isConnected = await checkConnectivity();
         setIsSupabaseConnected(isConnected);
+        setConnectionChecked(true);
         
         if (!isConnected) {
           toast(
             language === 'pt' ? 'Erro de conexão' : 'Connection error',
             {
               description: language === 'pt' 
-                ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem não estar disponíveis.'
-                : 'Could not connect to the server. Some features may not be available.'
+                ? 'Não foi possível conectar ao servidor. Navegação offline está disponível.'
+                : 'Could not connect to the server. Offline navigation is available.',
+              duration: 5000
             }
           );
         }
       } catch (error) {
         console.error("Error checking connectivity:", error);
         setIsSupabaseConnected(false);
+        setConnectionChecked(true);
       }
     };
     
@@ -87,6 +91,9 @@ const Login = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Show a navigation option if we confirmed connection is down but we want to continue offline
+  const showOfflineNavigation = connectionChecked && isSupabaseConnected === false;
+
   // Return a basic login page if auth context is not available
   if (!auth) {
     return (
@@ -94,6 +101,14 @@ const Login = () => {
         <div className="p-8 border rounded shadow">
           <h1 className="text-2xl mb-4">Login</h1>
           <p>Authentication service is not available</p>
+          {showOfflineNavigation && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-yellow-800 mb-2">{t('offlineNavigationAvailable')}</p>
+              <Link to="/dashboard" className="text-blue-600 hover:underline">
+                {t('continueToDashboard')}
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -108,6 +123,20 @@ const Login = () => {
           isSupabaseConnected={isSupabaseConnected}
           setIsSupabaseConnected={setIsSupabaseConnected}
         />
+        
+        {showOfflineNavigation && (
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-3 bg-yellow-50 border border-yellow-300 rounded-md shadow-md">
+            <p className="text-yellow-800 mb-2 text-center">{language === 'pt' ? 'Modo offline disponível' : 'Offline mode available'}</p>
+            <div className="flex justify-center">
+              <Link 
+                to="/dashboard" 
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                {language === 'pt' ? 'Continuar para o Dashboard' : 'Continue to Dashboard'}
+              </Link>
+            </div>
+          </div>
+        )}
       </LoadingOverlay>
     </ErrorBoundary>
   );
