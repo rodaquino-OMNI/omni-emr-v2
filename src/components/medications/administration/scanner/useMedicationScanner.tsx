@@ -34,12 +34,21 @@ export function useMedicationScanner(
         .then(verified => {
           if (verified) {
             onPatientScan(manualPatientId);
-            toast.success(t('patientVerified'));
+            toast({
+              title: t('patientVerified'),
+              variant: "success"
+            });
           } else {
-            toast.error(t('patientVerificationFailed'));
+            toast({
+              title: t('patientVerificationFailed'),
+              variant: "destructive"
+            });
           }
         })
-        .catch(() => toast.error(t('ehrConnectionError')));
+        .catch(() => toast({
+          title: t('ehrConnectionError'),
+          variant: "destructive"
+        }));
     }
     
     if (manualMedicationCode) {
@@ -47,12 +56,21 @@ export function useMedicationScanner(
         .then(verified => {
           if (verified) {
             onMedicationScan(manualMedicationCode);
-            toast.success(t('medicationVerified'));
+            toast({
+              title: t('medicationVerified'),
+              variant: "success"
+            });
           } else {
-            toast.error(t('medicationVerificationFailed'));
+            toast({
+              title: t('medicationVerificationFailed'),
+              variant: "destructive"
+            });
           }
         })
-        .catch(() => toast.error(t('ehrConnectionError')));
+        .catch(() => toast({
+          title: t('ehrConnectionError'),
+          variant: "destructive"
+        }));
     }
   };
   
@@ -63,15 +81,24 @@ export function useMedicationScanner(
     // If a specific type was requested, scan that; otherwise alternate
     const scanType = type || (!patient ? 'patient' : !medication ? 'medication' : 'patient');
     
-    toast.success(t('scanning'));
+    toast({
+      title: t('scanning'),
+      variant: "default"
+    });
     
     setTimeout(() => {
       if (scanType === 'patient' && patient) {
         onPatientScan(patient.id);
-        toast.success(t('patientScanned'));
+        toast({
+          title: t('patientScanned'),
+          variant: "success"
+        });
       } else if (scanType === 'medication' && medication) {
         onMedicationScan(medication.id);
-        toast.success(t('medicationScanned'));
+        toast({
+          title: t('medicationScanned'),
+          variant: "success"
+        });
       }
       
       setScanning(true);

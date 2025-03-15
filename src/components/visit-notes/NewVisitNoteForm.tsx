@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from '@/hooks/useTranslation';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -44,14 +43,13 @@ const NewVisitNoteForm = ({ onClose, onSuccess }: NewVisitNoteFormProps) => {
     e.preventDefault();
     
     if (!formData.patientId || !formData.patientName || !formData.title) {
-      toast.error(
-        language === 'pt' ? 'Campos obrigatórios' : 'Required fields',
-        {
-          description: language === 'pt' 
-            ? 'Por favor, preencha todos os campos obrigatórios' 
-            : 'Please fill in all required fields'
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Campos obrigatórios' : 'Required fields',
+        description: language === 'pt' 
+          ? 'Por favor, preencha todos os campos obrigatórios' 
+          : 'Please fill in all required fields',
+        variant: "destructive"
+      });
       return;
     }
     
@@ -77,14 +75,13 @@ const NewVisitNoteForm = ({ onClose, onSuccess }: NewVisitNoteFormProps) => {
       // In real implementation, we would save this to Supabase
       console.log('New visit note created:', newVisitNote);
       
-      toast.success(
-        language === 'pt' ? 'Nota de visita criada' : 'Visit note created',
-        {
-          description: language === 'pt'
-            ? 'A nota de visita foi criada com sucesso'
-            : 'The visit note has been created successfully'
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Nota de visita criada' : 'Visit note created',
+        description: language === 'pt'
+          ? 'A nota de visita foi criada com sucesso'
+          : 'The visit note has been created successfully',
+        variant: "success"
+      });
       
       if (onSuccess) {
         onSuccess();
@@ -93,14 +90,13 @@ const NewVisitNoteForm = ({ onClose, onSuccess }: NewVisitNoteFormProps) => {
       onClose();
     } catch (error) {
       console.error('Error creating visit note:', error);
-      toast.error(
-        language === 'pt' ? 'Erro' : 'Error',
-        {
-          description: language === 'pt'
-            ? 'Ocorreu um erro ao criar a nota de visita'
-            : 'An error occurred while creating the visit note'
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Erro' : 'Error',
+        description: language === 'pt'
+          ? 'Ocorreu um erro ao criar a nota de visita'
+          : 'An error occurred while creating the visit note',
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }

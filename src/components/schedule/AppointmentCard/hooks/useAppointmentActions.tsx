@@ -18,16 +18,20 @@ export const useAppointmentActions = (appointment: Appointment) => {
     try {
       const result = await sendAppointmentReminder(appointment.id);
       if (result) {
-        toast.success(t('reminderSent'), {
+        toast({
+          title: t('reminderSent'),
           description: t('reminderSentDescription'),
+          variant: "success"
         });
       } else {
         throw new Error('Failed to send reminder');
       }
     } catch (error) {
       console.error('Error sending reminder:', error);
-      toast.error(t('errorSendingReminder'), {
+      toast({
+        title: t('errorSendingReminder'),
         description: t('errorSendingReminderDescription'),
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -39,16 +43,20 @@ export const useAppointmentActions = (appointment: Appointment) => {
     try {
       const result = await completeAppointment(appointment.id);
       if (result) {
-        toast.success(t('appointmentCompleted'), {
+        toast({
+          title: t('appointmentCompleted'),
           description: t('appointmentCompletedDescription'),
+          variant: "success"
         });
       } else {
         throw new Error('Failed to complete appointment');
       }
     } catch (error) {
       console.error('Error completing appointment:', error);
-      toast.error(t('errorCompletingAppointment'), {
+      toast({
+        title: t('errorCompletingAppointment'),
         description: t('errorCompletingAppointmentDescription'),
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -60,16 +68,20 @@ export const useAppointmentActions = (appointment: Appointment) => {
     try {
       const result = await cancelAppointment(appointment.id);
       if (result) {
-        toast.success(t('appointmentCancelled'), {
+        toast({
+          title: t('appointmentCancelled'),
           description: t('appointmentCancelledDescription'),
+          variant: "success"
         });
       } else {
         throw new Error('Failed to cancel appointment');
       }
     } catch (error) {
       console.error('Error cancelling appointment:', error);
-      toast.error(t('errorCancellingAppointment'), {
+      toast({
+        title: t('errorCancellingAppointment'),
         description: t('errorCancellingAppointmentDescription'),
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
