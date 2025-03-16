@@ -37,25 +37,25 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
   const [activeLoginMethod, setActiveLoginMethod] = useState<'email' | 'phone'>('email');
   
   // Handle email login
-  const handleEmailLogin = async () => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError('');
     
     try {
       // Implementation would go here
       console.log('Login with email:', email, password);
-      return { success: true };
     } catch (err) {
       setError(t('loginFailed'));
       console.error(err);
-      return { success: false };
     } finally {
       setLoading(false);
     }
   };
   
   // Handle send code for phone login
-  const handleSendCode = async () => {
+  const handleSendCode = async (e: React.FormEvent) => {
+    e.preventDefault();
     // Implementation would go here
     console.log('Sending code to:', phone);
     setShowPhoneVerification(true);
