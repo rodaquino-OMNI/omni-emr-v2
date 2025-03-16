@@ -75,9 +75,10 @@ export const useAuthProvider = () => {
   };
 
   // Mock function for checking auth status - would connect to backend in real implementation
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = async (): Promise<boolean> => {
     // Implementation would verify session validity with backend
     console.log("Checking auth status");
+    return isAuthenticated;
   };
 
   // Create and return the auth context value with all required properties

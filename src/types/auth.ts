@@ -14,7 +14,7 @@ export interface AuthContextType {
   signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{success: boolean; user?: User; error?: any}>;
   resetPassword: (email: string) => Promise<{success: boolean; error?: any}>;
   updateUser: (updates: Partial<User>) => Promise<void>;
-  checkAuthStatus: () => Promise<void>;
+  checkAuthStatus: () => Promise<boolean>;
   hasPermission: (permission: string) => boolean;
   canAccessPatientData: (patientId: string) => boolean;
   session: any;

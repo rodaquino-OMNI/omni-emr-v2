@@ -932,6 +932,69 @@ export type Database = {
         }
         Relationships: []
       }
+      document_references: {
+        Row: {
+          authenticator_id: string | null
+          author_id: string | null
+          category: Json | null
+          content: Json
+          context: Json | null
+          created_at: string | null
+          custodian_id: string | null
+          date: string | null
+          description: string | null
+          docstatus: string | null
+          id: string
+          identifier: Json | null
+          relates_to: Json | null
+          security_label: Json | null
+          status: string
+          subject_id: string
+          type: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          authenticator_id?: string | null
+          author_id?: string | null
+          category?: Json | null
+          content: Json
+          context?: Json | null
+          created_at?: string | null
+          custodian_id?: string | null
+          date?: string | null
+          description?: string | null
+          docstatus?: string | null
+          id?: string
+          identifier?: Json | null
+          relates_to?: Json | null
+          security_label?: Json | null
+          status: string
+          subject_id: string
+          type?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          authenticator_id?: string | null
+          author_id?: string | null
+          category?: Json | null
+          content?: Json
+          context?: Json | null
+          created_at?: string | null
+          custodian_id?: string | null
+          date?: string | null
+          description?: string | null
+          docstatus?: string | null
+          id?: string
+          identifier?: Json | null
+          relates_to?: Json | null
+          security_label?: Json | null
+          status?: string
+          subject_id?: string
+          type?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       document_versions: {
         Row: {
           change_summary: string | null
@@ -3045,6 +3108,13 @@ export type Database = {
           rows_deleted: number
         }[]
       }
+      check_fhir_resource_exists: {
+        Args: {
+          resource_type: string
+          resource_id: string
+        }
+        Returns: boolean
+      }
       clean_rxnorm_cache: {
         Args: {
           retention_days?: number
@@ -3057,6 +3127,12 @@ export type Database = {
       get_auth_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_fhir_resource_by_reference: {
+        Args: {
+          reference: string
+        }
+        Returns: Json
       }
       get_frequently_prescribed_medications: {
         Args: {
@@ -3188,11 +3264,24 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      policy_exists: {
+        Args: {
+          p_table_name: string
+          p_policy_name: string
+        }
+        Returns: boolean
+      }
       refresh_materialized_view: {
         Args: {
           view_name: string
         }
         Returns: undefined
+      }
+      safe_cast_uuid: {
+        Args: {
+          p_text: string
+        }
+        Returns: string
       }
       set_limit: {
         Args: {
@@ -3230,6 +3319,16 @@ export type Database = {
       user_is_medical_staff: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      validate_fhir_resource: {
+        Args: {
+          resource_type: string
+          resource_data: Json
+        }
+        Returns: {
+          is_valid: boolean
+          validation_errors: string[]
+        }[]
       }
     }
     Enums: {
