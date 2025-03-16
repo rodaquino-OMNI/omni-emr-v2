@@ -5,6 +5,7 @@ import { User, Language } from '../types/auth';
 import { signOut } from '../utils/authUtils';
 import { logAuditEvent } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useSectorContext } from '@/hooks/useSectorContext';
 
 export const useAuthLogout = (
   user: User | null,
@@ -12,6 +13,14 @@ export const useAuthLogout = (
   setSession: (session: Session | null) => void,
   language: Language
 ) => {
+  // Get sector context to clear it on logout
+  let sectorContext;
+  try {
+    sectorContext = useSectorContext();
+  } catch (error) {
+    console.error("Error accessing sector context in logout hook:", error);
+  }
+
   const handleLogout = useCallback(async () => {
     try {
       // Log session end event
@@ -30,9 +39,17 @@ export const useAuthLogout = (
         }
       }
       
+      // Clear sector context if available
+      if (sectorContext && sectorContext.selectSector) {
+        sectorContext.selectSector(null);
+      }
+      
       await signOut();
       setUser(null);
       setSession(null);
+      
+      // Clear any sector selection from local storage
+      localStorage.removeItem('selectedSector');
       
       // Show logout notification
       toast.success(language === 'pt' ? 'Você saiu com sucesso' : 'You have been logged out', {
@@ -53,7 +70,7 @@ export const useAuthLogout = (
       setUser(null);
       setSession(null);
     }
-  }, [user, language, setUser, setSession]);
+  }, [user, language, setUser, setSession, sectorContext]);
 
   return { logout: handleLogout };
 };

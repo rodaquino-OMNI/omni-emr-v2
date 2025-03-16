@@ -1,19 +1,23 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { signInWithPhone, verifyPhoneOTP } from '@/utils/authUtils';
 import { Language } from '@/types/auth';
 
 export const usePhoneLogin = (language: Language) => {
+  const navigate = useNavigate();
   const [phone, setPhone] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
   const [usePhoneLogin, setUsePhoneLogin] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const togglePhoneLogin = useCallback(() => {
     setUsePhoneLogin(!usePhoneLogin);
     setVerificationSent(false);
+    setError(null);
   }, [usePhoneLogin]);
 
   const resetPhoneForm = useCallback(() => {
@@ -21,7 +25,13 @@ export const usePhoneLogin = (language: Language) => {
     setVerificationSent(false);
     setPhone('');
     setVerificationCode('');
+    setError(null);
   }, []);
+  
+  // Clear error when phone/code changes
+  useEffect(() => {
+    if (error) setError(null);
+  }, [phone, verificationCode, error]);
 
   const handlePhoneSubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean) => {
     e.preventDefault();
@@ -31,6 +41,7 @@ export const usePhoneLogin = (language: Language) => {
     }
     
     setIsSubmitting(true);
+    setError(null);
     
     try {
       const result = await signInWithPhone(phone);
@@ -54,6 +65,9 @@ export const usePhoneLogin = (language: Language) => {
               : "You have been successfully logged in."
           }
         );
+        
+        // Navigate to sector selection on successful login
+        navigate('/sectors');
       } else {
         throw new Error(language === 'pt' 
           ? "Falha ao enviar o código de verificação" 
@@ -61,6 +75,11 @@ export const usePhoneLogin = (language: Language) => {
       }
     } catch (error: any) {
       console.error("Phone verification error:", error);
+      
+      // Set error message
+      setError(error.message || (language === 'pt' 
+        ? 'Falha na verificação' 
+        : 'Verification failed'));
       
       toast.error(
         language === 'pt' ? "Erro de verificação" : "Verification error",
@@ -73,7 +92,7 @@ export const usePhoneLogin = (language: Language) => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [phone, language]);
+  }, [phone, language, navigate]);
 
   const handleVerifySubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean) => {
     e.preventDefault();
@@ -83,6 +102,7 @@ export const usePhoneLogin = (language: Language) => {
     }
     
     setIsSubmitting(true);
+    setError(null);
     
     try {
       const result = await verifyPhoneOTP(phone, verificationCode);
@@ -96,6 +116,9 @@ export const usePhoneLogin = (language: Language) => {
               : "Code verified successfully. You are now logged in."
           }
         );
+        
+        // Navigate to sector selection on successful login
+        navigate('/sectors');
       } else {
         throw new Error(language === 'pt' 
           ? "Falha na verificação do código" 
@@ -103,6 +126,11 @@ export const usePhoneLogin = (language: Language) => {
       }
     } catch (error: any) {
       console.error("OTP verification error:", error);
+      
+      // Set error message
+      setError(error.message || (language === 'pt' 
+        ? 'Falha na verificação' 
+        : 'Verification failed'));
       
       toast.error(
         language === 'pt' ? "Erro de verificação" : "Verification error",
@@ -115,7 +143,7 @@ export const usePhoneLogin = (language: Language) => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [phone, verificationCode, language]);
+  }, [phone, verificationCode, language, navigate]);
 
   return {
     phone,
@@ -123,12 +151,12 @@ export const usePhoneLogin = (language: Language) => {
     verificationCode,
     setVerificationCode,
     isSubmitting,
-    setIsSubmitting,
     verificationSent,
     usePhoneLogin,
     togglePhoneLogin,
     resetPhoneForm,
     handlePhoneSubmit,
-    handleVerifySubmit
+    handleVerifySubmit,
+    error
   };
 };

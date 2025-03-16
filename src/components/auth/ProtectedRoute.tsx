@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Shield, AlertTriangle, Clock, LockIcon, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { checkConnectivity } from '@/utils/supabaseConnectivity';
+import { useSectorContext } from '@/hooks/useSectorContext';
 
 interface ProtectedRouteProps {
   requiredPermission?: string;
@@ -85,6 +86,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   const { user, isAuthenticated, isLoading, hasPermission, canAccessPatientData, language } = auth;
   
+  // Access sector context to check if user has a selected sector
+  let sectorContext;
+  try {
+    sectorContext = useSectorContext();
+  } catch (error) {
+    console.error("Sector context error in ProtectedRoute:", error);
+  }
+  
   // Handle loading state
   if (isLoading) {
     return (
@@ -141,6 +150,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
+  }
+  
+  // Check if the current route is the root dashboard and user has no selected sector
+  // Redirect to sector selection if so
+  const needsSectorSelection = location.pathname === '/dashboard' && 
+    sectorContext && 
+    !sectorContext.selectedSector;
+  
+  if (needsSectorSelection) {
+    return <Navigate to="/sectors" replace />;
   }
   
   // Check permissions (if specified)

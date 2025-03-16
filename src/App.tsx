@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeProvider';
@@ -18,6 +19,7 @@ import RegisterPage from './pages/Register';
 import NotFound from './pages/NotFound';
 import Index from './pages/Index';
 import SectorSelection from './pages/SectorSelection';
+import AuthCallback from './pages/AuthCallback';
 
 function App() {
   return (
@@ -27,8 +29,10 @@ function App() {
           <SectorProvider>
             <Router>
               <Routes>
+                {/* Public routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/" element={<Index />} />
                 
                 {/* Protected routes */}
@@ -39,7 +43,8 @@ function App() {
                   <Route path="/patients/:id" element={<PatientDetail />} />
                   <Route path="/medications" element={<Medications />} />
                   <Route path="/settings" element={<Settings />} />
-                  {/* Add more protected routes here */}
+                  {/* Redirect authenticated users to sector selection if they try to access the root */}
+                  <Route path="/" element={<Navigate to="/sectors" replace />} />
                 </Route>
                 
                 <Route path="*" element={<NotFound />} />
