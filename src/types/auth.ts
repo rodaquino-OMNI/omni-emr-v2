@@ -1,3 +1,4 @@
+
 export interface AuthContextType {
   user: User | null | undefined;
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
