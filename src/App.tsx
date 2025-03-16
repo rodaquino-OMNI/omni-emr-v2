@@ -37,12 +37,26 @@ function App() {
                 
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute />}>
+                  {/* Sector selection is the entry point after authentication */}
                   <Route path="/sectors" element={<SectorSelection />} />
+                  
+                  {/* Role-independent routes */}
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/patients" element={<Patients />} />
-                  <Route path="/patients/:id" element={<PatientDetail />} />
-                  <Route path="/medications" element={<Medications />} />
                   <Route path="/settings" element={<Settings />} />
+                  
+                  {/* Role-specific routes with nested access control */}
+                  <Route path="/patients/:id" element={
+                    <PatientDetail />
+                  } />
+                  
+                  {/* Doctor-specific routes */}
+                  <Route path="/medications" element={
+                    <ProtectedRoute requiredPermission="view_medications">
+                      <Medications />
+                    </ProtectedRoute>
+                  } />
+                  
                   {/* Redirect authenticated users to sector selection if they try to access the root */}
                   <Route path="/" element={<Navigate to="/sectors" replace />} />
                 </Route>

@@ -1,43 +1,124 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Loader2, AlertCircle, Users, BellRing, ClipboardList, Activity } from 'lucide-react';
 import TranslatedText from '@/components/common/TranslatedText';
 
 const SectorCard: React.FC<{ 
   name: string;
   description: string | null;
+  statistics: {
+    patients: number;
+    alerts: number;
+    tasks: number;
+    criticalPatients: number;
+  };
   onClick: () => void;
   isActive: boolean;
-}> = ({ name, description, onClick, isActive }) => {
+}> = ({ name, description, statistics, onClick, isActive }) => {
   return (
-    <div 
+    <Card 
       onClick={onClick}
-      className={`p-6 rounded-lg shadow-md cursor-pointer transition-all
+      className={`p-6 cursor-pointer transition-all hover:shadow-md
         ${isActive 
           ? 'bg-primary text-primary-foreground border-primary' 
           : 'bg-card hover:bg-accent/50 border-border'
         } border`}
     >
       <h3 className="text-xl font-semibold mb-2">{name}</h3>
-      {description && <p className="text-sm">{description}</p>}
-    </div>
+      {description && <p className="text-sm mb-4">{description}</p>}
+      
+      <div className="grid grid-cols-2 gap-2 mt-3">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm">{statistics.patients} patients</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <BellRing className="h-4 w-4 text-amber-500" />
+          <span className="text-sm">{statistics.alerts} alerts</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <ClipboardList className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm">{statistics.tasks} tasks</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Activity className="h-4 w-4 text-red-500" />
+          <span className="text-sm">{statistics.criticalPatients} critical</span>
+        </div>
+      </div>
+    </Card>
   );
 };
 
 const SectorSelection = () => {
   const navigate = useNavigate();
-  const { loading, sectors, selectSector } = useSectorContext();
+  const { loading, sectors, selectSector, sectorPatients } = useSectorContext();
   const { language } = useTranslation();
+  const { user } = useAuth();
+  
+  // Generate sector statistics based on user role
+  const getSectorStats = (sectorId: string) => {
+    // Filter patients by sector
+    const sectorPatientsData = sectorPatients.filter(p => p.sector_id === sectorId);
+    
+    // Basic statistics
+    const basicStats = {
+      patients: sectorPatientsData.length,
+      alerts: Math.floor(Math.random() * 5), // Mock data, would come from API
+      tasks: Math.floor(Math.random() * 10), // Mock data, would come from API
+      criticalPatients: sectorPatientsData.filter(p => p.status === 'critical').length
+    };
+    
+    // Role-specific statistics adjustments
+    if (user?.role === 'doctor') {
+      // Doctors might see more detailed clinical information
+      return basicStats;
+    } else if (user?.role === 'nurse') {
+      // Nurses might see more task-oriented information
+      return {
+        ...basicStats,
+        tasks: Math.floor(Math.random() * 15) // More tasks visible to nurses
+      };
+    } else if (user?.role === 'administrative') {
+      // Administrative staff might see more operational information
+      return {
+        ...basicStats,
+        alerts: Math.floor(Math.random() * 3) // Fewer clinical alerts
+      };
+    }
+    
+    return basicStats;
+  };
   
   const handleSectorSelect = (sector: any) => {
     selectSector(sector);
-    navigate('/patients');
+    
+    // Redirect based on user role
+    if (user?.role === 'admin' || user?.role === 'system_administrator') {
+      navigate('/dashboard'); // Admin dashboard
+    } else {
+      navigate('/patients'); // Standard flow for clinical roles
+    }
   };
+
+  // Redirect immediately if only one sector is available
+  useEffect(() => {
+    if (!loading && sectors.length === 1) {
+      selectSector(sectors[0]);
+      
+      if (user?.role === 'admin' || user?.role === 'system_administrator') {
+        navigate('/dashboard');
+      } else {
+        navigate('/patients');
+      }
+    }
+  }, [loading, sectors, user?.role, navigate, selectSector]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -72,6 +153,7 @@ const SectorSelection = () => {
                 key={sector.id}
                 name={sector.name}
                 description={sector.description}
+                statistics={getSectorStats(sector.id)}
                 onClick={() => handleSectorSelect(sector)}
                 isActive={false}
               />

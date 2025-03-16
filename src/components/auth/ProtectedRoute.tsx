@@ -152,14 +152,46 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
   }
   
-  // Check if the current route is the root dashboard and user has no selected sector
+  // Check if the current route is the root or dashboard and user has no selected sector
   // Redirect to sector selection if so
-  const needsSectorSelection = location.pathname === '/dashboard' && 
+  const needsSectorSelection = (location.pathname === '/' || location.pathname === '/dashboard') && 
     sectorContext && 
     !sectorContext.selectedSector;
   
   if (needsSectorSelection) {
     return <Navigate to="/sectors" replace />;
+  }
+  
+  // Check for role-specific routing if a patient page is being accessed
+  const isPatientPage = location.pathname.includes('/patients/') && location.pathname !== '/patients';
+  if (isPatientPage && user?.role) {
+    // Extract patient ID from the URL
+    const patientIdFromUrl = location.pathname.split('/')[2];
+    
+    // Role-specific redirection for patient pages
+    const shouldRedirect = (): { redirect: boolean; path: string } => {
+      // If accessing a specific patient view
+      if (patientIdFromUrl) {
+        if (user.role === 'nurse' && !location.pathname.includes('/tasks')) {
+          return { redirect: true, path: `/tasks?patientId=${patientIdFromUrl}` };
+        }
+        
+        if (user.role === 'lab_technician' || user.role === 'radiology_technician') {
+          return { redirect: true, path: `/orders?patientId=${patientIdFromUrl}` };
+        }
+        
+        if (user.role === 'nurse_technician' && !location.pathname.includes('/vitals')) {
+          return { redirect: true, path: `/vitals?patientId=${patientIdFromUrl}` };
+        }
+      }
+      
+      return { redirect: false, path: '' };
+    };
+    
+    const { redirect, path } = shouldRedirect();
+    if (redirect) {
+      return <Navigate to={path} replace />;
+    }
   }
   
   // Check permissions (if specified)
@@ -175,6 +207,27 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           description: language === 'pt'
             ? 'Você não tem permissão para acessar esta funcionalidade.'
             : 'You do not have permission to access this functionality.',
+          icon: <LockIcon className="h-5 w-5" />
+        }
+      );
+      
+      return <Navigate to="/unauthorized" replace />;
+    }
+  }
+  
+  // Check for required role (if specified)
+  if (requiredRole && user) {
+    const hasRole = user.role === requiredRole;
+    
+    if (!hasRole) {
+      toast(
+        language === 'pt'
+          ? 'Acesso negado: Função necessária'
+          : 'Access denied: Required role missing', 
+        {
+          description: language === 'pt'
+            ? 'Esta funcionalidade é restrita a uma função específica.'
+            : 'This functionality is restricted to a specific role.',
           icon: <LockIcon className="h-5 w-5" />
         }
       );
