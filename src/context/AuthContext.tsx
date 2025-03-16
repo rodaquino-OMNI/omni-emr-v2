@@ -1,8 +1,10 @@
+
 import React, { createContext, useContext } from 'react';
 import { Session, Provider, AuthError } from '@supabase/supabase-js';
-import { User, UserRole, Language } from '../types/auth';
 import { useAuthProvider } from '../hooks/useAuthProvider';
+import { Language } from '../types/auth';
 
+// Define our context type without redefining User
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -37,16 +39,17 @@ interface AuthContextType {
   setSessionTimeoutMinutes?: (minutes: number) => void;
 }
 
+// Define User interface with all required properties
 export interface User {
   id: string;
   email?: string;
   phone?: string;
   name: string;
-  role: 'doctor' | 'nurse' | 'admin' | 'patient' | 'specialist' | 'pharmacist';
+  role: 'doctor' | 'nurse' | 'admin' | 'patient' | 'specialist' | 'pharmacist' | 'lab_technician' | 'administrative' | 'system_administrator' | 'caregiver' | 'radiology_technician';
   avatar?: string;
   department?: string;
   specialties?: string[];
-  status: 'active' | 'inactive' | 'pending_approval';
+  status: 'active' | 'inactive' | 'pending_approval' | 'pending' | 'suspended';
   lastLogin?: Date;
   mfaEnabled?: boolean;
 }
@@ -78,6 +81,6 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-// Re-export types for convenience
-export type { User, UserRole };
+// Export the necessary types
+export type UserRole = User['role'];
 export type { Language };
