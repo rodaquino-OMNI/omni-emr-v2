@@ -1,17 +1,17 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Sector, SectorPatient } from '@/types/sector';
-import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
 interface SectorContextType {
   sectors: Sector[];
-  loading: boolean;
-  selectedSector: Sector | null;
-  selectSector: (sector: Sector) => void;
   sectorPatients: SectorPatient[];
-  patientsLoading: boolean;
+  selectedSector: Sector | null;
+  loading: boolean;
+  error: Error | null;
+  selectSector: (sector: Sector) => void;
+  refreshSectors: () => Promise<void>;
   refreshPatients: () => Promise<void>;
   assignPatient: (patientId: string) => Promise<void>;
   unassignPatient: (patientId: string) => Promise<void>;
@@ -19,145 +19,168 @@ interface SectorContextType {
 
 const SectorContext = createContext<SectorContextType | undefined>(undefined);
 
-export const SectorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [sectors, setSectors] = useState<Sector[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [sectorPatients, setSectorPatients] = useState<SectorPatient[]>([]);
-  const [patientsLoading, setPatientsLoading] = useState(false);
+  const [selectedSector, setSelectedSector] = useState<Sector | null>(() => {
+    // Try to load from localStorage on init
+    const saved = localStorage.getItem('omnicare-selected-sector');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  // Fetch sectors when authenticated
+  // Fetch sectors on mount
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchSectors();
-    }
-  }, [isAuthenticated]);
+    refreshSectors();
+  }, []);
 
-  // Fetch patients when a sector is selected
+  // Fetch patients when selected sector changes
   useEffect(() => {
     if (selectedSector) {
-      fetchPatients();
+      refreshPatients();
     } else {
       setSectorPatients([]);
     }
   }, [selectedSector]);
 
-  const fetchSectors = async () => {
+  // Fetch all sectors user has access to
+  const refreshSectors = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const { data, error } = await supabase.rpc('get_user_sectors');
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
       setSectors(data || []);
-    } catch (error) {
-      console.error('Error fetching sectors:', error);
-      toast.error('Failed to load hospital sectors');
+    } catch (err) {
+      console.error('Error fetching sectors:', err);
+      setError(err instanceof Error ? err : new Error('Failed to fetch sectors'));
+      toast.error('Failed to load sectors');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchPatients = async () => {
+  // Fetch patients for the selected sector
+  const refreshPatients = async () => {
     if (!selectedSector) return;
     
     try {
-      setPatientsLoading(true);
+      setLoading(true);
+      
       const { data, error } = await supabase.rpc('get_sector_patients', {
         p_sector_id: selectedSector.id
       });
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
       setSectorPatients(data || []);
-    } catch (error) {
-      console.error('Error fetching sector patients:', error);
+    } catch (err) {
+      console.error('Error fetching sector patients:', err);
       toast.error('Failed to load patients');
     } finally {
-      setPatientsLoading(false);
+      setLoading(false);
     }
   };
 
-  const selectSector = (sector: Sector) => {
-    setSelectedSector(sector);
-  };
-
-  const refreshPatients = async () => {
-    await fetchPatients();
-  };
-
+  // Assign a patient to the current provider
   const assignPatient = async (patientId: string) => {
     if (!selectedSector) return;
     
     try {
+      setLoading(true);
+      
       const { error } = await supabase
         .from('provider_patient_assignments')
         .insert({
+          provider_id: (await supabase.auth.getUser()).data.user?.id,
           patient_id: patientId,
           sector_id: selectedSector.id,
           is_active: true
         });
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
+      
+      // Update local state to show assignment
+      setSectorPatients(prev => 
+        prev.map(patient => 
+          patient.id === patientId 
+            ? { ...patient, is_assigned: true } 
+            : patient
+        )
+      );
       
       toast.success('Patient assigned successfully');
-      await refreshPatients();
-    } catch (error) {
-      console.error('Error assigning patient:', error);
+    } catch (err) {
+      console.error('Error assigning patient:', err);
       toast.error('Failed to assign patient');
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Unassign a patient from the current provider
   const unassignPatient = async (patientId: string) => {
     if (!selectedSector) return;
     
     try {
+      setLoading(true);
+      
       const { error } = await supabase
         .from('provider_patient_assignments')
-        .update({
+        .update({ 
           is_active: false,
           end_date: new Date().toISOString()
         })
-        .match({
+        .match({ 
+          provider_id: (await supabase.auth.getUser()).data.user?.id,
           patient_id: patientId,
           sector_id: selectedSector.id,
-          is_active: true,
-          end_date: null
+          is_active: true
         });
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
+      
+      // Update local state to show unassignment
+      setSectorPatients(prev => 
+        prev.map(patient => 
+          patient.id === patientId 
+            ? { ...patient, is_assigned: false } 
+            : patient
+        )
+      );
       
       toast.success('Patient unassigned successfully');
-      await refreshPatients();
-    } catch (error) {
-      console.error('Error unassigning patient:', error);
+    } catch (err) {
+      console.error('Error unassigning patient:', err);
       toast.error('Failed to unassign patient');
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Select a sector and save to localStorage
+  const selectSector = (sector: Sector) => {
+    setSelectedSector(sector);
+    localStorage.setItem('omnicare-selected-sector', JSON.stringify(sector));
+  };
+
   return (
-    <SectorContext.Provider
-      value={{
-        sectors,
-        loading,
-        selectedSector,
-        selectSector,
-        sectorPatients,
-        patientsLoading,
-        refreshPatients,
-        assignPatient,
-        unassignPatient
-      }}
-    >
+    <SectorContext.Provider value={{
+      sectors,
+      sectorPatients,
+      selectedSector,
+      loading,
+      error,
+      selectSector,
+      refreshSectors,
+      refreshPatients,
+      assignPatient,
+      unassignPatient
+    }}>
       {children}
     </SectorContext.Provider>
   );

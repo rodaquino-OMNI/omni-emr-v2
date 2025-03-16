@@ -6,6 +6,7 @@ import Sidebar from '../components/layout/Sidebar';
 import SectorPatientList from '../components/patients/SectorPatientList';
 import { PlusCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '../hooks/useTranslation';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import TranslatedText from '@/components/common/TranslatedText';

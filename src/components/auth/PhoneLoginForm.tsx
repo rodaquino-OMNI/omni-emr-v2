@@ -12,6 +12,7 @@ interface PhoneLoginFormProps {
   setVerificationCode: (code: string) => void;
   handlePhoneSubmit: (e: React.FormEvent) => Promise<void>;
   handleVerifySubmit: (e: React.FormEvent) => Promise<void>;
+  handleClearError: () => void; // Add this missing prop
   isSubmitting: boolean;
   verificationSent: boolean;
   validationErrors: { [key: string]: string };
