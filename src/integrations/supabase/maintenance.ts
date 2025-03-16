@@ -1,5 +1,5 @@
 
-import { supabase } from './core';
+import { supabase } from './client';
 
 /**
  * Refresh a materialized view

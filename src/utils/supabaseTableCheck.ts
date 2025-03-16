@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/core';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 type TableName = 'appointments' | 'audit_logs' | 'profiles';

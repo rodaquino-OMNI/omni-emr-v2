@@ -1,5 +1,5 @@
 
-import { supabase } from './core';
+import { supabase } from './client';
 
 /**
  * Log slow query for performance monitoring

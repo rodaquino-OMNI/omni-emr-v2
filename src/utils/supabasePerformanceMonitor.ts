@@ -1,5 +1,5 @@
 
-import { supabase } from '../integrations/supabase/core';
+import { supabase } from '../integrations/supabase/client';
 
 /**
  * Refresh all materialized views in the database to ensure up-to-date data
