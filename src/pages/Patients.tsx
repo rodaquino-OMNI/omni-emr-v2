@@ -1,28 +1,49 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import SectorPatientList from '../components/patients/SectorPatientList';
-import { PlusCircle, RefreshCw } from 'lucide-react';
+import { PlusCircle, RefreshCw, Filter, SortAsc, SortDesc } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { useTranslation } from '../hooks/useTranslation';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import TranslatedText from '@/components/common/TranslatedText';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const PatientsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { language } = useTranslation();
-  const { selectedSector, refreshPatients } = useSectorContext();
+  const { selectedSector, refreshPatients, patientsLoading } = useSectorContext();
   
   // Get status from URL query params
   const queryParams = new URLSearchParams(location.search);
   const statusFromUrl = queryParams.get('status') || 'all';
+  const assignmentFromUrl = queryParams.get('assigned') || 'all';
+  const sortByFromUrl = queryParams.get('sortBy') || 'name';
+  const sortDirFromUrl = queryParams.get('sortDir') || 'asc';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>(statusFromUrl);
+  const [assignmentFilter, setAssignmentFilter] = useState<string>(assignmentFromUrl);
+  const [sortBy, setSortBy] = useState<string>(sortByFromUrl);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(sortDirFromUrl as 'asc' | 'desc');
   
   const statuses = [
     { value: 'all', label: language === 'pt' ? 'Todos os Pacientes' : 'All Patients' },
@@ -33,22 +54,63 @@ const PatientsPage = () => {
     { value: 'discharged', label: language === 'pt' ? 'Alta' : 'Discharged' },
   ];
 
-  // Update URL when filter changes
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value;
-    setStatusFilter(newStatus);
+  const assignmentOptions = [
+    { value: 'all', label: language === 'pt' ? 'Todos os Pacientes' : 'All Patients' },
+    { value: 'assigned', label: language === 'pt' ? 'Atribuídos a Mim' : 'Assigned to Me' },
+    { value: 'unassigned', label: language === 'pt' ? 'Não Atribuídos' : 'Unassigned' },
+  ];
+
+  const sortOptions = [
+    { value: 'name', label: language === 'pt' ? 'Nome' : 'Name' },
+    { value: 'status', label: language === 'pt' ? 'Status' : 'Status' },
+    { value: 'room', label: language === 'pt' ? 'Quarto' : 'Room' },
+    { value: 'date', label: language === 'pt' ? 'Data de Nascimento' : 'Date of Birth' },
+  ];
+
+  // Update URL with all filters
+  const updateUrlWithFilters = (filters: Record<string, string>) => {
+    const newParams = new URLSearchParams(location.search);
     
-    if (newStatus === 'all') {
-      navigate('/patients');
-    } else {
-      navigate(`/patients?status=${newStatus}`);
-    }
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === 'all' && key !== 'sortBy' && key !== 'sortDir') {
+        newParams.delete(key);
+      } else {
+        newParams.set(key, value);
+      }
+    });
+    
+    navigate(`/patients?${newParams.toString()}`);
+  };
+
+  // Handle status change
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+    updateUrlWithFilters({ status: value, assigned: assignmentFilter, sortBy, sortDir: sortDirection });
+  };
+
+  // Handle assignment filter change
+  const handleAssignmentChange = (value: string) => {
+    setAssignmentFilter(value);
+    updateUrlWithFilters({ status: statusFilter, assigned: value, sortBy, sortDir: sortDirection });
+  };
+
+  // Handle sort change
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    updateUrlWithFilters({ status: statusFilter, assigned: assignmentFilter, sortBy: value, sortDir: sortDirection });
+  };
+
+  // Toggle sort direction
+  const toggleSortDirection = () => {
+    const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    setSortDirection(newDirection);
+    updateUrlWithFilters({ status: statusFilter, assigned: assignmentFilter, sortBy, sortDir: newDirection });
   };
 
   const handleNewPatient = () => {
     // For now, just navigate to the first patient as a placeholder
     // In a real app, this would open a form to create a new patient
-    navigate('/patients/1');
+    navigate('/patients/new');
   };
 
   // Handle refresh
@@ -61,6 +123,13 @@ const PatientsPage = () => {
     navigate('/sectors');
     return null;
   }
+
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setAssignmentFilter('all');
+    setSearchTerm('');
+    navigate('/patients');
+  };
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -90,20 +159,82 @@ const PatientsPage = () => {
                   />
                 </div>
                 
-                <select
-                  className="h-9 rounded-md border border-border bg-background pl-3 pr-8 text-sm"
+                <Select
                   value={statusFilter}
-                  onChange={handleStatusChange}
+                  onValueChange={handleStatusChange}
                 >
-                  {statuses.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-9 w-[140px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Select
+                  value={assignmentFilter}
+                  onValueChange={handleAssignmentChange}
+                >
+                  <SelectTrigger className="h-9 w-[160px]">
+                    <SelectValue placeholder="Assignment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignmentOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="h-9 px-3 gap-1">
+                      <SortAsc className="h-4 w-4" />
+                      {language === 'pt' ? 'Ordenar' : 'Sort'}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>
+                      {language === 'pt' ? 'Ordenar por' : 'Sort by'}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {sortOptions.map((option) => (
+                      <DropdownMenuItem 
+                        key={option.value}
+                        className={sortBy === option.value ? "bg-accent" : ""}
+                        onClick={() => handleSortChange(option.value)}
+                      >
+                        {option.label}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={toggleSortDirection}>
+                      {sortDirection === 'asc' ? (
+                        <><SortAsc className="mr-2 h-4 w-4" /> {language === 'pt' ? 'Crescente' : 'Ascending'}</>
+                      ) : (
+                        <><SortDesc className="mr-2 h-4 w-4" /> {language === 'pt' ? 'Decrescente' : 'Descending'}</>
+                      )}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 <Button onClick={handleRefresh} variant="outline" className="h-9 flex items-center gap-1">
                   <RefreshCw className="h-4 w-4" />
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  onClick={clearFilters} 
+                  className="h-9 px-3"
+                  disabled={statusFilter === 'all' && assignmentFilter === 'all' && !searchTerm}
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  {language === 'pt' ? 'Limpar' : 'Clear'}
                 </Button>
                 
                 <Button onClick={handleNewPatient} className="h-9 flex items-center gap-1">
@@ -117,7 +248,13 @@ const PatientsPage = () => {
             </div>
             
             <div className="glass-card p-6">
-              <SectorPatientList statusFilter={statusFilter} searchTerm={searchTerm} />
+              <SectorPatientList 
+                statusFilter={statusFilter} 
+                searchTerm={searchTerm} 
+                assignmentFilter={assignmentFilter}
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+              />
             </div>
           </div>
         </main>
