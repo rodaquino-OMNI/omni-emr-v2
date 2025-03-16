@@ -114,5 +114,12 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'patients:read',
     'imaging:read',
     'imaging:write:technical'
-  ]
+  ],
+  'medical_staff': [
+    'patients:read',
+    'vitals:read',
+    'medications:view',
+    'appointments:view'
+  ],
+  'all': ['*']
 };

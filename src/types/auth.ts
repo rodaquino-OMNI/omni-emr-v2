@@ -45,6 +45,8 @@ export interface User {
   approvalStatus?: ApprovalStatus;
   status?: string;
   mfaEnabled?: boolean;
+  organization?: string;
+  is_assigned?: boolean;
 }
 
 // Auth context state

@@ -1,20 +1,24 @@
 
-import { User, UserRole } from '@/types/auth';
+import { User } from '@/types/auth';
 
-// Check if user can perform clinical documentation
-export const canPerformClinicalDocumentation = (user: User | null): boolean => {
+// Clinical documentation permissions
+export const canPerformClinicalDocumentation = (user: User): boolean => {
   if (!user) return false;
-  return ['doctor', 'nurse', 'specialist', 'therapist'].includes(user.role as UserRole);
+  
+  const allowedRoles = ['doctor', 'physician', 'nurse', 'specialist'];
+  return allowedRoles.includes(user.role || '');
 };
 
-// Check if user can perform clinical assessment
-export const canPerformClinicalAssessment = (user: User | null): boolean => {
+export const canPerformClinicalAssessment = (user: User): boolean => {
   if (!user) return false;
-  return ['doctor', 'nurse', 'specialist'].includes(user.role as UserRole);
+  
+  const allowedRoles = ['doctor', 'physician', 'nurse', 'specialist'];
+  return allowedRoles.includes(user.role || '');
 };
 
-// Check if user can document medical decision making
-export const canDocumentMedicalDecisionMaking = (user: User | null): boolean => {
+export const canDocumentMedicalDecisionMaking = (user: User): boolean => {
   if (!user) return false;
-  return ['doctor', 'specialist'].includes(user.role as UserRole);
+  
+  const allowedRoles = ['doctor', 'physician', 'specialist'];
+  return allowedRoles.includes(user.role || '');
 };

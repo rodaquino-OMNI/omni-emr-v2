@@ -143,7 +143,19 @@ const PendingApprovalList = () => {
       'lab_technician': { en: 'Lab Technician', pt: 'Técnico de Laboratório' },
       'radiology_technician': { en: 'Radiology Technician', pt: 'Técnico de Radiologia' },
       'system_administrator': { en: 'System Administrator', pt: 'Administrador do Sistema' },
-      'admin': { en: 'Admin', pt: 'Admin' }
+      'admin': { en: 'Admin', pt: 'Admin' },
+      'physician': { en: 'Physician', pt: 'Médico' },
+      'radiologist': { en: 'Radiologist', pt: 'Radiologista' },
+      'therapist': { en: 'Therapist', pt: 'Terapeuta' },
+      'receptionist': { en: 'Receptionist', pt: 'Recepcionista' },
+      'medical_assistant': { en: 'Medical Assistant', pt: 'Assistente Médico' },
+      'insurance_staff': { en: 'Insurance Staff', pt: 'Funcionário de Seguro' },
+      'researcher': { en: 'Researcher', pt: 'Pesquisador' },
+      'coordinator': { en: 'Coordinator', pt: 'Coordenador' },
+      'student': { en: 'Student', pt: 'Estudante' },
+      'guest': { en: 'Guest', pt: 'Convidado' },
+      'medical_staff': { en: 'Medical Staff', pt: 'Equipe Médica' },
+      'all': { en: 'All Roles', pt: 'Todos os Papéis' }
     };
     
     return roleMap[role]?.[language === 'pt' ? 'pt' : 'en'] || role;

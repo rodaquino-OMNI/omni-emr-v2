@@ -31,4 +31,3 @@ export const getDoctorPrescriptions = async (doctorId: string): Promise<Prescrip
     return mockPrescriptions.filter(p => p.doctorId === doctorId);
   }
 };
-

@@ -33,7 +33,9 @@ const roleDisplayNames: Record<UserRole, string> = {
   researcher: 'Researcher',
   coordinator: 'Care Coordinator',
   student: 'Medical Student',
-  guest: 'Guest User'
+  guest: 'Guest User',
+  medical_staff: 'Medical Staff',
+  all: 'All Roles'
 };
 
 // Role descriptions for better understanding
@@ -48,7 +50,7 @@ const roleDescriptions: Record<UserRole, string> = {
   administrative: 'Non-clinical staff handling administrative duties',
   system_administrator: 'Technical administrators with full system access',
   specialist: 'Specialized medical practitioners',
-  caregiver: 'Non-medical staff providing patient assistance',
+  caregiver: 'Non-clinical staff providing patient assistance',
   radiology_technician: 'Imaging specialists',
   radiologist: 'Medical specialists in diagnosing images',
   therapist: 'Professionals providing therapy services',
@@ -58,7 +60,9 @@ const roleDescriptions: Record<UserRole, string> = {
   researcher: 'Medical research personnel',
   coordinator: 'Staff who coordinate patient care',
   student: 'Medical students in training',
-  guest: 'Limited access temporary users'
+  guest: 'Limited access temporary users',
+  medical_staff: 'General medical personnel',
+  all: 'All roles in the system'
 };
 
 const RolesList = () => {

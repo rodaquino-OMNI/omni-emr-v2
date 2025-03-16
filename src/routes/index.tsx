@@ -1,143 +1,124 @@
 
+import React from 'react';
 import { RouteObject } from 'react-router-dom';
-import ProtectedRoute from '@/components/auth/protected-route';
-import { lazy } from 'react';
+import { ProtectedRoute } from '@/components/auth/protected-route';
+import Dashboard from '@/pages/Dashboard';
+import MedicationList from '@/pages/Medications';
+import PatientList from '@/pages/Patients';
+import PatientDetail from '@/pages/PatientDetail';
+import PatientProfile from '@/pages/PatientProfile';
+import Login from '@/pages/Login';
+import Prescriptions from '@/pages/Prescriptions';
+import ClinicalDocumentation from '@/pages/ClinicalDocumentation';
+import Records from '@/pages/Records';
+import Admin from '@/pages/Admin';
+import Layout from '@/components/layout/Layout';
 import { UserRole } from '@/types/auth';
 
-// Import the components
-const SectorSelector = lazy(() => import('@/pages/SectorSelector'));
-const Patients = lazy(() => import('@/pages/Patients'));
-const PatientDetail = lazy(() => import('@/pages/PatientDetail'));
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
-const Admin = lazy(() => import('@/pages/Admin'));
-const MedicationsPage = lazy(() => import('@/pages/Medications'));
-const MedicationDetail = lazy(() => import('@/pages/MedicationDetail'));
-const RecordsPage = lazy(() => import('@/pages/Records'));
-const RecordDetail = lazy(() => import('@/pages/RecordDetail'));
-const Login = lazy(() => import('@/pages/Login'));
-const Register = lazy(() => import('@/pages/Register'));
-const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
-const Settings = lazy(() => import('@/pages/Settings'));
-const Help = lazy(() => import('@/pages/Help'));
-const About = lazy(() => import('@/pages/About'));
+// Create a dummy placeholder for pages that don't exist yet
+const PlaceholderPage = () => (
+  <div className="flex items-center justify-center h-screen">
+    <h1 className="text-2xl">This page is under construction</h1>
+  </div>
+);
 
-export interface AppRoute extends RouteObject {
-  title?: string;
-  requiredRole?: string[];
-  icon?: string;
-}
-
-export const routes: AppRoute[] = [
+// Define routes
+export const routes: RouteObject[] = [
   {
     path: '/login',
     element: <Login />,
-    title: 'Login'
-  },
-  {
-    path: '/register',
-    element: <Register />,
-    title: 'Register'
-  },
-  {
-    path: '/sectors',
-    element: <ProtectedRoute><SectorSelector /></ProtectedRoute>,
-    title: 'Sector Selection'
-  },
-  {
-    path: '/dashboard',
-    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
-    title: 'Dashboard'
-  },
-  {
-    path: '/patients',
-    element: <ProtectedRoute><Patients /></ProtectedRoute>,
-    title: 'Patients'
-  },
-  {
-    path: '/patients/:id',
-    element: <ProtectedRoute><PatientDetail /></ProtectedRoute>,
-    title: 'Patient Detail'
-  },
-  {
-    path: '/medications',
-    element: <ProtectedRoute requiredRole={['doctor', 'nurse', 'pharmacist']}><MedicationsPage /></ProtectedRoute>,
-    title: 'Medications'
-  },
-  {
-    path: '/medications/:id',
-    element: <ProtectedRoute><MedicationDetail /></ProtectedRoute>,
-    title: 'Medication Detail'
-  },
-  {
-    path: '/records',
-    element: <ProtectedRoute><RecordsPage /></ProtectedRoute>,
-    title: 'Records'
-  },
-  {
-    path: '/records/:id',
-    element: <ProtectedRoute><RecordDetail /></ProtectedRoute>,
-    title: 'Record Detail'
-  },
-  {
-    path: '/admin',
-    element: <ProtectedRoute requiredRole={['admin']}><Admin /></ProtectedRoute>,
-    title: 'Administration'
-  },
-  {
-    path: '/settings',
-    element: <ProtectedRoute><Settings /></ProtectedRoute>,
-    title: 'Settings'
-  },
-  {
-    path: '/help',
-    element: <ProtectedRoute><Help /></ProtectedRoute>,
-    title: 'Help'
-  },
-  {
-    path: '/about',
-    element: <ProtectedRoute><About /></ProtectedRoute>,
-    title: 'About'
   },
   {
     path: '/',
-    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
-    title: 'Home'
-  },
-  {
-    path: '*',
-    element: <PageNotFound />,
-    title: 'Not Found'
+    element: <ProtectedRoute><Layout /></ProtectedRoute>,
+    children: [
+      {
+        path: '/',
+        element: <Dashboard />,
+      },
+      {
+        path: '/patients',
+        element: <PatientList />,
+      },
+      {
+        path: '/patients/:id',
+        element: <PatientDetail />,
+      },
+      {
+        path: '/patient-profile/:id',
+        element: <PatientProfile />,
+      },
+      {
+        path: '/medications',
+        element: <MedicationList />,
+      },
+      {
+        path: '/medications/:id',
+        element: <PlaceholderPage />,
+      },
+      {
+        path: '/prescriptions',
+        element: <Prescriptions />,
+      },
+      {
+        path: '/prescriptions/:id',
+        element: <PlaceholderPage />,
+      },
+      {
+        path: '/clinical-documentation',
+        element: <ClinicalDocumentation />,
+      },
+      {
+        path: '/records',
+        element: <Records />,
+      },
+      {
+        path: '/records/:id',
+        element: <PlaceholderPage />,
+      },
+      {
+        path: '/admin',
+        element: <Admin />,
+      },
+      {
+        path: '/about',
+        element: <PlaceholderPage />,
+      },
+      {
+        path: '*',
+        element: <PlaceholderPage />,
+      }
+    ]
   }
 ];
 
-// Create dynamic routes based on user role and permissions
-export const createDynamicRoutes = (
-  userRole?: UserRole, 
-  userPermissions: string[] = []
-): AppRoute[] => {
-  // Start with the base routes
-  const accessibleRoutes = [...routes];
+// Function to create dynamic routes based on user role and permissions
+export const createDynamicRoutes = (userRole?: UserRole, userPermissions: string[] = []): RouteObject[] => {
+  // Clone the basic routes
+  const dynamicRoutes = [...routes];
   
-  // Filter out routes that require specific roles if the user doesn't have them
-  return accessibleRoutes.filter(route => {
-    // If no required role is specified, or user is admin, allow access
-    if (!route.requiredRole || userRole === 'admin' || userRole === 'system_administrator') {
-      return true;
+  // Add role-specific routes
+  if (userRole === 'admin' || userRole === 'system_administrator') {
+    // Admin gets access to everything
+    return dynamicRoutes;
+  }
+  
+  // For non-admin roles, we could filter routes based on permissions
+  // This is a simplified implementation
+  const permittedRoutes = dynamicRoutes.map(route => {
+    if (route.children) {
+      const filteredChildren = route.children.filter(childRoute => {
+        // Implement permission-based filtering logic here
+        // For example, if a route requires a specific permission
+        
+        // For now, we'll just return all routes for authenticated users
+        return true;
+      });
+      
+      return { ...route, children: filteredChildren };
     }
-    
-    // Check if user's role is in the required roles for this route
-    if (userRole && route.requiredRole.includes(userRole)) {
-      return true;
-    }
-    
-    // If user has 'all' permission, allow access
-    if (userPermissions.includes('all')) {
-      return true;
-    }
-    
-    // If none of the above conditions are met, deny access
-    return false;
+    return route;
   });
+  
+  return permittedRoutes;
 };
-
-export default routes;

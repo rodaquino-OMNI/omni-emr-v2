@@ -68,23 +68,50 @@ export interface NewOrderFormData {
   notes?: string;
 }
 
-// Added these interfaces to fix component errors
+// Order interfaces that match the form components
 export interface MedicationOrder extends Order {
   details: MedicationOrderDetails;
+  medicationName?: string;
+  dosage?: string;
+  frequency?: string;
+  route?: string;
+  duration?: string;
+  instructions?: string;
+  substitutionAllowed?: boolean;
 }
 
 export interface LaboratoryOrder extends Order {
   details: LaboratoryOrderDetails;
+  tests?: string[];
+  frequency?: string;
+  clinicalReason?: string;
+  specimenType?: string;
+  collectionInstructions?: string;
 }
 
 export interface RadiologyOrder extends Order {
   details: RadiologyOrderDetails;
+  examType?: string;
+  bodyPart?: string;
+  contrast?: boolean;
+  clinicalReason?: string;
+  patientPrep?: string;
 }
 
 export interface ProcedureOrder extends Order {
   details: ProcedureOrderDetails;
+  procedureName?: string;
+  location?: string;
+  scheduledTime?: Date;
+  preInstructions?: string;
+  postInstructions?: string;
+  equipmentNeeded?: string[];
 }
 
 export interface ConsultationOrder extends Order {
   details: ConsultationOrderDetails;
+  specialtyType?: string;
+  reason?: string;
+  urgency?: 'routine' | 'urgent' | 'stat';
+  additionalInfo?: string;
 }
