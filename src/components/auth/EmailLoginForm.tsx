@@ -58,7 +58,7 @@ const EmailLoginForm = ({
             }
           }}
           disabled={isSubmitting}
-          placeholder="admin@medcare.com"
+          placeholder="admin@omnicare.com"
           autoComplete="email"
         />
         {validationErrors.email && (
@@ -154,7 +154,7 @@ const EmailLoginForm = ({
           <p>admin@omnicare.com</p>
           <p>doctor@omnicare.com</p>
           <p>nurse@omnicare.com</p>
-          <p className="mt-1">{language === 'pt' ? 'Senha: qualquer' : 'Password: any'}</p>
+          <p className="mt-1">{language === 'pt' ? 'Senha: any' : 'Password: any'}</p>
         </div>
       </div>
     </form>

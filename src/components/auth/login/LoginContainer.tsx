@@ -8,9 +8,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 // Import hooks
 import { useEmailLogin } from '@/hooks/login/useEmailLogin';
-import { usePhoneLogin } from '@/hooks/login/usePhoneLogin';
-import { useSocialLogin } from '@/hooks/login/useSocialLogin';
 import { useLoginValidation } from '@/hooks/login/useLoginValidation';
+import { useSocialLogin } from '@/hooks/login/useSocialLogin';
+import { usePhoneLogin } from '@/hooks/login/usePhoneLogin';
 
 // Import components
 import LoginHeader, { LoginView } from './LoginHeader';
@@ -49,6 +49,13 @@ const LoginContainer = ({ isSupabaseConnected = true }: LoginContainerProps) => 
     clearError: clearEmailError
   } = useEmailLogin(language);
   
+  // Social login
+  const {
+    handleSocialLogin,
+    isSubmitting: isSocialSubmitting,
+    error: socialError
+  } = useSocialLogin(language);
+  
   // Phone login
   const {
     phone,
@@ -65,29 +72,34 @@ const LoginContainer = ({ isSupabaseConnected = true }: LoginContainerProps) => 
     error: phoneError
   } = usePhoneLogin(language);
   
-  // Social login
-  const {
-    handleSocialLogin,
-    isSubmitting: isSocialSubmitting,
-    socialError
-  } = useSocialLogin(language);
-  
   // Prepare login error message
   const loginError = emailError || phoneError || socialError;
   
   // Handle form submission for email login
-  const handleEmailFormSubmit = (e: React.FormEvent) => {
-    handleEmailSubmit(e, () => validateEmailPassword(email, password, forgotPassword));
+  const handleEmailFormSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (validateEmailPassword(email, password, forgotPassword)) {
+      await handleEmailSubmit(e, () => validateEmailPassword(email, password, forgotPassword));
+    }
+    return Promise.resolve();
   };
   
   // Handle form submission for phone login
-  const handlePhoneFormSubmit = (e: React.FormEvent) => {
-    handlePhoneSubmit(e, () => validatePhone(phone, verificationSent, verificationCode));
+  const handlePhoneFormSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (validatePhone(phone, verificationSent, verificationCode)) {
+      await handlePhoneSubmit(e, () => validatePhone(phone, verificationSent, verificationCode));
+    }
+    return Promise.resolve();
   };
   
   // Handle form submission for phone verification
-  const handleVerifyFormSubmit = (e: React.FormEvent) => {
-    handleVerifySubmit(e, () => validatePhone(phone, verificationSent, verificationCode));
+  const handleVerifyFormSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (validatePhone(phone, verificationSent, verificationCode)) {
+      await handleVerifySubmit(e, () => validatePhone(phone, verificationSent, verificationCode));
+    }
+    return Promise.resolve();
   };
   
   // Reset validation errors when tab changes
