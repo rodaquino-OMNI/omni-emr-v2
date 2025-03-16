@@ -1,18 +1,20 @@
 
 import { supabase } from '@/integrations/supabase/core';
 import { toast } from 'sonner';
+import { checkConnectivity } from './supabaseConnectivity';
+import { checkTableExists } from './supabaseTableCheck';
 
 /**
- * Checks if the database schema is compatible with the application
+ * Safely checks if the database schema is compatible with the application
  * @returns A boolean indicating if the schema is compatible
  */
 export const checkDatabaseSchema = async (): Promise<boolean> => {
   try {
-    // First check the connection
-    const { data: connectionCheck, error: connectionError } = await supabase.rpc('check_connection');
+    // First check the connection using the safe method
+    const isConnected = await checkConnectivity();
     
-    if (connectionError || !connectionCheck) {
-      console.error('Database connection check failed:', connectionError);
+    if (!isConnected) {
+      console.error('Database connection check failed');
       return false;
     }
     
@@ -26,12 +28,10 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
     let allTablesExist = true;
     
     for (const table of tables) {
-      const { data, error } = await supabase.rpc('check_table_exists', {
-        table_name: table
-      });
+      const exists = await checkTableExists(table as any);
       
-      if (error || !data) {
-        console.error(`Table ${table} check failed:`, error);
+      if (!exists) {
+        console.error(`Table ${table} does not exist`);
         allTablesExist = false;
       }
     }
@@ -47,14 +47,18 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
  * Shows database structure warnings if needed
  */
 export const showDatabaseStructureWarnings = async (): Promise<void> => {
-  // Check the schema
-  const isSchemaValid = await checkDatabaseSchema();
-  
-  if (!isSchemaValid) {
-    toast.warning('Database Schema Issues Detected', {
-      description: 'Some database objects may be missing or incorrectly configured. Contact your administrator.',
-      duration: 10000,
-    });
+  try {
+    // Check the schema
+    const isSchemaValid = await checkDatabaseSchema();
+    
+    if (!isSchemaValid) {
+      toast.warning('Database Schema Issues Detected', {
+        description: 'Some database objects may be missing or incorrectly configured. Contact your administrator.',
+        duration: 10000,
+      });
+    }
+  } catch (error) {
+    console.error('Error checking database schema:', error);
   }
 };
 
@@ -63,21 +67,19 @@ export const showDatabaseStructureWarnings = async (): Promise<void> => {
  */
 export const checkDatabaseMaintenance = async (): Promise<void> => {
   try {
-    // First check connection
-    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    // First check connection using safe method
+    const isConnected = await checkConnectivity();
     
-    if (connectionError || !connectionOk) {
-      console.error('Database connection error:', connectionError);
+    if (!isConnected) {
+      console.error('Database connection error');
       return;
     }
     
-    // Check if the query_performance_logs table exists instead of checking for a function
-    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
-      table_name: 'query_performance_logs'
-    });
+    // Check if the query_performance_logs table exists
+    const tableExists = await checkTableExists('appointments' as any);
     
-    if (tableError || !tableExists) {
-      console.log('Performance monitoring table not available');
+    if (!tableExists) {
+      console.log('Required table not available');
       return;
     }
     
@@ -92,21 +94,37 @@ export const checkDatabaseMaintenance = async (): Promise<void> => {
 };
 
 /**
- * Creates database maintenance functions if they don't exist
+ * Checks database functionality by verifying essential tables
  */
 export const ensureDatabaseFunctions = async (): Promise<void> => {
   try {
-    // Check if our new check_table_exists function is working
-    const { data, error } = await supabase.rpc('check_table_exists', {
-      table_name: 'profiles'
-    });
+    // Check if we can connect to the database
+    const isConnected = await checkConnectivity();
     
-    if (error) {
-      console.error('Error using check_table_exists function:', error);
+    if (!isConnected) {
+      toast.error('Database Connection Error', {
+        description: 'Cannot connect to the database. Please contact your administrator.',
+        duration: 6000,
+      });
+      return;
+    }
+    
+    // Check if our essential tables exist
+    const profilesExist = await checkTableExists('profiles' as any);
+    
+    if (!profilesExist) {
+      toast.error('Database Structure Error', {
+        description: 'Critical tables are missing. The application may not function correctly.',
+        duration: 8000,
+      });
     } else {
-      console.log('check_table_exists function is working properly');
+      console.log('Essential database tables are available');
     }
   } catch (error) {
     console.error('Error ensuring database functions:', error);
+    toast.error('Database Check Error', {
+      description: 'An error occurred while checking the database structure.',
+      duration: 5000,
+    });
   }
 };

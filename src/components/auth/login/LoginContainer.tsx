@@ -1,15 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import LoginCard from './LoginCard';
-import LoginHeader from './LoginHeader';
-import EmailLoginForm from './EmailLoginForm';
-import PhoneLoginForm from './PhoneLoginForm';
-import SocialLoginButtons from './SocialLoginButtons';
-import LanguageToggle from '../LanguageToggle';
+import LoginCard from '@/components/auth/login/LoginCard';
+import LoginHeader from '@/components/auth/login/LoginHeader';
+import EmailLoginForm from '@/components/auth/EmailLoginForm';
+import PhoneLoginForm from '@/components/auth/PhoneLoginForm';
+import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
+import LanguageToggle from '@/components/auth/LanguageToggle';
 import { useTranslation } from '@/hooks/useTranslation';
 import SupabaseConnectionStatus from '@/components/ui/SupabaseConnectionStatus';
+import { checkDatabaseSchema } from '@/utils/supabaseSchemaCheck';
 
 interface LoginContainerProps {
   t: ReturnType<typeof useTranslation>['t'];
@@ -33,7 +35,6 @@ const LoginContainer = ({
       try {
         // Only check schema if we have a connection
         if (isSupabaseConnected) {
-          const { checkDatabaseSchema } = await import('@/utils/supabaseSchemaCheck');
           const isSchemaValid = await checkDatabaseSchema();
           setShowSchemaWarning(!isSchemaValid);
         }
@@ -48,7 +49,11 @@ const LoginContainer = ({
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <LoginCard>
+      <LoginCard 
+        t={t} 
+        language={language} 
+        isSupabaseConnected={isSupabaseConnected}
+      >
         <LoginHeader 
           t={t} 
           language={language} 
@@ -108,7 +113,7 @@ const LoginContainer = ({
         </div>
         
         <div className="mt-4 flex justify-center">
-          <LanguageToggle />
+          <LanguageToggle language={language} setLanguage={() => {}} />
         </div>
       </LoginCard>
     </div>

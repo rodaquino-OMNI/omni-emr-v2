@@ -6,6 +6,7 @@ import LoginContainer from '@/components/auth/login/LoginContainer';
 import ApprovalPendingMessage from '@/components/auth/ApprovalPendingMessage';
 import { useTranslation } from '@/hooks/useTranslation';
 import { checkConnectivity } from '@/utils/supabaseConnectivity';
+import { toast } from 'sonner';
 
 const Login = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -14,14 +15,24 @@ const Login = () => {
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean | null>(null);
   
   useEffect(() => {
-    // Check Supabase connection
+    // Safely check Supabase connection
     const checkConnection = async () => {
       try {
         const isConnected = await checkConnectivity();
         setIsSupabaseConnected(isConnected);
+        
+        if (!isConnected) {
+          toast.error('Database Connection Error', {
+            description: 'Cannot connect to the database. Some features may not work properly.',
+          });
+        }
       } catch (error) {
         console.error('Error checking Supabase connection:', error);
         setIsSupabaseConnected(false);
+        
+        toast.error('Connection Check Failed', {
+          description: 'Could not verify database connection status.',
+        });
       }
     };
     

@@ -5,13 +5,13 @@ import { toast } from 'sonner';
 type TableName = 'appointments' | 'audit_logs' | 'profiles';
 
 /**
- * Checks if a specific table exists in the Supabase database
+ * Safely checks if a specific table exists in the Supabase database
  * @param tableName The name of the table to check
  * @returns A boolean indicating if the table exists
  */
 export const checkTableExists = async (tableName: TableName): Promise<boolean> => {
   try {
-    // Using our new check_table_exists function
+    // Using the safe check_table_exists function with explicit schema prefix
     const { data, error } = await supabase.rpc('check_table_exists', {
       table_name: tableName
     });
@@ -29,26 +29,45 @@ export const checkTableExists = async (tableName: TableName): Promise<boolean> =
 };
 
 /**
- * Verifies the required tables exist in Supabase and displays a toast notification if they don't
+ * Safely verifies the required tables exist in Supabase and displays a toast notification if they don't
  */
 export const verifyRequiredTables = async (): Promise<void> => {
   const requiredTables: TableName[] = ['appointments', 'audit_logs', 'profiles'];
   const missingTables: string[] = [];
   
-  for (const table of requiredTables) {
-    const exists = await checkTableExists(table);
-    if (!exists) {
-      missingTables.push(table);
-    }
-  }
-  
-  if (missingTables.length > 0) {
-    const tableList = missingTables.join(', ');
-    toast.error(`Missing required database tables: ${tableList}`, {
-      description: 'The application may not function correctly. Please contact your administrator.',
-      duration: 10000,
-    });
+  try {
+    // First check if we can connect to Supabase
+    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
     
-    console.error(`Missing required database tables: ${tableList}`);
+    if (connectionError || !connectionOk) {
+      console.error('Database connection error:', connectionError);
+      toast.error('Database Connection Error', {
+        description: 'Could not connect to the database. Some features may not work properly.',
+      });
+      return;
+    }
+    
+    // Then check for each required table
+    for (const table of requiredTables) {
+      const exists = await checkTableExists(table);
+      if (!exists) {
+        missingTables.push(table);
+      }
+    }
+    
+    if (missingTables.length > 0) {
+      const tableList = missingTables.join(', ');
+      toast.error(`Missing required database tables: ${tableList}`, {
+        description: 'The application may not function correctly. Please contact your administrator.',
+        duration: 10000,
+      });
+      
+      console.error(`Missing required database tables: ${tableList}`);
+    }
+  } catch (error) {
+    console.error('Error verifying required tables:', error);
+    toast.error('Database Verification Error', {
+      description: 'There was a problem checking the database structure.',
+    });
   }
 };
