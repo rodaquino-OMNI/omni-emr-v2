@@ -1,6 +1,7 @@
+
 import React, { useMemo } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { createDynamicRoutes } from './routes/index';
+import { routes, createDynamicRoutes } from './routes/index';
 import { ThemeProvider } from './components/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { LanguageProvider } from './context/LanguageContext';

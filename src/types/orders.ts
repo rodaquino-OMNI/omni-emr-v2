@@ -1,3 +1,4 @@
+
 export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'procedure' | 'consultation';
 export type OrderStatus = 'draft' | 'pending' | 'approved' | 'completed' | 'cancelled';
 export type OrderPriority = 'routine' | 'urgent' | 'stat';

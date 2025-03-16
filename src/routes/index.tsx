@@ -1,21 +1,22 @@
 
 import { RouteObject } from 'react-router-dom';
-import SectorSelector from '@/pages/SectorSelector';
-import Patients from '@/pages/Patients';
-import PatientDetail from '@/pages/PatientDetail';
 import ProtectedRoute from '@/components/auth/protected-route';
-import Dashboard from '@/pages/Dashboard';
-import Admin from '@/pages/Admin';
-import MedicationsPage from '@/pages/Medications';
-import MedicationDetail from '@/pages/MedicationDetail';
-import RecordsPage from '@/pages/Records';
-import RecordDetail from '@/pages/RecordDetail';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import PageNotFound from '@/pages/PageNotFound';
 import { lazy } from 'react';
+import { UserRole } from '@/types/auth';
 
-// Lazy-loaded routes
+// Import the components
+const SectorSelector = lazy(() => import('@/pages/SectorSelector'));
+const Patients = lazy(() => import('@/pages/Patients'));
+const PatientDetail = lazy(() => import('@/pages/PatientDetail'));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Admin = lazy(() => import('@/pages/Admin'));
+const MedicationsPage = lazy(() => import('@/pages/Medications'));
+const MedicationDetail = lazy(() => import('@/pages/MedicationDetail'));
+const RecordsPage = lazy(() => import('@/pages/Records'));
+const RecordDetail = lazy(() => import('@/pages/RecordDetail'));
+const Login = lazy(() => import('@/pages/Login'));
+const Register = lazy(() => import('@/pages/Register'));
+const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const Help = lazy(() => import('@/pages/Help'));
 const About = lazy(() => import('@/pages/About'));
@@ -108,5 +109,35 @@ export const routes: AppRoute[] = [
     title: 'Not Found'
   }
 ];
+
+// Create dynamic routes based on user role and permissions
+export const createDynamicRoutes = (
+  userRole?: UserRole, 
+  userPermissions: string[] = []
+): AppRoute[] => {
+  // Start with the base routes
+  const accessibleRoutes = [...routes];
+  
+  // Filter out routes that require specific roles if the user doesn't have them
+  return accessibleRoutes.filter(route => {
+    // If no required role is specified, or user is admin, allow access
+    if (!route.requiredRole || userRole === 'admin' || userRole === 'system_administrator') {
+      return true;
+    }
+    
+    // Check if user's role is in the required roles for this route
+    if (userRole && route.requiredRole.includes(userRole)) {
+      return true;
+    }
+    
+    // If user has 'all' permission, allow access
+    if (userPermissions.includes('all')) {
+      return true;
+    }
+    
+    // If none of the above conditions are met, deny access
+    return false;
+  });
+};
 
 export default routes;

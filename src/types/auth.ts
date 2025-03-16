@@ -1,4 +1,3 @@
-
 // User roles
 export type UserRole = 
   | 'admin'
@@ -21,7 +20,9 @@ export type UserRole =
   | 'specialist'
   | 'administrative'
   | 'caregiver'
-  | 'radiology_technician';
+  | 'radiology_technician'
+  | 'medical_staff'
+  | 'all';
 
 // User permissions
 export type Permission = string;

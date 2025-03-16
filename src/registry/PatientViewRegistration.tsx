@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { componentRegistry } from './RoleComponentRegistry';
+import { UserRole } from '@/types/auth';
 import { 
   DefaultPatientView,
   DoctorPatientView, 
@@ -18,7 +19,7 @@ export const registerPatientViews = () => {
   componentRegistry.register(
     'patientView',
     DoctorPatientView,
-    ['doctor', 'physician', 'specialist'],
+    ['doctor', 'physician', 'specialist'] as UserRole[],
     100
   );
   
@@ -26,7 +27,7 @@ export const registerPatientViews = () => {
   componentRegistry.register(
     'patientView',
     NursePatientView,
-    ['nurse'],
+    ['nurse'] as UserRole[],
     90
   );
   
@@ -34,7 +35,7 @@ export const registerPatientViews = () => {
   componentRegistry.register(
     'patientView',
     TechnicianPatientView,
-    ['lab_technician', 'radiology_technician', 'medical_assistant'],
+    ['lab_technician', 'radiology_technician', 'medical_assistant'] as UserRole[],
     80
   );
   
@@ -42,7 +43,7 @@ export const registerPatientViews = () => {
   componentRegistry.register(
     'patientView',
     MedicalStaffPatientView,
-    ['medical_staff', 'therapist', 'caregiver'],
+    ['medical_staff', 'therapist', 'caregiver'] as UserRole[],
     70
   );
   
@@ -50,7 +51,7 @@ export const registerPatientViews = () => {
   componentRegistry.register(
     'patientView',
     DefaultPatientView,
-    ['all'],
+    ['all'] as UserRole[],
     0
   );
 };

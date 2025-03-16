@@ -1,4 +1,3 @@
-
 export enum PatientStatus {
   Active = 'active',
   Discharged = 'discharged',
@@ -8,7 +7,6 @@ export enum PatientStatus {
   Critical = 'critical',
   Stable = 'stable',
   Unknown = 'unknown',
-  // Add these to fix type errors in components
   Hospital = 'hospital',
   Home = 'home',
   Improving = 'improving'
@@ -45,7 +43,6 @@ export interface Patient {
   emergency_contact_name?: string | null;
   emergency_contact_phone?: string | null;
   is_assigned?: boolean;
-  // Add name and age properties to fix component errors
   name?: string;
   age?: number;
 }
@@ -88,7 +85,6 @@ export interface MedicalHistoryEntry {
   notes?: string;
 }
 
-// Add missing types that are imported elsewhere
 export interface VitalSigns {
   id: string;
   patientId: string;
@@ -130,7 +126,6 @@ export interface Prescription {
   status: 'active' | 'completed' | 'cancelled';
 }
 
-// Helper function for patient status mapping
 export const mapToPatientStatus = (status: string): PatientStatus => {
   if (Object.values(PatientStatus).includes(status as PatientStatus)) {
     return status as PatientStatus;

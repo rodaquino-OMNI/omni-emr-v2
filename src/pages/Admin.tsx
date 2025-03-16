@@ -1,14 +1,13 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
-import { RolesList } from '@/components/admin/RolesList';
-import { RolePermissionMatrix } from '@/components/admin/RolePermissionMatrix';
-import { FunctionBlocksManager } from '@/components/admin/FunctionBlocksManager';
-import { PendingApprovalList } from '@/components/auth/PendingApprovalList';
+import RolesList from '@/components/admin/RolesList';
+import RolePermissionMatrix from '@/components/admin/RolePermissionMatrix';
+import FunctionBlocksManager from '@/components/admin/FunctionBlocksManager';
+import PendingApprovalList from '@/components/auth/PendingApprovalList';
 
 const AdminPage: React.FC = () => {
   const { language } = useTranslation();
