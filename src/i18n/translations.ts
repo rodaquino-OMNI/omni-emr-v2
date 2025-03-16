@@ -10,7 +10,8 @@ import { telemedicineTranslations } from './categories/telemedicine';
 import { vitalsTranslations } from './categories/vitals';
 import { medicalHistoryTranslations } from './categories/medicalHistory';
 import { usersTranslations } from './categories/users';
-import { validationsTranslations } from './categories/validations';
+// Fix: Import validationTranslations instead of validationsTranslations
+import { validationTranslations } from './categories/validations';
 import { hospitalTranslations } from './categories/hospital';
 import { emergencyTranslations } from './categories/emergency';
 
@@ -28,7 +29,7 @@ export const translations = {
     ...vitalsTranslations.en,
     ...medicalHistoryTranslations.en,
     ...usersTranslations.en,
-    ...validationsTranslations.en,
+    ...validationTranslations.en,
     ...hospitalTranslations.en,
     ...emergencyTranslations.en,
   },
@@ -44,7 +45,7 @@ export const translations = {
     ...vitalsTranslations.pt,
     ...medicalHistoryTranslations.pt,
     ...usersTranslations.pt,
-    ...validationsTranslations.pt,
+    ...validationTranslations.pt,
     ...hospitalTranslations.pt,
     ...emergencyTranslations.pt,
   }

@@ -1,13 +1,12 @@
 
 import { VitalType, VitalChartConfig } from "../types/vitalsTypes";
-import { TranslationKey } from "@/i18n/translations";
 
-export const getVitalChartConfig = (type: VitalType, t: (key: TranslationKey | string) => string): VitalChartConfig => {
+export const getVitalChartConfig = (type: VitalType, t: (key: string) => string): VitalChartConfig => {
   switch (type) {
     case 'heartRate':
       return {
-        label: t('heartRate' as TranslationKey),
-        unit: t('bpm' as TranslationKey),
+        label: t('heartRate'),
+        unit: t('bpm'),
         color: '#f43f5e',
         domain: [40, 160],
         normalRange: [60, 100],
@@ -16,8 +15,8 @@ export const getVitalChartConfig = (type: VitalType, t: (key: TranslationKey | s
       };
     case 'bloodPressure':
       return {
-        label: t('bloodPressure' as TranslationKey),
-        unit: t('mmHg' as TranslationKey),
+        label: t('bloodPressure'),
+        unit: t('mmHg'),
         color: '#0ea5e9',
         colorSecondary: '#6366f1',
         domain: [40, 200],
@@ -28,7 +27,7 @@ export const getVitalChartConfig = (type: VitalType, t: (key: TranslationKey | s
       };
     case 'temperature':
       return {
-        label: t('temperature' as TranslationKey),
+        label: t('temperature'),
         unit: '°C',
         color: '#f97316',
         domain: [35, 40],
@@ -38,7 +37,7 @@ export const getVitalChartConfig = (type: VitalType, t: (key: TranslationKey | s
       };
     case 'oxygenSaturation':
       return {
-        label: t('oxygenSaturation' as TranslationKey),
+        label: t('oxygenSaturation'),
         unit: '%',
         color: '#10b981',
         domain: [80, 100],
@@ -48,8 +47,8 @@ export const getVitalChartConfig = (type: VitalType, t: (key: TranslationKey | s
       };
     case 'respiratoryRate':
       return {
-        label: t('respiratoryRate' as TranslationKey),
-        unit: t('breathsPerMinute' as TranslationKey),
+        label: t('respiratoryRate'),
+        unit: t('breathsPerMinute'),
         color: '#9333ea',
         domain: [8, 40],
         normalRange: [12, 20],
@@ -58,7 +57,7 @@ export const getVitalChartConfig = (type: VitalType, t: (key: TranslationKey | s
       };
     case 'bloodGlucose':
       return {
-        label: t('bloodGlucose' as TranslationKey),
+        label: t('bloodGlucose'),
         unit: 'mg/dL',
         color: '#6366f1',
         domain: [40, 300],
@@ -68,7 +67,7 @@ export const getVitalChartConfig = (type: VitalType, t: (key: TranslationKey | s
       };
     case 'pain':
       return {
-        label: t('painLevel' as TranslationKey),
+        label: t('painLevel'),
         unit: '',
         color: '#ef4444',
         domain: [0, 10],

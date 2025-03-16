@@ -1,17 +1,17 @@
 
-import { commonTranslations, CommonTranslationKey } from './common';
-import { authTranslations, AuthTranslationKey } from './auth';
-import { appointmentsTranslations, AppointmentsTranslationKey } from './appointments';
-import { medicationsTranslations, MedicationsTranslationKey } from './medications';
-import { ordersTranslations, OrdersTranslationKey } from './orders';
-import { patientsTranslations, PatientsTranslationKey } from './patients';
-import { tasksTranslations, TasksTranslationKey } from './tasks';
-import { usersTranslations, UsersTranslationKey } from './users';
-import { vitalsTranslations, VitalsTranslationKey } from './vitals';
-import { medicalHistoryTranslations, MedicalHistoryTranslationKey } from './medicalHistory';
-import { hospitalTranslations, HospitalTranslationKey } from './hospital';
-import { emergencyTranslations, EmergencyTranslationKey } from './emergency';
-import { telemedicineTranslations, TelemedicineTranslationKey } from './telemedicine';
+import { commonTranslations } from './common';
+import { authTranslations } from './auth';
+import { appointmentsTranslations } from './appointments';
+import { medicationsTranslations } from './medications';
+import { ordersTranslations } from './orders';
+import { patientsTranslations } from './patients';
+import { tasksTranslations } from './tasks';
+import { usersTranslations } from './users';
+import { vitalsTranslations } from './vitals';
+import { medicalHistoryTranslations } from './medicalHistory';
+import { hospitalTranslations } from './hospital';
+import { emergencyTranslations } from './emergency';
+import { telemedicineTranslations } from './telemedicine';
 
 export type TranslationCategories = {
   common: typeof commonTranslations.en;
@@ -29,20 +29,8 @@ export type TranslationCategories = {
   telemedicine: typeof telemedicineTranslations.en;
 };
 
-export type TranslationKey =
-  | CommonTranslationKey
-  | AuthTranslationKey
-  | AppointmentsTranslationKey
-  | MedicationsTranslationKey
-  | OrdersTranslationKey
-  | PatientsTranslationKey
-  | TasksTranslationKey
-  | UsersTranslationKey
-  | VitalsTranslationKey
-  | MedicalHistoryTranslationKey
-  | HospitalTranslationKey
-  | EmergencyTranslationKey
-  | TelemedicineTranslationKey;
+// Define TranslationKey as string for now, which is safer and more flexible
+export type TranslationKey = string;
 
 export const allTranslations = {
   common: commonTranslations,

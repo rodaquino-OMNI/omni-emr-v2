@@ -21,7 +21,7 @@ interface LoginContainerProps {
 
 const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) => {
   const { t, language } = useTranslation();
-  const authLogin = useAuthLogin();
+  const { login, loginWithSocial } = useAuthLogin();
   
   // Form state
   const [email, setEmail] = useState<string>('');
@@ -41,7 +41,7 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
     setError('');
     
     try {
-      const result = await authLogin.login(email, password);
+      const result = await login(email, password);
       if (!result.success) {
         setError(result.error || t('loginFailed'));
       }
@@ -53,16 +53,31 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
     }
   };
   
+  // Handle send code for phone login
+  const handleSendCode = async () => {
+    // Implementation would go here
+    setShowPhoneVerification(true);
+  };
+  
   // Social logins
-  const handleGoogleLogin = () => authLogin.loginWithSocial('google');
-  const handleMicrosoftLogin = () => authLogin.loginWithSocial('azure');
+  const handleGoogleLogin = () => loginWithSocial('google');
+  const handleMicrosoftLogin = () => loginWithSocial('azure');
   
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-gradient-to-b from-background to-background/80">
       <div className="w-full max-w-md">
-        <LoginCard>
+        <LoginCard 
+          t={t} 
+          language={language} 
+          isSupabaseConnected={isSupabaseConnected}
+        >
           <div className="mb-8">
-            <LoginHeader />
+            <LoginHeader 
+              t={t} 
+              language={language} 
+              activeView={activeLoginMethod} 
+              setActiveView={setActiveLoginMethod}
+            />
             
             {!isSupabaseConnected && (
               <div className="mt-4 p-4 bg-destructive/10 rounded-lg">
@@ -99,7 +114,7 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
                 setEmail={setEmail}
                 password={password}
                 setPassword={setPassword}
-                handleLogin={handleEmailLogin}
+                handleSubmit={handleEmailLogin}
                 error={error}
                 isLoading={loading}
               />
@@ -109,8 +124,8 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
                 setPhone={setPhone}
                 verificationCode={verificationCode}
                 setVerificationCode={setVerificationCode}
-                handleSendCode={() => {}}
-                handleLogin={handleEmailLogin}
+                handleSendCode={handleSendCode}
+                handleSubmit={handleEmailLogin}
                 handleClearError={() => setError('')}
                 error={error}
                 isLoading={loading}
@@ -134,8 +149,9 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
               
               <div className="mt-6">
                 <SocialLoginButtons
-                  handleGoogleLogin={handleGoogleLogin}
-                  handleMicrosoftLogin={handleMicrosoftLogin}
+                  isSubmitting={loading}
+                  handleSocialLogin={handleGoogleLogin} 
+                  isSupabaseConnected={isSupabaseConnected}
                 />
               </div>
             </div>
@@ -148,7 +164,10 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
           
           {/* Language toggle */}
           <div className="mt-4 flex justify-center">
-            <LanguageToggle currentLanguage={language} />
+            <LanguageToggle 
+              language={language}
+              setLanguage={setLanguage}
+            />
           </div>
         </LoginCard>
       </div>

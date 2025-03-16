@@ -22,3 +22,9 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
     return false;
   }
 };
+
+/**
+ * Alias for checkSupabaseConnection for backward compatibility
+ */
+export const checkConnectivity = checkSupabaseConnection;
+
