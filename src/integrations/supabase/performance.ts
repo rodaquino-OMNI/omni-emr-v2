@@ -14,6 +14,14 @@ export const logSlowQuery = async (
   try {
     if (executionTime < thresholdMs) return;
     
+    // First check connection
+    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    
+    if (connectionError || !connectionOk) {
+      console.error('Database connection error:', connectionError);
+      return;
+    }
+    
     // Check if the table exists first using our safe function
     const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
       table_name: 'query_performance_logs'
@@ -42,6 +50,14 @@ export const logSlowQuery = async (
  */
 export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 50) => {
   try {
+    // First check connection
+    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    
+    if (connectionError || !connectionOk) {
+      console.error('Database connection error:', connectionError);
+      return [];
+    }
+    
     // Check if performance monitoring table exists using safe function
     const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
       table_name: 'query_performance_logs'
@@ -72,6 +88,14 @@ export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 5
  */
 export const getPerformanceStatistics = async (): Promise<any> => {
   try {
+    // First check connection
+    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    
+    if (connectionError || !connectionOk) {
+      console.error('Database connection error:', connectionError);
+      return null;
+    }
+    
     // Check if the view exists using safer function
     const { data: viewExists, error: viewError } = await supabase.rpc('check_table_exists', {
       table_name: 'performance_statistics'

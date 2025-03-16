@@ -1,34 +1,67 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, AlertCircle, Shield } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/core';
+import { AlertTriangle, AlertCircle, Shield, Plus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FHIRAllergiesListProps {
   patientId: string;
+  onAddAllergy?: () => void;
+  showAddButton?: boolean;
 }
 
-const FHIRAllergiesList = ({ patientId }: FHIRAllergiesListProps) => {
+const FHIRAllergiesList = ({ 
+  patientId, 
+  onAddAllergy,
+  showAddButton = true
+}: FHIRAllergiesListProps) => {
   const [loading, setLoading] = useState(true);
   const [allergies, setAllergies] = useState<any[]>([]);
+  const { language } = useTranslation();
 
   useEffect(() => {
     const fetchAllergies = async () => {
       try {
         setLoading(true);
         
-        // First try to fetch from FHIR-compliant allergy_intolerances table
-        const { data, error } = await supabase
-          .from('allergy_intolerances')
-          .select('*')
-          .eq('patient_id', patientId);
-          
-        if (error) throw error;
+        // First check connection
+        const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
         
-        if (data && data.length > 0) {
-          setAllergies(data);
-        } else {
+        if (connectionError || !connectionOk) {
+          console.error('Database connection error:', connectionError);
+          setAllergies([]);
+          return;
+        }
+        
+        // Check if the FHIR table exists
+        const { data: fhirTableExists, error: fhirTableError } = await supabase.rpc('check_table_exists', {
+          table_name: 'allergy_intolerances'
+        });
+        
+        if (!fhirTableError && fhirTableExists) {
+          // Try to fetch from FHIR-compliant allergy_intolerances table
+          const { data, error } = await supabase
+            .from('allergy_intolerances')
+            .select('*')
+            .eq('patient_id', patientId);
+            
+          if (error) throw error;
+          
+          if (data && data.length > 0) {
+            setAllergies(data);
+            return;
+          }
+        }
+        
+        // Check if the legacy table exists as fallback
+        const { data: legacyTableExists, error: legacyTableError } = await supabase.rpc('check_table_exists', {
+          table_name: 'allergies'
+        });
+        
+        if (!legacyTableError && legacyTableExists) {
           // Fallback to legacy allergies table
           const { data: legacyData, error: legacyError } = await supabase
             .from('allergies')
@@ -39,6 +72,8 @@ const FHIRAllergiesList = ({ patientId }: FHIRAllergiesListProps) => {
           if (legacyError) throw legacyError;
           
           setAllergies(legacyData || []);
+        } else {
+          setAllergies([]);
         }
       } catch (error) {
         console.error('Error fetching allergies:', error);
@@ -120,14 +155,14 @@ const FHIRAllergiesList = ({ patientId }: FHIRAllergiesListProps) => {
     const severityLower = severity.toLowerCase();
     
     if (severityLower.includes('severe') || severityLower.includes('high')) {
-      return 'bg-red-50 text-red-800 border-red-200';
+      return 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950/20 dark:text-red-300 dark:border-red-800';
     } else if (severityLower.includes('moderate') || severityLower.includes('medium')) {
-      return 'bg-amber-50 text-amber-800 border-amber-200';
+      return 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/20 dark:text-amber-300 dark:border-amber-800';
     } else if (severityLower.includes('mild') || severityLower.includes('low')) {
-      return 'bg-green-50 text-green-800 border-green-200';
+      return 'bg-green-50 text-green-800 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800';
     }
     
-    return 'bg-slate-50 text-slate-800 border-slate-200';
+    return 'bg-slate-50 text-slate-800 border-slate-200 dark:bg-slate-950/20 dark:text-slate-300 dark:border-slate-800';
   };
 
   if (loading) {
@@ -140,67 +175,85 @@ const FHIRAllergiesList = ({ patientId }: FHIRAllergiesListProps) => {
     );
   }
 
-  if (!allergies.length) {
-    return (
-      <Card>
-        <CardContent className="py-6">
-          <div className="flex flex-col items-center justify-center text-center p-4">
-            <Shield className="h-12 w-12 text-green-500 mb-2" />
-            <h3 className="text-lg font-medium">No Known Allergies</h3>
-            <p className="text-muted-foreground mt-1">No allergies have been recorded for this patient</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-amber-500" />
-          Allergies
-        </CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div className="space-y-1">
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            {language === 'pt' ? 'Alergias' : 'Allergies'}
+          </CardTitle>
+          {allergies.length > 0 && (
+            <CardDescription>
+              {language === 'pt' 
+                ? `${allergies.length} ${allergies.length === 1 ? 'alergia registrada' : 'alergias registradas'}`
+                : `${allergies.length} ${allergies.length === 1 ? 'allergy' : 'allergies'} recorded`}
+            </CardDescription>
+          )}
+        </div>
+        
+        {showAddButton && onAddAllergy && (
+          <Button size="sm" variant="outline" onClick={onAddAllergy} className="gap-1">
+            <Plus className="h-4 w-4" />
+            {language === 'pt' ? 'Adicionar' : 'Add'}
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {allergies.filter(isAllergyActive).map((allergy, index) => {
-            const allergenName = getAllergenName(allergy);
-            const { reaction, severity } = getReactionDetails(allergy);
-            
-            return (
-              <div 
-                key={index}
-                className={`p-4 rounded-md border ${getSeverityClass(severity)}`}
-              >
-                <div className="flex items-start gap-3">
-                  <AlertCircle className={`h-5 w-5 ${
-                    severity.toLowerCase().includes('severe') ? 'text-red-600' : 
-                    severity.toLowerCase().includes('moderate') ? 'text-amber-600' : 
-                    'text-blue-600'
-                  }`} />
-                  <div>
-                    <h3 className="font-medium">{allergenName}</h3>
-                    {reaction && (
-                      <p className="text-sm mt-1">Reaction: {reaction}</p>
-                    )}
-                    {severity && (
-                      <div className="mt-2">
-                        <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${
-                          severity.toLowerCase().includes('severe') ? 'bg-red-100 text-red-800' : 
-                          severity.toLowerCase().includes('moderate') ? 'bg-amber-100 text-amber-800' : 
-                          'bg-blue-100 text-blue-800'
-                        }`}>
-                          {severity}
-                        </span>
-                      </div>
-                    )}
+        {!allergies.length ? (
+          <div className="flex flex-col items-center justify-center text-center p-4">
+            <Shield className="h-12 w-12 text-green-500 mb-2" />
+            <h3 className="text-lg font-medium">
+              {language === 'pt' ? 'Sem Alergias Conhecidas' : 'No Known Allergies'}
+            </h3>
+            <p className="text-muted-foreground mt-1">
+              {language === 'pt' 
+                ? 'Nenhuma alergia foi registrada para este paciente'
+                : 'No allergies have been recorded for this patient'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {allergies.filter(isAllergyActive).map((allergy, index) => {
+              const allergenName = getAllergenName(allergy);
+              const { reaction, severity } = getReactionDetails(allergy);
+              
+              return (
+                <div 
+                  key={index}
+                  className={`p-4 rounded-md border ${getSeverityClass(severity)}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className={`h-5 w-5 ${
+                      severity.toLowerCase().includes('severe') ? 'text-red-600 dark:text-red-400' : 
+                      severity.toLowerCase().includes('moderate') ? 'text-amber-600 dark:text-amber-400' : 
+                      'text-blue-600 dark:text-blue-400'
+                    }`} />
+                    <div>
+                      <h3 className="font-medium">{allergenName}</h3>
+                      {reaction && (
+                        <p className="text-sm mt-1">
+                          {language === 'pt' ? 'Reação:' : 'Reaction:'} {reaction}
+                        </p>
+                      )}
+                      {severity && (
+                        <div className="mt-2">
+                          <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${
+                            severity.toLowerCase().includes('severe') ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' : 
+                            severity.toLowerCase().includes('moderate') ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 
+                            'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300'
+                          }`}>
+                            {severity}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

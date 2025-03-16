@@ -6,6 +6,14 @@ import { supabase } from './core';
  */
 export const refreshMaterializedView = async (viewName: string): Promise<boolean> => {
   try {
+    // First check connection
+    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    
+    if (connectionError || !connectionOk) {
+      console.error('Database connection error:', connectionError);
+      return false;
+    }
+    
     // First check if the materialized view exists
     const { data: viewExists, error: viewError } = await supabase.rpc('check_table_exists', {
       table_name: viewName
@@ -35,6 +43,14 @@ export const refreshMaterializedView = async (viewName: string): Promise<boolean
  */
 export const safeExecuteMaintenanceFunction = async (functionName: string, params: any = {}): Promise<any> => {
   try {
+    // First check connection
+    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    
+    if (connectionError || !connectionOk) {
+      console.error('Database connection error:', connectionError);
+      return null;
+    }
+    
     // Check if the function exists using our safe function
     const { data: functionExists, error: functionError } = await supabase.rpc('check_table_exists', {
       table_name: functionName
@@ -65,6 +81,14 @@ export const safeExecuteMaintenanceFunction = async (functionName: string, param
  */
 export const refreshAllMaterializedViews = async (): Promise<boolean> => {
   try {
+    // First check connection
+    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    
+    if (connectionError || !connectionOk) {
+      console.error('Database connection error:', connectionError);
+      return false;
+    }
+    
     // Since we can't directly query pg_matviews anymore, let's check specific views we know might exist
     const viewsToCheck = ['patient_latest_vitals', 'medication_interactions_summary'];
     let allSuccess = true;

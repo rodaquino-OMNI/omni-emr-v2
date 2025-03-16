@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { AlertCircle, CheckCircle, Languages, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { savePortugueseNameMapping } from '@/services/rxnorm/rxnormLanguageMapping';
 
 interface MedicineTranslationFormProps {
   rxnormCode?: string;
@@ -41,10 +41,10 @@ const MedicineTranslationForm: React.FC<MedicineTranslationFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!portugueseName) {
+    if (!portugueseName || !rxnormCode || !englishName) {
       toast.error(language === 'pt' 
-        ? 'Por favor, insira o nome em português' 
-        : 'Please enter the Portuguese name');
+        ? 'Por favor, preencha todos os campos obrigatórios' 
+        : 'Please fill in all required fields');
       return;
     }
     
@@ -52,19 +52,15 @@ const MedicineTranslationForm: React.FC<MedicineTranslationFormProps> = ({
     
     try {
       // Save to database
-      const { error } = await supabase
-        .from('rxnorm_portuguese_mappings')
-        .insert({
-          rxnorm_code: rxnormCode,
-          english_name: englishName,
-          portuguese_name: portugueseName,
-          anvisa_code: anvisaCode || null,
-          comments: notes,
-          is_verified: false, // Admin will verify later
-          created_by: (await supabase.auth.getUser()).data.user?.id
-        });
+      const success = await savePortugueseNameMapping(
+        rxnormCode,
+        englishName,
+        portugueseName,
+        anvisaCode,
+        notes
+      );
       
-      if (error) throw error;
+      if (!success) throw new Error('Failed to save translation');
       
       toast.success(
         language === 'pt' 

@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { RxNormMedication } from '@/types/rxnorm';
+import { toast } from 'sonner';
 
 /**
  * Types for mapping RxNorm (English) to Brazilian medication names
@@ -25,6 +26,16 @@ export const getPortugueseMedicationName = async (
   rxcui: string
 ): Promise<string | null> => {
   try {
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
+    if (tableError || !tableExists) {
+      console.log('Portuguese mappings table does not exist');
+      return null;
+    }
+    
     // Check if mapping exists in our database
     const { data: mapping, error } = await supabase
       .from('rxnorm_portuguese_mappings')
@@ -55,6 +66,16 @@ export const savePortugueseNameMapping = async (
   comments?: string
 ): Promise<boolean> => {
   try {
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
+    if (tableError || !tableExists) {
+      console.error('Portuguese mappings table does not exist');
+      return false;
+    }
+    
     // Get the user ID first, then use it in the insert operation
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id;
@@ -74,6 +95,10 @@ export const savePortugueseNameMapping = async (
       return false;
     }
     
+    toast.success('Portuguese translation saved successfully', {
+      description: 'The medication translation has been saved to the database.'
+    });
+    
     return true;
   } catch (error) {
     console.error('Error saving RxNorm-Portuguese mapping:', error);
@@ -86,6 +111,16 @@ export const savePortugueseNameMapping = async (
  */
 export const getAllPortugueseNameMappings = async (): Promise<MedicationNameMapping[]> => {
   try {
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
+    if (tableError || !tableExists) {
+      console.error('Portuguese mappings table does not exist');
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('rxnorm_portuguese_mappings')
       .select('*')
@@ -119,6 +154,16 @@ export const getAllPortugueseNameMappings = async (): Promise<MedicationNameMapp
  */
 export const verifyPortugueseNameMapping = async (mappingId: string): Promise<boolean> => {
   try {
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
+    if (tableError || !tableExists) {
+      console.error('Portuguese mappings table does not exist');
+      return false;
+    }
+    
     const { error } = await supabase
       .from('rxnorm_portuguese_mappings')
       .update({ 
@@ -132,6 +177,10 @@ export const verifyPortugueseNameMapping = async (mappingId: string): Promise<bo
       return false;
     }
     
+    toast.success('Translation verified successfully', {
+      description: 'This translation is now marked as verified.'
+    });
+    
     return true;
   } catch (error) {
     console.error('Error verifying Portuguese mapping:', error);
@@ -144,6 +193,16 @@ export const verifyPortugueseNameMapping = async (mappingId: string): Promise<bo
  */
 export const deletePortugueseNameMapping = async (mappingId: string): Promise<boolean> => {
   try {
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
+    if (tableError || !tableExists) {
+      console.error('Portuguese mappings table does not exist');
+      return false;
+    }
+    
     const { error } = await supabase
       .from('rxnorm_portuguese_mappings')
       .delete()
@@ -153,6 +212,8 @@ export const deletePortugueseNameMapping = async (mappingId: string): Promise<bo
       console.error('Error deleting mapping:', error);
       return false;
     }
+    
+    toast.success('Translation deleted successfully');
     
     return true;
   } catch (error) {
@@ -169,23 +230,30 @@ export const searchMedicationsByBilingualName = async (
   searchTerm: string
 ): Promise<RxNormMedication[]> => {
   try {
-    // First, check our Portuguese mappings
-    const { data: mappings, error: mappingError } = await supabase
-      .from('rxnorm_portuguese_mappings')
-      .select('rxnorm_code, english_name, portuguese_name')
-      .or(`portuguese_name.ilike.%${searchTerm}%,english_name.ilike.%${searchTerm}%`);
-      
-    if (mappingError) {
-      console.error('Error searching Portuguese mappings:', mappingError);
-    }
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
     
-    if (mappings && mappings.length > 0) {
-      // Return mapped medications
-      return mappings.map(mapping => ({
-        rxcui: mapping.rxnorm_code,
-        name: mapping.english_name,
-        portugueseName: mapping.portuguese_name
-      }));
+    // First, check our Portuguese mappings
+    if (!tableError && tableExists) {
+      const { data: mappings, error: mappingError } = await supabase
+        .from('rxnorm_portuguese_mappings')
+        .select('rxnorm_code, english_name, portuguese_name')
+        .or(`portuguese_name.ilike.%${searchTerm}%,english_name.ilike.%${searchTerm}%`);
+        
+      if (mappingError) {
+        console.error('Error searching Portuguese mappings:', mappingError);
+      }
+      
+      if (mappings && mappings.length > 0) {
+        // Return mapped medications
+        return mappings.map(mapping => ({
+          rxcui: mapping.rxnorm_code,
+          name: mapping.english_name,
+          portugueseName: mapping.portuguese_name
+        }));
+      }
     }
     
     // If no matches in our mappings, fall back to regular RxNorm search
@@ -207,18 +275,25 @@ export const getBilingualMedicationNames = async (
   rxcui: string
 ): Promise<{ english: string; portuguese: string | null }> => {
   try {
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
     // Check if we have a Portuguese mapping
-    const { data: mapping, error } = await supabase
-      .from('rxnorm_portuguese_mappings')
-      .select('english_name, portuguese_name')
-      .eq('rxnorm_code', rxcui)
-      .maybeSingle();
-      
-    if (mapping && !error) {
-      return {
-        english: mapping.english_name,
-        portuguese: mapping.portuguese_name
-      };
+    if (!tableError && tableExists) {
+      const { data: mapping, error } = await supabase
+        .from('rxnorm_portuguese_mappings')
+        .select('english_name, portuguese_name')
+        .eq('rxnorm_code', rxcui)
+        .maybeSingle();
+        
+      if (mapping && !error) {
+        return {
+          english: mapping.english_name,
+          portuguese: mapping.portuguese_name
+        };
+      }
     }
     
     // If no mapping, get just the English name
@@ -250,15 +325,24 @@ export const getBilingualMedicationSuggestions = async (
     const { getSpellingSuggestions } = await import('./rxnormSearch');
     const englishSuggestions = await getSpellingSuggestions(term);
     
+    // Check if the Portuguese mappings table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
+    let portugueseSuggestions: string[] = [];
+    
     // Get Portuguese suggestions from our mappings
-    const { data: mappings, error } = await supabase
-      .from('rxnorm_portuguese_mappings')
-      .select('portuguese_name')
-      .ilike('portuguese_name', `%${term}%`)
-      .limit(maxResults);
-      
-    const portugueseSuggestions = mappings ? 
-      mappings.map(m => m.portuguese_name) : [];
+    if (!tableError && tableExists) {
+      const { data: mappings, error } = await supabase
+        .from('rxnorm_portuguese_mappings')
+        .select('portuguese_name')
+        .ilike('portuguese_name', `%${term}%`)
+        .limit(maxResults);
+        
+      portugueseSuggestions = mappings ? 
+        mappings.map(m => m.portuguese_name) : [];
+    }
     
     return {
       englishSuggestions,
@@ -267,5 +351,35 @@ export const getBilingualMedicationSuggestions = async (
   } catch (error) {
     console.error('Error getting bilingual suggestions:', error);
     return { englishSuggestions: [], portugueseSuggestions: [] };
+  }
+};
+
+/**
+ * Get count of Portuguese translations
+ */
+export const getPortugueseTranslationsCount = async (): Promise<number> => {
+  try {
+    // Check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'rxnorm_portuguese_mappings'
+    });
+    
+    if (tableError || !tableExists) {
+      return 0;
+    }
+    
+    const { count, error } = await supabase
+      .from('rxnorm_portuguese_mappings')
+      .select('*', { count: 'exact', head: true });
+      
+    if (error) {
+      console.error('Error getting Portuguese translations count:', error);
+      return 0;
+    }
+    
+    return count || 0;
+  } catch (error) {
+    console.error('Error counting Portuguese translations:', error);
+    return 0;
   }
 };

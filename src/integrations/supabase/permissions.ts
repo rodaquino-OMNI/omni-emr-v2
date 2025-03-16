@@ -6,6 +6,14 @@ import { supabase } from './core';
  */
 export const userHasPermission = async (userId: string, permissionCode: string): Promise<boolean> => {
   try {
+    // First check if our database connection is working
+    const { data: connected, error: connectionError } = await supabase.rpc('check_connection');
+    
+    if (connectionError || !connected) {
+      console.error('Database connection error:', connectionError);
+      return false;
+    }
+    
     // Check if the function exists using our safe function
     const { data: functionExists, error: functionError } = await supabase.rpc('check_table_exists', {
       table_name: 'user_has_permission'
