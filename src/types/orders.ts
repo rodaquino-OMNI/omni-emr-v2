@@ -1,24 +1,23 @@
 
-export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'procedure' | 'consultation';
-export type OrderStatus = 'draft' | 'pending' | 'approved' | 'completed' | 'cancelled';
+export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'consultation' | 'procedure';
 export type OrderPriority = 'routine' | 'urgent' | 'stat';
+export type OrderStatus = 'pending' | 'in-progress' | 'completed' | 'cancelled' | 'on-hold';
 
 export interface Order {
   id: string;
   patientId: string;
-  providerId: string;
-  providerName: string;
-  type: OrderType;
-  status: OrderStatus;
-  createdAt: Date;
-  updatedAt: Date;
-  details: any;  // This varies based on order type
+  doctorId: string;
+  orderType: OrderType;
   priority: OrderPriority;
+  status: OrderStatus;
+  orderDate: string;
   notes?: string;
-  alerts?: any[]; // Added alerts field for order alerts
+  createdAt: string;
+  updatedAt?: string;
 }
 
-export interface MedicationOrderDetails {
+export interface MedicationOrder extends Order {
+  orderType: 'medication';
   medicationName: string;
   dosage: string;
   frequency: string;
@@ -26,92 +25,62 @@ export interface MedicationOrderDetails {
   duration?: string;
   instructions?: string;
   substitutionAllowed?: boolean;
-}
-
-export interface LaboratoryOrderDetails {
-  tests: string[];
-  frequency: string;
-  clinicalReason?: string;
-  specimenType?: string;
-  collectionInstructions?: string;
-}
-
-export interface RadiologyOrderDetails {
-  examType: string;
-  bodyPart: string;
-  contrast: boolean;
-  clinicalReason?: string;
-  patientPrep?: string;
-}
-
-export interface ProcedureOrderDetails {
-  procedureName: string;
-  location?: string;
-  scheduledTime?: Date;
-  preInstructions?: string;
-  postInstructions?: string;
-  equipmentNeeded?: string[];
-}
-
-export interface ConsultationOrderDetails {
-  specialtyType: string;
-  reason: string;
-  urgency: 'routine' | 'urgent' | 'stat';
-  additionalInfo?: string;
-}
-
-export interface NewOrderFormData {
-  patientId: string;
-  type: OrderType;
-  priority: OrderPriority;
-  details: any;
-  notes?: string;
-}
-
-// Order interfaces that match the form components
-export interface MedicationOrder extends Order {
-  details: MedicationOrderDetails;
-  medicationName?: string;
-  dosage?: string;
-  frequency?: string;
-  route?: string;
-  duration?: string;
-  instructions?: string;
-  substitutionAllowed?: boolean;
+  rxNormCode?: string;
 }
 
 export interface LaboratoryOrder extends Order {
-  details: LaboratoryOrderDetails;
-  tests?: string[];
-  frequency?: string;
-  clinicalReason?: string;
+  orderType: 'laboratory';
+  tests: string[];
+  frequency: string;
+  clinicalReason: string;
   specimenType?: string;
   collectionInstructions?: string;
 }
 
 export interface RadiologyOrder extends Order {
-  details: RadiologyOrderDetails;
-  examType?: string;
-  bodyPart?: string;
-  contrast?: boolean;
-  clinicalReason?: string;
+  orderType: 'radiology';
+  examType: string;
+  bodyPart: string;
+  contrast: boolean;
+  clinicalReason: string;
   patientPrep?: string;
 }
 
+export interface ConsultationOrder extends Order {
+  orderType: 'consultation';
+  specialtyType: string;
+  reason: string;
+  urgency: string;
+  additionalInfo?: string;
+}
+
 export interface ProcedureOrder extends Order {
-  details: ProcedureOrderDetails;
-  procedureName?: string;
-  location?: string;
-  scheduledTime?: Date;
+  orderType: 'procedure';
+  procedureName: string;
+  location: string;
+  scheduledTime?: string;
   preInstructions?: string;
   postInstructions?: string;
   equipmentNeeded?: string[];
 }
 
-export interface ConsultationOrder extends Order {
-  details: ConsultationOrderDetails;
-  specialtyType?: string;
-  reason?: string;
-  urgency?: 'routine' | 'urgent' | 'stat';
-  additionalInfo?: string;
+export interface PatientInsight {
+  id: string;
+  type: 'vital' | 'lab' | 'medication' | 'diagnosis' | 'warning' | 'info';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  title: string;
+  description: string;
+  date: string;
+  value?: number | string;
+  unit?: string;
+  reference?: {
+    low?: number;
+    high?: number;
+    normal?: number | string;
+  };
+  trend?: 'up' | 'down' | 'stable';
+  relatedItems?: string[];
+  actionRequired?: boolean;
+  actionText?: string;
+  actionLink?: string;
 }

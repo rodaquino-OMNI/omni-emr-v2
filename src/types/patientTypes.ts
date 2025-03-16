@@ -33,6 +33,11 @@ export interface Patient {
   status: PatientStatus;
   blood_type: BloodType;
   is_assigned?: boolean;
+  name?: string;
+  room_number?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  age?: number;
 }
 
 export interface PatientVital {
@@ -103,3 +108,80 @@ export interface InitialFilterOptions {
   careTeam?: string;
   searchTerm?: string;
 }
+
+export interface MedicalHistoryEntry {
+  id: string;
+  patient_id: string;
+  title: string;
+  start_date?: string;
+  end_date?: string;
+  notes?: string;
+  type: string;
+  provider_id?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface Allergy {
+  id: string;
+  patient_id: string;
+  allergen: string;
+  reaction?: string;
+  severity: string;
+  status: string;
+  onset_date?: string;
+  recorded_date: string;
+  recorder_id?: string;
+  notes?: string;
+}
+
+export interface Prescription {
+  id: string;
+  patient_id: string;
+  provider_id: string;
+  status: string;
+  created_at: string;
+  updated_at?: string;
+  notes?: string;
+  items?: PrescriptionItem[];
+}
+
+export interface PrescriptionItem {
+  id: string;
+  prescription_id: string;
+  name: string;
+  type: string;
+  dosage?: string;
+  frequency?: string;
+  duration?: string;
+  start_date?: string;
+  end_date?: string;
+  instructions?: string;
+  status: string;
+}
+
+// Helper function to map string to PatientStatus
+export const mapToPatientStatus = (status: string): PatientStatus => {
+  const normalizedStatus = status.toLowerCase();
+  
+  switch (normalizedStatus) {
+    case 'active':
+      return PatientStatus.ACTIVE;
+    case 'inactive':
+      return PatientStatus.INACTIVE;
+    case 'discharged':
+      return PatientStatus.DISCHARGED;
+    case 'critical':
+      return PatientStatus.CRITICAL;
+    case 'stable':
+      return PatientStatus.STABLE;
+    case 'hospital':
+      return PatientStatus.HOSPITAL;
+    case 'home':
+      return PatientStatus.HOME;
+    case 'improving':
+      return PatientStatus.IMPROVING;
+    default:
+      return PatientStatus.ACTIVE;
+  }
+};

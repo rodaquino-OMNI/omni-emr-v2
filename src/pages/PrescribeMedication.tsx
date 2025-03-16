@@ -1,848 +1,985 @@
 
 import React, { useState, useEffect } from 'react';
-import { toast } from '@/hooks/use-toast';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from '@/components/ui/calendar';
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from '@/hooks/use-toast';
+import { CheckCircle, PlusCircle, Trash2, Info, AlertTriangle, AlertCircle, Search, RotateCcw, Calculator } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
-import { PrescriptionItem, createPrescription } from '../services/prescriptionService';
-import { ArrowLeft, Save, Pill, AlertTriangle, Plus, Trash2, Search } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { PrescriptionItem } from '@/types/patientTypes';
+import { RxNormMedicationSelector } from '@/components/medications/RxNormMedicationSelector';
+import { MedicationAutocomplete } from '@/components/medications/MedicationAutocomplete';
+import { useMedicationSafety } from '@/hooks/useMedicationSafety';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { checkMedicationAllergies, checkDrugInteractions } from '@/services/prescriptionService';
 
-type PrescriptionFormState = {
-  patientId: string;
-  patientName: string;
-  notes: string;
-  items: PrescriptionItem[];
-};
+interface CurrentItem extends PrescriptionItem {
+  isNew?: boolean;
+  details?: any;
+}
 
-type CurrentItem = Omit<PrescriptionItem, 'id' | 'status'> & { index?: number };
+interface FrequencyOption {
+  value: string;
+  label: string;
+  timesPerDay: number;
+}
 
-const PrescribeMedicationPage = () => {
+interface RouteOption {
+  value: string;
+  label: string;
+  bioavailability?: number;
+}
+
+const PrescribeMedication = () => {
   const { patientId } = useParams<{ patientId: string }>();
-  const navigate = useNavigate();
   const { language } = useTranslation();
   const { user } = useAuth();
-  
-  const canPrescribe = user?.role === 'doctor' || user?.role === 'admin' || 
-                      (user?.permissions && user.permissions.includes('prescribe_medications'));
-  
-  const [prescriptionData, setPrescriptionData] = useState<PrescriptionFormState>({
-    patientId: patientId || '',
-    patientName: '',
-    notes: '',
-    items: []
-  });
-  
+  const navigate = useNavigate();
+
+  const [patientName, setPatientName] = useState('');
+  const [items, setItems] = useState<CurrentItem[]>([]);
   const [currentItem, setCurrentItem] = useState<CurrentItem>({
+    id: '',
+    prescription_id: '',
     name: '',
     type: 'medication',
-    details: '',
+    status: 'pending',
     dosage: '',
     frequency: '',
-    duration: '',
-    startDate: '',
-    endDate: '',
-    instructions: ''
+    duration: '7 days',
+    instructions: '',
+    details: {}
   });
+  const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRxNormModalOpen, setIsRxNormModalOpen] = useState(false);
+  const [isDoseCalculatorOpen, setIsDoseCalculatorOpen] = useState(false);
+  const [patientWeight, setPatientWeight] = useState<number | null>(null);
+  const [patientAgeMos, setPatientAgeMos] = useState<number | null>(null);
+  
+  // Medication safety check related states
+  const [allergyCheckResult, setAllergyCheckResult] = useState<any[]>([]);
+  const [interactionCheckResult, setInteractionCheckResult] = useState<any[]>([]);
+  const [isAllergyChecking, setIsAllergyChecking] = useState(false);
+  const [isInteractionChecking, setIsInteractionChecking] = useState(false);
+  const [showSafetyWarning, setShowSafetyWarning] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [showSearch, setShowSearch] = useState(false);
-  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  
-  const [activeTab, setActiveTab] = useState<string>('medication');
-  
+  const { performSafetyCheck, allergies, isLoadingAllergies, markAllergiesReviewed } = 
+    useMedicationSafety(patientId || '');
+
+  // Frequency options
+  const frequencyOptions: FrequencyOption[] = [
+    { value: 'once_daily', label: language === 'pt' ? 'Uma vez ao dia' : 'Once daily', timesPerDay: 1 },
+    { value: 'twice_daily', label: language === 'pt' ? 'Duas vezes ao dia' : 'Twice daily', timesPerDay: 2 },
+    { value: 'three_times_daily', label: language === 'pt' ? 'Três vezes ao dia' : 'Three times daily', timesPerDay: 3 },
+    { value: 'four_times_daily', label: language === 'pt' ? 'Quatro vezes ao dia' : 'Four times daily', timesPerDay: 4 },
+    { value: 'every_morning', label: language === 'pt' ? 'Toda manhã' : 'Every morning', timesPerDay: 1 },
+    { value: 'every_night', label: language === 'pt' ? 'Toda noite' : 'Every night at bedtime', timesPerDay: 1 },
+    { value: 'every_other_day', label: language === 'pt' ? 'Dia sim, dia não' : 'Every other day', timesPerDay: 0.5 },
+    { value: 'as_needed', label: language === 'pt' ? 'Conforme necessário' : 'As needed (PRN)', timesPerDay: 0 },
+    { value: 'weekly', label: language === 'pt' ? 'Semanalmente' : 'Weekly', timesPerDay: 1/7 },
+    { value: 'monthly', label: language === 'pt' ? 'Mensalmente' : 'Monthly', timesPerDay: 1/30 }
+  ];
+
+  // Route options
+  const routeOptions: RouteOption[] = [
+    { value: 'oral', label: language === 'pt' ? 'Via oral' : 'Oral', bioavailability: 1 },
+    { value: 'iv', label: language === 'pt' ? 'Intravenoso' : 'Intravenous', bioavailability: 1 },
+    { value: 'im', label: language === 'pt' ? 'Intramuscular' : 'Intramuscular', bioavailability: 0.9 },
+    { value: 'sc', label: language === 'pt' ? 'Subcutâneo' : 'Subcutaneous', bioavailability: 0.8 },
+    { value: 'topical', label: language === 'pt' ? 'Tópico' : 'Topical', bioavailability: 0.1 },
+    { value: 'rectal', label: language === 'pt' ? 'Retal' : 'Rectal', bioavailability: 0.7 },
+    { value: 'nasal', label: language === 'pt' ? 'Nasal' : 'Nasal', bioavailability: 0.5 },
+    { value: 'inhalation', label: language === 'pt' ? 'Inalação' : 'Inhalation', bioavailability: 0.6 },
+    { value: 'sublingual', label: language === 'pt' ? 'Sublingual' : 'Sublingual', bioavailability: 0.9 },
+    { value: 'ophthalmic', label: language === 'pt' ? 'Oftálmico' : 'Ophthalmic', bioavailability: 0.3 }
+  ];
+
   useEffect(() => {
     if (patientId) {
-      setPrescriptionData(prev => ({
-        ...prev,
-        patientId,
-        patientName: `Patient ${patientId}`
-      }));
+      fetchPatientData();
     }
   }, [patientId]);
-  
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setCurrentItem(prev => ({
-      ...prev,
-      type: value as PrescriptionItem['type'],
-      dosage: value === 'medication' ? prev.dosage : '',
-      frequency: ['medication', 'procedure'].includes(value) ? prev.frequency : '',
-      duration: ['medication', 'procedure'].includes(value) ? prev.duration : ''
-    }));
-  };
-  
-  const handlePrescriptionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setPrescriptionData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    
-    if (name === 'name' && value.length >= 3 && currentItem.type === 'medication') {
-      searchMedications(value);
-    }
-    
-    setCurrentItem(prev => ({ ...prev, [name]: value }));
-  };
 
-  const searchMedications = (term: string) => {
-    const mockResults = [
-      { id: 1, name: 'Acetaminophen 500mg Tablet', generic: 'Acetaminophen', rxnorm: '198440' },
-      { id: 2, name: 'Ibuprofen 400mg Tablet', generic: 'Ibuprofen', rxnorm: '310965' },
-      { id: 3, name: 'Amoxicillin 500mg Capsule', generic: 'Amoxicillin', rxnorm: '308182' },
-      { id: 4, name: 'Lisinopril 10mg Tablet', generic: 'Lisinopril', rxnorm: '314076' },
-      { id: 5, name: 'Atorvastatin 20mg Tablet', generic: 'Atorvastatin', rxnorm: '259255' },
-      { id: 6, name: 'Metformin 500mg Tablet', generic: 'Metformin', rxnorm: '861007' },
-      { id: 7, name: 'Sertraline 50mg Tablet', generic: 'Sertraline', rxnorm: '312940' },
-      { id: 8, name: 'Albuterol 90mcg Inhaler', generic: 'Albuterol', rxnorm: '801095' }
-    ].filter(med => 
-      med.name.toLowerCase().includes(term.toLowerCase()) || 
-      med.generic.toLowerCase().includes(term.toLowerCase())
-    );
-    
-    setSearchResults(mockResults);
-    setShowSearch(term.length > 1);
-  };
-  
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    
-    if (term.length > 1) {
-      searchMedications(term);
-    } else {
-      setSearchResults([]);
-      setShowSearch(false);
-    }
-  };
-  
-  const selectMedication = (medication: any) => {
-    setCurrentItem(prev => ({
-      ...prev,
-      name: medication.name,
-      rxnormCode: medication.rxnorm,
-      fhirMedication: {
-        coding: [{
-          system: "http://www.nlm.nih.gov/research/umls/rxnorm",
-          code: medication.rxnorm,
-          display: medication.name
-        }],
-        text: medication.name
-      }
-    }));
-    setSearchTerm(medication.name);
-    setShowSearch(false);
-  };
-  
-  const handleAddItem = () => {
-    if (!currentItem.name) {
-      toast({
-        title: "Item name is required",
-        description: "Please enter a name for the item."
-      });
-      return;
-    }
-    
-    const newItem: PrescriptionItem = {
-      id: currentItem.index !== undefined ? prescriptionData.items[currentItem.index].id : crypto.randomUUID(),
-      name: currentItem.name,
-      type: currentItem.type,
-      details: currentItem.details || undefined,
-      dosage: currentItem.dosage || undefined,
-      frequency: currentItem.frequency || undefined,
-      duration: currentItem.duration || undefined,
-      startDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
-      endDate: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
-      instructions: currentItem.instructions || undefined,
-      status: 'pending'
-    };
-    
-    if (currentItem.index !== undefined) {
-      const updatedItems = [...prescriptionData.items];
-      updatedItems[currentItem.index] = newItem;
-      setPrescriptionData(prev => ({ ...prev, items: updatedItems }));
-    } else {
-      setPrescriptionData(prev => ({ 
-        ...prev, 
-        items: [...prev.items, newItem] 
-      }));
-    }
-    
-    setCurrentItem({
-      name: '',
-      type: activeTab as PrescriptionItem['type'],
-      details: '',
-      dosage: '',
-      frequency: '',
-      duration: '',
-      startDate: '',
-      endDate: '',
-      instructions: ''
-    });
-    
-    setStartDate(new Date());
-    setEndDate(undefined);
-    
-    toast({
-      title: `${newItem.name} added to prescription`,
-      description: "The item has been successfully added to the prescription."
-    });
-  };
-  
-  const handleEditItem = (index: number) => {
-    const item = prescriptionData.items[index];
-    setActiveTab(item.type);
-    setCurrentItem({
-      name: item.name,
-      type: item.type,
-      details: item.details || '',
-      dosage: item.dosage || '',
-      frequency: item.frequency || '',
-      duration: item.duration || '',
-      startDate: item.startDate || '',
-      endDate: item.endDate || '',
-      instructions: item.instructions || '',
-      index
-    });
-    
-    if (item.startDate) {
-      setStartDate(new Date(item.startDate));
-    }
-    
-    if (item.endDate) {
-      setEndDate(new Date(item.endDate));
-    }
-  };
-  
-  const handleRemoveItem = (index: number) => {
-    const updatedItems = [...prescriptionData.items];
-    updatedItems.splice(index, 1);
-    setPrescriptionData(prev => ({ ...prev, items: updatedItems }));
-    
-    toast({
-      title: "Item removed",
-      description: "The item has been removed from the prescription."
-    });
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!canPrescribe) {
-      toast({
-        title: "Permission Denied",
-        description: "You don't have permission to prescribe medications.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (prescriptionData.items.length === 0) {
-      toast({
-        title: "No Items",
-        description: "Please add at least one item to the prescription.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+  const fetchPatientData = async () => {
     try {
-      await createPrescription({
-        patientId: prescriptionData.patientId,
-        patientName: prescriptionData.patientName,
-        doctorId: user?.id || '',
-        doctorName: user?.name || '',
-        date: new Date().toISOString(),
-        items: prescriptionData.items,
-        status: 'active',
-        notes: prescriptionData.notes
-      }, user!);
-      
-      toast({
-        title: "Prescription created successfully",
-        description: "The prescription has been successfully created.",
-        variant: "success"
-      });
-      
-      if (patientId) {
-        navigate(`/patients/${patientId}`);
-      } else {
-        navigate('/prescriptions');
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patientId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setPatientName(`${data.first_name} ${data.last_name}`);
+        
+        // Calculate age in months for pediatric dose calculations
+        if (data.date_of_birth) {
+          const birthDate = new Date(data.date_of_birth);
+          const today = new Date();
+          const ageInMonths = 
+            (today.getFullYear() - birthDate.getFullYear()) * 12 + 
+            (today.getMonth() - birthDate.getMonth());
+          setPatientAgeMos(ageInMonths);
+        }
+      }
+
+      // Fetch weight from vital signs
+      const { data: vitalData, error: vitalError } = await supabase
+        .from('vital_signs')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('timestamp', { ascending: false })
+        .limit(1);
+
+      if (vitalError) throw vitalError;
+
+      if (vitalData && vitalData.length > 0 && vitalData[0].weight) {
+        setPatientWeight(vitalData[0].weight);
       }
     } catch (error) {
-      console.error("Error creating prescription:", error);
-      toast({
-        title: "Failed to create prescription",
-        description: "Failed to create the prescription.",
-        variant: "destructive"
-      });
+      console.error('Error fetching patient data:', error);
     }
   };
-  
-  if (!canPrescribe) {
-    return (
-      <div className="min-h-screen flex bg-background">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
-          <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
-            <div className="max-w-6xl mx-auto w-full">
-              <div className="mb-6">
-                <Button 
-                  variant="ghost"
-                  onClick={() => navigate(-1)}
-                  className="mb-2"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  {language === 'pt' ? 'Voltar' : 'Back'}
-                </Button>
-                <h1 className="text-2xl font-semibold">No Permission</h1>
-              </div>
-              
-              <div className="glass-card p-6">
-                <div className="text-center p-4">
-                  <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
-                  <h2 className="text-xl font-semibold mb-2">Permission Denied</h2>
-                  <p className="text-muted-foreground mb-4">
-                    You don't have permission to prescribe medications.
-                  </p>
-                  <Button onClick={() => navigate(-1)}>
-                    Go Back
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
+
+  const handleAddItem = () => {
+    if (!currentItem.name || !currentItem.dosage || !currentItem.frequency) {
+      toast({
+        title: language === 'pt' ? 'Campos obrigatórios' : 'Required fields',
+        description: language === 'pt' 
+          ? 'Nome do medicamento, dosagem e frequência são obrigatórios' 
+          : 'Medication name, dosage and frequency are required',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Perform safety check
+    if (currentItem.name) {
+      const safetyCheck = performSafetyCheck(currentItem.name);
+      
+      if (!safetyCheck.hasPassed) {
+        setShowSafetyWarning(true);
+        // Continue anyway, but show warning
+      }
+    }
+
+    const newItem: CurrentItem = {
+      ...currentItem,
+      id: `temp-${Date.now()}`,
+      isNew: true
+    };
+
+    setItems([...items, newItem]);
+    resetCurrentItem();
+  };
+
+  const handleUpdateItem = () => {
+    if (!currentItem.id) return;
+
+    const updatedItems = items.map(item => 
+      item.id === currentItem.id ? { ...item, ...currentItem } : item
     );
-  }
-  
+
+    setItems(updatedItems);
+    resetCurrentItem();
+  };
+
+  const handleEditItem = (item: CurrentItem) => {
+    setCurrentItem(item);
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
+  };
+
+  const resetCurrentItem = () => {
+    setCurrentItem({
+      id: '',
+      prescription_id: '',
+      name: '',
+      type: 'medication',
+      status: 'pending',
+      dosage: '',
+      frequency: '',
+      duration: '7 days',
+      instructions: '',
+      details: {}
+    });
+    setShowSafetyWarning(false);
+  };
+
+  const handleSubmit = async () => {
+    if (items.length === 0) {
+      toast({
+        title: language === 'pt' ? 'Nenhum medicamento adicionado' : 'No medications added',
+        description: language === 'pt' 
+          ? 'Adicione pelo menos um medicamento à prescrição' 
+          : 'Add at least one medication to the prescription',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Create prescription
+      const { data: prescriptionData, error: prescriptionError } = await supabase
+        .from('prescriptions')
+        .insert({
+          patient_id: patientId,
+          provider_id: user?.id,
+          status: 'active',
+          notes: notes || null,
+          created_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single();
+
+      if (prescriptionError) throw prescriptionError;
+      
+      const prescriptionId = prescriptionData.id;
+      
+      // Insert prescription items
+      const prescriptionItems = items.map(item => ({
+        prescription_id: prescriptionId,
+        name: item.name,
+        type: item.type,
+        dosage: item.dosage || null,
+        frequency: item.frequency || null,
+        duration: item.duration || null,
+        start_date: new Date().toISOString(),
+        end_date: null,
+        status: item.status,
+        instructions: item.instructions || null,
+        details: item.details || null
+      }));
+      
+      const { error: itemsError } = await supabase
+        .from('prescription_items')
+        .insert(prescriptionItems);
+        
+      if (itemsError) throw itemsError;
+      
+      // Success!
+      toast({
+        title: language === 'pt' ? 'Prescrição criada' : 'Prescription created',
+        description: language === 'pt' 
+          ? 'Prescrição criada com sucesso' 
+          : 'Prescription successfully created',
+        variant: 'success'
+      });
+
+      // Redirect to patient page
+      navigate(`/patients/${patientId}`);
+    } catch (error) {
+      console.error('Error creating prescription:', error);
+      toast({
+        title: language === 'pt' ? 'Erro ao criar prescrição' : 'Error creating prescription',
+        description: language === 'pt' 
+          ? 'Ocorreu um erro ao criar a prescrição' 
+          : 'An error occurred while creating the prescription',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRxNormSelect = (medication: any) => {
+    setCurrentItem({
+      ...currentItem,
+      name: medication.name,
+      details: {
+        ...medication,
+        rxcui: medication.rxnormCode,
+        portugueseName: medication.portugueseName
+      }
+    });
+    setIsRxNormModalOpen(false);
+
+    // After selecting a medication, check for allergies and interactions
+    checkForAllergies(medication.name);
+    if (items.length > 0) {
+      checkForInteractions([
+        ...items.map(item => item.details?.rxcui).filter(Boolean),
+        medication.rxnormCode
+      ].filter(Boolean));
+    }
+  };
+
+  const handleMedicationAutocompleteSelect = (medication: any) => {
+    setCurrentItem({
+      ...currentItem,
+      name: medication.name,
+      details: {
+        ...medication,
+        rxcui: medication.rxcui
+      }
+    });
+
+    // After selecting a medication, check for allergies and interactions
+    checkForAllergies(medication.name);
+    if (items.length > 0) {
+      checkForInteractions([
+        ...items.map(item => item.details?.rxcui).filter(Boolean),
+        medication.rxcui
+      ].filter(Boolean));
+    }
+  };
+
+  const checkForAllergies = async (medicationName: string) => {
+    if (!patientId || !medicationName) return;
+    
+    setIsAllergyChecking(true);
+    try {
+      const result = await checkMedicationAllergies(patientId, medicationName);
+      setAllergyCheckResult(result);
+      
+      if (result.length > 0) {
+        toast({
+          title: language === 'pt' ? 'Alerta de alergia' : 'Allergy Alert',
+          description: language === 'pt'
+            ? `Possível alergia detectada para ${medicationName}`
+            : `Possible allergy detected for ${medicationName}`,
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error checking allergies:', error);
+    } finally {
+      setIsAllergyChecking(false);
+    }
+  };
+
+  const checkForInteractions = async (rxcuiList: string[]) => {
+    if (!rxcuiList || rxcuiList.length < 2) return;
+    
+    setIsInteractionChecking(true);
+    try {
+      const result = await checkDrugInteractions(rxcuiList);
+      setInteractionCheckResult(result);
+      
+      if (result.length > 0) {
+        toast({
+          title: language === 'pt' ? 'Alerta de interação' : 'Interaction Alert',
+          description: language === 'pt'
+            ? `${result.length} interações medicamentosas detectadas`
+            : `${result.length} drug interactions detected`,
+          variant: 'warning'
+        });
+      }
+    } catch (error) {
+      console.error('Error checking interactions:', error);
+    } finally {
+      setIsInteractionChecking(false);
+    }
+  };
+
+  const calculatePediatricDose = () => {
+    if (!patientWeight || !currentItem.details?.rxcui) {
+      toast({
+        title: language === 'pt' ? 'Dados insuficientes' : 'Insufficient Data',
+        description: language === 'pt'
+          ? 'Peso do paciente ou informações do medicamento faltando'
+          : 'Patient weight or medication information missing',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // This would be replaced with a call to a medication dosing API or database
+    // Here we're using a simple calculation as an example
+    const medication = currentItem.name;
+    
+    // Extract the base dosage from the current medication name
+    // This is just a simplified example - in a real app you'd use an API
+    let baseDosage = 0;
+    let unit = 'mg';
+    const doseMatch = medication.match(/(\d+)\s*([a-zA-Z]+)/);
+    
+    if (doseMatch) {
+      baseDosage = parseInt(doseMatch[1]);
+      unit = doseMatch[2];
+    } else {
+      // Default values based on common medications for demo purposes
+      if (medication.toLowerCase().includes('amoxicillin')) {
+        baseDosage = 50; // 50 mg/kg/day
+        unit = 'mg';
+      } else if (medication.toLowerCase().includes('ibuprofen')) {
+        baseDosage = 10; // 10 mg/kg/dose
+        unit = 'mg';
+      } else if (medication.toLowerCase().includes('acetaminophen')) {
+        baseDosage = 15; // 15 mg/kg/dose
+        unit = 'mg';
+      } else {
+        baseDosage = 5; // Generic example
+        unit = 'mg';
+      }
+    }
+
+    // Calculate dosage
+    const calculatedDose = Math.round(baseDosage * patientWeight);
+    const selectedFrequency = frequencyOptions.find(f => f.value === currentItem.frequency);
+    const timesPerDay = selectedFrequency?.timesPerDay || 1;
+    
+    const dosePerTime = timesPerDay > 0 ? Math.round(calculatedDose / timesPerDay) : calculatedDose;
+    
+    // Set calculated dosage
+    setCurrentItem({
+      ...currentItem,
+      dosage: `${dosePerTime} ${unit}`
+    });
+    
+    toast({
+      title: language === 'pt' ? 'Dose calculada' : 'Dose Calculated',
+      description: `${dosePerTime} ${unit} ${selectedFrequency ? `per dose (${calculatedDose} ${unit}/day)` : ''}`,
+      variant: 'success'
+    });
+    
+    setIsDoseCalculatorOpen(false);
+  };
+
+  const getSelectedFrequencyLabel = (value: string) => {
+    const option = frequencyOptions.find(f => f.value === value);
+    return option ? option.label : value;
+  };
+
+  const getSelectedRouteLabel = (value: string) => {
+    const option = routeOptions.find(r => r.value === value);
+    return option ? option.label : value;
+  };
+
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
-          <div className="max-w-6xl mx-auto w-full">
-            <div className="mb-6">
-              <Button 
-                variant="ghost"
-                onClick={() => navigate(-1)}
-                className="mb-2"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {language === 'pt' ? 'Voltar' : 'Back'}
-              </Button>
-              <h1 className="text-2xl font-semibold">{language === 'pt' ? 'Prescrever Medicamentos' : 'Prescribe Medication'}</h1>
+        <main className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {language === 'pt' ? 'Nova Prescrição' : 'New Prescription'}
+                </h1>
+                <p className="text-muted-foreground">
+                  {language === 'pt' ? 'Paciente: ' : 'Patient: '}
+                  <span className="font-medium">{patientName}</span>
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Link to={`/patients/${patientId}`}>
+                  <Button variant="outline">
+                    {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                  </Button>
+                </Link>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={isSubmitting || items.length === 0}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <span className="loading-spinner w-4 h-4"></span>
+                      {language === 'pt' ? 'Salvando...' : 'Saving...'}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      {language === 'pt' ? 'Salvar Prescrição' : 'Save Prescription'}
+                    </span>
+                  )}
+                </Button>
+              </div>
             </div>
             
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                <div className="glass-card p-6">
-                  <h2 className="text-lg font-medium mb-4">{language === 'pt' ? 'Informações do Paciente' : 'Patient Information'}</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="patientId">
-                        {language === 'pt' ? 'ID do Paciente *' : 'Patient ID *'}
+            {allergyCheckResult.length > 0 && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>
+                  {language === 'pt' ? 'Alerta de Alergia' : 'Allergy Alert'}
+                </AlertTitle>
+                <AlertDescription>
+                  <p className="mb-2">
+                    {language === 'pt'
+                      ? 'Este paciente tem potenciais alergias a este medicamento:'
+                      : 'This patient has potential allergies to this medication:'}
+                  </p>
+                  <ul className="list-disc pl-5">
+                    {allergyCheckResult.map((allergy, index) => (
+                      <li key={index}>
+                        <strong>{allergy.allergen}</strong>: {allergy.reaction} ({allergy.severity})
+                      </li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {interactionCheckResult.length > 0 && (
+              <Alert variant="warning" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>
+                  {language === 'pt' ? 'Interações Medicamentosas' : 'Drug Interactions'}
+                </AlertTitle>
+                <AlertDescription>
+                  <p className="mb-2">
+                    {language === 'pt'
+                      ? 'Potenciais interações medicamentosas detectadas:'
+                      : 'Potential drug interactions detected:'}
+                  </p>
+                  <ul className="list-disc pl-5">
+                    {interactionCheckResult.map((interaction, index) => (
+                      <li key={index}>
+                        <strong>{interaction.severity}</strong>: {interaction.description}
+                      </li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      {language === 'pt' ? 'Adicionar Medicamento' : 'Add Medication'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="medication">
+                        {language === 'pt' ? 'Medicamento' : 'Medication'}*
                       </Label>
-                      <Input
-                        id="patientId"
-                        name="patientId"
-                        required
-                        value={prescriptionData.patientId}
-                        onChange={handlePrescriptionChange}
-                        readOnly={!!patientId}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="patientName">
-                        {language === 'pt' ? 'Nome do Paciente *' : 'Patient Name *'}
-                      </Label>
-                      <Input
-                        id="patientName"
-                        name="patientName"
-                        required
-                        value={prescriptionData.patientName}
-                        onChange={handlePrescriptionChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="glass-card p-6">
-                  <h2 className="text-lg font-medium mb-4">{language === 'pt' ? 'Itens da Prescrição' : 'Prescription Items'}</h2>
-                  
-                  <Tabs value={activeTab} onValueChange={handleTabChange}>
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="medication">{language === 'pt' ? 'Medicamento' : 'Medication'}</TabsTrigger>
-                      <TabsTrigger value="procedure">{language === 'pt' ? 'Procedimento' : 'Procedure'}</TabsTrigger>
-                      <TabsTrigger value="lab_test">{language === 'pt' ? 'Exame Laboratorial' : 'Lab Test'}</TabsTrigger>
-                      <TabsTrigger value="imaging">{language === 'pt' ? 'Imagem' : 'Imaging'}</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="medication">
-                      <div className="space-y-4">
-                        <div className="space-y-1.5">
-                          <Label htmlFor="medication-search">
-                            {language === 'pt' ? 'Buscar Medicamento' : 'Search Medication'}
-                          </Label>
-                          <div className="relative">
-                            <Input
-                              id="medication-search"
-                              placeholder={language === 'pt' ? 'Digite para buscar...' : 'Type to search...'}
-                              value={searchTerm}
-                              onChange={handleSearchChange}
-                              className="pr-10"
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <MedicationAutocomplete
+                            initialSearchTerm={currentItem.name}
+                            onSelectMedication={handleMedicationAutocompleteSelect}
+                            className="w-full"
+                          />
+                        </div>
+                        
+                        <Dialog open={isRxNormModalOpen} onOpenChange={setIsRxNormModalOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" type="button">
+                              <Search className="h-4 w-4 mr-1" />
+                              {language === 'pt' ? 'RxNorm' : 'RxNorm Search'}
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>
+                                {language === 'pt' ? 'Buscar Medicamento RxNorm' : 'RxNorm Medication Search'}
+                              </DialogTitle>
+                            </DialogHeader>
+                            <RxNormMedicationSelector 
+                              onMedicationSelect={handleRxNormSelect}
+                              initialSearchTerm={currentItem.name}
                             />
-                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="dosage">
+                          {language === 'pt' ? 'Dosagem' : 'Dosage'}*
+                        </Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="dosage"
+                            value={currentItem.dosage}
+                            onChange={(e) => setCurrentItem({...currentItem, dosage: e.target.value})}
+                            placeholder="ex: 500mg"
+                          />
+                          
+                          <Dialog open={isDoseCalculatorOpen} onOpenChange={setIsDoseCalculatorOpen}>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="icon" type="button">
+                                <Calculator className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  {language === 'pt' ? 'Calculadora de Dose Pediátrica' : 'Pediatric Dose Calculator'}
+                                </DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="patient-weight">
+                                    {language === 'pt' ? 'Peso do Paciente (kg)' : 'Patient Weight (kg)'}
+                                  </Label>
+                                  <Input
+                                    id="patient-weight"
+                                    type="number"
+                                    value={patientWeight || ''}
+                                    onChange={(e) => setPatientWeight(parseFloat(e.target.value))}
+                                  />
+                                </div>
+                                
+                                {patientAgeMos !== null && (
+                                  <div className="rounded-md bg-muted p-3">
+                                    <p className="text-sm">
+                                      {language === 'pt' ? 'Idade do Paciente:' : 'Patient Age:'} {' '}
+                                      <strong>
+                                        {Math.floor(patientAgeMos / 12)} {language === 'pt' ? 'anos' : 'years'} {patientAgeMos % 12} {language === 'pt' ? 'meses' : 'months'}
+                                      </strong>
+                                    </p>
+                                  </div>
+                                )}
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="medication-dropdown">
+                                    {language === 'pt' ? 'Medicamento' : 'Medication'}
+                                  </Label>
+                                  <Input
+                                    id="medication-dropdown"
+                                    value={currentItem.name}
+                                    disabled
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="frequency-dropdown">
+                                    {language === 'pt' ? 'Frequência' : 'Frequency'}
+                                  </Label>
+                                  <Select
+                                    value={currentItem.frequency}
+                                    onValueChange={(value) => 
+                                      setCurrentItem({...currentItem, frequency: value})
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue 
+                                        placeholder={
+                                          language === 'pt' 
+                                            ? "Selecione a frequência" 
+                                            : "Select frequency"
+                                        } 
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {frequencyOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                          {option.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <div className="flex justify-end gap-3">
+                                <Button variant="outline" onClick={() => setIsDoseCalculatorOpen(false)}>
+                                  {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                                </Button>
+                                <Button onClick={calculatePediatricDose}>
+                                  {language === 'pt' ? 'Calcular Dose' : 'Calculate Dose'}
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <Label htmlFor="frequency">
+                          {language === 'pt' ? 'Frequência' : 'Frequency'}*
+                        </Label>
+                        <Select
+                          value={currentItem.frequency}
+                          onValueChange={(value) => 
+                            setCurrentItem({...currentItem, frequency: value})
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue 
+                              placeholder={
+                                language === 'pt' 
+                                  ? "Selecione a frequência" 
+                                  : "Select frequency"
+                              } 
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {frequencyOptions.map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <Label htmlFor="route">
+                          {language === 'pt' ? 'Via de Administração' : 'Route'}
+                        </Label>
+                        <Select
+                          value={currentItem.route}
+                          onValueChange={(value) => 
+                            setCurrentItem({...currentItem, route: value})
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue 
+                              placeholder={
+                                language === 'pt' 
+                                  ? "Selecione a via" 
+                                  : "Select route"
+                              } 
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {routeOptions.map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="duration">
+                          {language === 'pt' ? 'Duração' : 'Duration'}
+                        </Label>
+                        <Input
+                          id="duration"
+                          value={currentItem.duration}
+                          onChange={(e) => setCurrentItem({...currentItem, duration: e.target.value})}
+                          placeholder="ex: 7 days"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <Label htmlFor="instructions">
+                          {language === 'pt' ? 'Instruções' : 'Instructions'}
+                        </Label>
+                        <Input
+                          id="instructions"
+                          value={currentItem.instructions}
+                          onChange={(e) => setCurrentItem({...currentItem, instructions: e.target.value})}
+                          placeholder={language === 'pt' ? "Ex: Tomar com alimentos" : "Ex: Take with food"}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 pt-2">
+                      <Checkbox 
+                        id="substitution-allowed"
+                        checked={currentItem?.details?.substitutionAllowed}
+                        onCheckedChange={(checked) => 
+                          setCurrentItem({
+                            ...currentItem, 
+                            details: {
+                              ...currentItem.details,
+                              substitutionAllowed: checked === true
+                            }
+                          })
+                        }
+                      />
+                      <Label htmlFor="substitution-allowed" className="cursor-pointer">
+                        {language === 'pt' ? 'Permitir substituição genérica' : 'Allow generic substitution'}
+                      </Label>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-end gap-3">
+                    <Button variant="outline" onClick={resetCurrentItem}>
+                      <RotateCcw className="h-4 w-4 mr-1" />
+                      {language === 'pt' ? 'Limpar' : 'Reset'}
+                    </Button>
+                    
+                    {currentItem.id ? (
+                      <Button onClick={handleUpdateItem}>
+                        {language === 'pt' ? 'Atualizar Medicamento' : 'Update Medication'}
+                      </Button>
+                    ) : (
+                      <Button onClick={handleAddItem}>
+                        <PlusCircle className="h-4 w-4 mr-1" />
+                        {language === 'pt' ? 'Adicionar à Prescrição' : 'Add to Prescription'}
+                      </Button>
+                    )}
+                  </CardFooter>
+                </Card>
+                
+                {showSafetyWarning && (
+                  <Alert variant="warning">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>
+                      {language === 'pt' ? 'Aviso de Segurança' : 'Safety Warning'}
+                    </AlertTitle>
+                    <AlertDescription>
+                      {language === 'pt'
+                        ? 'Este medicamento pode exigir verificações adicionais. Verifique alergias e interações antes de prosseguir.'
+                        : 'This medication may require additional checks. Verify allergies and interactions before proceeding.'}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      {language === 'pt' ? 'Notas Adicionais' : 'Additional Notes'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder={language === 'pt' 
+                        ? "Adicione notas sobre esta prescrição..." 
+                        : "Add notes about this prescription..."
+                      }
+                      rows={3}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>
+                        {language === 'pt' ? 'Itens da Prescrição' : 'Prescription Items'}
+                      </span>
+                      <Badge variant="outline">
+                        {items.length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {items.length === 0 ? (
+                      <div className="text-center py-6 text-muted-foreground">
+                        <Info className="h-10 w-10 mx-auto mb-2 opacity-20" />
+                        <p>
+                          {language === 'pt'
+                            ? 'Nenhum medicamento adicionado ainda'
+                            : 'No medications added yet'
+                          }
+                        </p>
+                        <p className="text-sm mt-1">
+                          {language === 'pt'
+                            ? 'Adicione medicamentos usando o formulário ao lado'
+                            : 'Add medications using the form to the left'
+                          }
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 max-h-[calc(100vh-20rem)] overflow-y-auto px-1">
+                        {items.map((item, index) => (
+                          <div key={item.id} className="border rounded-md p-3">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="font-medium line-clamp-1">{item.name}</div>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleEditItem(item)}
+                                  className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => handleRemoveItem(item.id)}
+                                  className="text-muted-foreground hover:text-red-500 p-1 rounded-md hover:bg-muted"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
                             
-                            {showSearch && searchResults.length > 0 && (
-                              <div className="absolute z-10 mt-1 w-full bg-background border rounded-md shadow-lg">
-                                <ul className="py-1 max-h-60 overflow-auto">
-                                  {searchResults.map((med) => (
-                                    <li 
-                                      key={med.id}
-                                      className="px-3 py-2 hover:bg-muted cursor-pointer"
-                                      onClick={() => selectMedication(med)}
-                                    >
-                                      <div className="font-medium">{med.name}</div>
-                                      <div className="text-xs text-muted-foreground">{med.generic}</div>
-                                      {med.rxnorm && (
-                                        <div className="text-xs text-blue-600">RxNorm: {med.rxnorm}</div>
-                                      )}
-                                    </li>
-                                  ))}
-                                </ul>
+                            <Separator className="my-2" />
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                              {item.dosage && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    {language === 'pt' ? 'Dosagem:' : 'Dosage:'}
+                                  </span>{' '}
+                                  {item.dosage}
+                                </div>
+                              )}
+                              
+                              {item.frequency && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    {language === 'pt' ? 'Frequência:' : 'Frequency:'}
+                                  </span>{' '}
+                                  {getSelectedFrequencyLabel(item.frequency)}
+                                </div>
+                              )}
+                              
+                              {item.route && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    {language === 'pt' ? 'Via:' : 'Route:'}
+                                  </span>{' '}
+                                  {getSelectedRouteLabel(item.route)}
+                                </div>
+                              )}
+                              
+                              {item.duration && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    {language === 'pt' ? 'Duração:' : 'Duration:'}
+                                  </span>{' '}
+                                  {item.duration}
+                                </div>
+                              )}
+                            </div>
+                            
+                            {item.instructions && (
+                              <div className="mt-2 text-sm">
+                                <span className="text-muted-foreground">
+                                  {language === 'pt' ? 'Instruções:' : 'Instructions:'}
+                                </span>{' '}
+                                {item.instructions}
+                              </div>
+                            )}
+                            
+                            {item.details?.rxcui && (
+                              <div className="mt-2 flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  RxCUI: {item.details.rxcui}
+                                </Badge>
+                                
+                                {item.details?.substitutionAllowed && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {language === 'pt' ? 'Genérico permitido' : 'Generic OK'}
+                                  </Badge>
+                                )}
                               </div>
                             )}
                           </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1.5">
-                            <Label htmlFor="dosage">
-                              {language === 'pt' ? 'Dosagem *' : 'Dosage *'}
-                            </Label>
-                            <Input
-                              id="dosage"
-                              name="dosage"
-                              placeholder={language === 'pt' ? 'Ex: 500mg' : 'Ex: 500mg'}
-                              value={currentItem.dosage}
-                              onChange={handleItemChange}
-                              required
-                            />
-                          </div>
-                          
-                          <div className="space-y-1.5">
-                            <Label htmlFor="frequency">
-                              {language === 'pt' ? 'Frequência *' : 'Frequency *'}
-                            </Label>
-                            <select
-                              id="frequency"
-                              name="frequency"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                              required
-                              value={currentItem.frequency}
-                              onChange={handleItemChange}
-                            >
-                              <option value="">{language === 'pt' ? 'Selecionar Frequência' : 'Select Frequency'}</option>
-                              <option value="Once daily">{language === 'pt' ? 'Uma vez ao dia' : 'Once daily'}</option>
-                              <option value="Twice daily">{language === 'pt' ? 'Duas vezes ao dia' : 'Twice daily'}</option>
-                              <option value="Three times daily">{language === 'pt' ? 'Três vezes ao dia' : 'Three times daily'}</option>
-                              <option value="Four times daily">{language === 'pt' ? 'Quatro vezes ao dia' : 'Four times daily'}</option>
-                              <option value="Every morning">{language === 'pt' ? 'Todas as manhãs' : 'Every morning'}</option>
-                              <option value="Every evening">{language === 'pt' ? 'Todas as noites' : 'Every evening'}</option>
-                              <option value="Every 4 hours">{language === 'pt' ? 'A cada 4 horas' : 'Every 4 hours'}</option>
-                              <option value="Every 6 hours">{language === 'pt' ? 'A cada 6 horas' : 'Every 6 hours'}</option>
-                              <option value="Every 8 hours">{language === 'pt' ? 'A cada 8 horas' : 'Every 8 hours'}</option>
-                              <option value="As needed">{language === 'pt' ? 'Conforme necessário' : 'As needed'}</option>
-                            </select>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1.5">
-                            <Label htmlFor="duration">
-                              {language === 'pt' ? 'Duração' : 'Duration'}
-                            </Label>
-                            <Input
-                              id="duration"
-                              name="duration"
-                              placeholder={language === 'pt' ? 'Ex: 10 dias, 2 semanas' : 'e.g., 10 days, 2 weeks'}
-                              value={currentItem.duration}
-                              onChange={handleItemChange}
-                            />
-                          </div>
-                          
-                          <div className="space-y-1.5">
-                            <Label>
-                              {language === 'pt' ? 'Data de Início *' : 'Start Date *'}
-                            </Label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  className="w-full justify-start text-left"
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {startDate ? format(startDate, 'PPP') : (language === 'pt' ? 'Selecionar data' : 'Select date')}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                  mode="single"
-                                  selected={startDate}
-                                  onSelect={setStartDate}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1.5">
-                            <Label>
-                              {language === 'pt' ? 'Data de Término' : 'End Date'}
-                            </Label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  className="w-full justify-start text-left"
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {endDate ? format(endDate, 'PPP') : (language === 'pt' ? 'Selecionar data' : 'Select date')}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                  mode="single"
-                                  selected={endDate}
-                                  onSelect={setEndDate}
-                                  disabled={(date) => date < (startDate || new Date())}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-1.5">
-                          <Label htmlFor="instructions">
-                            {language === 'pt' ? 'Instruções *' : 'Instructions *'}
-                          </Label>
-                          <Textarea
-                            id="instructions"
-                            name="instructions"
-                            placeholder={language === 'pt' ? 'Ex: Tomar com alimentos' : 'Ex: Take with food'}
-                            value={currentItem.instructions}
-                            onChange={handleItemChange}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="procedure">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">
-                            {language === 'pt' ? 'Nome do Procedimento *' : 'Procedure Name *'}
-                          </Label>
-                          <Input
-                            id="name"
-                            name="name"
-                            required
-                            value={currentItem.name}
-                            onChange={handleItemChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="details">
-                            {language === 'pt' ? 'Detalhes' : 'Details'}
-                          </Label>
-                          <Input
-                            id="details"
-                            name="details"
-                            value={currentItem.details}
-                            onChange={handleItemChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="frequency">
-                            {language === 'pt' ? 'Frequência' : 'Frequency'}
-                          </Label>
-                          <Input
-                            id="frequency"
-                            name="frequency"
-                            value={currentItem.frequency}
-                            onChange={handleItemChange}
-                            placeholder={language === 'pt' ? 'Ex: Uma vez por semana' : 'e.g., Once weekly'}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="duration">
-                            {language === 'pt' ? 'Duração' : 'Duration'}
-                          </Label>
-                          <Input
-                            id="duration"
-                            name="duration"
-                            value={currentItem.duration}
-                            onChange={handleItemChange}
-                            placeholder={language === 'pt' ? 'Ex: 4 semanas' : 'e.g., 4 weeks'}
-                          />
-                        </div>
-                        
-                        <div className="space-y-1.5">
-                          <Label>
-                            {language === 'pt' ? 'Data de Início' : 'Start Date'}
-                          </Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className="w-full justify-start text-left"
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {startDate ? format(startDate, 'PPP') : (language === 'pt' ? 'Selecionar data' : 'Select date')}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                              <Calendar
-                                mode="single"
-                                selected={startDate}
-                                onSelect={setStartDate}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <Label htmlFor="instructions">
-                          {language === 'pt' ? 'Instruções *' : 'Instructions *'}
-                        </Label>
-                        <Textarea
-                          id="instructions"
-                          name="instructions"
-                          rows={3}
-                          required
-                          value={currentItem.instructions}
-                          onChange={handleItemChange}
-                          placeholder={language === 'pt' ? 'Instruções especiais para o procedimento' : 'Special instructions for the procedure'}
-                        />
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="lab_test">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">
-                            {language === 'pt' ? 'Nome do Exame *' : 'Lab Test Name *'}
-                          </Label>
-                          <Input
-                            id="name"
-                            name="name"
-                            required
-                            value={currentItem.name}
-                            onChange={handleItemChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="details">
-                            {language === 'pt' ? 'Detalhes' : 'Details'}
-                          </Label>
-                          <Input
-                            id="details"
-                            name="details"
-                            value={currentItem.details}
-                            onChange={handleItemChange}
-                            placeholder={language === 'pt' ? 'Detalhes específicos para este exame' : 'Any specific details for this test'}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <Label htmlFor="instructions">
-                          {language === 'pt' ? 'Instruções' : 'Instructions'}
-                        </Label>
-                        <Textarea
-                          id="instructions"
-                          name="instructions"
-                          rows={3}
-                          value={currentItem.instructions}
-                          onChange={handleItemChange}
-                          placeholder={language === 'pt' ? 'Ex: Jejum necessário' : 'E.g., Fasting required'}
-                        />
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="imaging">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">
-                            {language === 'pt' ? 'Nome do Exame de Imagem *' : 'Imaging Study Name *'}
-                          </Label>
-                          <Input
-                            id="name"
-                            name="name"
-                            required
-                            value={currentItem.name}
-                            onChange={handleItemChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="details">
-                            {language === 'pt' ? 'Detalhes' : 'Details'}
-                          </Label>
-                          <Input
-                            id="details"
-                            name="details"
-                            value={currentItem.details}
-                            onChange={handleItemChange}
-                            placeholder={language === 'pt' ? 'Ex: Com contraste' : 'E.g., With contrast'}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <Label htmlFor="instructions">
-                          {language === 'pt' ? 'Instruções' : 'Instructions'}
-                        </Label>
-                        <Textarea
-                          id="instructions"
-                          name="instructions"
-                          rows={3}
-                          value={currentItem.instructions}
-                          onChange={handleItemChange}
-                          placeholder={language === 'pt' ? 'Instruções especiais para o exame' : 'Special instructions for the imaging study'}
-                        />
-                      </div>
-                    </TabsContent>
-                    
-                    <div className="flex justify-end mt-2">
-                      <Button 
-                        type="button" 
-                        onClick={handleAddItem}
-                        className="flex items-center"
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        {currentItem.index !== undefined ? 
-                         (language === 'pt' ? 'Atualizar Item' : 'Update Item') : 
-                         (language === 'pt' ? 'Adicionar Item' : 'Add Item')}
-                      </Button>
-                    </div>
-                  </Tabs>
-                  
-                  {prescriptionData.items.length > 0 && (
-                    <div className="mt-6">
-                      <h3 className="font-medium mb-3">{language === 'pt' ? 'Itens Adicionados' : 'Added Items'}</h3>
-                      <div className="space-y-3">
-                        {prescriptionData.items.map((item, index) => (
-                          <div key={item.id} className="flex items-center justify-between p-3 border border-border rounded-md bg-background">
-                            <div>
-                              <div className="font-medium">{item.name}</div>
-                              <div className="text-sm text-muted-foreground capitalize">{
-                                item.type === 'medication' ? (language === 'pt' ? 'Medicamento' : 'Medication') :
-                                item.type === 'procedure' ? (language === 'pt' ? 'Procedimento' : 'Procedure') :
-                                item.type === 'lab_test' ? (language === 'pt' ? 'Exame Laboratorial' : 'Lab Test') :
-                                (language === 'pt' ? 'Imagem' : 'Imaging')
-                              }</div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditItem(index)}
-                              >
-                                <Pill className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive"
-                                onClick={() => handleRemoveItem(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
                         ))}
                       </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="glass-card p-6">
-                  <h2 className="text-lg font-medium mb-4">{language === 'pt' ? 'Notas Adicionais' : 'Additional Notes'}</h2>
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">
-                      {language === 'pt' ? 'Notas' : 'Notes'}
-                    </Label>
-                    <Textarea
-                      id="notes"
-                      name="notes"
-                      rows={3}
-                      value={prescriptionData.notes}
-                      onChange={handlePrescriptionChange}
-                      placeholder={language === 'pt' ? 'Quaisquer notas ou comentários adicionais' : 'Any additional notes or comments'}
-                    />
-                  </div>
-                </div>
-                
-                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6 dark:bg-yellow-900/20 dark:border-yellow-700/30">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                    <h4 className="font-medium text-yellow-700 dark:text-yellow-400">{language === 'pt' ? 'Aviso Importante' : 'Important Notice'}</h4>
-                  </div>
-                  <p className="text-sm text-yellow-600 dark:text-yellow-300">
-                    {language === 'pt' 
-                      ? 'Verifique todos os detalhes da prescrição antes de salvar. Verifique possíveis interações medicamentosas e alergias.'
-                      : 'Please verify all prescription details before saving. Check for potential drug interactions and allergies.'}
-                  </p>
-                </div>
-                
-                <div className="flex justify-end gap-3">
-                  <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-                    {language === 'pt' ? 'Cancelar' : 'Cancel'}
-                  </Button>
-                  <Button type="submit">
-                    <Save className="mr-2 h-4 w-4" />
-                    {language === 'pt' ? 'Salvar Prescrição' : 'Save Prescription'}
-                  </Button>
-                </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-            </form>
+            </div>
           </div>
         </main>
       </div>
@@ -850,4 +987,4 @@ const PrescribeMedicationPage = () => {
   );
 };
 
-export default PrescribeMedicationPage;
+export default PrescribeMedication;

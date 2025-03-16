@@ -1,18 +1,14 @@
 
 import { useState, useCallback } from 'react';
-import { useTranslation } from '../useTranslation';
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { PatientAllergy } from './constants';
-import { isPenicillinFamily, isSulfaFamily, isNSAID } from './medicationFamilies';
 
 export function usePatientAllergies(patientId: string) {
-  const { t } = useTranslation();
   const [allergies, setAllergies] = useState<PatientAllergy[]>([]);
   const [isLoadingAllergies, setIsLoadingAllergies] = useState(false);
   const [isAllergyReviewed, setIsAllergyReviewed] = useState(false);
   
-  // Fetch patient allergies
+  // Fetch allergies for a patient
   const fetchPatientAllergies = useCallback(async () => {
     if (!patientId) return;
     
@@ -20,49 +16,97 @@ export function usePatientAllergies(patientId: string) {
     try {
       const { data, error } = await supabase
         .from('allergies')
-        .select('id, allergen, reaction, severity')
+        .select('*')
         .eq('patient_id', patientId)
         .eq('is_active', true);
-      
+        
       if (error) throw error;
+      
       setAllergies(data || []);
+      
+      // Check if allergies have been reviewed
+      if (data && data.length > 0) {
+        setIsAllergyReviewed(true);
+      } else {
+        // If no allergies are found, we should still check if 
+        // the "no allergies" status has been explicitly confirmed
+        const { data: allergyStatus, error: statusError } = await supabase
+          .from('patient_allergy_status')
+          .select('*')
+          .eq('patient_id', patientId)
+          .maybeSingle();
+          
+        if (!statusError && allergyStatus) {
+          setIsAllergyReviewed(allergyStatus.reviewed_at !== null);
+        }
+      }
     } catch (error) {
-      console.error('Error fetching patient allergies:', error);
-      toast.error(t('errorFetchingAllergies'));
+      console.error('Error fetching allergies:', error);
     } finally {
       setIsLoadingAllergies(false);
     }
-  }, [patientId, t]);
+  }, [patientId]);
   
-  // Mark allergies as reviewed for this session
-  const markAllergiesReviewed = () => {
-    setIsAllergyReviewed(true);
-    return true;
-  };
+  // Mark allergies as reviewed
+  const markAllergiesReviewed = useCallback(async () => {
+    if (!patientId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('patient_allergy_status')
+        .upsert({
+          patient_id: patientId,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select();
+        
+      if (error) throw error;
+      
+      setIsAllergyReviewed(true);
+      return data;
+    } catch (error) {
+      console.error('Error marking allergies as reviewed:', error);
+      throw error;
+    }
+  }, [patientId]);
   
-  // Check if medication matches patient allergies
-  const checkAllergies = (medicationName: string): string[] => {
+  // Check medication name against patient allergies
+  const checkAllergies = useCallback((medicationName: string): PatientAllergy[] => {
     if (!medicationName || !allergies.length) return [];
     
-    const medNameLower = medicationName.toLowerCase();
-    const warnings: string[] = [];
+    const medName = medicationName.toLowerCase();
     
-    allergies.forEach(allergy => {
-      const allergenLower = allergy.allergen.toLowerCase();
+    // Basic algorithm to detect potential allergies
+    // In a production environment, this would be much more sophisticated
+    // using medication ingredients and proper allergen mapping
+    return allergies.filter(allergy => {
+      const allergenName = allergy.allergen.toLowerCase();
       
-      // Check for direct match or common allergen groups
-      if (
-        medNameLower.includes(allergenLower) || 
-        (allergenLower === 'penicillin' && isPenicillinFamily(medNameLower)) ||
-        (allergenLower === 'sulfa' && isSulfaFamily(medNameLower)) ||
-        (allergenLower === 'nsaid' && isNSAID(medNameLower))
-      ) {
-        warnings.push(`${allergy.allergen} (${allergy.severity || 'unknown severity'})`);
+      // Direct match
+      if (medName.includes(allergenName) || allergenName.includes(medName)) {
+        return true;
       }
+      
+      // Class-based matches (simple example)
+      if (
+        (allergenName.includes('penicillin') && 
+          (medName.includes('amoxicillin') || 
+           medName.includes('ampicillin') || 
+           medName.includes('carbenicillin'))) ||
+        (allergenName.includes('sulfa') && medName.includes('sulfa')) ||
+        (allergenName.includes('nsaid') && 
+          (medName.includes('ibuprofen') || 
+           medName.includes('naproxen') || 
+           medName.includes('aspirin'))) ||
+        (allergenName.includes('statin') && medName.endsWith('statin'))
+      ) {
+        return true;
+      }
+      
+      return false;
     });
-    
-    return warnings;
-  };
+  }, [allergies]);
   
   return {
     allergies,

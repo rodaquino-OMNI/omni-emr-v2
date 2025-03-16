@@ -24,6 +24,10 @@ export type UserRole =
   | 'system_administrator'
   | 'all';
 
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+export type Languages = 'en' | 'pt';
+
 export interface User {
   id: string;
   email: string;
@@ -31,6 +35,7 @@ export interface User {
   role: UserRole;
   permissions: string[];
   avatar_url?: string;
+  avatar?: string;
   app_metadata?: Record<string, any>;
   user_metadata?: Record<string, any>;
   created_at?: string;
@@ -41,6 +46,8 @@ export interface User {
   recovery_sent_at?: string;
   confirmation_sent_at?: string;
   organization?: string;
+  approvalStatus?: ApprovalStatus;
+  status?: string;
 }
 
 export interface AuthState {
@@ -84,4 +91,25 @@ export interface UserMetadata {
   department?: string;
   title?: string;
   avatar_url?: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  signIn: (credentials: SignInCredentials) => Promise<void>;
+  signOut: () => Promise<void>;
+  signUp: (credentials: SignUpCredentials) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updateUserProfile: (data: Partial<User>) => Promise<void>;
+  refreshSession: () => Promise<void>;
+}
+
+export interface UseSessionTimeoutProps {
+  timeoutMinutes?: number;
+  onTimeout?: () => void;
+  onWarning?: () => void;
+  warningMinutesBefore?: number;
+  isEnabled?: boolean;
 }

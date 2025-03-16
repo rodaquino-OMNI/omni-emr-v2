@@ -1,106 +1,98 @@
 
-import { PatientStatus } from '../types/patientTypes';
+import { PatientStatus } from '@/types/patientTypes';
 
-/**
- * Maps a string status to enum PatientStatus
- */
-export const mapToPatientStatus = (status: string): PatientStatus => {
-  switch (status.toLowerCase()) {
-    case 'active':
-      return PatientStatus.Active;
-    case 'discharged':
-      return PatientStatus.Discharged;
-    case 'inactive':
-      return PatientStatus.Inactive;
-    case 'scheduled':
-      return PatientStatus.Scheduled;
-    case 'on_leave':
-      return PatientStatus.OnLeave;
-    case 'critical':
-      return PatientStatus.Critical;
-    case 'stable':
-      return PatientStatus.Stable;
-    default:
-      return PatientStatus.Unknown;
-  }
-};
-
-/**
- * Converts a string to PatientStatus
- */
-export const convertToPatientStatus = (status: string): PatientStatus => {
-  return mapToPatientStatus(status);
-};
-
-/**
- * Gets the appropriate color class based on patient status
- */
-export const getStatusColorClass = (status: PatientStatus): string => {
+// Get status text for display
+export const getStatusText = (status: PatientStatus): string => {
   switch (status) {
-    case PatientStatus.Active:
-      return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-    case PatientStatus.Discharged:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
-    case PatientStatus.Inactive:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
-    case PatientStatus.Scheduled:
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-    case PatientStatus.OnLeave:
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-    case PatientStatus.Critical:
-      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-    case PatientStatus.Stable:
-      return 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400';
-    case PatientStatus.Unknown:
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
-  }
-};
-
-/**
- * Gets a display label for the status
- */
-export const getStatusLabel = (status: PatientStatus, language = 'en'): string => {
-  if (language === 'pt') {
-    switch (status) {
-      case PatientStatus.Active:
-        return 'Ativo';
-      case PatientStatus.Discharged:
-        return 'Alta';
-      case PatientStatus.Inactive:
-        return 'Inativo';
-      case PatientStatus.Scheduled:
-        return 'Agendado';
-      case PatientStatus.OnLeave:
-        return 'Em Licença';
-      case PatientStatus.Critical:
-        return 'Crítico';
-      case PatientStatus.Stable:
-        return 'Estável';
-      case PatientStatus.Unknown:
-      default:
-        return 'Desconhecido';
-    }
-  }
-
-  // English labels
-  switch (status) {
-    case PatientStatus.Active:
+    case PatientStatus.ACTIVE:
       return 'Active';
-    case PatientStatus.Discharged:
+    case PatientStatus.DISCHARGED:
       return 'Discharged';
-    case PatientStatus.Inactive:
+    case PatientStatus.INACTIVE:
       return 'Inactive';
-    case PatientStatus.Scheduled:
-      return 'Scheduled';
-    case PatientStatus.OnLeave:
-      return 'On Leave';
-    case PatientStatus.Critical:
+    case PatientStatus.CRITICAL:
       return 'Critical';
-    case PatientStatus.Stable:
+    case PatientStatus.STABLE:
       return 'Stable';
-    case PatientStatus.Unknown:
+    case PatientStatus.HOSPITAL:
+      return 'In Hospital';
+    case PatientStatus.HOME:
+      return 'At Home';
+    case PatientStatus.IMPROVING:
+      return 'Improving';
     default:
       return 'Unknown';
+  }
+};
+
+// Get status color for UI
+export const getStatusColor = (status: PatientStatus): string => {
+  switch (status) {
+    case PatientStatus.ACTIVE:
+      return 'green';
+    case PatientStatus.DISCHARGED:
+      return 'blue';
+    case PatientStatus.INACTIVE:
+      return 'gray';
+    case PatientStatus.CRITICAL:
+      return 'red';
+    case PatientStatus.STABLE:
+      return 'green';
+    case PatientStatus.HOSPITAL:
+      return 'purple';
+    case PatientStatus.HOME:
+      return 'blue';
+    case PatientStatus.IMPROVING:
+      return 'teal';
+    default:
+      return 'gray';
+  }
+};
+
+// Get status badge variant
+export const getStatusBadgeVariant = (status: PatientStatus): string => {
+  switch (status) {
+    case PatientStatus.ACTIVE:
+      return 'success';
+    case PatientStatus.DISCHARGED:
+      return 'info';
+    case PatientStatus.INACTIVE:
+      return 'secondary';
+    case PatientStatus.CRITICAL:
+      return 'destructive';
+    case PatientStatus.STABLE:
+      return 'success';
+    case PatientStatus.HOSPITAL:
+      return 'purple';
+    case PatientStatus.HOME:
+      return 'info';
+    case PatientStatus.IMPROVING:
+      return 'teal';
+    default:
+      return 'secondary';
+  }
+};
+
+// Get status icon name
+export const getStatusIcon = (status: PatientStatus): string => {
+  switch (status) {
+    case PatientStatus.ACTIVE:
+      return 'check-circle';
+    case PatientStatus.DISCHARGED:
+      return 'log-out';
+    case PatientStatus.INACTIVE:
+      return 'x-circle';
+    case PatientStatus.CRITICAL:
+      return 'alert-circle';
+    case PatientStatus.STABLE:
+      return 'heart';
+    case PatientStatus.HOSPITAL:
+      return 'building';
+    case PatientStatus.HOME:
+      return 'home';
+    case PatientStatus.IMPROVING:
+      return 'trending-up';
+    default:
+      return 'help-circle';
   }
 };
