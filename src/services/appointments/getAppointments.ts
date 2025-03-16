@@ -12,13 +12,21 @@ interface QueryOptions {
 
 /**
  * Base function to handle appointment fetching with various filters
+ * Optimized to only select needed columns and limit result size
  */
 const getAppointmentsBase = async (
   filters: Record<string, any> = {},
-  orderColumns: QueryOptions[] = [{column: 'date', ascending: true}]
+  orderColumns: QueryOptions[] = [{column: 'date', ascending: true}],
+  limit: number = 100
 ): Promise<Appointment[]> => {
   try {
-    let query = supabase.from('appointments').select('*');
+    // Select only the columns we need instead of '*'
+    const requiredColumns = 'id,date,time,patient_id,provider_id,status,type,notes,location,duration,created_at,updated_at';
+    
+    let query = supabase
+      .from('appointments')
+      .select(requiredColumns)
+      .limit(limit); // Add limit to prevent excessive data fetching
     
     // Apply all filters
     Object.entries(filters).forEach(([column, value]) => {
@@ -39,14 +47,16 @@ const getAppointmentsBase = async (
     // Map the database fields to our Appointment type
     return data.map(mapDbAppointmentToAppointment);
   } catch (error) {
-    // Generate mock fallback data based on filters
-    const mockData = mockAppointments.filter(appointment => {
-      return Object.entries(filters).every(([key, value]) => {
-        // Handle snake_case to camelCase conversion (e.g. patient_id → patientId)
-        const camelKey = key.replace(/_([a-z])/g, (_, p1) => p1.toUpperCase());
-        return appointment[camelKey as keyof Appointment] === value;
+    // Create a function for filtering to avoid redundant code
+    const filterMockAppointments = () => {
+      return mockAppointments.filter(appointment => {
+        return Object.entries(filters).every(([key, value]) => {
+          // Handle snake_case to camelCase conversion (e.g. patient_id → patientId)
+          const camelKey = key.replace(/_([a-z])/g, (_, p1) => p1.toUpperCase());
+          return appointment[camelKey as keyof Appointment] === value;
+        });
       });
-    });
+    };
     
     // Handle the error and return the mock data if in dev mode
     const result = await handleAppointmentError(
@@ -55,10 +65,9 @@ const getAppointmentsBase = async (
         operation: 'fetch',
         entityType: 'appointment'
       }, 
-      () => mockData
+      filterMockAppointments
     );
     
-    // Ensure we're returning an array of Appointments, not a Promise
     return result as Appointment[];
   }
 };
@@ -66,44 +75,47 @@ const getAppointmentsBase = async (
 /**
  * Get all appointments
  */
-export const getAllAppointments = async (): Promise<Appointment[]> => {
-  return await getAppointmentsBase();
+export const getAllAppointments = async (limit: number = 100): Promise<Appointment[]> => {
+  return await getAppointmentsBase({}, [{column: 'date', ascending: true}], limit);
 };
 
 /**
  * Get appointments by date
  */
-export const getAppointmentsByDate = async (date: string): Promise<Appointment[]> => {
+export const getAppointmentsByDate = async (date: string, limit: number = 50): Promise<Appointment[]> => {
   return await getAppointmentsBase(
     { date },
     [
       { column: 'time', ascending: true }
-    ]
+    ],
+    limit
   );
 };
 
 /**
  * Get appointments by patient ID
  */
-export const getAppointmentsByPatient = async (patientId: string): Promise<Appointment[]> => {
+export const getAppointmentsByPatient = async (patientId: string, limit: number = 50): Promise<Appointment[]> => {
   return await getAppointmentsBase(
     { patient_id: patientId },
     [
       { column: 'date', ascending: true },
       { column: 'time', ascending: true }
-    ]
+    ],
+    limit
   );
 };
 
 /**
  * Get appointments by provider ID
  */
-export const getAppointmentsByProvider = async (providerId: string): Promise<Appointment[]> => {
+export const getAppointmentsByProvider = async (providerId: string, limit: number = 50): Promise<Appointment[]> => {
   return await getAppointmentsBase(
     { provider_id: providerId },
     [
       { column: 'date', ascending: true },
       { column: 'time', ascending: true }
-    ]
+    ],
+    limit
   );
 };

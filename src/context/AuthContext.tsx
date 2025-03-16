@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useAuthProvider } from '../hooks/useAuthProvider';
@@ -10,9 +11,9 @@ const AuthContext = createContext<AuthContextType>({
   setIsAuthenticated: () => {},
   isLoading: true,
   setIsLoading: () => {},
-  login: async () => null,
+  login: async (email: string, password: string) => ({ success: false }),
   logout: async () => {},
-  register: async () => null,
+  register: async () => ({ success: false }),
   resetPassword: async () => {},
   updateProfile: async () => {},
   sendPasswordResetEmail: async () => {},

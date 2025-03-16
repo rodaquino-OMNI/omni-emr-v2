@@ -27,14 +27,14 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
     // Map the returned data back to our Appointment type
     const result = mapDbAppointmentToAppointment(data);
     
-    // Log the action
-    await logAuditEvent(
+    // Log the action - perform this asynchronously without awaiting
+    logAuditEvent(
       result.providerId,
       'update',
       'appointment',
       id,
       { patientId: result.patientId, updates }
-    );
+    ).catch(err => console.error('Failed to log audit event:', err));
     
     return result;
   } catch (error) {
@@ -46,7 +46,7 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
       return null;
     }
     
-    // Otherwise, update the mock appointment
+    // Create a single updated mock appointment object
     const updatedAppointment = {
       ...mockAppointments[index],
       ...updates,
@@ -70,7 +70,6 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
       }
     );
     
-    // Ensure we're returning an Appointment or null, not a Promise
     return result as Appointment | null;
   }
 };

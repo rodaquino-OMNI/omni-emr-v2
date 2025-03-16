@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { cn } from '@/lib/utils';
 import { useAppointmentsQuery } from './hooks/useAppointmentsQuery';
 import AppointmentsListContent from './AppointmentsListContent';
@@ -32,4 +32,5 @@ const AppointmentsList = ({ className, selectedDate, patientId, limit }: Appoint
   );
 };
 
-export default AppointmentsList;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(AppointmentsList);

@@ -1,204 +1,340 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MedicationAutocomplete } from './MedicationAutocomplete';
-import PatientField from './form/PatientField';
-import MedicationTextField from './form/MedicationTextField';
-import MedicationTextareaField from './form/MedicationTextareaField';
-import MedicationDateFields from './form/MedicationDateFields';
-import MedicationStatusField from './form/MedicationStatusField';
-import MedicationFormButtons from './form/MedicationFormButtons';
-import { useMedicationForm } from './hooks/useMedicationForm';
-import { useTranslation } from '@/hooks/useTranslation';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from 'react';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { toast } from "@/hooks/use-toast"
+import { SearchIcon, AlertTriangle } from 'lucide-react';
+import {
+  checkMedicationInteractions,
+  searchMedications,
+  MedicationSearchResult,
+  MedicationInteraction
+} from '@/services/medications';
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
-const medicationSchema = z.object({
-  rxcui: z.string().min(1, { message: "Medication is required" }),
-  patientId: z.string().min(1, { message: "Patient is required" }),
-  dosage: z.string().min(1, { message: "Dosage is required" }),
-  frequency: z.string().min(1, { message: "Frequency is required" }),
-  route: z.string().min(1, { message: "Route is required" }),
-  startDate: z.date(),
-  endDate: z.date().optional(),
-  instructions: z.string().optional(),
-  status: z.string().default("active"),
-  prescribedBy: z.string().optional(),
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Medication name must be at least 2 characters.",
+  }),
+  dosage: z.string().min(1, {
+    message: "Dosage is required.",
+  }),
+  route: z.string().min(2, {
+    message: "Route must be at least 2 characters.",
+  }),
+  frequency: z.string().min(2, {
+    message: "Frequency must be at least 2 characters.",
+  }),
+  duration: z.string().min(1, {
+    message: "Duration is required.",
+  }),
   notes: z.string().optional(),
-});
-
-type MedicationFormValues = z.infer<typeof medicationSchema>;
+  type: z.enum(['tablet', 'capsule', 'injection', 'cream', 'liquid']),
+})
 
 interface NewMedicationFormProps {
-  onSuccess?: () => void;
-  onCancel?: () => void;
-  patientId?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (values: z.infer<typeof formSchema>) => void;
 }
 
-const NewMedicationForm = ({ onSuccess, onCancel, patientId }: NewMedicationFormProps) => {
-  const { t, language } = useTranslation();
-  const { 
-    saveMedication, 
-    isSubmitting, 
-    checkInteractions,
-    initialValues,
-    interactionsLoading
-  } = useMedicationForm({ patientId, onSuccess });
-  const [selectedMedication, setSelectedMedication] = useState<{ name: string; rxcui: string } | null>(null);
+const NewMedicationForm: React.FC<NewMedicationFormProps> = ({ open, onOpenChange, onSubmit }) => {
+  const [medications, setMedications] = useState<MedicationSearchResult[]>([]);
+  const [selectedMedication, setSelectedMedication] = useState<MedicationSearchResult | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [interactions, setInteractions] = useState<MedicationInteraction[]>([]);
+  const [isCheckingInteractions, setIsCheckingInteractions] = useState(false);
+  const [rxcui, setRxcui] = useState('');
 
-  const form = useForm<MedicationFormValues>({
-    resolver: zodResolver(medicationSchema),
-    defaultValues: initialValues,
-  });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      dosage: "",
+      route: "",
+      frequency: "",
+      duration: "",
+      type: 'tablet'
+    },
+  })
 
-  const onSubmit = async (data: MedicationFormValues) => {
+  useEffect(() => {
+    if (selectedMedication) {
+      form.setValue('name', selectedMedication.name);
+      setRxcui(selectedMedication.rxcui);
+    }
+  }, [selectedMedication, form]);
+
+  const search = async (term: string) => {
+    setIsSearching(true);
     try {
-      await saveMedication(data, selectedMedication?.name || '');
-      form.reset();
-      setSelectedMedication(null);
-      toast.success(t('medicationAdded'));
+      const results = await searchMedications(term);
+      setMedications(results);
     } catch (error) {
-      toast.error(t('medicationAddError'));
-      console.error('Error adding medication:', error);
+      console.error('Failed to search medications:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to search medications',
+        variant: 'destructive'
+      });
+      setMedications([]);
+    } finally {
+      setIsSearching(false);
     }
   };
 
-  const handleMedicationSelect = (medication: { name: string; rxcui: string }) => {
-    setSelectedMedication(medication);
-    form.setValue('rxcui', medication.rxcui);
-    
-    // Check for potential interactions - fixed to use correct parameter count
-    const patientId = form.getValues('patientId');
-    if (patientId && medication.rxcui) {
-      checkInteractions(patientId);
+  // Fix the checkInteractions function call
+  const checkInteractions = async (rxcui: string) => {
+    try {
+      setIsCheckingInteractions(true);
+      const result = await checkMedicationInteractions(rxcui);
+      setInteractions(result);
+    } catch (error) {
+      console.error('Failed to check interactions:', error);
+      setInteractions([]);
+    } finally {
+      setIsCheckingInteractions(false);
     }
   };
 
-  const handlePatientSelect = (patientId: string) => {
-    form.setValue('patientId', patientId);
-    
-    // Check interactions if medication is already selected
-    const rxcui = form.getValues('rxcui');
-    if (patientId && rxcui) {
-      checkInteractions(patientId, rxcui);
-    }
-  };
-
-  const handleCancel = () => {
-    if (onCancel) {
-      onCancel();
-    }
-  };
+  const onSubmitHandler = (values: z.infer<typeof formSchema>) => {
+    onSubmit(values);
+    onOpenChange(false);
+    toast({
+      title: "Medication added.",
+      description: "Your medication has been added to the list.",
+    })
+  }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('newMedication')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <PatientField 
-              onPatientSelect={handlePatientSelect}
-              value={form.getValues('patientId')}
-              onChange={(e) => form.setValue('patientId', e.target.value)}
-            />
-            
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Add New Medication</AlertDialogTitle>
+          <AlertDialogDescription>
+            Enter the details for the new medication.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmitHandler)} className="space-y-4">
             <FormField
               control={form.control}
-              name="rxcui"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('medication')}</FormLabel>
-                  <FormControl>
-                    <MedicationAutocomplete 
-                      onSelectMedication={handleMedicationSelect}
-                      initialSearchTerm={selectedMedication?.name || ''}
-                      patientId={form.getValues('patientId')}
-                    />
-                  </FormControl>
+                  <FormLabel>Medication Name</FormLabel>
+                  <div className="flex rounded-md shadow-sm">
+                    <FormControl>
+                      <Input
+                        className="rounded-r-none"
+                        placeholder="Search medication..."
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          search(e.target.value);
+                          setSelectedMedication(null);
+                        }}
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="rounded-l-none"
+                      isLoading={isSearching}
+                    >
+                      <SearchIcon className="h-4 w-4 mr-2" />
+                      Search
+                    </Button>
+                  </div>
+                  <FormDescription>
+                    Select a medication from the list or enter a new one.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <MedicationTextField 
-                name="dosage"
-                label={t('dosage')}
-                control={form.control}
-                placeholder="e.g. 10mg"
-              />
-              
-              <MedicationTextField 
-                name="frequency"
-                label={t('frequency')}
-                control={form.control}
-                placeholder="e.g. Every 8 hours"
-              />
-              
-              <FormField
-                control={form.control}
-                name="route"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('route')}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t('selectRoute')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="oral">Oral</SelectItem>
-                        <SelectItem value="intravenous">Intravenous</SelectItem>
-                        <SelectItem value="intramuscular">Intramuscular</SelectItem>
-                        <SelectItem value="subcutaneous">Subcutaneous</SelectItem>
-                        <SelectItem value="topical">Topical</SelectItem>
-                        <SelectItem value="inhaled">Inhaled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <MedicationDateFields control={form.control} />
-            
-            <MedicationTextareaField 
-              name="instructions"
-              label={t('instructions')}
+            {medications.length > 0 && (
+              <ScrollArea className="max-h-40 rounded-md border p-2">
+                {medications.map((medication) => (
+                  <Button
+                    key={medication.rxcui}
+                    variant="ghost"
+                    className="w-full justify-start rounded-md hover:bg-secondary"
+                    onClick={() => {
+                      setSelectedMedication(medication);
+                      setMedications([]);
+                      checkInteractions(medication.rxcui);
+                    }}
+                  >
+                    {medication.name}
+                  </Button>
+                ))}
+              </ScrollArea>
+            )}
+            {interactions.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  <AlertTriangle className="h-4 w-4 mr-2 text-amber-500 inline-block align-middle" />
+                  Drug Interactions
+                </Label>
+                <ScrollArea className="max-h-40 rounded-md border p-2">
+                  {interactions.map((interaction, index) => (
+                    <Badge key={index} variant="destructive" className="mr-1">
+                      {interaction.severity}: {interaction.description}
+                    </Badge>
+                  ))}
+                </ScrollArea>
+              </div>
+            )}
+            <FormField
               control={form.control}
-              placeholder={t('instructionsPlaceholder')}
+              name="dosage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dosage</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter dosage" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Enter the dosage for the medication.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            
-            <MedicationStatusField control={form.control} />
-            
-            <MedicationTextareaField 
+            <FormField
+              control={form.control}
+              name="route"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Route</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter route" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Enter the route for the medication.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="frequency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Frequency</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter frequency" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Enter the frequency for the medication.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="duration"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Duration</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter duration" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Enter the duration for the medication.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="tablet">Tablet</SelectItem>
+                      <SelectItem value="capsule">Capsule</SelectItem>
+                      <SelectItem value="injection">Injection</SelectItem>
+                      <SelectItem value="cream">Cream</SelectItem>
+                      <SelectItem value="liquid">Liquid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Select the type of medication.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="notes"
-              label={t('notes')}
-              control={form.control}
-              placeholder={t('notesPlaceholder')}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter any notes about the medication."
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Additional notes or instructions.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </CardContent>
-          <CardFooter className="flex justify-between border-t pt-4">
-            <MedicationFormButtons 
-              isSubmitting={isSubmitting}
-              interactionsLoading={interactionsLoading}
-              onCancel={handleCancel}
-            />
-          </CardFooter>
-        </Card>
-      </form>
-    </Form>
-  );
-};
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <Button type="submit" isLoading={form.formState.isSubmitting}>
+                Add Medication
+              </Button>
+            </AlertDialogFooter>
+          </form>
+        </Form>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 
 export default NewMedicationForm;

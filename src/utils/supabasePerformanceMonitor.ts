@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -86,10 +87,7 @@ export const applyDataRetentionPolicy = async (tableNames: string[] = ['audit_lo
         .eq('proname', `apply_retention_policy_${tableName}`)
         .single();
       
-      // Fixed: Use awaited callback pattern instead of returning PostgrestFilterBuilder
-      const exists = existsData?.exists || false;
-      
-      if (existsError || !exists) {
+      if (existsError || !existsData || !existsData.exists) {
         console.log(`No retention policy function for ${tableName}`);
         continue;
       }

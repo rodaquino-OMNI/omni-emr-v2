@@ -1,5 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { 
   getAppointmentsByDate, 
@@ -18,22 +19,35 @@ type UseAppointmentsQueryProps = {
 export const useAppointmentsQuery = ({ selectedDate, patientId, limit }: UseAppointmentsQueryProps) => {
   const fetchAppointments = useFetchAppointments();
   
+  // Create a stable query key
+  const queryKey = useMemo(() => 
+    ['appointments', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null, patientId], 
+    [selectedDate, patientId]
+  );
+  
   // Fetch appointments based on provided filters
   const queryResult = useQuery({
-    queryKey: ['appointments', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null, patientId],
+    queryKey,
     queryFn: () => fetchAppointments(selectedDate, patientId),
     enabled: !!(selectedDate || patientId),
+    staleTime: 5 * 60 * 1000, // 5 minutes stale time to reduce unnecessary refetches
   });
   
   const appointments = queryResult.data || [];
   const isLoading = queryResult.isLoading;
   const error = queryResult.error;
   
-  // Sort appointments by time
-  const sortedAppointments = sortAppointmentsByTime(appointments);
+  // Memoize sorted appointments to avoid recomputation on each render
+  const sortedAppointments = useMemo(() => 
+    sortAppointmentsByTime(appointments),
+    [appointments]
+  );
   
-  // Apply limit if provided
-  const sortedAndLimitedAppointments = limitAppointments(sortedAppointments, limit);
+  // Memoize limited appointments
+  const sortedAndLimitedAppointments = useMemo(() => 
+    limitAppointments(sortedAppointments, limit),
+    [sortedAppointments, limit]
+  );
 
   return {
     appointments,

@@ -26,20 +26,20 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
     // Map the returned data back to our Appointment type
     const result = mapDbAppointmentToAppointment(data);
     
-    // Log the action
-    await logAuditEvent(
+    // Log the action - perform this asynchronously without awaiting
+    logAuditEvent(
       appointment.providerId,
       'create',
       'appointment',
       result.id,
       { patientId: appointment.patientId }
-    );
+    ).catch(err => console.error('Failed to log audit event:', err));
     
     return result;
   } catch (error) {
-    // Create fallback mock appointment
+    // Create a single fallback mock appointment object
     const now = new Date().toISOString();
-    const newAppointment: Appointment = {
+    const mockAppointment: Appointment = {
       ...appointment,
       id: `app-${Date.now()}`,
       created_at: now,
@@ -56,12 +56,11 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
         patientId: appointment.patientId
       },
       () => {
-        mockAppointments.push(newAppointment);
-        return newAppointment;
+        mockAppointments.push(mockAppointment);
+        return mockAppointment;
       }
     );
     
-    // Ensure we're returning an Appointment and not a Promise
     return result as Appointment;
   }
 };

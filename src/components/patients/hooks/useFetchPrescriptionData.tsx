@@ -1,44 +1,41 @@
 
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useFetchPrescriptionData = () => {
-  /**
-   * Fetch prescription data from FHIR medication_requests table
-   */
+  // Memoize fetch functions to prevent recreation on each render
   const fetchFHIRData = useCallback(async (patientId: string) => {
     try {
+      // Only select the fields we need rather than selecting everything
+      const requiredFields = 'id,status,intent,subject,medication,dosage_instruction,dispense_request,authored_on';
+      
       const { data, error } = await supabase
         .from('medication_requests')
-        .select('*, requester:requester_id(name)')
+        .select(requiredFields)
         .eq('subject_id', patientId)
-        .order('authored_on', { ascending: false });
-      
+        .order('authored_on', { ascending: false })
+        .limit(50); // Limit to prevent excessive data fetching
+        
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error fetching FHIR medication requests:', error);
+      console.error('Error fetching FHIR prescriptions:', error);
       return [];
     }
   }, []);
   
-  /**
-   * Fetch prescription data from legacy prescriptions table
-   */
   const fetchLegacyData = useCallback(async (patientId: string) => {
     try {
+      // Only select fields we actually need
+      const requiredFields = 'id,patient_id,provider_id,status,created_at,prescription_items(id,name,dosage,frequency,duration,status,type)';
+      
       const { data, error } = await supabase
         .from('prescriptions')
-        .select(`
-          id, 
-          date, 
-          status, 
-          notes,
-          prescription_items(id, name, dosage, frequency, duration, instructions, start_date, end_date, status)
-        `)
+        .select(requiredFields)
         .eq('patient_id', patientId)
-        .order('date', { ascending: false });
-      
+        .order('created_at', { ascending: false })
+        .limit(50); // Limit to prevent excessive data fetching
+        
       if (error) throw error;
       return data || [];
     } catch (error) {
@@ -46,6 +43,6 @@ export const useFetchPrescriptionData = () => {
       return [];
     }
   }, []);
-  
+
   return { fetchFHIRData, fetchLegacyData };
 };
