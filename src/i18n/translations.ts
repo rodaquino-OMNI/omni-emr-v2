@@ -1,4 +1,3 @@
-
 import { commonTranslations } from './categories/common';
 import { authTranslations } from './categories/auth';
 import { patientsTranslations } from './categories/patients';
@@ -10,13 +9,11 @@ import { telemedicineTranslations } from './categories/telemedicine';
 import { vitalsTranslations } from './categories/vitals';
 import { medicalHistoryTranslations } from './categories/medicalHistory';
 import { usersTranslations } from './categories/users';
-// Fix: Import validationTranslations instead of validationsTranslations
 import { validationTranslations } from './categories/validations';
 import { hospitalTranslations } from './categories/hospital';
 import { emergencyTranslations } from './categories/emergency';
 
-// Merge all translation categories
-export const translations = {
+export const translations: Translations = {
   en: {
     ...commonTranslations.en,
     ...authTranslations.en,
@@ -32,7 +29,17 @@ export const translations = {
     ...validationTranslations.en,
     ...hospitalTranslations.en,
     ...emergencyTranslations.en,
+    
+    // Sector selection
+    selectSector: "Select Sector",
+    selectSectorDescription: "Choose the hospital sector you want to work in",
+    continue: "Continue",
+    manageSectors: "Manage Sectors",
+    availableSectors: "Available Sectors",
+    noSectorsAvailable: "No sectors available",
+    loading: "Loading..."
   },
+  
   pt: {
     ...commonTranslations.pt,
     ...authTranslations.pt,
@@ -48,5 +55,14 @@ export const translations = {
     ...validationTranslations.pt,
     ...hospitalTranslations.pt,
     ...emergencyTranslations.pt,
+    
+    // Sector selection
+    selectSector: "Selecionar Setor",
+    selectSectorDescription: "Escolha o setor hospitalar em que você deseja trabalhar",
+    continue: "Continuar",
+    manageSectors: "Gerenciar Setores",
+    availableSectors: "Setores Disponíveis",
+    noSectorsAvailable: "Nenhum setor disponível",
+    loading: "Carregando..."
   }
 };

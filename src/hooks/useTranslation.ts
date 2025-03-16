@@ -7,19 +7,24 @@ import { translations } from '../i18n/translations';
 export interface TranslationHook {
   language: Languages;
   setLanguage: (lang: Languages) => void;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
+  hasTranslation: (key: string) => boolean;
 }
 
 export const useTranslation = (): TranslationHook => {
   const { language, setLanguage } = useContext(LanguageContext);
 
-  const t = (key: string): string => {
+  const hasTranslation = (key: string): boolean => {
+    return !!translations[language] && !!translations[language][key];
+  };
+
+  const t = (key: string, fallback?: string): string => {
     // If the key doesn't exist in the current language, try to use the English version
     if (!translations[language] || !translations[language][key]) {
       if (translations.en && translations.en[key]) {
         return translations.en[key];
       }
-      return key; // Fallback to key if not found in any language
+      return fallback || key; // Fallback to provided fallback or key if not found in any language
     }
     
     return translations[language][key];
@@ -28,6 +33,7 @@ export const useTranslation = (): TranslationHook => {
   return {
     language: language as Languages,
     setLanguage: (lang: Languages) => setLanguage(lang),
-    t
+    t,
+    hasTranslation
   };
 };

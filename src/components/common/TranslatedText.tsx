@@ -15,7 +15,7 @@ const TranslatedText: React.FC<TranslatedTextProps> = ({
 }) => {
   const { t, hasTranslation } = useTranslation();
   
-  const translatedText = hasTranslation && hasTranslation(textKey) ? t(textKey) : fallback;
+  const translatedText = hasTranslation(textKey) ? t(textKey) : fallback;
   
   return (
     <span className={className}>
