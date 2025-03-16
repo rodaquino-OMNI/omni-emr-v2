@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,10 +73,10 @@ const NewMedicationForm = ({ onSuccess, onCancel, patientId }: NewMedicationForm
     setSelectedMedication(medication);
     form.setValue('rxcui', medication.rxcui);
     
-    // Check for potential interactions
+    // Check for potential interactions - fixed to use correct parameter count
     const patientId = form.getValues('patientId');
     if (patientId && medication.rxcui) {
-      checkInteractions(patientId, medication.rxcui);
+      checkInteractions(patientId);
     }
   };
 

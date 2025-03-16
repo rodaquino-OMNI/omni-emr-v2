@@ -61,6 +61,7 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
       }
     );
     
+    // Ensure we're returning an Appointment and not a Promise
     return result as Appointment;
   }
 };

@@ -286,18 +286,12 @@ export const createAuditLogPartition = async (): Promise<boolean> => {
  */
 export const safeExecuteMaintenanceFunction = async (functionName: string, params: any = {}): Promise<any> => {
   try {
-    // Check if the function exists
-    const { data: functionExists, error: functionError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE p.proname = '${functionName}'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    // Check if the function exists using the proper supabase syntax
+    const { data: functionExists, error: functionError } = await supabase.rpc('check_function_exists', {
+      function_name: functionName
+    });
     
-    if (functionError || !functionExists || !functionExists[0]?.exists) {
+    if (functionError || !functionExists) {
       console.log(`Maintenance function ${functionName} does not exist`);
       return null;
     }

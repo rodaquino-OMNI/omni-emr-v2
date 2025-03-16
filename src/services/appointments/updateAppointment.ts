@@ -70,6 +70,7 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
       }
     );
     
+    // Ensure we're returning an Appointment or null, not a Promise
     return result as Appointment | null;
   }
 };

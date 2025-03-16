@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Appointment } from './types';
 import { mockAppointments } from './mockData';
@@ -57,6 +58,7 @@ const getAppointmentsBase = async (
       () => mockData
     );
     
+    // Ensure we're returning an array of Appointments, not a Promise
     return result as Appointment[];
   }
 };

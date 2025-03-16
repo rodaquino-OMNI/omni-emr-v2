@@ -1,29 +1,59 @@
-
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useAuthProvider } from '../hooks/useAuthProvider';
 import { User, Language, UserRole, ApprovalStatus, AuthContextType } from '../types/auth';
 
-// Create context with a default undefined value
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  setUser: () => {},
+  isAuthenticated: false,
+  setIsAuthenticated: () => {},
+  isLoading: true,
+  setIsLoading: () => {},
+  login: async () => null,
+  logout: async () => {},
+  register: async () => null,
+  resetPassword: async () => {},
+  updateProfile: async () => {},
+  sendPasswordResetEmail: async () => {},
+  verifyEmail: async () => {},
+  refreshSession: async () => {},
+  checkAuth: async () => false,
+  isMFAEnabled: false,
+  setIsMFAEnabled: () => {},
+  verifyMFA: async () => false,
+  setupMFA: async () => '',
+  disableMFA: async () => {},
+  lastActivity: new Date(),
+  updateLastActivity: () => {},
+  sessionTimeoutMinutes: 30,
+  setSessionTimeoutMinutes: () => {},
+});
 
-// Provider component
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  // Use the auth provider hook to get all auth-related functionality
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const auth = useAuthProvider();
+  const [lastActivity, setLastActivity] = useState<Date>(new Date());
   
+  const updateLastActivity = useCallback(() => {
+    setLastActivity(new Date());
+  }, []);
+
+  const value = {
+    ...auth,
+    lastActivity,
+    updateLastActivity,
+  };
+
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook for consuming the auth context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   
-  // Throw a clear error if context is used outside of provider
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -31,5 +61,4 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-// Export types
 export type { User, Language, UserRole, ApprovalStatus };

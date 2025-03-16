@@ -1,218 +1,147 @@
-/**
- * Utility for monitoring and optimizing Supabase performance
- */
-import { supabase, getQueryPerformanceStats, refreshMaterializedView } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-
-interface PerformanceStatsOptions {
-  minExecutionTime?: number;
-  limit?: number;
-  sortBy?: 'execution_time' | 'created_at';
-  filterResourceType?: string;
-}
+import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Get statistics on slow database queries
+ * Log slow query for performance monitoring
  */
-export const getSlowQueryStats = async (options: PerformanceStatsOptions = {}) => {
-  const { 
-    minExecutionTime = 100, 
-    limit = 50,
-    sortBy = 'execution_time',
-    filterResourceType
-  } = options;
-  
+export const logSlowQuery = async (
+  queryText: string,
+  executionTime: number,
+  rowsReturned: number,
+  queryPlan: any,
+  thresholdMs = 100
+): Promise<void> => {
   try {
-    // Get raw performance stats
-    const data = await getQueryPerformanceStats(minExecutionTime, limit);
+    if (executionTime < thresholdMs) return;
     
-    // Filter by resource type if specified
-    let filteredData = data;
-    if (filterResourceType) {
-      filteredData = data.filter((item: any) => 
-        item.query_text.toLowerCase().includes(filterResourceType.toLowerCase())
-      );
+    // Check if the table exists first
+    const { data: tableExists, error: tableError } = await supabase
+      .from('pg_tables')
+      .select('*')
+      .eq('schemaname', 'public')
+      .eq('tablename', 'query_performance_logs')
+      .single();
+    
+    if (tableError || !tableExists) {
+      console.log('Performance logs table does not exist - skipping logging');
+      return;
     }
     
-    // Process and categorize the slow queries
-    const categorizedQueries = {
-      verySlowQueries: filteredData.filter((q: any) => q.execution_time > 1000),
-      slowQueries: filteredData.filter((q: any) => q.execution_time > 100 && q.execution_time <= 1000),
-      normalQueries: filteredData.filter((q: any) => q.execution_time <= 100),
-    };
-    
-    return {
-      slowQueryCount: filteredData.length,
-      averageExecutionTime: filteredData.reduce((acc: number, q: any) => acc + q.execution_time, 0) / filteredData.length,
-      maxExecutionTime: Math.max(...filteredData.map((q: any) => q.execution_time)),
-      categorizedQueries,
-      rawData: filteredData
-    };
+    await supabase
+      .from('query_performance_logs')
+      .insert({
+        query_text: queryText,
+        execution_time: executionTime,
+        rows_returned: rowsReturned,
+        query_plan: queryPlan
+      });
   } catch (error) {
-    console.error('Error getting slow query stats:', error);
-    return null;
+    console.error('Error logging slow query:', error);
   }
 };
 
 /**
- * Refresh materialized views for faster query response times
+ * Get query performance statistics
  */
-export const refreshAllMaterializedViews = async () => {
+export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 50) => {
   try {
-    // List of materialized views to refresh
-    const viewsToRefresh = [
-      'patient_latest_vitals'
-    ];
+    // Check if performance monitoring table exists
+    const { data: tableExists, error: tableError } = await supabase
+      .from('pg_tables')
+      .select('exists')
+      .eq('schemaname', 'public')
+      .eq('tablename', 'query_performance_logs')
+      .single();
     
-    // Refresh each view
-    const results = await Promise.all(
-      viewsToRefresh.map(async (view) => {
-        const success = await refreshMaterializedView(view);
-        return { view, success };
-      })
-    );
+    if (tableError || !tableExists || !tableExists.exists) {
+      console.error('Performance logs table does not exist');
+      return [];
+    }
     
-    // Log results
-    const successCount = results.filter(r => r.success).length;
-    
-    toast.success(
-      `Refreshed ${successCount} of ${viewsToRefresh.length} materialized views`,
-      {
-        description: successCount === viewsToRefresh.length 
-          ? 'All views refreshed successfully' 
-          : 'Some views failed to refresh'
-      }
-    );
-    
-    return results;
+    const { data, error } = await supabase
+      .from('query_performance_logs')
+      .select('*')
+      .gte('execution_time', minExecutionTime)
+      .order('execution_time', { ascending: false })
+      .limit(limit);
+      
+    if (error) throw error;
+    return data || [];
   } catch (error) {
-    console.error('Error refreshing materialized views:', error);
-    toast.error('Failed to refresh materialized views');
+    console.error('Error getting query performance stats:', error);
     return [];
   }
 };
 
 /**
- * Run database maintenance tasks
+ * Apply data retention policy to specified tables
  */
-export const runDatabaseMaintenance = async () => {
+export const applyDataRetentionPolicy = async (tableNames: string[] = ['audit_logs', 'query_performance_logs']): Promise<boolean> => {
   try {
-    // Run various maintenance tasks
-    const maintenanceTasks = [
-      // Clean expired cache
-      supabase.rpc('clean_rxnorm_cache', { retention_days: 7 }),
+    // For each table, check if exists and if retention policy function exists
+    for (const tableName of tableNames) {
+      // Check if retention policy exists for this table
+      const { data: existsData, error: existsError } = await supabase
+        .from('pg_proc')
+        .select('exists')
+        .eq('proname', `apply_retention_policy_${tableName}`)
+        .single();
       
-      // Apply data retention policies if the function exists
-      checkFunctionExists('apply_data_retention_policies').then(exists => {
-        if (exists) {
-          return supabase.rpc('apply_data_retention_policies');
-        }
-        console.log('apply_data_retention_policies function does not exist, skipping');
-        return Promise.resolve();
-      })
-    ];
+      // Fixed: Use awaited callback pattern instead of returning PostgrestFilterBuilder
+      const exists = existsData?.exists || false;
+      
+      if (existsError || !exists) {
+        console.log(`No retention policy function for ${tableName}`);
+        continue;
+      }
+      
+      // If exists, call the function
+      try {
+        await supabase.rpc(`apply_retention_policy_${tableName}`);
+        console.log(`Applied retention policy to ${tableName}`);
+      } catch (error) {
+        console.error(`Error applying retention policy to ${tableName}:`, error);
+      }
+    }
     
-    await Promise.all(maintenanceTasks);
-    
-    toast.success('Database maintenance completed successfully');
     return true;
   } catch (error) {
-    console.error('Error running database maintenance:', error);
-    toast.error('Failed to complete database maintenance');
+    console.error('Error in applyDataRetentionPolicy:', error);
     return false;
   }
 };
 
 /**
- * Check for table bloat and recommend optimizations
+ * Get performance monitoring statistics
  */
-export const checkTableBloat = async () => {
-  try {
-    // First check if the function exists
-    const { data: functionExists, error: functionCheckError } = await supabase
-      .rpc('check_function_exists', { function_name: 'check_table_bloat' });
-    
-    if (functionCheckError || !functionExists) {
-      console.log('check_table_bloat function does not exist');
-      return null;
-    }
-    
-    // Call the function to check table bloat
-    const { data, error } = await supabase.rpc('check_table_bloat');
-    
-    if (error) {
-      throw error;
-    }
-    
-    const tablesNeedingAction = data.filter((table: any) => 
-      table.recommended_action !== 'No action needed'
-    );
-    
-    if (tablesNeedingAction.length > 0) {
-      toast.warning('Database optimization recommended', {
-        description: `${tablesNeedingAction.length} tables could benefit from maintenance`,
-        duration: 10000,
-      });
-    }
-    
-    return data;
-  } catch (error) {
-    console.error('Error checking table bloat:', error);
-    return null;
-  }
-};
-
-/**
- * Get database performance statistics
- */
-export const getDatabasePerformanceStats = async () => {
+export const getPerformanceStatistics = async (): Promise<any> => {
   try {
     // Check if the view exists
-    const { data: viewExists, error: viewCheckError } = await supabase
-      .rpc('check_view_exists', { view_name: 'performance_statistics' });
+    const { data: viewExists, error: viewError } = await supabase
+      .from('pg_class')
+      .select('exists')
+      .eq('relname', 'performance_statistics')
+      .eq('relkind', 'v')
+      .single();
     
-    if (viewCheckError || !viewExists) {
+    if (viewError || !viewExists || !viewExists.exists) {
       console.log('performance_statistics view does not exist');
       return null;
     }
     
-    // Query the performance statistics view
+    // Query the view
     const { data, error } = await supabase
       .from('performance_statistics')
       .select('*')
       .single();
-    
+      
     if (error) {
-      throw error;
+      console.error('Error querying performance statistics:', error);
+      return null;
     }
     
     return data;
   } catch (error) {
-    console.error('Error getting database performance stats:', error);
+    console.error('Error in getPerformanceStatistics:', error);
     return null;
-  }
-};
-
-/**
- * Create helper function to check if a database function exists
- * This should be called before trying to use any custom function
- */
-export const checkFunctionExists = async (functionName: string): Promise<boolean> => {
-  try {
-    const { data, error } = await supabase
-      .from('pg_proc')
-      .select('exists')
-      .eq('proname', functionName)
-      .single();
-    
-    if (error) {
-      console.error(`Error checking if function ${functionName} exists:`, error);
-      return false;
-    }
-    
-    return data?.exists || false;
-  } catch (error) {
-    console.error(`Exception checking if function ${functionName} exists:`, error);
-    return false;
   }
 };
