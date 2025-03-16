@@ -14,7 +14,7 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
     const isConnected = await checkConnectivity();
     
     if (!isConnected) {
-      console.error('Database connection check failed');
+      console.error('Database connection error');
       return false;
     }
     

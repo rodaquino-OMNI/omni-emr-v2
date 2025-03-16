@@ -78,6 +78,6 @@ export const cleanRxNormCache = async (retentionDays = 7): Promise<{ table: stri
     return data || [];
   } catch (error) {
     console.error('Error cleaning RxNorm cache:', error);
-    return [];
+    return false;
   }
 };
