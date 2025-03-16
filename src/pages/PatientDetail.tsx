@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -225,7 +226,7 @@ const PatientDetail = () => {
                 <PatientOverviewTab patientId={patientId} insights={insights || []} prescriptions={prescriptions || []} />
               </TabsContent>
               <TabsContent value="records" className="space-y-2">
-                <PatientRecordsTab patientId={patientId} records={records || []} />
+                <PatientRecordsTab patientId={patientId} />
               </TabsContent>
               <TabsContent value="prescriptions" className="space-y-2">
                 <PatientPrescriptionsTab patientId={patientId} prescriptions={prescriptions || []} />
