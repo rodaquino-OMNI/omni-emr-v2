@@ -27,37 +27,37 @@ export const mockUsers: User[] = [
   createMockUser(
     'doctor', 
     'Dr. Amanda Silva', 
-    'doctor@example.com', 
+    'doctor@omnicare.com', 
     ['read:patients', 'write:prescriptions', 'read:medical_records', 'write:medical_records']
   ),
   createMockUser(
     'nurse', 
     'Nurse João Costa', 
-    'nurse@example.com', 
+    'nurse@omnicare.com', 
     ['read:patients', 'read:prescriptions', 'write:vitals', 'read:medical_records']
   ),
   createMockUser(
     'admin', 
     'Admin Sarah Johnson', 
-    'admin@example.com', 
+    'admin@omnicare.com', 
     ['admin:all', 'read:all', 'write:all']
   ),
   createMockUser(
     'patient', 
     'Patient Carlos Oliveira', 
-    'patient@example.com', 
+    'patient@omnicare.com', 
     ['read:own_records', 'read:own_prescriptions']
   ),
   createMockUser(
     'pharmacist', 
     'Pharmacist Maria Santos', 
-    'pharmacist@example.com', 
+    'pharmacist@omnicare.com', 
     ['read:prescriptions', 'write:medications', 'read:patients']
   ),
   createMockUser(
     'lab_technician', 
     'Lab Tech David Chen', 
-    'lab@example.com', 
+    'lab@omnicare.com', 
     ['read:lab_orders', 'write:lab_results', 'read:patients']
   )
 ];
