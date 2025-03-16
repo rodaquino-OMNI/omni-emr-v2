@@ -19,4 +19,9 @@ export interface Appointment {
   reminder_sent: boolean;
   created_at: string;
   updated_at: string;
+  // New fields added to match the database schema
+  category?: string;
+  is_telehealth?: boolean;
+  reminder_time?: string;
+  created_by?: string;
 }

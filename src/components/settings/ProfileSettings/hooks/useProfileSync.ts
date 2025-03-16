@@ -1,10 +1,9 @@
 
 import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, logAuditEvent, logEnhancedAuditEvent } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { ProfileData, ProfileFormData } from '../types';
 import { format } from 'date-fns';
-import { logAuditEvent } from '@/integrations/supabase/client';
 
 export function useProfileSync(
   setFormData: React.Dispatch<React.SetStateAction<ProfileFormData>>,
@@ -15,19 +14,38 @@ export function useProfileSync(
   useEffect(() => {
     if (!user) return;
     
-    // Log profile data access for HIPAA compliance
+    // Enhanced HIPAA-compliant audit logging for profile data access
     const logProfileAccess = async () => {
       try {
-        await logAuditEvent(
-          user.id,
-          'view',
-          'profile',
-          user.id,
-          { access_reason: 'profile_management' }
-        );
+        // Log using enhanced audit system for better HIPAA compliance
+        await logEnhancedAuditEvent({
+          userId: user.id,
+          action: 'view',
+          resourceType: 'profile',
+          resourceId: user.id,
+          patientId: user.role === 'patient' ? user.id : undefined,
+          accessReason: 'profile_management',
+          accessType: 'standard_access',
+          details: {
+            accessMethod: 'profile_component',
+            applicationArea: 'user_settings'
+          }
+        });
       } catch (error) {
-        console.error('Error logging profile access:', error);
-        // Non-blocking error - we continue even if logging fails
+        // Fallback to standard audit logging if enhanced logging fails
+        console.error('Error logging enhanced profile access:', error);
+        try {
+          await logAuditEvent(
+            user.id,
+            'view',
+            'profile',
+            user.id,
+            { access_reason: 'profile_management' }
+          );
+        } catch (fallbackError) {
+          console.error('Error with fallback logging profile access:', fallbackError);
+          // Non-blocking error - we continue even if logging fails
+        }
       }
     };
     
@@ -58,8 +76,25 @@ export function useProfileSync(
               bio: profileData.bio || current.bio
             };
             
-            // Log the profile data sync for audit purposes
+            // Enhanced audit logging for profile data sync
             try {
+              logEnhancedAuditEvent({
+                userId: user.id,
+                action: 'sync',
+                resourceType: 'profile',
+                resourceId: user.id,
+                accessReason: 'automatic_data_sync',
+                accessType: 'system_sync',
+                details: { 
+                  profile_fields: Object.keys(updatedData),
+                  sync_source: 'realtime_subscription',
+                  sync_trigger: 'database_update'
+                }
+              }).catch(err => console.error('Error logging enhanced sync event:', err));
+            } catch (error) {
+              console.error('Error setting up enhanced sync audit:', error);
+              
+              // Fallback to standard audit logging
               logAuditEvent(
                 user.id,
                 'sync',
@@ -67,8 +102,6 @@ export function useProfileSync(
                 user.id,
                 { profile_fields: Object.keys(updatedData) }
               ).catch(err => console.error('Error logging sync event:', err));
-            } catch (error) {
-              console.error('Error setting up sync audit:', error);
             }
             
             return updatedData;

@@ -21,7 +21,12 @@ export const mapDbAppointmentToAppointment = (row: any): Appointment => ({
   status: row.status as AppointmentStatus,
   reminder_sent: row.reminder_sent,
   created_at: row.created_at,
-  updated_at: row.updated_at
+  updated_at: row.updated_at,
+  // Add support for new columns
+  category: row.category,
+  is_telehealth: row.is_telehealth,
+  reminder_time: row.reminder_time,
+  created_by: row.created_by
 });
 
 /**
@@ -55,6 +60,23 @@ export const mapAppointmentToDbFormat = (
   
   if (appointment.reminder_sent !== undefined) {
     dbAppointment.reminder_sent = appointment.reminder_sent;
+  }
+  
+  // Add new fields
+  if (appointment.category !== undefined) {
+    dbAppointment.category = appointment.category;
+  }
+  
+  if (appointment.is_telehealth !== undefined) {
+    dbAppointment.is_telehealth = appointment.is_telehealth;
+  }
+  
+  if (appointment.reminder_time !== undefined) {
+    dbAppointment.reminder_time = appointment.reminder_time;
+  }
+  
+  if (appointment.created_by !== undefined) {
+    dbAppointment.created_by = appointment.created_by;
   }
   
   return dbAppointment;

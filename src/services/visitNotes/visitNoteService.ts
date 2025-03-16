@@ -29,7 +29,7 @@ export const visitNoteService = {
    */
   logVitalSignsAccess: async (userId: string, patientId: string, reason?: string) => {
     try {
-      // Log to the new enhanced audit logs for better HIPAA compliance
+      // Log to the enhanced audit logs for better HIPAA compliance
       await logEnhancedAuditEvent({
         userId,
         action: 'access',
@@ -69,15 +69,29 @@ export const visitNoteService = {
    */
   requestEmergencyAccess: async (userId: string, patientId: string, reason: string): Promise<boolean> => {
     try {
+      // Get client information
+      const clientInfo = {
+        ipAddress: 'client_ip_address', // In a real implementation, this would be the client's IP
+        userAgent: navigator?.userAgent || 'unknown'
+      };
+      
       // Record the emergency access
       const { data, error } = await supabase
-        .from('emergency_access_logs' as any)
+        .from('emergency_access_logs')
         .insert({
           user_id: userId,
           patient_id: patientId,
           reason: reason,
-          ip_address: 'client_ip_address', // In a real implementation, this would be the client's IP
-          user_agent: navigator?.userAgent || 'unknown'
+          ip_address: clientInfo.ipAddress,
+          user_agent: clientInfo.userAgent,
+          access_scope: JSON.stringify({
+            clinical_data: true,
+            medications: true,
+            vital_signs: true,
+            notes: true
+          }),
+          review_status: 'pending',
+          session_id: uuidv4()
         })
         .select()
         .single();
@@ -99,14 +113,51 @@ export const visitNoteService = {
         isEmergencyAccess: true,
         emergencyReason: reason,
         details: {
-          emergencyAccessId: (data as any).id,
-          accessMethod: 'break_glass_procedure'
+          emergencyAccessId: data.id,
+          accessMethod: 'break_glass_procedure',
+          session_id: data.session_id
         }
       });
       
       return true;
     } catch (error) {
       console.error('Error in requestEmergencyAccess:', error);
+      return false;
+    }
+  },
+  
+  /**
+   * Check if database connectivity and structure is valid
+   */
+  checkDatabaseHealth: async (): Promise<boolean> => {
+    try {
+      // Check if key tables exist
+      const { count, error } = await supabase
+        .from('vital_signs')
+        .select('count', { count: 'exact', head: true })
+        .limit(1);
+        
+      if (error) {
+        console.error('Database health check failed:', error);
+        return false;
+      }
+      
+      // Check if materialized views are accessible
+      try {
+        const { error: viewError } = await supabase
+          .rpc('refresh_materialized_view', { view_name: 'patient_latest_vitals' });
+          
+        if (viewError) {
+          console.error('Materialized view refresh failed:', viewError);
+          // Don't return false here, as the view might not exist yet
+        }
+      } catch (viewError) {
+        console.error('Error checking materialized view:', viewError);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error checking database health:', error);
       return false;
     }
   }
