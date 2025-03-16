@@ -5,7 +5,7 @@ import { useAuthLogin } from '@/hooks/useAuthLogin';
 
 // Import components
 import LoginHeader from './LoginHeader';
-import LoginCard, { LoginCardProps } from './LoginCard';
+import LoginCard from './LoginCard';
 import LanguageToggle from '../LanguageToggle';
 import EmailLoginForm from '../EmailLoginForm';
 import PhoneLoginForm from '../PhoneLoginForm';
@@ -95,27 +95,27 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
             {/* Login forms */}
             {activeLoginMethod === 'email' ? (
               <EmailLoginForm
-                t={t}
-                language={language}
                 email={email}
                 setEmail={setEmail}
                 password={password}
                 setPassword={setPassword}
-                onLogin={handleEmailLogin}
+                handleLogin={handleEmailLogin}
                 error={error}
+                isLoading={loading}
               />
             ) : (
               <PhoneLoginForm
-                t={t}
-                language={language}
                 phone={phone}
                 setPhone={setPhone}
                 verificationCode={verificationCode}
                 setVerificationCode={setVerificationCode}
-                onLogin={handleEmailLogin}
-                onSendCode={() => {}}
-                onClearError={() => setError('')}
+                handleSendCode={() => {}}
+                handleLogin={handleEmailLogin}
+                handleClearError={() => setError('')}
                 error={error}
+                isLoading={loading}
+                showVerification={showPhoneVerification}
+                setShowVerification={setShowPhoneVerification}
               />
             )}
             
@@ -134,8 +134,8 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
               
               <div className="mt-6">
                 <SocialLoginButtons
-                  onGoogle={handleGoogleLogin}
-                  onMicrosoft={handleMicrosoftLogin}
+                  handleGoogleLogin={handleGoogleLogin}
+                  handleMicrosoftLogin={handleMicrosoftLogin}
                 />
               </div>
             </div>
@@ -143,12 +143,12 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
           
           {/* Connection status */}
           <div className="mt-8 text-center">
-            <SupabaseConnectionStatus isConnected={isSupabaseConnected} />
+            <SupabaseConnectionStatus connected={isSupabaseConnected} />
           </div>
           
           {/* Language toggle */}
           <div className="mt-4 flex justify-center">
-            <LanguageToggle />
+            <LanguageToggle currentLanguage={language} />
           </div>
         </LoginCard>
       </div>

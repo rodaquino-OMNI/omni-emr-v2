@@ -1,40 +1,24 @@
 
-import { supabase } from '@/integrations/supabase/core';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Safely checks if the application can connect to Supabase using the check_connection function
- * @returns A boolean indicating if Supabase is connected
+ * Checks if the Supabase connection is working
+ * @returns Promise<boolean> true if connected, false otherwise
  */
-export const checkConnectivity = async (): Promise<boolean> => {
+export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
-    // Use the check_connection function which doesn't depend on specific tables
-    const { data, error } = await supabase.rpc('check_connection');
+    // Simple query to check if we can connect to Supabase
+    const { error } = await supabase.from('auth').select('*', { count: 'exact', head: true }).limit(1);
     
-    if (error) {
-      console.error('Failed to connect to Supabase:', error);
+    // If there's an error that's not a "relation does not exist" error, consider it a connection issue
+    if (error && !error.message.includes('relation') && !error.message.includes('does not exist')) {
+      console.error('Supabase connection test error:', error);
       return false;
     }
     
-    return !!data;
+    return true;
   } catch (error) {
-    console.error('Exception when connecting to Supabase:', error);
+    console.error('Supabase connection test failed:', error);
     return false;
-  }
-};
-
-/**
- * Safely checks and displays a warning if the database connection is not working
- */
-export const showConnectionWarning = async (): Promise<void> => {
-  try {
-    const isConnected = await checkConnectivity();
-    
-    if (!isConnected) {
-      // Use a more user-friendly approach for showing warnings
-      // This could be integrated with your toast/notification system
-      console.warn('Database connection failed - functionality may be limited');
-    }
-  } catch (error) {
-    console.error('Error checking database connection:', error);
   }
 };

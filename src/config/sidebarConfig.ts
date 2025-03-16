@@ -1,5 +1,4 @@
-
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck } from 'lucide-react';
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck, Siren } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -20,6 +19,16 @@ export const sidebarItems: SidebarItem[] = [
     translationKey: 'dashboard',
     priority: 1
   },
+  // Emergency Care - add with high priority
+  {
+    name: 'Emergency Care',
+    path: '/emergency-care',
+    icon: Siren,
+    translationKey: 'emergencyCare',
+    permissionRequired: 'view_emergency',
+    priority: 2,
+    roles: ['doctor', 'nurse', 'administrative']
+  },
   // Nurse-focused items - moved to top positions with higher priority for nurse role
   {
     name: 'Medication Administration',
@@ -27,7 +36,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Pill,
     translationKey: 'medicationAdministration',
     permissionRequired: 'administer_medications',
-    priority: 2,
+    priority: 3,
     roles: ['nurse', 'doctor']
   },
   {
@@ -36,7 +45,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Droplet, 
     translationKey: 'fluidBalance',
     permissionRequired: 'manage_fluid_balance',
-    priority: 3,
+    priority: 4,
     roles: ['nurse', 'doctor']
   },
   {
@@ -45,14 +54,14 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardCheck,
     translationKey: 'visitNotes',
     permissionRequired: 'view_records',
-    priority: 4
+    priority: 5
   },
   {
     name: 'Patients',
     path: '/patients',
     icon: Users,
     translationKey: 'patients',
-    priority: 5
+    priority: 6
   },
   {
     name: 'Vital Signs',
@@ -60,7 +69,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Activity,
     translationKey: 'vitals',
     permissionRequired: 'view_vitals',
-    priority: 6
+    priority: 7
   },
   {
     name: 'Schedule',
@@ -68,14 +77,14 @@ export const sidebarItems: SidebarItem[] = [
     icon: Calendar,
     translationKey: 'schedule',
     permissionRequired: 'view_schedule',
-    priority: 7
+    priority: 8
   },
   {
     name: 'Tasks',
     path: '/tasks',
     icon: ListChecks,
     translationKey: 'tasks',
-    priority: 8
+    priority: 9
   },
   {
     name: 'Clinical Documentation',
@@ -83,7 +92,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: FileText,
     translationKey: 'records',
     permissionRequired: 'view_records',
-    priority: 9
+    priority: 10
   },
   {
     name: 'Prescriptions',
@@ -91,21 +100,21 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardList,
     translationKey: 'prescriptions',
     permissionRequired: 'view_prescriptions',
-    priority: 10
+    priority: 11
   },
   {
     name: 'Messages',
     path: '/messages',
     icon: MessageSquare,
     translationKey: 'messages',
-    priority: 11
+    priority: 12
   },
   {
     name: 'Notifications',
     path: '/notifications',
     icon: Bell,
     translationKey: 'notifications',
-    priority: 12
+    priority: 13
   },
   {
     name: 'Telemedicine',
@@ -113,7 +122,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Video,
     translationKey: 'telemedicine',
     permissionRequired: 'telemedicine',
-    priority: 13
+    priority: 14
   },
   {
     name: 'Orders',
@@ -121,7 +130,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardList,
     translationKey: 'orders',
     permissionRequired: 'view_orders',
-    priority: 14
+    priority: 15
   },
   {
     name: 'Analytics',
@@ -129,7 +138,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: BarChart,
     translationKey: 'analytics',
     permissionRequired: 'view_analytics',
-    priority: 15,
+    priority: 16,
     roles: ['admin', 'doctor', 'system_administrator']
   },
   {
@@ -137,13 +146,13 @@ export const sidebarItems: SidebarItem[] = [
     path: '/help',
     icon: HelpCircle,
     translationKey: 'help',
-    priority: 16
+    priority: 17
   },
   {
     name: 'Settings',
     path: '/settings',
     icon: Settings,
     translationKey: 'settings',
-    priority: 17
+    priority: 18
   }
 ];
