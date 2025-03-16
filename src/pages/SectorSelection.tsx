@@ -22,32 +22,32 @@ const SectorSelection: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const { sectors, selectSector, isLoading } = useSectorContext();
   
-  // Use sectors from context if available, otherwise use mock data
+  // Use sectors from context if available, otherwise use the five requested sectors
   const availableSectors = sectors.length > 0 ? sectors : [
     {
       id: 'emergency',
-      name: language === 'pt' ? 'Departamento de Emergência' : 'Emergency Department',
-      description: language === 'pt' ? 'Atendimento agudo e serviços de emergência' : 'Acute care and emergency services'
-    },
-    {
-      id: 'inpatient',
-      name: language === 'pt' ? 'Enfermaria de Internação' : 'Inpatient Ward',
-      description: language === 'pt' ? 'Cuidados médicos e cirúrgicos para pacientes internados' : 'General medical and surgical inpatient care'
-    },
-    {
-      id: 'outpatient',
-      name: language === 'pt' ? 'Clínica Ambulatorial' : 'Outpatient Clinic',
-      description: language === 'pt' ? 'Consultas de acompanhamento e consultas não emergenciais' : 'Follow-up visits and non-emergency consultations'
+      name: language === 'pt' ? 'Emergência' : 'Emergency',
+      description: language === 'pt' ? 'Departamento de emergência para atendimento urgente' : 'Emergency department for urgent care'
     },
     {
       id: 'icu',
-      name: language === 'pt' ? 'Unidade de Terapia Intensiva' : 'Intensive Care Unit',
-      description: language === 'pt' ? 'Cuidados intensivos para pacientes que necessitam de monitoramento contínuo' : 'Critical care for patients requiring close monitoring'
+      name: language === 'pt' ? 'UTI' : 'ICU',
+      description: language === 'pt' ? 'Unidade de Terapia Intensiva para pacientes críticos' : 'Intensive Care Unit for critical patients'
     },
     {
-      id: 'pediatrics',
-      name: language === 'pt' ? 'Pediatria' : 'Pediatrics',
-      description: language === 'pt' ? 'Cuidados médicos para bebês, crianças e adolescentes' : 'Medical care for infants, children and adolescents'
+      id: 'general',
+      name: language === 'pt' ? 'Enfermaria Geral' : 'General Medical Ward',
+      description: language === 'pt' ? 'Enfermaria médica geral para internação padrão' : 'General medical ward for standard inpatient care'
+    },
+    {
+      id: 'outpatient',
+      name: language === 'pt' ? 'Ambulatório' : 'Outpatient Clinics',
+      description: language === 'pt' ? 'Clínicas e serviços ambulatoriais' : 'Outpatient clinics and services'
+    },
+    {
+      id: 'homecare',
+      name: language === 'pt' ? 'Cuidados Domiciliares' : 'Home Care',
+      description: language === 'pt' ? 'Serviços de cuidados remotos para pacientes em casa' : 'Remote care services for patients at home'
     }
   ];
 
