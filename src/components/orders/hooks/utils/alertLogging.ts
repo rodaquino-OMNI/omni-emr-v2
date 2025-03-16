@@ -11,9 +11,9 @@ export const logOrderAlert = (alert: OrderAlert) => {
   console.info(`Order alert triggered: ${alert.message} (${alert.type})`);
 
   const iconMap = {
-    error: <AlertTriangle className="h-4 w-4" />,
-    warning: <AlertTriangle className="h-4 w-4" />,
-    info: <Info className="h-4 w-4" />
+    error: React.createElement(AlertTriangle, { className: "h-4 w-4" }),
+    warning: React.createElement(AlertTriangle, { className: "h-4 w-4" }),
+    info: React.createElement(Info, { className: "h-4 w-4" })
   };
 
   const icon = iconMap[alert.severity || 'info'];
@@ -39,6 +39,6 @@ export const logAlertAcknowledgement = (alert: OrderAlert) => {
   
   toast("Alert Acknowledged", {
     description: `You've acknowledged: ${alert.message}`,
-    icon: <CheckCircle className="h-4 w-4" />
+    icon: React.createElement(CheckCircle, { className: "h-4 w-4" })
   });
 };

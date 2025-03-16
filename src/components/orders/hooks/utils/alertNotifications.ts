@@ -1,62 +1,58 @@
 
 import { OrderAlert } from '../types/orderAlerts';
 import { toast } from 'sonner';
-import { AlertTriangle, Info, Bell } from 'lucide-react';
+import { AlertTriangle, ShieldAlert, Info } from 'lucide-react';
 import React from 'react';
 
 /**
- * Shows a critical alert notification in the UI that requires immediate attention
+ * Display a notification for a medication interaction alert
  */
-export const showCriticalAlert = (alert: OrderAlert) => {
-  console.error(`CRITICAL ALERT: ${alert.message}`);
-  
-  toast.error(alert.title || "Critical Alert", {
+export const showDrugInteractionAlert = (alert: OrderAlert) => {
+  toast.warning(alert.title || "Drug Interaction Detected", {
     description: alert.message,
-    duration: 10000, // longer duration for critical alerts
-    icon: <AlertTriangle className="h-4 w-4" />
+    duration: 5000,
+    icon: React.createElement(AlertTriangle, { className: "h-4 w-4" })
   });
 };
 
 /**
- * Shows a warning notification that should be reviewed but is not critical
+ * Display a notification for an allergy alert
  */
-export const showWarningAlert = (alert: OrderAlert) => {
-  console.warn(`Warning Alert: ${alert.message}`);
-  
-  toast.warning(alert.title || "Warning", {
+export const showAllergyAlert = (alert: OrderAlert) => {
+  toast.error(alert.title || "Allergy Warning", {
     description: alert.message,
-    duration: 6000,
-    icon: <AlertTriangle className="h-4 w-4" />
+    duration: 5000,
+    icon: React.createElement(AlertTriangle, { className: "h-4 w-4" })
   });
 };
 
 /**
- * Shows an informational notification about the order
+ * Display a notification for a general order alert
  */
-export const showInfoAlert = (alert: OrderAlert) => {
-  console.info(`Info Alert: ${alert.message}`);
-  
-  toast.info(alert.title || "Information", {
+export const showOrderAlert = (alert: OrderAlert) => {
+  toast.info(alert.title || "Order Alert", {
     description: alert.message,
     duration: 4000,
-    icon: <Info className="h-4 w-4" />
+    icon: React.createElement(Info, { className: "h-4 w-4" })
   });
 };
 
 /**
- * Dispatches the alert to the appropriate notification method based on its severity
+ * Display alerts based on their type
  */
-export const dispatchAlert = (alert: OrderAlert) => {
-  switch (alert.severity) {
-    case 'error':
-      showCriticalAlert(alert);
-      break;
-    case 'warning':
-      showWarningAlert(alert);
-      break;
-    case 'info':
-    default:
-      showInfoAlert(alert);
-      break;
-  }
+export const displayOrderAlerts = (alerts: OrderAlert[]) => {
+  if (!alerts || alerts.length === 0) return;
+  
+  alerts.forEach(alert => {
+    switch (alert.type) {
+      case 'DRUG_INTERACTION':
+        showDrugInteractionAlert(alert);
+        break;
+      case 'ALLERGY':
+        showAllergyAlert(alert);
+        break;
+      default:
+        showOrderAlert(alert);
+    }
+  });
 };
