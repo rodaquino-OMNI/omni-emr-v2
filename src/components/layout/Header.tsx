@@ -1,25 +1,29 @@
 
-import React from "react";
-import { cn } from "@/lib/utils";
-import HeaderLogo from "./HeaderLogo";
-import HeaderSearch from "./HeaderSearch";
-import LanguageSwitcher from "../language/LanguageSwitcher";
-import HeaderNotifications from "./HeaderNotifications";
-import HeaderSettingsButton from "./HeaderSettingsButton";
-import HeaderUserMenu from "./HeaderUserMenu";
+import React from 'react';
+import HeaderLogo from './HeaderLogo';
+import HeaderSearch from './HeaderSearch';
+import HeaderNotifications from './HeaderNotifications';
+import HeaderUserMenu from './HeaderUserMenu';
+import HeaderSettingsButton from './HeaderSettingsButton';
+import SectorSelector from './SectorSelector';
+import { cn } from '@/lib/utils';
 
-type HeaderProps = {
+interface HeaderProps {
   className?: string;
-};
+}
 
-const Header = ({ className }: HeaderProps) => {
+const Header: React.FC<HeaderProps> = ({ className }) => {
   return (
-    <header className={cn("w-full h-16 px-6 flex items-center justify-between border-b border-border glass-morphism z-10 sticky top-0", className)}>
-      <HeaderLogo />
-      <HeaderSearch />
-      
-      <div className="flex items-center gap-4">
-        <LanguageSwitcher />
+    <header className={cn(
+      "flex h-16 items-center border-b bg-background px-4 md:px-6",
+      className
+    )}>
+      <div className="flex items-center gap-2 md:gap-4">
+        <HeaderLogo />
+      </div>
+      <div className="ml-auto flex items-center gap-2 md:gap-4">
+        <SectorSelector />
+        <HeaderSearch />
         <HeaderNotifications />
         <HeaderSettingsButton />
         <HeaderUserMenu />

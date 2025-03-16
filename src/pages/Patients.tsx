@@ -3,15 +3,18 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
-import PatientList from '../components/patients/PatientList';
-import { PlusCircle } from 'lucide-react';
+import SectorPatientList from '../components/patients/SectorPatientList';
+import { PlusCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '../hooks/useTranslation';
+import { useSectorContext } from '@/hooks/useSectorContext';
+import TranslatedText from '@/components/common/TranslatedText';
 
 const PatientsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { language } = useTranslation();
+  const { selectedSector, refreshPatients } = useSectorContext();
   
   // Get status from URL query params
   const queryParams = new URLSearchParams(location.search);
@@ -22,8 +25,7 @@ const PatientsPage = () => {
   
   const statuses = [
     { value: 'all', label: language === 'pt' ? 'Todos os Pacientes' : 'All Patients' },
-    { value: 'hospital', label: language === 'pt' ? 'Internados' : 'Hospital' },
-    { value: 'home', label: language === 'pt' ? 'Em Casa' : 'Home Care' },
+    { value: 'active', label: language === 'pt' ? 'Ativos' : 'Active' },
     { value: 'critical', label: language === 'pt' ? 'Críticos' : 'Critical' },
     { value: 'stable', label: language === 'pt' ? 'Estáveis' : 'Stable' },
     { value: 'improving', label: language === 'pt' ? 'Melhorando' : 'Improving' },
@@ -48,6 +50,17 @@ const PatientsPage = () => {
     navigate('/patients/1');
   };
 
+  // Handle refresh
+  const handleRefresh = async () => {
+    await refreshPatients();
+  };
+
+  // If no sector is selected, redirect to sector selection
+  if (!selectedSector) {
+    navigate('/sectors');
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
@@ -56,9 +69,14 @@ const PatientsPage = () => {
         <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <h1 className="text-2xl font-semibold">
-                {language === 'pt' ? 'Pacientes' : 'Patients'}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-semibold">
+                  {language === 'pt' ? 'Pacientes' : 'Patients'}
+                </h1>
+                <Badge variant="outline" className="ml-2 bg-primary/10 text-xs px-2">
+                  {selectedSector.name}
+                </Badge>
+              </div>
               
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative">
@@ -83,15 +101,22 @@ const PatientsPage = () => {
                   ))}
                 </select>
                 
+                <Button onClick={handleRefresh} variant="outline" className="h-9 flex items-center gap-1">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+                
                 <Button onClick={handleNewPatient} className="h-9 flex items-center gap-1">
                   <PlusCircle className="h-4 w-4" />
-                  {language === 'pt' ? 'Novo Paciente' : 'New Patient'}
+                  <TranslatedText 
+                    textKey="newPatient" 
+                    fallback={language === 'pt' ? 'Novo Paciente' : 'New Patient'} 
+                  />
                 </Button>
               </div>
             </div>
             
             <div className="glass-card p-6">
-              <PatientList statusFilter={statusFilter} searchTerm={searchTerm} />
+              <SectorPatientList statusFilter={statusFilter} searchTerm={searchTerm} />
             </div>
           </div>
         </main>

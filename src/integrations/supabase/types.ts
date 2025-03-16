@@ -1367,6 +1367,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hospital_sectors: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       immunizations: {
         Row: {
           created_at: string | null
@@ -2315,6 +2345,54 @@ export type Database = {
           },
         ]
       }
+      patient_sectors: {
+        Row: {
+          admission_date: string
+          created_at: string
+          discharge_date: string | null
+          id: string
+          is_active: boolean
+          patient_id: string
+          sector_id: string
+          updated_at: string
+        }
+        Insert: {
+          admission_date?: string
+          created_at?: string
+          discharge_date?: string | null
+          id?: string
+          is_active?: boolean
+          patient_id: string
+          sector_id: string
+          updated_at?: string
+        }
+        Update: {
+          admission_date?: string
+          created_at?: string
+          discharge_date?: string | null
+          id?: string
+          is_active?: boolean
+          patient_id?: string
+          sector_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_sectors_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_sectors_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           address: string | null
@@ -2332,7 +2410,9 @@ export type Database = {
           last_name: string
           mrn: string
           phone: string | null
+          room_number: string | null
           state: string | null
+          status: string | null
           updated_at: string
           user_id: string | null
           zip_code: string | null
@@ -2353,7 +2433,9 @@ export type Database = {
           last_name: string
           mrn: string
           phone?: string | null
+          room_number?: string | null
           state?: string | null
+          status?: string | null
           updated_at?: string
           user_id?: string | null
           zip_code?: string | null
@@ -2374,7 +2456,9 @@ export type Database = {
           last_name?: string
           mrn?: string
           phone?: string | null
+          room_number?: string | null
           state?: string | null
+          status?: string | null
           updated_at?: string
           user_id?: string | null
           zip_code?: string | null
@@ -2661,6 +2745,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      provider_patient_assignments: {
+        Row: {
+          assignment_date: string
+          created_at: string
+          end_date: string | null
+          id: string
+          is_active: boolean
+          patient_id: string
+          provider_id: string
+          sector_id: string
+          updated_at: string
+        }
+        Insert: {
+          assignment_date?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          patient_id: string
+          provider_id: string
+          sector_id: string
+          updated_at?: string
+        }
+        Update: {
+          assignment_date?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          patient_id?: string
+          provider_id?: string
+          sector_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_patient_assignments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_patient_assignments_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_sectors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       query_performance_logs: {
         Row: {
@@ -3055,6 +3190,38 @@ export type Database = {
           },
         ]
       }
+      user_sector_access: {
+        Row: {
+          created_at: string
+          id: string
+          sector_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sector_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sector_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sector_access_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vital_signs: {
         Row: {
           created_at: string
@@ -3245,6 +3412,21 @@ export type Database = {
           created_at: string
         }[]
       }
+      get_sector_patients: {
+        Args: {
+          p_sector_id: string
+        }
+        Returns: {
+          id: string
+          first_name: string
+          last_name: string
+          date_of_birth: string
+          gender: string
+          mrn: string
+          status: string
+          is_assigned: boolean
+        }[]
+      }
       get_user_role: {
         Args: {
           user_id: string
@@ -3254,6 +3436,16 @@ export type Database = {
       get_user_role_cached: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_user_sectors: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          code: string
+          description: string
+          is_active: boolean
+        }[]
       }
       gtrgm_compress: {
         Args: {
