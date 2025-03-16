@@ -15,9 +15,13 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => ({ success: false }),
   resetPassword: async (email: string): Promise<{ success: boolean; error?: any }> => {
     try {
-      const result = await someResetPasswordFunction(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      
+      if (error) throw error;
+      
       return { success: true };
     } catch (error) {
+      console.error("Reset password error:", error);
       return { success: false, error };
     }
   },

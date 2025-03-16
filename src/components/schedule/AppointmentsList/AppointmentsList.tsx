@@ -1,43 +1,37 @@
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 import { useAppointmentsQuery } from './hooks/useAppointmentsQuery';
 import AppointmentsListContent from './AppointmentsListContent';
-import AppointmentListLoading from './AppointmentListLoading';
-import AppointmentListError from './AppointmentListError';
 
 type AppointmentsListProps = {
+  className?: string;
   selectedDate?: Date;
   patientId?: string;
-  providerId?: string;
-  status?: string;
+  limit?: number;
 };
 
-const AppointmentsList: React.FC<AppointmentsListProps> = ({
-  selectedDate,
-  patientId,
-  providerId,
-  status
-}) => {
+const AppointmentsList = ({ className, selectedDate, patientId, limit }: AppointmentsListProps) => {
   const { 
     appointments, 
     isLoading, 
-    error 
-  } = useAppointmentsQuery(selectedDate, patientId, providerId, status);
-
-  if (isLoading) {
-    return <AppointmentListLoading />;
-  }
-
-  if (error) {
-    return <AppointmentListError error={error} />;
-  }
+    error
+  } = useAppointmentsQuery({ 
+    selectedDate, 
+    patientId, 
+    limit 
+  });
 
   return (
-    <AppointmentsListContent 
-      appointments={appointments}
-      selectedDate={selectedDate}
-      patientId={patientId}
-    />
+    <div className={cn("space-y-3", className)}>
+      <AppointmentsListContent 
+        appointments={appointments}
+        selectedDate={selectedDate}
+        patientId={patientId}
+        isLoading={isLoading}
+        error={error}
+      />
+    </div>
   );
 };
 
