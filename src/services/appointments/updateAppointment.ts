@@ -1,4 +1,3 @@
-
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 import { Appointment } from './types';
 import { mockAppointments } from './mockData';
@@ -54,7 +53,7 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
     };
     
     // Handle the error and return the updated mock appointment if in dev mode
-    const result = handleAppointmentError(
+    return handleAppointmentError(
       error,
       {
         operation: 'update',
@@ -68,8 +67,6 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
         mockAppointments[index] = updatedAppointment;
         return updatedAppointment;
       }
-    );
-    
-    return result as Appointment | null;
+    ) as Appointment | null;
   }
 };

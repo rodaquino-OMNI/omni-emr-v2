@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Appointment } from './types';
 import { mockAppointments } from './mockData';
@@ -49,12 +48,10 @@ const getAppointmentsBase = async (
     });
     
     // Handle the error and return the mock data if in dev mode
-    const result = handleAppointmentError(error, {
+    return handleAppointmentError(error, {
       operation: 'fetch',
       entityType: 'appointment'
-    }, () => mockData);
-    
-    return result as Appointment[];
+    }, () => mockData) as Appointment[];
   }
 };
 

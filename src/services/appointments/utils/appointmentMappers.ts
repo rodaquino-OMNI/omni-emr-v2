@@ -29,14 +29,38 @@ export const mapDbAppointmentToAppointment = (row: any): Appointment => ({
   created_by: row.created_by
 });
 
+// Update the Database type declaration to include the new fields
+type AppointmentInsert = {
+  id?: string;
+  patient_id: string;
+  patient_name: string;
+  provider_id: string;
+  provider_name: string;
+  title: string;
+  notes?: string;
+  date: string;
+  time: string;
+  duration: number;
+  location?: string;
+  type: string;
+  status: string;
+  reminder_sent?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  category?: string;
+  is_telehealth?: boolean;
+  reminder_time?: string;
+  created_by?: string;
+};
+
 /**
  * Maps an Appointment to database format for insert/update operations
  * using the correct Supabase types
  */
 export const mapAppointmentToDbFormat = (
   appointment: Partial<Appointment>
-): Database['public']['Tables']['appointments']['Insert'] => {
-  const dbAppointment: Database['public']['Tables']['appointments']['Insert'] = {
+): AppointmentInsert => {
+  const dbAppointment: AppointmentInsert = {
     date: appointment.date || new Date().toISOString().split('T')[0],
     duration: appointment.duration || 30,
     patient_id: appointment.patientId || '',

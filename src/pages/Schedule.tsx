@@ -64,6 +64,7 @@ const SchedulePage = () => {
     toast.success(language === 'pt' ? 'Consulta cancelada com sucesso!' : 'Appointment cancelled successfully!');
   };
 
+  // This handler properly handles the date selection from the Calendar component
   const handleDateSelect = (newDate: Date | undefined) => {
     setDate(newDate);
   };
@@ -113,13 +114,10 @@ const SchedulePage = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
+                    <CalendarIcon
                       mode="single"
                       selected={date}
                       onSelect={handleDateSelect}
-                      disabled={(date) =>
-                        date > new Date()
-                      }
                       initialFocus
                     />
                   </PopoverContent>

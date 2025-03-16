@@ -76,16 +76,14 @@ export const logEnhancedAuditEvent = async (payload: EnhancedAuditPayload): Prom
 export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 50) => {
   try {
     // Check if performance monitoring table exists
-    const { data: tableExists, error: tableError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_tables
-        WHERE schemaname = 'public'
-        AND tablename = 'query_performance_logs'
-      ) as exists
-    `);
+    const { data: tableExists, error: tableError } = await supabase
+      .from('pg_tables')
+      .select('exists')
+      .eq('schemaname', 'public')
+      .eq('tablename', 'query_performance_logs')
+      .single();
     
-    if (tableError || !tableExists || !tableExists[0]?.exists) {
+    if (tableError || !tableExists || !tableExists.exists) {
       console.error('Performance logs table does not exist');
       return [];
     }
@@ -111,17 +109,13 @@ export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 5
 export const userHasPermission = async (userId: string, permissionCode: string): Promise<boolean> => {
   try {
     // Check if the function exists
-    const { data: functionExists, error: functionError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE p.proname = 'user_has_permission'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    const { data: functionExists, error: functionError } = await supabase
+      .from('pg_proc')
+      .select('exists')
+      .eq('proname', 'user_has_permission')
+      .single();
     
-    if (functionError || !functionExists || !functionExists[0]?.exists) {
+    if (functionError || !functionExists || !functionExists.exists) {
       console.error('user_has_permission function does not exist');
       // Fallback to a simpler check
       const { data: userData, error: userError } = await supabase
@@ -206,47 +200,36 @@ export const logSlowQuery = async (
 export const refreshMaterializedView = async (viewName: string): Promise<boolean> => {
   try {
     // First check if the view exists
-    const { data: viewExists, error: viewError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_catalog.pg_class c
-        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-        WHERE c.relname = '${viewName}'
-        AND n.nspname = 'public'
-        AND c.relkind = 'm'
-      ) as exists
-    `);
+    const { data: viewExists, error: viewError } = await supabase
+      .from('pg_class')
+      .select('exists')
+      .eq('relname', viewName)
+      .eq('relkind', 'm')
+      .single();
     
-    if (viewError || !viewExists || !viewExists[0]?.exists) {
+    if (viewError || !viewExists || !viewExists.exists) {
       console.error(`Materialized view ${viewName} does not exist`);
       return false;
     }
     
     // Check if the refresh function exists
-    const { data: functionExists, error: functionError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE p.proname = 'refresh_materialized_view'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    const { data: functionExists, error: functionError } = await supabase
+      .from('pg_proc')
+      .select('exists')
+      .eq('proname', 'refresh_materialized_view')
+      .single();
     
-    if (functionError || !functionExists || !functionExists[0]?.exists) {
+    if (functionError || !functionExists || !functionExists.exists) {
       console.error('refresh_materialized_view function does not exist');
       
       // Try a direct refresh
-      const { error: directError } = await supabase.query(`
-        REFRESH MATERIALIZED VIEW ${viewName}
-      `);
-      
-      if (directError) {
+      try {
+        await supabase.rpc('refresh_materialized_view', { view_name: viewName });
+        return true;
+      } catch (directError) {
         console.error(`Error directly refreshing materialized view ${viewName}:`, directError);
         return false;
       }
-      
-      return true;
     }
     
     // Use the function if it exists
@@ -280,17 +263,13 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
 export const createAuditLogPartition = async (): Promise<boolean> => {
   try {
     // Check if the function exists
-    const { data: functionExists, error: functionError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE p.proname = 'create_audit_log_partition'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    const { data: functionExists, error: functionError } = await supabase
+      .from('pg_proc')
+      .select('exists')
+      .eq('proname', 'create_audit_log_partition')
+      .single();
     
-    if (functionError || !functionExists || !functionExists[0]?.exists) {
+    if (functionError || !functionExists || !functionExists.exists) {
       console.log('create_audit_log_partition function does not exist');
       return false;
     }
@@ -346,18 +325,14 @@ export const safeExecuteMaintenanceFunction = async (functionName: string, param
 export const getPerformanceStatistics = async (): Promise<any> => {
   try {
     // Check if the view exists
-    const { data: viewExists, error: viewError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_catalog.pg_class c
-        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-        WHERE c.relname = 'performance_statistics'
-        AND n.nspname = 'public'
-        AND c.relkind = 'v'
-      ) as exists
-    `);
+    const { data: viewExists, error: viewError } = await supabase
+      .from('pg_class')
+      .select('exists')
+      .eq('relname', 'performance_statistics')
+      .eq('relkind', 'v')
+      .single();
     
-    if (viewError || !viewExists || !viewExists[0]?.exists) {
+    if (viewError || !viewExists || !viewExists.exists) {
       console.log('performance_statistics view does not exist');
       return null;
     }

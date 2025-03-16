@@ -1,4 +1,3 @@
-
 /**
  * Utility for monitoring and optimizing Supabase performance
  */
@@ -103,15 +102,14 @@ export const runDatabaseMaintenance = async () => {
       // Clean expired cache
       supabase.rpc('clean_rxnorm_cache', { retention_days: 7 }),
       
-      // Apply data retention policies - safely check if function exists first
-      supabase.rpc('check_function_exists', { function_name: 'apply_data_retention_policies' })
-        .then(({ data, error }) => {
-          if (!error && data) {
-            return supabase.rpc('apply_data_retention_policies');
-          }
-          console.log('apply_data_retention_policies function does not exist, skipping');
-          return Promise.resolve();
-        })
+      // Apply data retention policies if the function exists
+      checkFunctionExists('apply_data_retention_policies').then(exists => {
+        if (exists) {
+          return supabase.rpc('apply_data_retention_policies');
+        }
+        console.log('apply_data_retention_policies function does not exist, skipping');
+        return Promise.resolve();
+      })
     ];
     
     await Promise.all(maintenanceTasks);
@@ -201,22 +199,18 @@ export const getDatabasePerformanceStats = async () => {
  */
 export const checkFunctionExists = async (functionName: string): Promise<boolean> => {
   try {
-    const { data, error } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE p.proname = '${functionName}'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    const { data, error } = await supabase
+      .from('pg_proc')
+      .select('exists')
+      .eq('proname', functionName)
+      .single();
     
     if (error) {
       console.error(`Error checking if function ${functionName} exists:`, error);
       return false;
     }
     
-    return data[0]?.exists || false;
+    return data?.exists || false;
   } catch (error) {
     console.error(`Exception checking if function ${functionName} exists:`, error);
     return false;

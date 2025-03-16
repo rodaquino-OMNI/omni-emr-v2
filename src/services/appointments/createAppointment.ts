@@ -47,7 +47,7 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
     };
     
     // Handle the error and return the mock appointment if in dev mode
-    const result = handleAppointmentError(
+    return handleAppointmentError(
       error,
       {
         operation: 'create',
@@ -59,8 +59,6 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
         mockAppointments.push(newAppointment);
         return newAppointment;
       }
-    );
-    
-    return result as Appointment;
+    ) as Appointment;
   }
 };

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -32,34 +31,26 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
     }
     
     // Check if patient_latest_vitals materialized view exists - using a safer approach
-    const { data: viewData, error: viewError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_catalog.pg_class c
-        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-        WHERE c.relname = 'patient_latest_vitals'
-        AND n.nspname = 'public'
-        AND c.relkind = 'm'
-      ) as exists
-    `);
+    const { data: viewData, error: viewError } = await supabase
+      .from('pg_class')
+      .select('exists')
+      .eq('relname', 'patient_latest_vitals')
+      .eq('relkind', 'm')
+      .single();
     
-    if (viewError || !viewData || !viewData[0]?.exists) {
+    if (viewError || !viewData || !viewData.exists) {
       console.error('Materialized view check failed:', viewError);
       allTablesExist = false;
     }
     
     // Check if partitioned audit logs exist
-    const { data: partitionedLogs, error: partitionError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_catalog.pg_class c
-        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-        WHERE c.relname = 'audit_logs_partitioned'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    const { data: partitionedLogs, error: partitionError } = await supabase
+      .from('pg_class')
+      .select('exists')
+      .eq('relname', 'audit_logs_partitioned')
+      .single();
     
-    if (partitionError || !partitionedLogs || !partitionedLogs[0]?.exists) {
+    if (partitionError || !partitionedLogs || !partitionedLogs.exists) {
       console.log('Partitioned audit logs do not exist yet - this is an optional feature');
     } else {
       console.log('Partitioned audit logs are set up correctly');
@@ -92,18 +83,14 @@ export const showDatabaseStructureWarnings = async (): Promise<void> => {
  */
 export const checkDatabaseMaintenance = async (): Promise<void> => {
   try {
-    // Check if the function exists first using a simple query
-    const { data: functionCheck, error: functionError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE p.proname = 'check_table_bloat'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    // Check if the function exists first using a simpler approach
+    const { data: functionCheck, error: functionError } = await supabase
+      .from('pg_proc')
+      .select('exists')
+      .eq('proname', 'check_table_bloat')
+      .single();
     
-    if (functionError || !functionCheck || !functionCheck[0]?.exists) {
+    if (functionError || !functionCheck || !functionCheck.exists) {
       console.log('Table bloat check function not available');
       return;
     }
@@ -138,40 +125,20 @@ export const checkDatabaseMaintenance = async (): Promise<void> => {
 export const ensureDatabaseFunctions = async (): Promise<void> => {
   try {
     // Check if the function exists to avoid errors
-    const { data: functionCheck, error: functionError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE p.proname = 'check_function_exists'
-        AND n.nspname = 'public'
-      ) as exists
-    `);
+    const { data: functionCheck, error: functionError } = await supabase
+      .from('pg_proc')
+      .select('exists')
+      .eq('proname', 'check_function_exists')
+      .single();
     
-    if (functionError || !functionCheck || !functionCheck[0]?.exists) {
-      // Create the function to check if other functions exist
-      await supabase.query(`
-        CREATE OR REPLACE FUNCTION public.check_function_exists(function_name TEXT)
-        RETURNS BOOLEAN
-        LANGUAGE plpgsql
-        SECURITY DEFINER
-        SET search_path TO 'public'
-        AS $$
-        DECLARE
-          function_exists BOOLEAN;
-        BEGIN
-          SELECT EXISTS (
-            SELECT 1
-            FROM pg_proc p
-            JOIN pg_namespace n ON p.pronamespace = n.oid
-            WHERE p.proname = check_function_exists.function_name
-            AND n.nspname = 'public'
-          ) INTO function_exists;
-          
-          RETURN function_exists;
-        END;
-        $$;
-      `);
+    if (functionError || !functionCheck || !functionCheck.exists) {
+      // Function doesn't exist, we can try to create it via RPC
+      try {
+        await supabase.rpc('create_check_function_exists_function');
+        console.log('Created check_function_exists function');
+      } catch (createError) {
+        console.error('Error creating check_function_exists function:', createError);
+      }
     }
   } catch (error) {
     console.error('Error ensuring database functions:', error);
