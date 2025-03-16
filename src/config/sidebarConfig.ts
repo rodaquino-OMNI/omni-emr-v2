@@ -1,4 +1,5 @@
-import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck, Siren } from 'lucide-react';
+
+import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck, Siren, Shield, Package } from 'lucide-react';
 
 export type SidebarItem = {
   name: string;
@@ -154,5 +155,41 @@ export const sidebarItems: SidebarItem[] = [
     icon: Settings,
     translationKey: 'settings',
     priority: 18
+  },
+  // Admin section
+  {
+    name: 'Administration',
+    path: '/admin',
+    icon: Shield,
+    translationKey: 'administration',
+    permissionRequired: 'manage_users',
+    priority: 19,
+    roles: ['admin', 'system_administrator'],
+    children: [
+      {
+        name: 'User Approval',
+        path: '/admin',
+        icon: Users,
+        translationKey: 'userApproval',
+        permissionRequired: 'manage_users',
+        priority: 1
+      },
+      {
+        name: 'Role Management',
+        path: '/admin/roles',
+        icon: Shield,
+        translationKey: 'roleManagement',
+        permissionRequired: 'manage_roles',
+        priority: 2
+      },
+      {
+        name: 'Function Blocks',
+        path: '/admin?tab=function-blocks',
+        icon: Package,
+        translationKey: 'functionBlocks',
+        permissionRequired: 'manage_roles',
+        priority: 3
+      }
+    ]
   }
 ];

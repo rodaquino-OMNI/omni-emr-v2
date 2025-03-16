@@ -1,14 +1,21 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PendingApprovalList from '@/components/auth/PendingApprovalList';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { User, ShieldCheck, Settings2, ClipboardList, UserPlus, Package } from 'lucide-react';
+import FunctionBlocksManager from '@/components/admin/FunctionBlocksManager';
+import RolePermissionMatrix from '@/components/admin/RolePermissionMatrix';
+import RolesList from '@/components/admin/RolesList';
 
 const Admin = () => {
   const { t, language } = useTranslation();
   const { user, hasPermission } = useAuth();
+  const [activeTab, setActiveTab] = useState('user-approval');
   
   // Check if user has admin rights
   if (!user || !hasPermission('manage_users')) {
@@ -21,21 +28,90 @@ const Admin = () => {
         {language === 'pt' ? 'Administração' : 'Administration'}
       </h1>
       
-      <Tabs defaultValue="user-approval" className="space-y-4">
-        <TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="mb-4">
           <TabsTrigger value="user-approval">
+            <UserPlus className="h-4 w-4 mr-2" />
             {language === 'pt' ? 'Aprovação de Usuários' : 'User Approval'}
           </TabsTrigger>
+          <TabsTrigger value="role-management">
+            <ShieldCheck className="h-4 w-4 mr-2" />
+            {language === 'pt' ? 'Gestão de Funções' : 'Role Management'}
+          </TabsTrigger>
+          <TabsTrigger value="function-blocks">
+            <Package className="h-4 w-4 mr-2" />
+            {language === 'pt' ? 'Blocos de Funções' : 'Function Blocks'}
+          </TabsTrigger>
           <TabsTrigger value="system-settings">
+            <Settings2 className="h-4 w-4 mr-2" />
             {language === 'pt' ? 'Configurações do Sistema' : 'System Settings'}
           </TabsTrigger>
           <TabsTrigger value="audit-logs">
+            <ClipboardList className="h-4 w-4 mr-2" />
             {language === 'pt' ? 'Logs de Auditoria' : 'Audit Logs'}
           </TabsTrigger>
         </TabsList>
         
         <TabsContent value="user-approval" className="space-y-4">
           <PendingApprovalList />
+        </TabsContent>
+        
+        <TabsContent value="role-management" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-12">
+            <div className="md:col-span-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{language === 'pt' ? 'Papéis do Sistema' : 'System Roles'}</CardTitle>
+                  <CardDescription>
+                    {language === 'pt' 
+                      ? 'Gerencie os papéis dos usuários no sistema' 
+                      : 'Manage user roles in the system'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RolesList />
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="md:col-span-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{language === 'pt' ? 'Permissões por Papel' : 'Role Permissions'}</CardTitle>
+                  <CardDescription>
+                    {language === 'pt' 
+                      ? 'Atribua permissões a cada papel de usuário' 
+                      : 'Assign permissions to each user role'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RolePermissionMatrix />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          
+          <div className="flex justify-end">
+            <Button>
+              {language === 'pt' ? 'Salvar Alterações' : 'Save Changes'}
+            </Button>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="function-blocks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{language === 'pt' ? 'Blocos de Funções' : 'Function Blocks'}</CardTitle>
+              <CardDescription>
+                {language === 'pt' 
+                  ? 'Configure blocos de funções que podem ser atribuídos a papéis de usuário' 
+                  : 'Configure function blocks that can be assigned to user roles'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FunctionBlocksManager />
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="system-settings">

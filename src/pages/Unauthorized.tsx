@@ -1,28 +1,30 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from '../hooks/useTranslation';
-import { ShieldX, ArrowLeft } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ShieldAlert, ArrowLeft } from 'lucide-react';
 
 const Unauthorized = () => {
-  const { t } = useTranslation();
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { requiredPermission } = location.state || {};
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-      <div className="text-center max-w-md px-4">
-        <div className="mb-6 bg-red-100 h-24 w-24 rounded-full flex items-center justify-center mx-auto">
-          <ShieldX className="h-12 w-12 text-red-600" />
-        </div>
-        <h1 className="text-2xl font-semibold mb-3">Access Denied</h1>
+    <div className="flex items-center justify-center min-h-[80vh]">
+      <div className="text-center max-w-md p-6">
+        <ShieldAlert className="h-16 w-16 mx-auto text-destructive mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Unauthorized Access</h1>
         <p className="text-muted-foreground mb-6">
-          You don't have permission to access this page. Please contact your administrator if you believe this is a mistake.
+          {requiredPermission 
+            ? `You don't have the required permission: ${requiredPermission.replace(/_/g, ' ')}`
+            : "You don't have permission to access this resource"}
         </p>
-        <Button asChild>
-          <Link to="/dashboard">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('back')} to Dashboard
-          </Link>
+        <p className="text-sm text-muted-foreground mb-6">
+          Please contact your system administrator if you believe you should have access to this area.
+        </p>
+        <Button onClick={() => navigate(-1)} variant="outline">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Go Back
         </Button>
       </div>
     </div>

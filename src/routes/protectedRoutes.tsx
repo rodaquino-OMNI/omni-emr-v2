@@ -8,6 +8,8 @@ import Settings from '../pages/Settings';
 import PatientDetail from '../pages/PatientDetail';
 import Medications from '../pages/Medications';
 import Unauthorized from '../pages/Unauthorized';
+import Admin from '../pages/Admin';
+import RoleManagement from '../pages/Admin/RoleManagement';
 
 export const protectedRoutes: RouteObject[] = [
   {
@@ -33,6 +35,24 @@ export const protectedRoutes: RouteObject[] = [
             <Medications />
           </ProtectedRoute>
         )
+      },
+      
+      // Admin routes
+      { 
+        path: "/admin", 
+        element: (
+          <ProtectedRoute requiredPermission="manage_users">
+            <Admin />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: "/admin/roles", 
+        element: (
+          <ProtectedRoute requiredPermission="manage_roles">
+            <RoleManagement />
+          </ProtectedRoute>
+        ) 
       },
       
       // Redirect authenticated users to sector selection from root
