@@ -2,34 +2,43 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { useTranslation } from '@/hooks/useTranslation';
 import SecurityControlItem from './SecurityControlItem';
 
 export interface SessionTimeoutControlProps {
   sessionTimeout: number;
-  setSessionTimeout: (timeout: number) => void;
+  setSessionTimeout: (value: number) => void;
 }
 
 const SessionTimeoutControl: React.FC<SessionTimeoutControlProps> = ({
   sessionTimeout,
   setSessionTimeout
 }) => {
-  const handleSliderChange = (value: number[]) => {
+  const { t } = useTranslation();
+  
+  const handleChange = (value: number[]) => {
     setSessionTimeout(value[0]);
   };
-
+  
   return (
     <SecurityControlItem
-      icon={<Clock className="h-5 w-5" />}
-      title="Session Timeout"
-      description={`Auto-logout after ${sessionTimeout} minutes of inactivity`}
+      icon={Clock}
+      title={t('sessionTimeout')}
+      description={t('adjustSessionTimeout')}
       action={
-        <div className="w-32">
+        <div className="flex flex-col items-end gap-2 w-40">
+          <div className="flex items-center justify-between w-full">
+            <span className="text-sm text-muted-foreground">5m</span>
+            <span className="text-sm font-medium">{sessionTimeout}m</span>
+            <span className="text-sm text-muted-foreground">60m</span>
+          </div>
           <Slider
-            value={[sessionTimeout]}
+            defaultValue={[sessionTimeout]}
             min={5}
             max={60}
             step={5}
-            onValueChange={handleSliderChange}
+            onValueChange={handleChange}
+            className="w-full"
           />
         </div>
       }

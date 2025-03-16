@@ -25,7 +25,7 @@ export interface User {
   mfaEnabled?: boolean;
   createdAt?: string;
   organization?: string;
-  lastLogin?: string | Date; // Updated to accept both string and Date
+  lastLogin?: string | Date; // Accept both string and Date
   preferredLanguage?: Language;
   approvalStatus?: ApprovalStatus;
   avatar?: string;

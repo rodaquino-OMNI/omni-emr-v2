@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Shield, Lock, AlertTriangle, Clock, SmartphoneNfc } from 'lucide-react';
+import { Shield, Lock, AlertTriangle, SmartphoneNfc } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import SessionTimeoutControl from './SessionTimeoutControl';
@@ -20,6 +20,9 @@ const SecurityControls: React.FC<SecurityControlsProps> = ({
 }) => {
   const { user } = useAuth();
   const { t } = useTranslation();
+  
+  // Default session timeout values
+  const [sessionTimeout, setSessionTimeout] = React.useState(30); // 30 minutes default
   
   return (
     <div className="space-y-6">
@@ -62,7 +65,10 @@ const SecurityControls: React.FC<SecurityControlsProps> = ({
             }
           />
           
-          <SessionTimeoutControl />
+          <SessionTimeoutControl 
+            sessionTimeout={sessionTimeout}
+            setSessionTimeout={setSessionTimeout}
+          />
           
           <SecurityControlItem
             icon={AlertTriangle}
