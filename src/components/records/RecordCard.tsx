@@ -3,16 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { FileText, FileImage, Stethoscope, Activity, ClipboardCheck } from 'lucide-react';
-
-export type MedicalRecord = {
-  id: string;
-  patientId: string;
-  title: string;
-  type: "lab" | "imaging" | "procedure" | "visit" | "discharge";
-  date: string;
-  provider: string;
-  status: "completed" | "pending" | "cancelled";
-};
+import { MedicalRecord } from '@/types/medicalRecordTypes';
 
 type RecordCardProps = {
   record: MedicalRecord;

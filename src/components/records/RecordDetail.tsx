@@ -1,113 +1,48 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { FileText, FileImage, Stethoscope, Activity, ClipboardCheck } from 'lucide-react';
-import { MedicalRecord } from './RecordCard';
-import AIInsights from '../ai/AIInsights';
-import { useAIInsights } from '@/hooks/useAIInsights';
-
-// Sample records data
-const sampleRecords: MedicalRecord[] = [
-  {
-    id: "1",
-    patientId: "1",
-    title: "Complete Blood Count",
-    type: "lab",
-    date: "2023-11-15",
-    provider: "Dr. Sarah Chen",
-    status: "completed"
-  },
-  {
-    id: "2",
-    patientId: "1",
-    title: "Chest X-Ray",
-    type: "imaging",
-    date: "2023-11-14",
-    provider: "Dr. Michael Rodriguez",
-    status: "completed"
-  },
-  {
-    id: "3",
-    patientId: "2",
-    title: "Initial Assessment",
-    type: "visit",
-    date: "2023-11-10",
-    provider: "Dr. James Wilson",
-    status: "completed"
-  },
-  {
-    id: "4",
-    patientId: "3",
-    title: "Cardiac Stress Test",
-    type: "procedure",
-    date: "2023-11-08",
-    provider: "Dr. Emily Johnson",
-    status: "pending"
-  },
-  {
-    id: "5",
-    patientId: "4",
-    title: "MRI - Lower Back",
-    type: "imaging",
-    date: "2023-11-05",
-    provider: "Dr. Robert Smith",
-    status: "completed"
-  },
-  {
-    id: "6",
-    patientId: "5",
-    title: "Post-Surgery Follow-up",
-    type: "visit",
-    date: "2023-11-02",
-    provider: "Dr. Lisa Thompson",
-    status: "completed"
-  },
-  {
-    id: "7",
-    patientId: "6",
-    title: "Discharge Summary",
-    type: "discharge",
-    date: "2023-10-28",
-    provider: "Dr. David Brown",
-    status: "completed"
-  }
-];
+import { MedicalRecord } from '@/types/medicalRecordTypes';
+import { recordService } from '@/services/recordService';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type RecordDetailProps = {
   recordId?: string;
 };
 
 const RecordDetail = ({ recordId }: RecordDetailProps) => {
+  const { t, language } = useTranslation();
   const params = useParams();
   const id = recordId || params.id;
   
-  const record = sampleRecords.find(r => r.id === id);
+  const [record, setRecord] = useState<MedicalRecord | null>(null);
+  const [loading, setLoading] = useState(true);
   
-  // Get AI insights specifically for this record
-  const { insights } = useAIInsights(
-    record?.patientId, 
-    ['labs', 'general']
-  );
-  
-  // Filter insights to only show those relevant to this type of record
-  const filteredInsights = insights.filter(insight => {
-    if (record?.type === 'lab' && insight.source === 'labs') return true;
-    if (record?.type === 'imaging' && insight.source === 'labs') return true;
-    return false;
-  });
-  
-  if (!record) {
-    return (
-      <div className="text-center py-8">
-        <h2 className="text-xl font-medium text-muted-foreground">Record not found</h2>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchRecord = async () => {
+      if (!id) return;
+      
+      setLoading(true);
+      try {
+        const data = await recordService.getRecordById(id);
+        setRecord(data);
+      } catch (error) {
+        console.error('Error fetching record:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRecord();
+  }, [id]);
   
   // Format date
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return new Date(dateString).toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en-US', options);
   };
   
   // Get icon based on record type
@@ -142,6 +77,43 @@ const RecordDetail = ({ recordId }: RecordDetailProps) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="glass-card p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div>
+              <Skeleton className="h-6 w-40 mb-2" />
+              <Skeleton className="h-4 w-28" />
+            </div>
+            <div className="ml-auto">
+              <Skeleton className="h-6 w-24 rounded-full" />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <Skeleton className="h-20 w-full" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-20 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!record) {
+    return (
+      <div className="text-center py-8">
+        <h2 className="text-xl font-medium text-muted-foreground">
+          {language === 'pt' ? 'Registro não encontrado' : 'Record not found'}
+        </h2>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="glass-card p-6">
@@ -163,43 +135,53 @@ const RecordDetail = ({ recordId }: RecordDetailProps) => {
             </span>
           </div>
         </div>
-
-        {/* Display AI insights if available */}
-        {filteredInsights.length > 0 && (
-          <div className="mb-6">
-            <AIInsights insights={filteredInsights} />
-          </div>
-        )}
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Record Type</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                {language === 'pt' ? 'Tipo de Registro' : 'Record Type'}
+              </h3>
               <p className="capitalize">{record.type}</p>
             </div>
             
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Provider</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                {language === 'pt' ? 'Profissional' : 'Provider'}
+              </h3>
               <p>{record.provider}</p>
             </div>
             
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Patient ID</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                {language === 'pt' ? 'ID do Paciente' : 'Patient ID'}
+              </h3>
               <p>{record.patientId}</p>
             </div>
           </div>
           
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Content</h3>
-              <p className="text-muted-foreground">
-                {record.type === 'lab' && 'Laboratory test results and analysis.'}
-                {record.type === 'imaging' && 'Imaging study with radiologist interpretation.'}
-                {record.type === 'procedure' && 'Procedure notes and outcomes.'}
-                {record.type === 'visit' && 'Clinical visit documentation.'}
-                {record.type === 'discharge' && 'Discharge summary and follow-up plan.'}
-              </p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                {language === 'pt' ? 'Conteúdo' : 'Content'}
+              </h3>
+              {record.content ? (
+                <p className="whitespace-pre-line">{record.content}</p>
+              ) : (
+                <p className="text-muted-foreground">
+                  {language === 'pt' ? 'Sem conteúdo detalhado disponível.' : 'No detailed content available.'}
+                </p>
+              )}
             </div>
+            
+            {record.notes && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                  {language === 'pt' ? 'Observações' : 'Notes'}
+                </h3>
+                <p className="whitespace-pre-line">{record.notes}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -208,7 +190,3 @@ const RecordDetail = ({ recordId }: RecordDetailProps) => {
 };
 
 export default RecordDetail;
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
-}

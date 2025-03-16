@@ -11,7 +11,8 @@ import {
   X, 
   Calendar, 
   Search,
-  ChevronLeft
+  ChevronLeft,
+  Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -30,11 +31,225 @@ import {
   DialogContent, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import NewVisitNoteForm from "@/components/visit-notes/NewVisitNoteForm";
-import { visitNoteService, VisitNote } from "@/services/visitNotes/visitNoteService";
+import { Skeleton } from "@/components/ui/skeleton";
 import VisitNoteDetail from "@/components/visit-notes/VisitNoteDetail";
 import { useAuth } from "@/context/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
+
+// Updated with types for visit notes
+export interface VitalSigns {
+  heartRate?: number;
+  bloodPressure?: string;
+  temperature?: number;
+  oxygenSaturation?: number;
+  respiratoryRate?: number;
+  painLevel?: number;
+  recordedAt?: string;
+  recordedBy?: string;
+  recordedById?: string;
+  notes?: string;
+}
+
+export interface VisitNote {
+  id: string;
+  patientId: string;
+  patientName: string;
+  date: string;
+  status: 'active' | 'discharged' | 'draft' | 'completed';
+  title: string;
+  summary: string;
+  createdBy?: string;
+  createdById?: string;
+  updatedAt?: string;
+  vitalSigns?: VitalSigns;
+}
+
+// Create a mock service for visit notes (in a real app, this would interact with the backend)
+const visitNoteService = {
+  getAllNotes: async (): Promise<VisitNote[]> => {
+    // For demo purposes, return mock data
+    return [
+      {
+        id: '1',
+        patientId: '101',
+        patientName: 'John Doe',
+        date: new Date().toISOString(),
+        status: 'active',
+        title: 'Initial Assessment',
+        summary: 'Patient presented with symptoms of upper respiratory infection. Prescribed rest and fluids.',
+        createdBy: 'Dr. Sarah Chen',
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: '2',
+        patientId: '102',
+        patientName: 'Jane Smith',
+        date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        status: 'discharged',
+        title: 'Follow-up Visit',
+        summary: 'Patient's condition has improved. Cleared for discharge.',
+        createdBy: 'Dr. Michael Johnson',
+        updatedAt: new Date(Date.now() - 86400000).toISOString(),
+        vitalSigns: {
+          heartRate: 72,
+          bloodPressure: '120/80',
+          temperature: 36.8,
+          oxygenSaturation: 98,
+          respiratoryRate: 16,
+          painLevel: 1
+        }
+      },
+      {
+        id: '3',
+        patientId: '103',
+        patientName: 'Robert Brown',
+        date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+        status: 'active',
+        title: 'Pre-operative Assessment',
+        summary: 'Patient is scheduled for appendectomy tomorrow. All pre-op tests completed.',
+        createdBy: 'Dr. Emily Jackson',
+        updatedAt: new Date(Date.now() - 172800000).toISOString(),
+      },
+    ];
+  },
+  getNoteById: async (id: string): Promise<VisitNote | null> => {
+    // In a real app, this would fetch from an API
+    const allNotes = await visitNoteService.getAllNotes();
+    return allNotes.find(note => note.id === id) || null;
+  }
+};
+
+interface NewVisitNoteFormProps {
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+const NewVisitNoteForm: React.FC<NewVisitNoteFormProps> = ({ onClose, onSuccess }) => {
+  const { language } = useTranslation();
+  const [formData, setFormData] = useState({
+    patientId: '',
+    patientName: '',
+    title: '',
+    summary: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.patientId || !formData.patientName || !formData.title || !formData.summary) {
+      toast.error(
+        language === 'pt' ? 'Todos os campos são obrigatórios' : 'All fields are required'
+      );
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // In a real app, this would call an API to create the note
+      setTimeout(() => {
+        // Simulate success
+        toast.success(
+          language === 'pt' ? 'Nota de visita criada com sucesso' : 'Visit note created successfully'
+        );
+        onSuccess();
+      }, 1000);
+    } catch (error) {
+      console.error('Error creating note:', error);
+      toast.error(
+        language === 'pt' 
+          ? 'Erro ao criar nota de visita' 
+          : 'Error creating visit note'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h2 className="text-xl font-semibold mb-4">
+        {language === 'pt' ? 'Nova Nota de Visita' : 'New Visit Note'}
+      </h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {language === 'pt' ? 'ID do Paciente' : 'Patient ID'}
+          </label>
+          <Input
+            name="patientId"
+            value={formData.patientId}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {language === 'pt' ? 'Nome do Paciente' : 'Patient Name'}
+          </label>
+          <Input
+            name="patientName"
+            value={formData.patientName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          {language === 'pt' ? 'Título' : 'Title'}
+        </label>
+        <Input
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          {language === 'pt' ? 'Resumo' : 'Summary'}
+        </label>
+        <textarea
+          name="summary"
+          value={formData.summary}
+          onChange={handleChange}
+          rows={6}
+          className="w-full border border-border rounded-md p-2"
+          required
+        ></textarea>
+      </div>
+      
+      <div className="flex justify-end space-x-2 pt-4">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onClose}
+          disabled={isSubmitting}
+        >
+          {language === 'pt' ? 'Cancelar' : 'Cancel'}
+        </Button>
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+        >
+          {isSubmitting 
+            ? (language === 'pt' ? 'Criando...' : 'Creating...') 
+            : (language === 'pt' ? 'Criar Nota' : 'Create Note')}
+        </Button>
+      </div>
+    </form>
+  );
+};
 
 const VisitNotes: React.FC = () => {
   const { t, language } = useTranslation();
@@ -46,6 +261,7 @@ const VisitNotes: React.FC = () => {
   const [notes, setNotes] = useState<VisitNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNote, setSelectedNote] = useState<VisitNote | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Check if user has permission to create notes
   const canCreateNotes = hasPermission('create_clinical_notes');
@@ -79,10 +295,16 @@ const VisitNotes: React.FC = () => {
   
   const handleDischarge = (patientId: string) => {
     // This would typically open a discharge form or process
-    toast.info(t('dischargePatient'), {
-      description: `Starting discharge process for patient ${patientId}`,
-      duration: 3000,
-    });
+    toast.info(
+      language === 'pt' ? 'Iniciar processo de alta' : 'Start discharge process',
+      {
+        description: 
+          language === 'pt'
+            ? `Iniciando processo de alta para o paciente ${patientId}`
+            : `Starting discharge process for patient ${patientId}`,
+        duration: 3000,
+      }
+    );
     // In a real app, you might navigate to a discharge form or open a modal
     // navigate(`/patients/${patientId}/discharge`);
   };
@@ -120,16 +342,22 @@ const VisitNotes: React.FC = () => {
     }
   };
 
-  // Filter notes based on active tab
+  // Filter notes based on active tab and search term
   const filteredNotes = notes.filter(note => 
-    activeTab === "all" || 
+    (activeTab === "all" || 
     (activeTab === "active" && note.status === "active") ||
-    (activeTab === "discharged" && note.status === "discharged")
+    (activeTab === "discharged" && note.status === "discharged")) &&
+    (!searchTerm || 
+      note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      note.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      note.summary.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
     <div className="container py-6">
-      <h1 className="text-2xl font-bold mb-6">{t('visitNotes')}</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        {language === 'pt' ? 'Notas de Visita' : 'Visit Notes'}
+      </h1>
       
       {selectedNote ? (
         <>
@@ -139,7 +367,10 @@ const VisitNotes: React.FC = () => {
               {language === 'pt' ? 'Voltar para a lista' : 'Back to list'}
             </Button>
           </div>
-          <VisitNoteDetail note={selectedNote} onRefresh={refreshNotes} />
+          <VisitNoteDetail 
+            note={selectedNote} 
+            onRefresh={refreshNotes} 
+          />
         </>
       ) : (
         <>
@@ -147,20 +378,26 @@ const VisitNotes: React.FC = () => {
             <div className="relative w-64">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
-                placeholder={`${t('search')} ${t('visitNotes').toLowerCase()}`}
+                placeholder={
+                  language === 'pt' 
+                    ? "Buscar notas de visita..." 
+                    : "Search visit notes..."
+                }
                 className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             
             <div className="flex gap-2">
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
-                {t('filter')}
+                {language === 'pt' ? 'Filtrar' : 'Filter'}
               </Button>
               
               <Button variant="outline" size="sm">
                 <Calendar className="h-4 w-4 mr-2" />
-                {t('dateRange')}
+                {language === 'pt' ? 'Período' : 'Date Range'}
               </Button>
               
               {canCreateNotes && (
@@ -168,7 +405,7 @@ const VisitNotes: React.FC = () => {
                   <DialogTrigger asChild>
                     <Button size="sm">
                       <Plus className="h-4 w-4 mr-2" />
-                      {t('new')} {t('visitNote')}
+                      {language === 'pt' ? 'Nova Nota de Visita' : 'New Visit Note'}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[800px]">
@@ -184,15 +421,39 @@ const VisitNotes: React.FC = () => {
           
           <Tabs defaultValue="active" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-4">
-              <TabsTrigger value="active">{t('active')}</TabsTrigger>
-              <TabsTrigger value="discharged">{t('discharged')}</TabsTrigger>
-              <TabsTrigger value="all">{t('all')}</TabsTrigger>
+              <TabsTrigger value="active">
+                {language === 'pt' ? 'Ativos' : 'Active'}
+              </TabsTrigger>
+              <TabsTrigger value="discharged">
+                {language === 'pt' ? 'Alta' : 'Discharged'}
+              </TabsTrigger>
+              <TabsTrigger value="all">
+                {language === 'pt' ? 'Todos' : 'All'}
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value={activeTab}>
               {loading ? (
-                <div className="flex justify-center py-10">
-                  <div className="h-8 w-8 border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(6)].map((_, index) => (
+                    <Card key={index}>
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between">
+                          <Skeleton className="h-6 w-36" />
+                          <Skeleton className="h-6 w-16" />
+                        </div>
+                        <Skeleton className="h-4 w-24 mt-1" />
+                      </CardHeader>
+                      <CardContent>
+                        <Skeleton className="h-4 w-full mt-2" />
+                        <Skeleton className="h-4 w-full mt-2" />
+                        <div className="flex justify-between items-center mt-4">
+                          <Skeleton className="h-8 w-24" />
+                          <Skeleton className="h-5 w-16" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               ) : (
                 <>
@@ -212,7 +473,7 @@ const VisitNotes: React.FC = () => {
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                                     <span className="sr-only">Open menu</span>
-                                    <FileText className="h-4 w-4" />
+                                    <Pencil className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
@@ -221,18 +482,18 @@ const VisitNotes: React.FC = () => {
                                     navigate(`/records/${note.id}`);
                                   }}>
                                     <FileText className="h-4 w-4 mr-2" />
-                                    {t('view')}
+                                    {language === 'pt' ? 'Visualizar' : 'View'}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
                                     <Clock className="h-4 w-4 mr-2" />
-                                    {t('history')}
+                                    {language === 'pt' ? 'Histórico' : 'History'}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={(e) => {
                                     e.stopPropagation();
                                     handleDischarge(note.patientId);
                                   }}>
                                     <LogOut className="h-4 w-4 mr-2" />
-                                    {t('discharge')}
+                                    {language === 'pt' ? 'Alta' : 'Discharge'}
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -254,18 +515,18 @@ const VisitNotes: React.FC = () => {
                                 navigate(`/patients/${note.patientId}`);
                               }}
                             >
-                              {t('viewPatient')}
+                              {language === 'pt' ? 'Ver Paciente' : 'View Patient'}
                             </Button>
                             
                             {note.status === "active" ? (
                               <div className="flex items-center text-sm font-medium text-green-600">
                                 <Check className="h-4 w-4 mr-1" />
-                                {t('active')}
+                                {language === 'pt' ? 'Ativo' : 'Active'}
                               </div>
                             ) : (
                               <div className="flex items-center text-sm font-medium text-muted-foreground">
                                 <X className="h-4 w-4 mr-1" />
-                                {t('discharged')}
+                                {language === 'pt' ? 'Alta' : 'Discharged'}
                               </div>
                             )}
                           </div>
@@ -278,13 +539,25 @@ const VisitNotes: React.FC = () => {
                     <div className="text-center py-10">
                       <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
                       <h3 className="mt-4 text-lg font-medium">
-                        {language === 'pt' ? 'Nenhuma nota de visita encontrada' : 'No visit notes found'}
+                        {language === 'pt' 
+                          ? 'Nenhuma nota de visita encontrada' 
+                          : 'No visit notes found'}
                       </h3>
                       <p className="text-muted-foreground mt-2">
                         {language === 'pt' 
                           ? 'Não há notas de visita que correspondam aos seus filtros atuais.'
                           : 'There are no visit notes that match your current filters.'}
                       </p>
+                      
+                      {searchTerm && (
+                        <Button 
+                          variant="outline" 
+                          className="mt-4"
+                          onClick={() => setSearchTerm('')}
+                        >
+                          {language === 'pt' ? 'Limpar busca' : 'Clear search'}
+                        </Button>
+                      )}
                     </div>
                   )}
                 </>
