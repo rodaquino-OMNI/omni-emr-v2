@@ -7,10 +7,7 @@ export type ToastProps = ExternalToast & {
   description?: string;
   duration?: number;
   action?: React.ReactNode;
-  icon?: {
-    icon: React.ComponentType<any>;
-    className?: string;
-  } | ReactNode;
+  icon?: ReactNode;
   id?: string;
   className?: string;
   variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
