@@ -1,7 +1,6 @@
 
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { Session } from '@supabase/supabase-js';
 import { User, UserRole, Language } from '@/types/auth';
 import { signUpWithEmail } from '@/utils/authUtils';
 import { useAuthError } from './useAuthError';

@@ -1,38 +1,65 @@
 
-import { User } from '../types/auth';
+import { User, UserRole } from '../types/auth';
+import { v4 as uuidv4 } from 'uuid';
 
-// Mock users for demo purposes
+// Helper to create mock users with consistent structure
+const createMockUser = (
+  role: UserRole, 
+  name: string, 
+  email: string, 
+  permissions: string[] = []
+): User => ({
+  id: uuidv4(),
+  name,
+  email,
+  role,
+  status: 'active',
+  permissions,
+  mfaEnabled: false,
+  createdAt: new Date().toISOString(),
+  lastLogin: new Date().toISOString(),
+  preferredLanguage: 'en',
+  approvalStatus: 'approved'
+});
+
+// Mock users for development and testing
 export const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'admin@omnicare.com',
-    name: 'Admin User',
-    role: 'admin',
-    status: 'active',
-    permissions: ['all'],
-  },
-  {
-    id: '2',
-    email: 'doctor@omnicare.com',
-    name: 'Dr. Sarah Chen',
-    role: 'doctor',
-    status: 'active',
-    permissions: ['view_patients', 'edit_patients', 'prescribe_medications', 'view_records', 'edit_records', 'schedule_appointments', 'telemedicine', 'view_schedule'],
-  },
-  {
-    id: '3',
-    email: 'nurse@omnicare.com',
-    name: 'Nurse Johnson',
-    role: 'nurse',
-    status: 'active',
-    permissions: ['view_patients', 'edit_patients', 'view_medications', 'view_records', 'schedule_appointments', 'view_schedule'],
-  },
-  {
-    id: '4',
-    email: 'patient@omnicare.com',
-    name: 'John Patient',
-    role: 'patient',
-    status: 'active',
-    permissions: ['view_own_records', 'view_own_medications', 'view_own_appointments'],
-  }
+  createMockUser(
+    'doctor', 
+    'Dr. Amanda Silva', 
+    'doctor@example.com', 
+    ['read:patients', 'write:prescriptions', 'read:medical_records', 'write:medical_records']
+  ),
+  createMockUser(
+    'nurse', 
+    'Nurse João Costa', 
+    'nurse@example.com', 
+    ['read:patients', 'read:prescriptions', 'write:vitals', 'read:medical_records']
+  ),
+  createMockUser(
+    'admin', 
+    'Admin Sarah Johnson', 
+    'admin@example.com', 
+    ['admin:all', 'read:all', 'write:all']
+  ),
+  createMockUser(
+    'patient', 
+    'Patient Carlos Oliveira', 
+    'patient@example.com', 
+    ['read:own_records', 'read:own_prescriptions']
+  ),
+  createMockUser(
+    'pharmacist', 
+    'Pharmacist Maria Santos', 
+    'pharmacist@example.com', 
+    ['read:prescriptions', 'write:medications', 'read:patients']
+  ),
+  createMockUser(
+    'lab_technician', 
+    'Lab Tech David Chen', 
+    'lab@example.com', 
+    ['read:lab_orders', 'write:lab_results', 'read:patients']
+  )
 ];
+
+export default mockUsers;

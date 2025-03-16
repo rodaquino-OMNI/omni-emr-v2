@@ -5,6 +5,7 @@ import { useAuthProvider } from '../hooks/useAuthProvider';
 import { User, Language, UserRole, ApprovalStatus, AuthContextType } from '../types/auth';
 import { supabase } from '../integrations/supabase/client';
 
+// Create the auth context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   setUser: () => {},
@@ -36,31 +37,23 @@ const AuthContext = createContext<AuthContextType>({
   canAccessPatientData: () => false,
   session: null,
   lastActivity: new Date(),
+  updateLastActivity: () => {},
   sessionTimeoutMinutes: 30,
   setSessionTimeoutMinutes: () => {},
 });
 
+// Create the auth provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const auth = useAuthProvider();
-  const [lastActivity, setLastActivity] = useState<Date>(new Date());
   
-  const updateLastActivity = useCallback(() => {
-    setLastActivity(new Date());
-  }, []);
-
-  const value = {
-    ...auth,
-    lastActivity,
-    updateLastActivity,
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={auth}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// Create the hook to use the auth context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   

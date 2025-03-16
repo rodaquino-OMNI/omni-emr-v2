@@ -12,7 +12,7 @@ export const supabase = createClient(
  */
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
-    const { data, error } = await supabase.from('audit_logs').select('count(*)', { count: 'exact', head: true });
+    const { data, error } = await supabase.from('audit_logs').select('count', { count: 'exact', head: true });
     return !error;
   } catch (error) {
     console.error('Failed to connect to Supabase:', error);

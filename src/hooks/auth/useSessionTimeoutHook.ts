@@ -1,106 +1,113 @@
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { Language } from '@/types/auth';
 import { toast } from 'sonner';
-import { Language } from '../../types/auth';
 
-interface UseSessionTimeoutHookProps {
+interface UseSessionTimeoutProps {
   isAuthenticated: boolean;
   language: Language;
   onTimeout: () => Promise<void>;
+  defaultTimeoutMinutes?: number; 
 }
 
-export const useSessionTimeoutHook = ({ 
-  isAuthenticated, 
-  language, 
-  onTimeout 
-}: UseSessionTimeoutHookProps) => {
-  const [lastActivity, setLastActivity] = useState<number>(Date.now());
-  const [sessionTimeoutMinutes, setSessionTimeoutMinutes] = useState<number>(30); // Default timeout
-  const [showingTimeoutWarning, setShowingTimeoutWarning] = useState(false);
-  
-  const timeoutWarningRef = useRef<number | null>(null);
-  const activityTimeoutRef = useRef<number | null>(null);
-  const sessionTimeoutRef = useRef<number | null>(null);
-
-  // Update last activity timestamp on user interaction
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    
-    const updateActivityTimestamp = () => {
-      setLastActivity(Date.now());
-      
-      // If there was a timeout warning showing, hide it since the user is active
-      if (showingTimeoutWarning) {
-        setShowingTimeoutWarning(false);
-        toast.dismiss('session-timeout-warning');
+export const useSessionTimeoutHook = ({
+  isAuthenticated,
+  language,
+  onTimeout,
+  defaultTimeoutMinutes = 30
+}: UseSessionTimeoutProps) => {
+  const [lastActivity, setLastActivity] = useState<Date>(new Date());
+  const [sessionTimeoutMinutes, setSessionTimeoutMinutes] = useState<number>(
+    // Try to get from localStorage first, then use default
+    (() => {
+      try {
+        const saved = localStorage.getItem('session_timeout_minutes');
+        return saved ? parseInt(saved, 10) : defaultTimeoutMinutes;
+      } catch (e) {
+        return defaultTimeoutMinutes;
       }
-    };
-    
-    // Listen for user activity events
-    window.addEventListener('click', updateActivityTimestamp);
-    window.addEventListener('keypress', updateActivityTimestamp);
-    window.addEventListener('scroll', updateActivityTimestamp);
-    window.addEventListener('mousemove', updateActivityTimestamp);
-    
-    return () => {
-      window.removeEventListener('click', updateActivityTimestamp);
-      window.removeEventListener('keypress', updateActivityTimestamp);
-      window.removeEventListener('scroll', updateActivityTimestamp);
-      window.removeEventListener('mousemove', updateActivityTimestamp);
-    };
-  }, [isAuthenticated, showingTimeoutWarning]);
-
-  // Auto-logout for session timeout (HIPAA compliance)
+    })()
+  );
+  
+  // Update the last activity timestamp
+  const updateLastActivity = useCallback(() => {
+    setLastActivity(new Date());
+  }, []);
+  
+  // Effect to set up the session timeout monitoring
   useEffect(() => {
-    if (!isAuthenticated) return;
+    // Skip if not authenticated
+    if (!isAuthenticated) {
+      return;
+    }
     
-    // Clear any existing intervals/timeouts
-    if (activityTimeoutRef.current) window.clearInterval(activityTimeoutRef.current);
-    if (timeoutWarningRef.current) window.clearTimeout(timeoutWarningRef.current);
-    if (sessionTimeoutRef.current) window.clearTimeout(sessionTimeoutRef.current);
+    // Save timeout preference to localStorage
+    try {
+      localStorage.setItem('session_timeout_minutes', sessionTimeoutMinutes.toString());
+    } catch (e) {
+      console.error('Error saving session timeout to localStorage:', e);
+    }
     
-    activityTimeoutRef.current = window.setInterval(() => {
-      const now = Date.now();
-      const inactiveTime = (now - lastActivity) / (1000 * 60); // Convert to minutes
+    // Set up interval to check session timeout
+    const interval = setInterval(() => {
+      const now = new Date();
+      const inactiveTime = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
       
+      // If user has been inactive for longer than the timeout, log them out
       if (inactiveTime >= sessionTimeoutMinutes) {
-        // Auto logout
-        console.log('Session timeout - logging out');
-        toast.dismiss('session-timeout-warning');
-        setShowingTimeoutWarning(false);
-        onTimeout();
-      } else if (inactiveTime >= sessionTimeoutMinutes - 5 && !showingTimeoutWarning) {
-        // Show a warning 5 minutes before timeout
-        setShowingTimeoutWarning(true);
-        
-        const warningMessage = language === 'pt' 
-          ? 'Sua sessão expirará em 5 minutos por inatividade. Clique em qualquer lugar para continuar.'
-          : 'Your session will expire in 5 minutes due to inactivity. Click anywhere to stay logged in.';
-        
-        toast.warning(warningMessage, {
-          id: 'session-timeout-warning',
-          duration: Infinity,
-          action: {
-            label: language === 'pt' ? 'Continuar sessão' : 'Stay logged in',
-            onClick: () => {
-              setLastActivity(Date.now());
-              setShowingTimeoutWarning(false);
-            }
+        toast.info(
+          language === 'pt' ? 'Sessão expirada' : 'Session expired',
+          {
+            description: language === 'pt'
+              ? 'Sua sessão expirou devido à inatividade.'
+              : 'Your session has expired due to inactivity.',
+            duration: 5000
           }
-        });
+        );
+        
+        // Log the user out
+        onTimeout();
+      }
+      
+      // If timeout is approaching, warn the user
+      if (inactiveTime >= sessionTimeoutMinutes - 2 && inactiveTime < sessionTimeoutMinutes) {
+        toast.warning(
+          language === 'pt' ? 'Alerta de sessão' : 'Session alert',
+          {
+            description: language === 'pt'
+              ? 'Sua sessão expirará em breve por inatividade.'
+              : 'Your session will expire soon due to inactivity.',
+            duration: 5000
+          }
+        );
       }
     }, 30000); // Check every 30 seconds
     
-    return () => {
-      if (activityTimeoutRef.current) window.clearInterval(activityTimeoutRef.current);
-      if (timeoutWarningRef.current) window.clearTimeout(timeoutWarningRef.current);
-      if (sessionTimeoutRef.current) window.clearTimeout(sessionTimeoutRef.current);
+    // Set up event listeners to update last activity
+    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    
+    const handleUserActivity = () => {
+      updateLastActivity();
     };
-  }, [isAuthenticated, lastActivity, sessionTimeoutMinutes, language, showingTimeoutWarning, onTimeout]);
-
+    
+    // Add all the event listeners
+    activityEvents.forEach(event => {
+      window.addEventListener(event, handleUserActivity);
+    });
+    
+    // Cleanup function
+    return () => {
+      clearInterval(interval);
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, handleUserActivity);
+      });
+    };
+  }, [isAuthenticated, sessionTimeoutMinutes, lastActivity, language, onTimeout, updateLastActivity]);
+  
   return {
     lastActivity,
     sessionTimeoutMinutes,
-    setSessionTimeoutMinutes
+    setSessionTimeoutMinutes,
+    updateLastActivity
   };
 };

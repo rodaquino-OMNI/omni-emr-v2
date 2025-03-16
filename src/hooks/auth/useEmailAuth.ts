@@ -7,7 +7,6 @@ import { signInWithEmail } from '@/utils/auth/emailAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthError } from './useAuthError';
 import { mapSupabaseUserToUser } from '@/utils/userMappingUtils';
-import { requestPasswordReset } from '@/utils/signUpUtils';
 
 export const useEmailAuth = (
   setUser: (user: User | null) => void,
@@ -105,17 +104,17 @@ export const useEmailAuth = (
     setIsLoading(true);
     
     try {
-      const result = await requestPasswordReset(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
       
-      if (result.success) {
-        toast.success(
-          language === 'pt' ? 'Email enviado' : 'Email sent',
-          { description: language === 'pt' 
-              ? 'Instruções de recuperação enviadas para seu email' 
-              : 'Recovery instructions sent to your email'
-          }
-        );
-      }
+      if (error) throw error;
+      
+      toast.success(
+        language === 'pt' ? 'Email enviado' : 'Email sent',
+        { description: language === 'pt' 
+            ? 'Instruções de recuperação enviadas para seu email' 
+            : 'Recovery instructions sent to your email'
+        }
+      );
       
       return { success: true };
     } catch (error) {

@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { User, Language } from '../types/auth';
+import { toast } from 'sonner';
+import { supabase } from '../integrations/supabase/client';
 
 export const useAuthLogin = (
   setUser: (user: User | null) => void,
@@ -12,7 +14,7 @@ export const useAuthLogin = (
   language: Language,
   startSessionRefreshTimer: (session: Session | null) => void
 ) => {
-  // Dummy implementation for testing
+  // Implementation for login
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     
@@ -45,8 +47,16 @@ export const useAuthLogin = (
   };
 
   const resetPassword = async (email: string) => {
-    // Implementation would go here
-    return { success: true };
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      
+      if (error) throw error;
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Reset password error:", error);
+      return { success: false, error };
+    }
   };
 
   return {

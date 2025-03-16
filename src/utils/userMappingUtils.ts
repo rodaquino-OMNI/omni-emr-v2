@@ -1,86 +1,56 @@
 
 import { User as SupabaseUser } from '@supabase/supabase-js';
-import { User, UserRole, ApprovalStatus } from '../types/auth';
-import { supabase } from '../integrations/supabase/client';
-import { getUserPermissions } from './permissions/roleChecks';
+import { User, UserRole } from '@/types/auth';
+import { supabase } from '@/integrations/supabase/client';
 
-/**
- * Maps a Supabase user to our application's User interface
- */
 export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise<User> => {
   try {
-    // Get user profile from the profiles table
-    const { data: profileData, error: profileError } = await supabase
+    // First try to get additional user data from the profiles table
+    const { data: profile, error } = await supabase
       .from('profiles')
-      .select('name, role, approval_status')
+      .select('*')
       .eq('id', supabaseUser.id)
       .single();
-
-    if (profileError) {
-      console.error('Error fetching user profile:', profileError);
-      // Fallback to defaults if profile fetch fails
-      return {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        name: supabaseUser.user_metadata?.name || 'User',
-        role: (supabaseUser.user_metadata?.role as UserRole) || 'patient',
-        permissions: [],
-        status: 'active',
-        approvalStatus: 'approved' // Default to approved for backward compatibility
-      };
+      
+    if (error) {
+      console.warn('Error fetching user profile:', error);
+      // Continue without profile data
     }
-
-    // Check if user account is approved
-    const approvalStatus = (profileData.approval_status as ApprovalStatus) || 'approved';
     
-    // Clinical roles that need approval
-    const clinicalRoles: UserRole[] = ['doctor', 'nurse', 'specialist', 'pharmacist', 'lab_technician', 'radiology_technician'];
-    const requiresApproval = clinicalRoles.includes(profileData.role as UserRole);
+    // Extract role and other metadata from user_metadata or profile
+    const metadata = supabaseUser.user_metadata || {};
+    const userRole = (profile?.role || metadata.role || 'patient') as UserRole;
     
-    // Validate the role is one of our allowed roles
-    const validRoles: UserRole[] = [
-      'admin', 'doctor', 'nurse', 'caregiver', 'patient', 'specialist', 
-      'administrative', 'pharmacist', 'lab_technician', 'radiology_technician', 
-      'system_administrator'
-    ];
-    
-    const role = profileData.role as UserRole;
-    const validRole = validRoles.includes(role) ? role : 'patient';
-
-    // Create the base user object without permissions first
-    const baseUser: User = {
+    // Construct the complete user object
+    const user: User = {
       id: supabaseUser.id,
-      email: supabaseUser.email || '',
-      name: profileData.name || supabaseUser.user_metadata?.name || 'User',
-      role: validRole,
-      status: 'active',
-      approvalStatus: approvalStatus,
-      permissions: []
+      email: supabaseUser.email || undefined,
+      phone: supabaseUser.phone || undefined,
+      name: profile?.name || metadata.name || 'User',
+      role: userRole,
+      status: profile?.status || 'active',
+      permissions: profile?.permissions || [],
+      mfaEnabled: profile?.mfa_enabled || false,
+      createdAt: supabaseUser.created_at,
+      organization: profile?.organization || metadata.organization,
+      lastLogin: supabaseUser.last_sign_in_at || new Date().toISOString(),
+      preferredLanguage: profile?.preferred_language || metadata.preferredLanguage || 'en',
+      approvalStatus: profile?.approval_status || 'approved',
+      avatar: profile?.avatar_url || metadata.avatar_url,
+      department: profile?.department || metadata.department,
+      specialties: profile?.specialties || metadata.specialties || []
     };
-
-    // Only get permissions if account is approved or doesn't require approval
-    let permissions: string[] = [];
-    if (approvalStatus === 'approved' || !requiresApproval) {
-      // Get permissions for this user
-      permissions = await getUserPermissions(baseUser);
-    }
-
-    // Return the complete user object with permissions
-    return {
-      ...baseUser,
-      permissions
-    };
+    
+    return user;
   } catch (error) {
-    console.error('Error mapping Supabase user:', error);
-    // Provide fallback user mapping in case of errors
+    console.error('Error mapping Supabase user to app user:', error);
+    // Provide a minimal user object when mapping fails
     return {
       id: supabaseUser.id,
-      email: supabaseUser.email || '',
       name: supabaseUser.user_metadata?.name || 'User',
-      role: (supabaseUser.user_metadata?.role as UserRole) || 'patient',
-      permissions: [],
-      status: 'active',
-      approvalStatus: 'approved' // Default for backward compatibility
+      email: supabaseUser.email || undefined,
+      role: (supabaseUser.user_metadata?.role || 'patient') as UserRole,
+      status: 'active'
     };
   }
 };

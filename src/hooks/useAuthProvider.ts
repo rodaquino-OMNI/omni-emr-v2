@@ -10,6 +10,9 @@ import { useAuthRateLimiting } from './useAuthRateLimiting';
 import { usePermissions } from './usePermissions';
 import { useAuthProviderState } from './auth/useAuthProviderState';
 import { useSessionRefresh } from './auth/useSessionRefresh';
+import { useSocialAuth } from './auth/useSocialAuth';
+import { useSignUpAuth } from './auth/useSignUpAuth';
+import { useEmailAuth } from './auth/useEmailAuth';
 
 export const useAuthProvider = () => {
   // Initialize language settings
@@ -26,6 +29,12 @@ export const useAuthProvider = () => {
     isAuthenticated
   } = useAuthProviderState();
 
+  // Set isAuthenticated function for API compatibility
+  const setIsAuthenticated = () => {
+    // This is a derived value, but needed for type compatibility
+    console.log("setIsAuthenticated called - this is a derived value");
+  };
+
   // Initialize session refresh functionality
   const { startSessionRefreshTimer } = useSessionRefresh();
 
@@ -35,13 +44,14 @@ export const useAuthProvider = () => {
     resetLoginAttempts 
   } = useAuthRateLimiting(language);
 
-  // Initialize login functionality
-  const {
-    login,
-    loginWithSocial,
-    signUp,
-    resetPassword
-  } = useAuthLogin(
+  // Initialize social login functionality
+  const { loginWithSocial: socialLogin } = useSocialAuth(language);
+
+  // Initialize sign up functionality
+  const { signUp } = useSignUpAuth(setIsLoading, language);
+
+  // Initialize email login and reset password functionality
+  const { login, resetPassword } = useEmailAuth(
     setUser,
     setSession,
     setIsLoading,
@@ -58,7 +68,8 @@ export const useAuthProvider = () => {
   const { 
     lastActivity, 
     sessionTimeoutMinutes, 
-    setSessionTimeoutMinutes 
+    setSessionTimeoutMinutes,
+    updateLastActivity 
   } = useSessionTimeoutHook({
     isAuthenticated,
     language,
@@ -86,13 +97,13 @@ export const useAuthProvider = () => {
     user,
     setUser,
     isAuthenticated,
-    setIsAuthenticated: () => {}, // This is a derived value, but needed for type compatibility
+    setIsAuthenticated,
     isLoading,
     setIsLoading,
     language,
     setLanguage,
     login,
-    loginWithSocial,
+    loginWithSocial: socialLogin,
     signUp,
     resetPassword,
     logout,
@@ -102,6 +113,7 @@ export const useAuthProvider = () => {
     hasPermission,
     canAccessPatientData,
     lastActivity,
+    updateLastActivity,
     sessionTimeoutMinutes,
     setSessionTimeoutMinutes
   };
