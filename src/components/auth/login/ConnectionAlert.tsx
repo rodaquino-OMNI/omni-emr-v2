@@ -2,11 +2,11 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface ConnectionAlertProps {
   isSupabaseConnected: boolean;
-  language: Language;
+  language: Languages;
 }
 
 const ConnectionAlert = ({ isSupabaseConnected, language }: ConnectionAlertProps) => {

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 export type LoginView = 'email' | 'phone' | 'social';
 
@@ -9,7 +9,7 @@ export interface LoginHeaderProps {
   activeView?: LoginView;
   setActiveView?: (view: LoginView) => void;
   t: (key: string) => string;
-  language: Language;
+  language: Languages;
 }
 
 const LoginHeader = ({

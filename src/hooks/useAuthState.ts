@@ -1,14 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
-import { User, Language } from '../types/auth';
+import { User, Languages } from '../types/auth';
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 import { mapSupabaseUserToUser } from '../utils/authUtils';
 import { generateCSRFToken } from '../utils/csrfUtils';
 import { secureStorage } from '../utils/secureStorage';
 import { toast } from 'sonner';
 
-export const useAuthState = (language: Language = 'en') => {
+export const useAuthState = (language: Languages = 'en') => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);

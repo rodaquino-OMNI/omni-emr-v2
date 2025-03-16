@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Phone, Check } from 'lucide-react';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface PhoneLoginFormProps {
   phone: string;
@@ -17,7 +17,7 @@ interface PhoneLoginFormProps {
   verificationSent: boolean;
   validationErrors: { [key: string]: string };
   setValidationErrors: (errors: { [key: string]: string }) => void;
-  language: Language;
+  language: Languages;
   t: (key: string) => string;
   resetForm: () => void;
 }

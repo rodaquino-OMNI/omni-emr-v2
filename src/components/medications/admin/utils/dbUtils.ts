@@ -1,8 +1,7 @@
-
 import { supabase } from '@/integrations/supabase/core';
 import { checkConnectivity } from '@/utils/supabaseConnectivity';
 import { toast } from '@/hooks/use-toast';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 export interface DatabaseStats {
   totalMedications: number;
@@ -84,7 +83,7 @@ export const getLastSyncDate = async (): Promise<Date | null> => {
 /**
  * Fetch all database statistics
  */
-export const fetchDatabaseStats = async (language: Language): Promise<DatabaseStats | null> => {
+export const fetchDatabaseStats = async (language: Languages): Promise<DatabaseStats | null> => {
   try {
     // Check connection first
     const isConnected = await checkConnectivity();

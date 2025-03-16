@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 import EmailLoginForm from '../EmailLoginForm';
 import PhoneLoginForm from '../PhoneLoginForm';
 import SocialLoginButtons from '../SocialLoginButtons';
@@ -17,7 +16,7 @@ interface LoginTabsProps {
   isEmailSubmitting: boolean;
   validationErrors: { [key: string]: string };
   setValidationErrors: (errors: { [key: string]: string } | ((prev: any) => any)) => void;
-  language: Language;
+  language: Languages;
   t: (key: string) => string;
   forgotPassword: boolean;
   toggleForgotPassword: () => void;

@@ -1,12 +1,11 @@
-
 import { toast } from '@/hooks/use-toast';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 import { syncFrequentlyUsedMedications, clearExpiredCache } from '@/services/rxnorm';
 
 /**
  * Synchronize frequently used medications with RxNorm API
  */
-export const syncMedications = async (language: Language): Promise<boolean> => {
+export const syncMedications = async (language: Languages): Promise<boolean> => {
   try {
     const result = await syncFrequentlyUsedMedications();
     
@@ -51,7 +50,7 @@ export const syncMedications = async (language: Language): Promise<boolean> => {
 /**
  * Clear expired cache entries
  */
-export const clearCache = async (language: Language): Promise<boolean> => {
+export const clearCache = async (language: Languages): Promise<boolean> => {
   try {
     const result = await clearExpiredCache();
     

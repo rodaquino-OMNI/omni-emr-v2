@@ -1,14 +1,13 @@
-
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { secureStorage } from '../utils/secureStorage';
-import { Language } from '../types/auth';
+import { Languages } from '../types/auth';
 
 // Rate limiting for auth attempts
 const MAX_AUTH_ATTEMPTS = 5;
 const AUTH_LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
 
-export const useAuthRateLimiting = (language: Language) => {
+export const useAuthRateLimiting = (language: Languages) => {
   const [loginAttempts, setLoginAttempts] = useState<number>(() => {
     return secureStorage.getItem('login_attempts', 0);
   });

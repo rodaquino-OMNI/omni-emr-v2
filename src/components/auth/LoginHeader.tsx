@@ -2,11 +2,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface LoginHeaderProps {
   t: (key: string) => string;
-  language: Language;
+  language: Languages;
 }
 
 const LoginHeader = ({ t, language }: LoginHeaderProps) => {

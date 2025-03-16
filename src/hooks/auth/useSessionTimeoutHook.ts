@@ -1,13 +1,13 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { Language } from '@/types/auth';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
+import { Languages } from '@/types/auth';
+import { secureStorage } from '@/utils/secureStorage';
 
 interface UseSessionTimeoutProps {
   isAuthenticated: boolean;
-  language: Language;
+  language: Languages;
   onTimeout: () => Promise<void>;
-  defaultTimeoutMinutes?: number; 
 }
 
 export const useSessionTimeoutHook = ({

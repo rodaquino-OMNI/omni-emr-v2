@@ -2,11 +2,11 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface ApprovalPendingAlertProps {
   pendingApproval: boolean;
-  language: Language;
+  language: Languages;
 }
 
 const ApprovalPendingAlert = ({ pendingApproval, language }: ApprovalPendingAlertProps) => {

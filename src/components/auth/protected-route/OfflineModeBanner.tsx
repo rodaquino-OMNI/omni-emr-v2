@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { WifiOff } from 'lucide-react';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface OfflineModeBannerProps {
-  language: Language;
+  language: Languages;
 }
 
 export const OfflineModeBanner: React.FC<OfflineModeBannerProps> = ({ language }) => {

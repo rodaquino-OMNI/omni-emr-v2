@@ -1,31 +1,40 @@
 
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { ShieldX, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ShieldAlert, ArrowLeft } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const Unauthorized = () => {
+const Unauthorized: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { requiredPermission } = location.state || {};
+  const { t } = useTranslation();
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
-      <div className="text-center max-w-md p-6">
-        <ShieldAlert className="h-16 w-16 mx-auto text-destructive mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Unauthorized Access</h1>
-        <p className="text-muted-foreground mb-6">
-          {requiredPermission 
-            ? `You don't have the required permission: ${requiredPermission.replace(/_/g, ' ')}`
-            : "You don't have permission to access this resource"}
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center space-y-6 text-center">
+        <div className="rounded-full bg-destructive/10 p-6">
+          <ShieldX className="h-12 w-12 text-destructive" />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tighter">{t('unauthorized')}</h1>
+        <p className="text-muted-foreground">
+          {t('accessDenied')}. {t('insufficientPermissions')}.
         </p>
-        <p className="text-sm text-muted-foreground mb-6">
-          Please contact your system administrator if you believe you should have access to this area.
+        <p className="text-muted-foreground">
+          {t('contactAdmin')}.
         </p>
-        <Button onClick={() => navigate(-1)} variant="outline">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Go Back
-        </Button>
+        <div className="flex gap-4">
+          <Button 
+            variant="outline" 
+            className="gap-2" 
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t('back')}
+          </Button>
+          <Button onClick={() => navigate('/login')}>
+            {t('signIn')}
+          </Button>
+        </div>
       </div>
     </div>
   );

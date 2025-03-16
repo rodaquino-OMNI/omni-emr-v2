@@ -7,11 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, UserPlus, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { UserRole, Language } from '@/types/auth';
+import { UserRole, Languages } from '@/types/auth';
 import { useAuth } from '@/context/AuthContext';
 
 interface RegisterFormProps {
-  language: Language;
+  language: Languages;
   t: (key: string) => string;
 }
 
@@ -28,7 +28,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ language, t }) => {
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [registrationComplete, setRegistrationComplete] = useState(false);
   
-  // Clinical roles that require admin approval
   const clinicalRoles: UserRole[] = ['doctor', 'nurse', 'specialist', 'pharmacist', 'lab_technician', 'radiology_technician'];
   const isClinicalRole = clinicalRoles.includes(role);
   

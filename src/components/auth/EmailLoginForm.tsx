@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserCheck, Loader2, KeyRound, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface EmailLoginFormProps {
   email: string;
@@ -15,7 +15,7 @@ interface EmailLoginFormProps {
   isSubmitting: boolean;
   validationErrors: { [key: string]: string };
   setValidationErrors: (errors: { [key: string]: string } | ((prev: any) => any)) => void;
-  language: Language;
+  language: Languages;
   t: (key: string) => string;
   forgotPassword?: boolean;
   toggleForgotPassword?: () => void;

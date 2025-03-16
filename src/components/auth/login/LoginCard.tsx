@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useAuth } from '@/context/AuthContext';
@@ -6,22 +5,22 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ModeToggle } from '@/components/ModeToggle';
 import { Button } from '@/components/ui/button';
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useNavigate } from 'react-router-dom';
 
 import LoginTabs from './LoginTabs';
 import LoginErrorAlert from './LoginErrorAlert';
 import ConnectionAlert from './ConnectionAlert';
 import ApprovalPendingAlert from './ApprovalPendingAlert';
-import LoginHeader from './LoginHeader';
+import LoginHeader, { LoginView } from './LoginHeader';
 
 const LoginCard: React.FC = () => {
   const { login, loginWithSocial, user, session, isLoading } = useAuth();
   const { language, t } = useTranslation();
   const navigate = useNavigate();
   
-  const [activeView, setActiveView] = useState<'email' | 'phone'>('email');
+  const [activeView, setActiveView] = useState<LoginView>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
@@ -152,8 +151,8 @@ const LoginCard: React.FC = () => {
   return (
     <Card className="w-[380px] shadow-md">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">{t('login', 'Login')}</CardTitle>
-        <CardDescription>{t('enterCredentials', 'Enter your credentials to continue')}</CardDescription>
+        <CardTitle className="text-2xl">{t('login')}</CardTitle>
+        <CardDescription>{t('enterCredentials')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <LoginErrorAlert error={error} language={language} />

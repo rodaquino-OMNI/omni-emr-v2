@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Shield } from 'lucide-react';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface HipaaBannerProps {
-  language: Language;
+  language: Languages;
 }
 
 export const HipaaBanner: React.FC<HipaaBannerProps> = ({ language }) => {

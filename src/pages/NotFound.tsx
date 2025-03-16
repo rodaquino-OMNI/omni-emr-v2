@@ -1,50 +1,40 @@
 
-import { useLocation, Link } from "react-router-dom";
-import { useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FileQuestion, Home, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
-
-  // Check if this is the prescribe-medication route
-  const isPrescribeRoute = location.pathname.includes('prescribe-medication');
+const NotFound: React.FC = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md w-full">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        
-        {isPrescribeRoute && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-sm text-yellow-700">
-              The route has been updated. Use "/prescribe" instead of "/prescribe-medication".
-            </p>
-          </div>
-        )}
-        
-        <div className="flex flex-col space-y-2">
-          {isPrescribeRoute ? (
-            <Button asChild>
-              <Link to="/prescribe">
-                Go to Prescription Page
-              </Link>
-            </Button>
-          ) : null}
-          
-          <Button asChild variant="outline">
-            <Link to="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Return to Home
-            </Link>
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center space-y-6 text-center">
+        <div className="rounded-full bg-primary/10 p-6">
+          <FileQuestion className="h-12 w-12 text-primary" />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tighter">404</h1>
+        <p className="text-xl font-semibold">{t('pageNotFound')}</p>
+        <p className="text-muted-foreground">
+          {t('pageNotFoundMessage', 'The page you are looking for doesn\'t exist or has been moved.')}
+        </p>
+        <div className="flex flex-wrap gap-4 justify-center">
+          <Button 
+            variant="outline" 
+            className="gap-2" 
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t('back')}
+          </Button>
+          <Button 
+            className="gap-2"
+            onClick={() => navigate('/')}
+          >
+            <Home className="h-4 w-4" />
+            {t('home', 'Home')}
           </Button>
         </div>
       </div>
