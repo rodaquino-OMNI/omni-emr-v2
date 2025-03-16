@@ -6,15 +6,12 @@ import { supabase } from './core';
  */
 export const refreshMaterializedView = async (viewName: string): Promise<boolean> => {
   try {
-    // First check if the view exists
-    const { data: viewExists, error: viewError } = await supabase
-      .from('pg_class')
-      .select('exists')
-      .eq('relname', viewName)
-      .eq('relkind', 'm')
-      .single();
+    // First check if the materialized view exists
+    const { data: viewExists, error: viewError } = await supabase.rpc('check_table_exists', {
+      table_name: viewName
+    });
     
-    if (viewError || !viewExists || !viewExists.exists) {
+    if (viewError || !viewExists) {
       console.error(`Materialized view ${viewName} does not exist`);
       return false;
     }
@@ -38,9 +35,9 @@ export const refreshMaterializedView = async (viewName: string): Promise<boolean
  */
 export const safeExecuteMaintenanceFunction = async (functionName: string, params: any = {}): Promise<any> => {
   try {
-    // Check if the function exists using the proper supabase syntax
-    const { data: functionExists, error: functionError } = await supabase.rpc('check_function_exists', {
-      function_name: functionName
+    // Check if the function exists using our safe function
+    const { data: functionExists, error: functionError } = await supabase.rpc('check_table_exists', {
+      table_name: functionName
     });
     
     if (functionError || !functionExists) {
@@ -68,28 +65,29 @@ export const safeExecuteMaintenanceFunction = async (functionName: string, param
  */
 export const refreshAllMaterializedViews = async (): Promise<boolean> => {
   try {
-    // Get all materialized views
-    const { data, error } = await supabase
-      .from('pg_matviews')
-      .select('matviewname');
+    // Since we can't directly query pg_matviews anymore, let's check specific views we know might exist
+    const viewsToCheck = ['patient_latest_vitals', 'medication_interactions_summary'];
+    let allSuccess = true;
     
-    if (error) {
-      console.error('Error getting materialized views:', error);
-      return false;
+    for (const view of viewsToCheck) {
+      // Check if the view exists first
+      const { data: viewExists, error: viewError } = await supabase.rpc('check_table_exists', {
+        table_name: view
+      });
+      
+      if (viewError || !viewExists) {
+        console.log(`View ${view} does not exist, skipping`);
+        continue;
+      }
+      
+      // Refresh the view if it exists
+      const success = await refreshMaterializedView(view);
+      if (!success) {
+        allSuccess = false;
+      }
     }
     
-    if (!data || data.length === 0) {
-      console.log('No materialized views found');
-      return true;
-    }
-    
-    // Refresh each view
-    const results = await Promise.all(
-      data.map(view => refreshMaterializedView(view.matviewname))
-    );
-    
-    // Return true only if all refreshes were successful
-    return results.every(result => result === true);
+    return allSuccess;
   } catch (error) {
     console.error('Error refreshing all materialized views:', error);
     return false;

@@ -12,8 +12,9 @@ export const supabase = createClient(
  */
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
-    const { error } = await supabase.from('audit_logs').select('count', { count: 'exact', head: true });
-    return !error;
+    // Use the safe function instead of directly checking audit_logs
+    const { data, error } = await supabase.rpc('check_connection');
+    return data && !error;
   } catch (error) {
     console.error('Failed to connect to Supabase:', error);
     return false;
@@ -31,6 +32,16 @@ export const logAuditEvent = async (
   details?: Record<string, any>
 ): Promise<void> => {
   try {
+    // First check if the audit_logs table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'audit_logs'
+    });
+    
+    if (tableError || !tableExists) {
+      console.error('audit_logs table does not exist:', tableError);
+      return;
+    }
+    
     await supabase
       .from('audit_logs')
       .insert({
@@ -65,6 +76,16 @@ export interface EnhancedAuditPayload {
 
 export const logEnhancedAuditEvent = async (payload: EnhancedAuditPayload): Promise<void> => {
   try {
+    // First check if the table exists
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'extended_audit_logs'
+    });
+    
+    if (tableError || !tableExists) {
+      console.error('extended_audit_logs table does not exist:', tableError);
+      return;
+    }
+    
     await supabase
       .from('extended_audit_logs')
       .insert({
@@ -91,13 +112,13 @@ export const logEnhancedAuditEvent = async (payload: EnhancedAuditPayload): Prom
  */
 export const createAuditLogPartition = async (): Promise<boolean> => {
   try {
-    // Use the safely created function to check if another function exists
-    const { data } = await supabase.rpc('check_table_exists', {
+    // Use the safely created function to check if the partitioned table exists
+    const { data, error } = await supabase.rpc('check_table_exists', {
       table_name: 'audit_logs_partitioned'
     });
     
-    if (!data) {
-      console.log('audit_logs_partitioned table does not exist');
+    if (error || !data) {
+      console.log('audit_logs_partitioned table does not exist:', error);
       return false;
     }
     

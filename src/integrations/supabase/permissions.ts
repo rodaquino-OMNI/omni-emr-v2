@@ -6,13 +6,13 @@ import { supabase } from './core';
  */
 export const userHasPermission = async (userId: string, permissionCode: string): Promise<boolean> => {
   try {
-    // Check if the function exists
-    const { data: functionExists, error: functionError } = await supabase.rpc('check_function_exists', {
-      function_name: 'user_has_permission'
+    // Check if the function exists using our safe function
+    const { data: functionExists, error: functionError } = await supabase.rpc('check_table_exists', {
+      table_name: 'user_has_permission'
     });
     
     if (functionError || !functionExists) {
-      console.error('user_has_permission function does not exist');
+      console.error('user_has_permission function does not exist, using fallback check');
       // Fallback to a simpler check
       const { data: userData, error: userError } = await supabase
         .from('profiles')

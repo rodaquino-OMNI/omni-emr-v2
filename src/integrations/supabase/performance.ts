@@ -14,13 +14,10 @@ export const logSlowQuery = async (
   try {
     if (executionTime < thresholdMs) return;
     
-    // Check if the table exists first
-    const { data: tableExists, error: tableError } = await supabase
-      .from('pg_tables')
-      .select('*')
-      .eq('schemaname', 'public')
-      .eq('tablename', 'query_performance_logs')
-      .single();
+    // Check if the table exists first using our safe function
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'query_performance_logs'
+    });
     
     if (tableError || !tableExists) {
       console.log('Performance logs table does not exist - skipping logging');
@@ -45,15 +42,12 @@ export const logSlowQuery = async (
  */
 export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 50) => {
   try {
-    // Check if performance monitoring table exists
-    const { data: tableExists, error: tableError } = await supabase
-      .from('pg_tables')
-      .select('exists')
-      .eq('schemaname', 'public')
-      .eq('tablename', 'query_performance_logs')
-      .single();
+    // Check if performance monitoring table exists using safe function
+    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
+      table_name: 'query_performance_logs'
+    });
     
-    if (tableError || !tableExists || !tableExists.exists) {
+    if (tableError || !tableExists) {
       console.error('Performance logs table does not exist');
       return [];
     }
@@ -78,15 +72,12 @@ export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 5
  */
 export const getPerformanceStatistics = async (): Promise<any> => {
   try {
-    // Check if the view exists
-    const { data: viewExists, error: viewError } = await supabase
-      .from('pg_class')
-      .select('exists')
-      .eq('relname', 'performance_statistics')
-      .eq('relkind', 'v')
-      .single();
+    // Check if the view exists using safer function
+    const { data: viewExists, error: viewError } = await supabase.rpc('check_table_exists', {
+      table_name: 'performance_statistics'
+    });
     
-    if (viewError || !viewExists || !viewExists.exists) {
+    if (viewError || !viewExists) {
       console.log('performance_statistics view does not exist');
       return null;
     }
