@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { Language } from '@/types/auth';
 
@@ -15,9 +14,11 @@ export const useLoginValidation = (language: Language) => {
     }
     
     if (!forgotPassword) {
+      const isDemoAccount = email.toLowerCase().endsWith('@omnicare.com');
+      
       if (!password) {
         errors.password = language === 'pt' ? 'Senha é obrigatória' : 'Password is required';
-      } else if (password.length < 6) {
+      } else if (password.length < 6 && !isDemoAccount) {
         errors.password = language === 'pt' 
           ? 'Senha deve ter pelo menos 6 caracteres' 
           : 'Password must be at least 6 characters';
