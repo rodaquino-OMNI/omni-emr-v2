@@ -56,3 +56,33 @@ export const displayOrderAlerts = (alerts: OrderAlert[]) => {
     }
   });
 };
+
+/**
+ * Show toast while analyzing order
+ */
+export const showAnalyzingOrderToast = (language: string) => {
+  toast.loading("Analyzing Order", {
+    description: "Checking order for potential issues...",
+    duration: 3000
+  });
+};
+
+/**
+ * Show success toast when verification is successful
+ */
+export const showVerificationSuccessToast = (language: string) => {
+  toast.success("Order Verified", {
+    description: "No issues found with this order",
+    duration: 3000
+  });
+};
+
+/**
+ * Show error toast when verification fails
+ */
+export const showVerificationErrorToast = (language: string) => {
+  toast.error("Verification Error", {
+    description: "There was an error verifying this order",
+    duration: 3000
+  });
+};

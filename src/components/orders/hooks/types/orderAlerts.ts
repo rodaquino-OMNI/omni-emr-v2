@@ -9,6 +9,9 @@ export interface OrderAlert {
   timestamp?: string;
   requiresAcknowledgement?: boolean;
   source?: string;
+  overridden?: boolean;
+  overriddenReason?: string;
+  overriddenBy?: string;
 }
 
 export enum AlertType {

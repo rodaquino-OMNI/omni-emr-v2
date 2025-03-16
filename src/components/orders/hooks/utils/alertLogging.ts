@@ -42,3 +42,34 @@ export const logAlertAcknowledgement = (alert: OrderAlert) => {
     icon: React.createElement(CheckCircle, { className: "h-4 w-4" })
   });
 };
+
+/**
+ * Logs when alerts are overridden by a user
+ */
+export const logAlertOverrides = (userId: string | undefined, alerts: OrderAlert[]) => {
+  console.info(`Alerts overridden by user: ${userId || 'Unknown'}`);
+  
+  alerts.forEach(alert => {
+    console.info(`  - ${alert.message} (${alert.type})`);
+  });
+};
+
+/**
+ * Shows a toast notification when alerts are overridden
+ */
+export const showAlertOverrideToast = (language: string) => {
+  toast.success("Alerts Overridden", {
+    description: "You have overridden the medication safety alerts",
+    duration: 3000
+  });
+};
+
+/**
+ * Shows a toast notification when an order is cancelled
+ */
+export const showOrderCancelledToast = (language: string) => {
+  toast.info("Order Cancelled", {
+    description: "The order has been cancelled",
+    duration: 3000
+  });
+};
