@@ -4,14 +4,15 @@ export interface VisitNote {
   patientId: string;
   patientName: string;
   date: string;
-  status: 'active' | 'discharged';
+  status: 'active' | 'discharged' | 'draft' | 'completed';
   title: string;
   summary: string;
   createdBy?: string;
   createdById?: string;
   updatedAt?: string;
   vitalSigns?: VitalSigns;
-  fhirEncounterId?: string; // Added to link to FHIR encounter
+  fhirEncounterId?: string;
+  version?: number;
 }
 
 export interface VitalSigns {
@@ -24,6 +25,7 @@ export interface VitalSigns {
   recordedAt?: string;
   recordedBy?: string;
   recordedById?: string;
+  notes?: string;
 }
 
 // FHIR-compliant interfaces

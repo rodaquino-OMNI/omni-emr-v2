@@ -39,7 +39,8 @@ export const getAllNotes = async (): Promise<VisitNote[]> => {
       summary: note.note_content,
       createdBy: note.author_name,
       createdById: note.author_id,
-      updatedAt: note.updated_at
+      updatedAt: note.updated_at,
+      version: note.version
     }));
   } catch (error) {
     console.error('Error in getAllNotes:', error);
@@ -86,7 +87,8 @@ export const getNoteById = async (id: string): Promise<VisitNote | null> => {
       summary: data.note_content,
       createdBy: data.author_name,
       createdById: data.author_id,
-      updatedAt: data.updated_at
+      updatedAt: data.updated_at,
+      version: data.version
     };
 
     // Get the latest vital signs for this patient

@@ -28,7 +28,8 @@ export const createNote = async (note: Partial<VisitNote>): Promise<VisitNote> =
         createdBy: note.createdBy,
         createdById: note.createdById,
         updatedAt: timestamp,
-        vitalSigns: note.vitalSigns
+        vitalSigns: note.vitalSigns,
+        version: 1
       };
       mockVisitNotes.push(newNote);
       return newNote;
@@ -40,6 +41,7 @@ export const createNote = async (note: Partial<VisitNote>): Promise<VisitNote> =
       .insert({
         id: noteId,
         patient_id: note.patientId,
+        patient_name: note.patientName || 'Unknown Patient',
         note_title: note.title || 'New Visit Note',
         note_content: note.summary || '',
         note_type: 'visit_note',
@@ -48,7 +50,8 @@ export const createNote = async (note: Partial<VisitNote>): Promise<VisitNote> =
         encounter_date: timestamp,
         created_at: timestamp,
         updated_at: timestamp,
-        status: note.status || 'active'
+        status: note.status || 'active',
+        version: 1
       })
       .select()
       .single();
@@ -76,7 +79,7 @@ export const createNote = async (note: Partial<VisitNote>): Promise<VisitNote> =
     return {
       id: data.id,
       patientId: data.patient_id,
-      patientName: note.patientName || 'Unknown Patient',
+      patientName: data.patient_name || 'Unknown Patient',
       date: data.created_at,
       status: data.status || 'active',
       title: data.note_title,
@@ -84,7 +87,8 @@ export const createNote = async (note: Partial<VisitNote>): Promise<VisitNote> =
       createdBy: data.author_name,
       createdById: data.author_id,
       updatedAt: data.updated_at,
-      vitalSigns: note.vitalSigns
+      vitalSigns: note.vitalSigns,
+      version: data.version
     };
   } catch (error) {
     console.error('Error in createNote:', error);
@@ -98,7 +102,8 @@ export const createNote = async (note: Partial<VisitNote>): Promise<VisitNote> =
       title: note.title || 'New Visit Note',
       summary: note.summary || '',
       createdBy: note.createdBy,
-      createdById: note.createdById
+      createdById: note.createdById,
+      version: 1
     };
   }
 };

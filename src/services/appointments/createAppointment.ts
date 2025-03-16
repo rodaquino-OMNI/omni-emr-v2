@@ -46,6 +46,7 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
       updated_at: now
     };
     
+    // Handle the error and return the mock appointment if in dev mode
     return handleAppointmentError(
       error,
       {

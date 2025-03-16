@@ -1,8 +1,9 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from '@/hooks/use-toast';
-import { verifyPatientWithEHR, verifyMedicationWithEHR } from './EHRVerification';
+import { useScannerState } from './hooks/useScannerState';
+import { useVerificationService } from './hooks/useVerificationService';
 
 export function useMedicationScanner(
   patient: any,
@@ -11,11 +12,32 @@ export function useMedicationScanner(
   onMedicationScan: (code: string) => void
 ) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'camera' | 'manual'>('camera');
-  const [manualPatientId, setManualPatientId] = useState('');
-  const [manualMedicationCode, setManualMedicationCode] = useState('');
-  const [scanning, setScanning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Use dedicated hooks for state management and verification
+  const { 
+    activeTab,
+    setActiveTab,
+    manualPatientId,
+    setManualPatientId,
+    manualMedicationCode,
+    setManualMedicationCode,
+    scanning,
+    setScanning,
+    error,
+    setError
+  } = useScannerState();
+  
+  const { 
+    verifyPatient,
+    verifyMedication,
+    simulateScanForDemo
+  } = useVerificationService({
+    onPatientScan,
+    onMedicationScan,
+    setScanning,
+    patient,
+    medication
+  });
   
   useEffect(() => {
     if (activeTab === 'camera' && !scanning) {
@@ -25,84 +47,17 @@ export function useMedicationScanner(
     return () => {
       setScanning(false);
     };
-  }, [activeTab]);
+  }, [activeTab, scanning, setScanning]);
   
   const handleManualSubmit = () => {
     // For manual entry, we'll verify against the EHR system
     if (manualPatientId) {
-      verifyPatientWithEHR(manualPatientId, patient)
-        .then(verified => {
-          if (verified) {
-            onPatientScan(manualPatientId);
-            toast({
-              title: t('patientVerified'),
-              variant: "success"
-            });
-          } else {
-            toast({
-              title: t('patientVerificationFailed'),
-              variant: "destructive"
-            });
-          }
-        })
-        .catch(() => toast({
-          title: t('ehrConnectionError'),
-          variant: "destructive"
-        }));
+      verifyPatient(manualPatientId);
     }
     
     if (manualMedicationCode) {
-      verifyMedicationWithEHR(manualMedicationCode, medication)
-        .then(verified => {
-          if (verified) {
-            onMedicationScan(manualMedicationCode);
-            toast({
-              title: t('medicationVerified'),
-              variant: "success"
-            });
-          } else {
-            toast({
-              title: t('medicationVerificationFailed'),
-              variant: "destructive"
-            });
-          }
-        })
-        .catch(() => toast({
-          title: t('ehrConnectionError'),
-          variant: "destructive"
-        }));
+      verifyMedication(manualMedicationCode);
     }
-  };
-  
-  // Simulate barcode scanning for demo purposes
-  const simulateScan = (type?: 'patient' | 'medication') => {
-    setScanning(false);
-    
-    // If a specific type was requested, scan that; otherwise alternate
-    const scanType = type || (!patient ? 'patient' : !medication ? 'medication' : 'patient');
-    
-    toast({
-      title: t('scanning'),
-      variant: "default"
-    });
-    
-    setTimeout(() => {
-      if (scanType === 'patient' && patient) {
-        onPatientScan(patient.id);
-        toast({
-          title: t('patientScanned'),
-          variant: "success"
-        });
-      } else if (scanType === 'medication' && medication) {
-        onMedicationScan(medication.id);
-        toast({
-          title: t('medicationScanned'),
-          variant: "success"
-        });
-      }
-      
-      setScanning(true);
-    }, 1500);
   };
   
   return {
@@ -117,6 +72,6 @@ export function useMedicationScanner(
     error,
     setError,
     handleManualSubmit,
-    simulateScan
+    simulateScan: simulateScanForDemo
   };
 }

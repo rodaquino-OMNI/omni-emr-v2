@@ -1,302 +1,210 @@
 
-/**
- * Hook for working with FHIR resources in the improved FHIR-compliant database
- */
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { supabase, logEnhancedAuditEvent } from '@/integrations/supabase/client'; 
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
-interface UseFHIRResourcesProps {
-  resourceType: string;
-  patientId?: string;
-  filters?: Record<string, any>;
-  enabled?: boolean;
-}
+type ResourceType = 
+  | 'Patient'
+  | 'Condition'
+  | 'Observation'
+  | 'MedicationRequest'
+  | 'AllergyIntolerance'
+  | 'Immunization'
+  | 'FamilyMemberHistory'
+  | 'DocumentReference';
+
+type TableMapping = {
+  [key in ResourceType]: string;
+};
+
+const tableMapping: TableMapping = {
+  'Patient': 'patients',
+  'Condition': 'conditions',
+  'Observation': 'observations',
+  'MedicationRequest': 'medication_requests',
+  'AllergyIntolerance': 'allergy_intolerances',
+  'Immunization': 'immunizations',
+  'FamilyMemberHistory': 'family_member_histories',
+  'DocumentReference': 'document_references'
+};
 
 /**
- * Hook to fetch and interact with FHIR resources
- * with built-in HIPAA-compliant audit logging
+ * Subject ID column mapping (handles the inconsistency in column naming)
  */
-export const useFHIRResources = <T extends Record<string, any>>({
-  resourceType,
-  patientId,
-  filters = {},
-  enabled = true
-}: UseFHIRResourcesProps) => {
+const patientIdColumnMapping: Record<string, string> = {
+  'patients': 'id',
+  'conditions': 'subject_id',
+  'observations': 'subject_id',
+  'medication_requests': 'subject_id',
+  'allergy_intolerances': 'patient_id',
+  'immunizations': 'patient_id',
+  'family_member_histories': 'patient_id',
+  'document_references': 'subject_id'
+};
+
+/**
+ * Hook for fetching FHIR resources
+ */
+export function useFHIRResources<T extends Record<string, any>>(
+  resourceType: ResourceType,
+  options?: {
+    patientId?: string;
+    limit?: number;
+    page?: number;
+    filter?: Record<string, any>;
+  }
+) {
   const [resources, setResources] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { user } = useAuth();
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
   
-  // Function to determine the appropriate table name from the FHIR resource type
-  const getTableName = (type: string): string => {
-    // Map FHIR resource types to Supabase table names
-    const resourceTypeToTable: Record<string, string> = {
-      'Patient': 'patients',
-      'Observation': 'observations',
-      'Condition': 'conditions',
-      'AllergyIntolerance': 'allergy_intolerances',
-      'MedicationRequest': 'medication_requests',
-      'Encounter': 'encounters',
-      'Immunization': 'immunizations',
-      'FamilyMemberHistory': 'family_member_histories',
-      'DocumentReference': 'document_references',
-      'CarePlan': 'care_plans',
-      'Device': 'devices',
-      'VitalSigns': 'vital_signs' // Custom mapping for vital signs
-    };
-    
-    return resourceTypeToTable[type] || type.toLowerCase() + 's';
-  };
+  const tableName = tableMapping[resourceType];
+  const patientIdColumn = patientIdColumnMapping[tableName];
   
-  // Get the subject ID field name based on resource type
-  const getSubjectField = (type: string): string => {
-    const resourceTypeToSubjectField: Record<string, string> = {
-      'Patient': 'id',
-      'AllergyIntolerance': 'patient_id',
-      'VitalSigns': 'patient_id'
-    };
-    
-    return resourceTypeToSubjectField[type] || 'subject_id';
-  };
-  
-  // Function to fetch resources
-  const fetchResources = async () => {
-    if (!enabled) {
-      setLoading(false);
-      return;
-    }
-    
+  // Define fetch function
+  const fetchResources = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const tableName = getTableName(resourceType);
-      const subjectField = getSubjectField(resourceType);
+      // Start building the query
+      let query = supabase.from(tableName).select('*', { count: 'exact' });
       
-      // Build the query
-      let query = supabase.from(tableName).select('*');
-      
-      // Add patient filter if provided
-      if (patientId) {
-        query = query.eq(subjectField, patientId);
+      // Apply patient filter if provided
+      if (options?.patientId && patientIdColumn) {
+        query = query.eq(patientIdColumn, options.patientId);
       }
       
-      // Add any additional filters
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+      // Apply additional filters if provided
+      if (options?.filter) {
+        Object.entries(options.filter).forEach(([key, value]) => {
           query = query.eq(key, value);
-        }
-      });
-      
-      // Execute the query
-      const { data, error: queryError } = await query.order('created_at', { ascending: false });
-      
-      if (queryError) {
-        throw new Error(`Error fetching ${resourceType}: ${queryError.message}`);
-      }
-      
-      // Log the access for HIPAA compliance
-      if (user?.id && patientId) {
-        await logEnhancedAuditEvent({
-          userId: user.id,
-          action: 'access',
-          resourceType,
-          resourceId: patientId, // Use patient ID as resource ID for logging
-          patientId,
-          accessType: 'standard_access',
-          accessReason: 'clinical_review',
-          details: {
-            resourceCountRetrieved: data?.length || 0,
-            filters: { ...filters, [subjectField]: patientId }
-          }
         });
       }
       
-      setResources(data || []);
+      // Apply pagination if specified
+      if (options?.limit) {
+        query = query.limit(options.limit);
+        
+        if (options?.page && options.page > 1) {
+          const offset = (options.page - 1) * options.limit;
+          query = query.range(offset, offset + options.limit - 1);
+        }
+      }
+      
+      // Execute the query
+      const { data, error, count } = await query;
+      
+      if (error) throw error;
+      
+      setResources(data as T[]);
+      
+      if (count !== null) {
+        setTotalCount(count);
+        setPageCount(Math.ceil(count / (options?.limit || 1)));
+      }
     } catch (err) {
-      console.error(`Error in useFHIRResources for ${resourceType}:`, err);
-      setError(err instanceof Error ? err : new Error(String(err)));
+      console.error(`Error fetching ${resourceType} resources:`, err);
+      setError(err instanceof Error ? err : new Error('Unknown error'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    tableName, 
+    patientIdColumn, 
+    options?.patientId, 
+    options?.limit, 
+    options?.page, 
+    options?.filter, 
+    resourceType
+  ]);
   
-  // Create a resource
-  const createResource = async (resource: Omit<T, 'id'>): Promise<T | null> => {
+  // Fetch resources on initial load and when dependencies change
+  useEffect(() => {
+    fetchResources();
+  }, [fetchResources]);
+  
+  /**
+   * Add a new resource
+   */
+  const addResource = async (resource: Omit<T, 'id'>): Promise<T | null> => {
     try {
-      const tableName = getTableName(resourceType);
-      
-      // Add version tracking and timestamps
-      const resourceWithVersion = {
-        ...resource,
-        version: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      // Insert into the database
-      const { data, error: insertError } = await supabase
+      const { data, error } = await supabase
         .from(tableName)
-        .insert(resourceWithVersion)
+        .insert(resource)
         .select()
         .single();
-        
-      if (insertError) {
-        throw new Error(`Error creating ${resourceType}: ${insertError.message}`);
-      }
       
-      // Log the action for HIPAA compliance
-      if (user?.id && 'patient_id' in resource) {
-        await logEnhancedAuditEvent({
-          userId: user.id,
-          action: 'create',
-          resourceType,
-          resourceId: data.id,
-          patientId: resource.patient_id as string,
-          accessType: 'standard_access',
-          accessReason: 'clinical_documentation',
-          details: {
-            resourceCreated: resourceType
-          }
-        });
-      }
+      if (error) throw error;
       
       // Update local state
-      setResources(prev => [data, ...prev]);
+      setResources(prev => [...prev, data as T]);
       
-      return data;
+      return data as T;
     } catch (err) {
-      console.error(`Error creating ${resourceType}:`, err);
+      console.error(`Error adding ${resourceType} resource:`, err);
       return null;
     }
   };
   
-  // Update a resource
+  /**
+   * Update an existing resource
+   */
   const updateResource = async (id: string, updates: Partial<T>): Promise<T | null> => {
     try {
-      const tableName = getTableName(resourceType);
-      
-      // Add updated timestamp
-      const updatesWithTimestamp = {
-        ...updates,
-        updated_at: new Date().toISOString()
-      };
-      
-      // Update in the database
-      const { data, error: updateError } = await supabase
+      const { data, error } = await supabase
         .from(tableName)
-        .update(updatesWithTimestamp)
+        .update(updates)
         .eq('id', id)
         .select()
         .single();
-        
-      if (updateError) {
-        throw new Error(`Error updating ${resourceType}: ${updateError.message}`);
-      }
       
-      // Log the action for HIPAA compliance
-      if (user?.id) {
-        // Get patient ID from the resource itself
-        const patientId = 
-          (data.patient_id as string) || 
-          (data.subject_id as string) || 
-          (resourceType === 'Patient' ? data.id : undefined);
-          
-        if (patientId) {
-          await logEnhancedAuditEvent({
-            userId: user.id,
-            action: 'update',
-            resourceType,
-            resourceId: id,
-            patientId,
-            accessType: 'standard_access',
-            accessReason: 'clinical_documentation',
-            details: {
-              updatedFields: Object.keys(updates)
-            }
-          });
-        }
-      }
+      if (error) throw error;
       
       // Update local state
-      setResources(prev => prev.map(r => r.id === id ? data : r));
+      setResources(prev => prev.map(item => 
+        (item as any).id === id ? data as T : item
+      ));
       
-      return data;
+      return data as T;
     } catch (err) {
-      console.error(`Error updating ${resourceType}:`, err);
+      console.error(`Error updating ${resourceType} resource:`, err);
       return null;
     }
   };
   
-  // Delete a resource
+  /**
+   * Delete a resource
+   */
   const deleteResource = async (id: string): Promise<boolean> => {
     try {
-      const tableName = getTableName(resourceType);
-      
-      // For HIPAA compliance, get the resource details before deletion to log patient ID
-      const { data: resourceData } = await supabase
-        .from(tableName)
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-      // Delete from the database
-      const { error: deleteError } = await supabase
+      const { error } = await supabase
         .from(tableName)
         .delete()
         .eq('id', id);
-        
-      if (deleteError) {
-        throw new Error(`Error deleting ${resourceType}: ${deleteError.message}`);
-      }
       
-      // Log the action for HIPAA compliance
-      if (user?.id && resourceData) {
-        // Get patient ID from the resource itself
-        const patientId = 
-          (resourceData.patient_id as string) || 
-          (resourceData.subject_id as string) || 
-          (resourceType === 'Patient' ? resourceData.id : undefined);
-          
-        if (patientId) {
-          await logEnhancedAuditEvent({
-            userId: user.id,
-            action: 'delete',
-            resourceType,
-            resourceId: id,
-            patientId,
-            accessType: 'standard_access',
-            accessReason: 'clinical_documentation_management',
-            details: {
-              resourceDeleted: resourceType
-            }
-          });
-        }
-      }
+      if (error) throw error;
       
       // Update local state
-      setResources(prev => prev.filter(r => r.id !== id));
+      setResources(prev => prev.filter(item => (item as any).id !== id));
       
       return true;
     } catch (err) {
-      console.error(`Error deleting ${resourceType}:`, err);
+      console.error(`Error deleting ${resourceType} resource:`, err);
       return false;
     }
   };
-  
-  // Fetch resources when dependencies change
-  useEffect(() => {
-    fetchResources();
-  }, [resourceType, patientId, JSON.stringify(filters), enabled]);
   
   return {
     resources,
     loading,
     error,
+    totalCount,
+    pageCount,
     refresh: fetchResources,
-    createResource,
+    addResource,
     updateResource,
     deleteResource
   };
-};
+}

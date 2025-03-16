@@ -1,13 +1,13 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { VisitNote, VitalSigns, FHIRVitalSign, AuditEvent } from './types';
 import { getAllNotes, getNoteById, getPatientVitalSigns } from './operations/getVisitNotes';
 import { createNote } from './operations/createVisitNote';
 import { updateNote, deleteNote } from './operations/updateVisitNote';
 import { recordVitalSigns, getFHIRVitalSigns } from './operations/vitalSignsOperations';
 import { logAuditEvent, logEnhancedAuditEvent } from '@/integrations/supabase/client';
 
-export { VisitNote, VitalSigns, FHIRVitalSign, AuditEvent } from './types';
+// Export types with proper type keyword
+export type { VisitNote, VitalSigns, FHIRVitalSign, AuditEvent } from './types';
 
 /**
  * Service for handling visit notes and vital sign operations
@@ -68,8 +68,6 @@ export const visitNoteService = {
    */
   requestEmergencyAccess: async (userId: string, patientId: string, reason: string): Promise<boolean> => {
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      
       // Record the emergency access
       const { data, error } = await supabase
         .from('emergency_access_logs')

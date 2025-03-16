@@ -5,10 +5,17 @@ import { mockAppointments } from './mockData';
 import { mapDbAppointmentToAppointment } from './utils/appointmentMappers';
 import { handleAppointmentError } from './utils/errorHandling';
 
-// Base function to handle appointment fetching with various filters
+interface QueryOptions {
+  column: string;
+  ascending: boolean;
+}
+
+/**
+ * Base function to handle appointment fetching with various filters
+ */
 const getAppointmentsBase = async (
   filters: Record<string, any> = {},
-  orderColumns: {column: string, ascending: boolean}[] = [{column: 'date', ascending: true}]
+  orderColumns: QueryOptions[] = [{column: 'date', ascending: true}]
 ): Promise<Appointment[]> => {
   try {
     let query = supabase.from('appointments').select('*');
@@ -41,10 +48,13 @@ const getAppointmentsBase = async (
       });
     });
     
-    return handleAppointmentError(error, {
+    // Handle the error and return the mock data if in dev mode
+    const result = handleAppointmentError(error, {
       operation: 'fetch',
       entityType: 'appointment'
-    }, () => mockData) as Appointment[];
+    }, () => mockData);
+    
+    return result as Appointment[];
   }
 };
 

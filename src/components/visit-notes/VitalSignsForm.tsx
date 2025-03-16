@@ -27,13 +27,14 @@ const VitalSignsForm: React.FC<VitalSignsFormProps> = ({
   const { user } = useAuth();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<Omit<VitalSigns, 'recordedAt' | 'recordedBy' | 'recordedById'>>({
+  const [formData, setFormData] = useState<VitalSigns>({
     heartRate: 75,
     bloodPressure: '120/80',
     temperature: 36.5,
     oxygenSaturation: 98,
     respiratoryRate: 16,
-    painLevel: 0
+    painLevel: 0,
+    notes: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,16 +69,22 @@ const VitalSignsForm: React.FC<VitalSignsFormProps> = ({
     setIsSubmitting(true);
     
     try {
-      const vitalSigns: VitalSigns = {
-        ...formData,
-        recordedBy: user.name || 'Unknown Provider',
-        recordedById: user.id
-      };
+      // Get the note to get the patient ID
+      const note = await visitNoteService.getNoteById(visitNoteId);
       
-      const updatedNote = await visitNoteService.recordVitalSigns(visitNoteId, vitalSigns);
+      if (!note) {
+        throw new Error('Visit note not found');
+      }
       
-      if (!updatedNote) {
-        throw new Error('Failed to update vital signs');
+      const success = await visitNoteService.recordVitalSigns(
+        note.patientId, 
+        formData,
+        user.id,
+        user.name || 'Unknown Provider'
+      );
+      
+      if (!success) {
+        throw new Error('Failed to record vital signs');
       }
       
       toast.success(
@@ -201,6 +208,19 @@ const VitalSignsForm: React.FC<VitalSignsFormProps> = ({
                 onValueChange={handlePainLevelChange}
               />
             </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="notes">
+              {language === 'pt' ? 'Observações' : 'Notes'}
+            </Label>
+            <Input
+              id="notes"
+              name="notes"
+              value={formData.notes || ''}
+              onChange={handleInputChange}
+              placeholder={language === 'pt' ? 'Observações adicionais' : 'Additional notes'}
+            />
           </div>
         </CardContent>
         
