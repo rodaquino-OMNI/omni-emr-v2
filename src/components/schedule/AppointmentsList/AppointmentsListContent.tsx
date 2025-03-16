@@ -1,20 +1,34 @@
 
 import React from 'react';
-import { type Appointment } from './hooks/useAppointmentsQuery';
+import { Appointment } from './hooks/useAppointmentsQuery';
 import AppointmentCard from '../AppointmentCard';
 import AppointmentListEmpty from './AppointmentListEmpty';
+import AppointmentListLoading from './AppointmentListLoading';
+import AppointmentListError from './AppointmentListError';
 
 type AppointmentsListContentProps = {
   appointments: Appointment[];
   selectedDate?: Date;
   patientId?: string;
+  isLoading?: boolean;
+  error?: Error | null;
 };
 
 const AppointmentsListContent: React.FC<AppointmentsListContentProps> = ({ 
   appointments,
   selectedDate,
-  patientId
+  patientId,
+  isLoading,
+  error
 }) => {
+  if (isLoading) {
+    return <AppointmentListLoading />;
+  }
+
+  if (error) {
+    return <AppointmentListError error={error} />;
+  }
+  
   if (appointments.length === 0) {
     return <AppointmentListEmpty selectedDate={selectedDate} patientId={patientId} />;
   }

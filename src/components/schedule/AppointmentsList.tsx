@@ -15,16 +15,17 @@ const AppointmentsList = ({ className, selectedDate, patientId, limit }: Appoint
   const { 
     appointments, 
     isLoading, 
-    error, 
-    sortedAndLimitedAppointments 
-  } = useAppointmentsQuery({ selectedDate, patientId, limit });
+    error
+  } = useAppointmentsQuery({ 
+    selectedDate, 
+    patientId, 
+    limit 
+  });
 
   return (
     <div className={cn("space-y-3", className)}>
       <AppointmentsListContent 
-        isLoading={isLoading}
-        error={error}
-        appointments={sortedAndLimitedAppointments}
+        appointments={appointments}
         selectedDate={selectedDate}
         patientId={patientId}
       />

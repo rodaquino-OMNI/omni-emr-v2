@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -18,12 +18,21 @@ export interface Appointment {
   reason?: string;
 }
 
-export const useAppointmentsQuery = (
-  selectedDate?: Date,
-  patientId?: string,
-  providerId?: string,
-  status?: string
-) => {
+interface AppointmentsQueryProps {
+  selectedDate?: Date;
+  patientId?: string;
+  providerId?: string;
+  status?: string;
+  limit?: number;
+}
+
+export const useAppointmentsQuery = ({
+  selectedDate,
+  patientId,
+  providerId,
+  status,
+  limit = 50
+}: AppointmentsQueryProps) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

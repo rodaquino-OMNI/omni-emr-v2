@@ -1,6 +1,7 @@
 
 import { OrderType } from '@/types/orders';
 import { OrderAlert } from '../types/orderAlerts';
+import { supabase } from '@/integrations/supabase/core';
 
 /**
  * Attempts to verify an order using Supabase Edge Functions
@@ -11,10 +12,6 @@ export const verifyOrderWithSupabase = async (
   orderData: any
 ): Promise<OrderAlert[] | null> => {
   try {
-    // Try connecting to Supabase for AI alerts
-    // This is a placeholder for real implementation
-    const supabase = (await import('@/integrations/supabase/client')).supabase;
-    
     // Check if Supabase is available by running a simple query
     const { error } = await supabase.from('profiles').select('id').limit(1);
     
