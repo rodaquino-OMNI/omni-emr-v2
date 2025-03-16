@@ -74,25 +74,153 @@ Streamlined communication across care teams:
 - Comprehensive audit logging for regulatory compliance
 - Fluid balance tracking for clinical care
 
-## 🚀 Getting Started
+## 🚀 Production Deployment Guide
 
-### Project Setup
+### Prerequisites
+- Node.js 18+ and npm 9+
+- Git
+- A Supabase account and project
+- PostgreSQL knowledge for database management
+- Domain name (for production deployment)
+- SSL certificate (recommended for HIPAA compliance)
+
+### 1. Environment Setup
 
 1. **Clone the repository**
    ```sh
-   git clone <YOUR_GIT_URL>
-   cd <YOUR_PROJECT_NAME>
+   git clone https://github.com/your-organization/medcare-emr.git
+   cd medcare-emr
    ```
 
-2. **Install dependencies**
-   ```sh
-   npm i
+2. **Set up environment variables**
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   VITE_ENCRYPTION_KEY=your-secure-encryption-key
    ```
 
-3. **Start the development server**
+3. **Install dependencies**
    ```sh
-   npm run dev
+   npm install
    ```
+
+### 2. Database Configuration
+
+1. **Set up Supabase tables and schemas**
+   Navigate to your Supabase project and run the SQL scripts located in:
+   ```
+   supabase/migrations/
+   ```
+   Execute these in the order of their prefixed dates.
+
+2. **Configure Row Level Security (RLS) policies**
+   Apply the security policies from:
+   ```
+   src/utils/fhir/setupPolicies.sql
+   ```
+
+3. **Deploy Edge Functions**
+   ```sh
+   cd supabase
+   npx supabase functions deploy rxnorm-sync
+   npx supabase functions deploy rxnorm-anvisa-map
+   npx supabase functions deploy rxnorm-portuguese-mapping
+   ```
+
+### 3. Application Build
+
+1. **Create a production build**
+   ```sh
+   npm run build
+   ```
+   This creates optimized files in the `dist` directory.
+
+2. **Test the production build locally**
+   ```sh
+   npm run preview
+   ```
+   
+### 4. Deployment Options
+
+#### Option 1: Traditional Web Hosting
+
+1. **Upload to a web server**
+   Transfer the contents of the `dist` directory to your web server's public directory.
+
+2. **Configure server for SPA routing**
+   For Apache, create a `.htaccess` file in the root directory:
+   ```
+   <IfModule mod_rewrite.c>
+     RewriteEngine On
+     RewriteBase /
+     RewriteRule ^index\.html$ - [L]
+     RewriteCond %{REQUEST_FILENAME} !-f
+     RewriteCond %{REQUEST_FILENAME} !-d
+     RewriteRule . /index.html [L]
+   </IfModule>
+   ```
+   
+   For Nginx, update your server configuration:
+   ```
+   location / {
+     try_files $uri $uri/ /index.html;
+   }
+   ```
+
+#### Option 2: Cloud Platform Deployment
+
+1. **Deploy to Netlify**
+   ```sh
+   npm install -g netlify-cli
+   netlify login
+   netlify deploy --prod
+   ```
+
+2. **Deploy to Vercel**
+   ```sh
+   npm install -g vercel
+   vercel login
+   vercel --prod
+   ```
+
+3. **Deploy to AWS Amplify**
+   ```sh
+   npm install -g @aws-amplify/cli
+   amplify configure
+   amplify init
+   amplify add hosting
+   amplify publish
+   ```
+
+### 5. Post-Deployment Steps
+
+1. **Configure domain and SSL**
+   Set up your custom domain and SSL certificate through your hosting provider.
+
+2. **Set up monitoring**
+   Implement application monitoring using services like Sentry, LogRocket, or AWS CloudWatch.
+
+3. **Setup backup procedures**
+   Configure regular database backups from your Supabase project.
+
+4. **HIPAA Compliance Verification**
+   - Ensure all PHI data is encrypted at rest and in transit
+   - Verify access controls and authentication mechanisms
+   - Test audit logging functionality
+   - Review and document compliance with HIPAA Technical Safeguards
+
+### 6. Scaling Considerations
+
+1. **Database Performance**
+   - Monitor query performance
+   - Implement database indexing for frequently accessed tables
+   - Consider read replicas for high-traffic deployments
+
+2. **Application Performance**
+   - Implement CDN for static assets
+   - Consider server-side rendering for improved initial load times
+   - Optimize bundle size with code splitting
 
 ## 💻 Technology Stack
 
@@ -103,21 +231,6 @@ MedCare EMR is built with modern technologies:
 - **State Management**: React Context API, TanStack Query
 - **Authentication**: Supabase Auth
 - **Database**: PostgreSQL (via Supabase)
-
-## 📱 Deployment
-
-Simply open [Lovable](https://lovable.dev/projects/d020a766-3e82-435e-a30b-6267c420b937) and click on Share -> Publish to deploy your application.
-
-For custom domains, we recommend using Netlify. Visit our [docs](https://docs.lovable.dev/tips-tricks/custom-domain/) for more details.
-
-## 🔧 Development
-
-You can edit this code in several ways:
-
-- **Use Lovable**: Visit the [Lovable Project](https://lovable.dev/projects/d020a766-3e82-435e-a30b-6267c420b937) and start prompting.
-- **Use your preferred IDE**: Clone this repo and push changes.
-- **Edit directly in GitHub**: Navigate to files and use the edit button.
-- **Use GitHub Codespaces**: Launch a new codespace from the repository.
 
 ---
 
