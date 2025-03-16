@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MapPin, Calendar, Clock } from 'lucide-react';
+import { MapPin, Calendar, Phone } from 'lucide-react';
 import { Appointment } from '@/services/appointments';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AppointmentTypeInfo } from './types';
@@ -19,7 +19,7 @@ export const getAppointmentTypeInfo = (type: Appointment['type'], t: (key: any) 
       };
     case 'phone':
       return { 
-        icon: <Clock className="h-3.5 w-3.5" />, 
+        icon: <Phone className="h-3.5 w-3.5" />, 
         label: t('phone') 
       };
     default:

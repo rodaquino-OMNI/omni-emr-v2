@@ -26,6 +26,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'default'
         size="icon" 
         onClick={toggleLanguage} 
         title={language === 'en' ? 'Switch to Portuguese' : 'Mudar para Inglês'}
+        className="hover:bg-accent hover:text-accent-foreground"
       >
         <Globe className="h-5 w-5" />
       </Button>
