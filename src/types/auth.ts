@@ -18,16 +18,16 @@ export interface User {
   id: string;
   email?: string;
   phone?: string;
-  name?: string;
-  role?: 'doctor' | 'nurse' | 'admin' | 'patient' | 'pharmacist' | 'lab_technician' | 'administrative' | 'specialist' | 'system_administrator' | 'caregiver' | 'radiology_technician';
-  status?: 'active' | 'pending' | 'suspended' | 'inactive' | 'pending_approval';
+  name: string;
+  role: UserRole;
+  status: 'active' | 'pending' | 'suspended' | 'inactive' | 'pending_approval';
   permissions?: string[];
   mfaEnabled?: boolean;
   createdAt?: string;
   organization?: string;
-  lastLogin?: string;
-  preferredLanguage?: 'en' | 'pt';
-  approvalStatus?: 'approved' | 'pending' | 'rejected';
+  lastLogin?: string | Date; // Updated to accept both string and Date
+  preferredLanguage?: Language;
+  approvalStatus?: ApprovalStatus;
   avatar?: string;
   department?: string;
   specialties?: string[];

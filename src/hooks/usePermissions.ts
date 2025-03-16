@@ -1,135 +1,77 @@
 
-import { useCallback, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { User } from '../types/auth';
-import { 
-  hasPermission as checkPermission, 
-  canAccessPatientData as checkPatientAccess,
-  getUserPermissions as fetchPermissions,
-  canPerformClinicalDocumentation,
-  canPerformMedicationAction,
-  canPerformAppointmentAction,
-  canPerformClinicalAssessment,
-  canPerformEmergencyCare,
-  canPerformCareCoordination,
-  canPerformTelemedicine,
-  canManageFluidBalance,
-  canPerformTriageAssessment,
-  canDocumentMedicalDecisionMaking
-} from '../utils/permissions/index';
 
-export const usePermissions = (user: User | null) => {
-  // State to store user permissions
-  const [permissions, setPermissions] = useState<string[]>([]);
-  
-  // Fetch permissions when user changes
-  useEffect(() => {
-    if (user) {
-      // Get permissions and update state
-      const getAndSetPermissions = async () => {
-        const userPermissions = await fetchPermissions(user);
-        setPermissions(userPermissions);
-      };
-      
-      getAndSetPermissions();
-    } else {
-      setPermissions([]);
-    }
-  }, [user]);
-  
-  // Function to check if the current user has a specific permission
-  const hasPermission = useCallback((permission: string): boolean => {
-    return checkPermission(user, permission);
-  }, [user]);
-
-  // Function to check if the current user can access a specific patient's data
-  const canAccessPatientData = useCallback((patientId: string): boolean => {
-    return checkPatientAccess(user, patientId);
-  }, [user]);
-  
-  // Function to get all permissions for the current user
-  const getAllPermissions = useCallback((): string[] => {
-    return permissions;
-  }, [permissions]);
-  
-  // Function to check clinical documentation permissions
-  const checkClinicalDocPermission = useCallback((action: 'create' | 'modify' | 'finalize' | 'view'): boolean => {
-    return canPerformClinicalDocumentation(user, action);
-  }, [user]);
-  
-  // Function to check medication action permissions
-  const checkMedicationPermission = useCallback((action: 'prescribe' | 'administer' | 'verify' | 'view'): boolean => {
-    return canPerformMedicationAction(user, action);
-  }, [user]);
-  
-  // Function to check appointment action permissions
-  const checkAppointmentPermission = useCallback((action: 'schedule' | 'modify' | 'cancel' | 'view'): boolean => {
-    return canPerformAppointmentAction(user, action);
-  }, [user]);
-  
-  // New clinical workflow specific functions
-  const checkClinicalAssessment = useCallback((action: 'initial' | 'ongoing'): boolean => {
-    return canPerformClinicalAssessment(user, action);
-  }, [user]);
-  
-  const checkEmergencyCare = useCallback((action: 'triage' | 'treatment'): boolean => {
-    return canPerformEmergencyCare(user, action);
-  }, [user]);
-  
-  const checkCareCoordination = useCallback((action: 'planning' | 'transition'): boolean => {
-    return canPerformCareCoordination(user, action);
-  }, [user]);
-  
-  const canConductTelemedicine = useCallback((): boolean => {
-    return canPerformTelemedicine(user);
-  }, [user]);
-  
-  const canManagePatientFluidBalance = useCallback((): boolean => {
-    return canManageFluidBalance(user);
-  }, [user]);
-  
-  const canPerformTriage = useCallback((): boolean => {
-    return canPerformTriageAssessment(user);
-  }, [user]);
-  
-  const canDocumentDecisionMaking = useCallback((): boolean => {
-    return canDocumentMedicalDecisionMaking(user);
-  }, [user]);
-  
-  // Function to get user role display name
-  const getRoleDisplayName = useCallback((): string => {
-    if (!user) return '';
-    
-    const roleDisplayNames: Record<string, string> = {
-      'admin': 'Administrator',
-      'doctor': 'Physician',
-      'nurse': 'Nurse',
-      'caregiver': 'Caregiver',
-      'patient': 'Patient',
-      'specialist': 'Specialist',
-      'administrative': 'Administrative Staff',
-      'pharmacist': 'Pharmacist',
-      'lab_technician': 'Laboratory Technician',
-      'radiology_technician': 'Radiology Technician',
-      'system_administrator': 'System Administrator'
-    };
-    
-    return roleDisplayNames[user.role] || user.role;
-  }, [user]);
-
-  return {
-    hasPermission,
-    canAccessPatientData,
-    getAllPermissions,
-    checkClinicalDocPermission,
-    checkMedicationPermission,
-    checkAppointmentPermission,
-    checkClinicalAssessment,
-    checkEmergencyCare,
-    checkCareCoordination,
-    canConductTelemedicine,
-    canManagePatientFluidBalance,
-    canPerformTriage,
-    canDocumentDecisionMaking,
-    getRoleDisplayName
+// Helper function to get role display name
+const getRoleDisplayName = (role?: string) => {
+  const roleMap: Record<string, string> = {
+    'doctor': 'Physician',
+    'nurse': 'Nurse',
+    'admin': 'Administrator',
+    'patient': 'Patient',
+    'specialist': 'Specialist',
+    'pharmacist': 'Pharmacist',
+    'lab_technician': 'Lab Technician',
+    'administrative': 'Administrative Staff',
+    'system_administrator': 'System Administrator',
+    'caregiver': 'Caregiver',
+    'radiology_technician': 'Radiology Technician'
   };
+  
+  return role ? (roleMap[role] || role) : 'Guest';
+};
+
+// Define permission checking functionality
+export const usePermissions = (user: User | null | undefined) => {
+  return useMemo(() => ({
+    // Check if user has a specific permission
+    hasPermission: (permission: string): boolean => {
+      if (!user || !user.permissions) return false;
+      
+      // Admin has all permissions
+      if (user.role === 'admin' || user.role === 'system_administrator') return true;
+      
+      // Check if user has this specific permission or 'all' permissions
+      return user.permissions.includes(permission) || user.permissions.includes('all');
+    },
+    
+    // Check if user can access a patient's data
+    canAccessPatientData: (patientId: string): boolean => {
+      if (!user) return false;
+      
+      // Admin and clinical roles can access all patient data
+      if (['admin', 'doctor', 'nurse', 'specialist'].includes(user.role)) return true;
+      
+      // Patients can only access their own data
+      if (user.role === 'patient') return user.id === patientId;
+      
+      return false;
+    },
+    
+    // Get display name for role
+    getRoleDisplayName: (): string => {
+      return getRoleDisplayName(user?.role);
+    },
+    
+    // Check if user can perform triage
+    canPerformTriage: (): boolean => {
+      if (!user) return false;
+      return ['doctor', 'nurse', 'administrative'].includes(user.role);
+    },
+    
+    // Check if user can access emergency care functions
+    checkEmergencyCare: (action: 'triage' | 'treatment' | 'view'): boolean => {
+      if (!user) return false;
+      
+      if (action === 'triage') {
+        return ['doctor', 'nurse', 'administrative'].includes(user.role);
+      } else if (action === 'treatment') {
+        return ['doctor', 'nurse'].includes(user.role);
+      } else if (action === 'view') {
+        return ['doctor', 'nurse', 'administrative', 'system_administrator'].includes(user.role);
+      }
+      
+      return false;
+    }
+  }), [user]);
 };

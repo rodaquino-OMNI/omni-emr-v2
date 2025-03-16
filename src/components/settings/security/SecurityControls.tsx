@@ -1,102 +1,79 @@
 
-import React, { useState } from 'react';
-import { 
-  Shield, 
-  KeyRound, 
-  Clock,
-  Bell,
-  UserCog,
-  Settings
-} from 'lucide-react';
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Shield, Lock, AlertTriangle, Clock, SmartphoneNfc } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import SecurityControlItem from './SecurityControlItem';
-import MFASetup from './MFASetup';
-import PasswordUpdateForm from './PasswordUpdateForm';
+import { useTranslation } from '@/hooks/useTranslation';
 import SessionTimeoutControl from './SessionTimeoutControl';
+import SecurityControlItem from './SecurityControlItem';
 
 interface SecurityControlsProps {
-  className?: string;
+  onShowPasswordUpdate: () => void;
+  onShowMFASetup: () => void;
 }
 
-const SecurityControls: React.FC<SecurityControlsProps> = ({ className }) => {
+const SecurityControls: React.FC<SecurityControlsProps> = ({ 
+  onShowPasswordUpdate,
+  onShowMFASetup
+}) => {
   const { user } = useAuth();
-  const [showMfaSetup, setShowMfaSetup] = useState(false);
-  const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState(30);
-
+  const { t } = useTranslation();
+  
   return (
-    <div className={className}>
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold">Security Settings</h2>
-        <p className="text-sm text-muted-foreground">
-          Manage your security preferences and account protection
-        </p>
-      </div>
-
-      <div className="mt-6 space-y-1">
-        <SecurityControlItem
-          icon={<Shield className="h-5 w-5" />}
-          title="Two-Factor Authentication"
-          description="Add an extra layer of security to your account"
-          enabled={user?.mfaEnabled}
-          action={
-            <Button 
-              onClick={() => setShowMfaSetup(true)}
-              variant={user?.mfaEnabled ? "outline" : "default"}
-              size="sm"
-            >
-              {user?.mfaEnabled ? 'Manage' : 'Enable'}
-            </Button>
-          }
-        />
-
-        <SecurityControlItem
-          icon={<KeyRound className="h-5 w-5" />}
-          title="Password"
-          description="Change your account password"
-          action={
-            <Button 
-              onClick={() => setShowPasswordUpdate(true)}
-              variant="outline"
-              size="sm"
-            >
-              Update
-            </Button>
-          }
-        />
-
-        <SessionTimeoutControl 
-          sessionTimeout={sessionTimeout} 
-          setSessionTimeout={setSessionTimeout}
-        />
-
-        <SecurityControlItem
-          icon={<Bell className="h-5 w-5" />}
-          title="Security Alerts"
-          description="Get notified about important security events"
-          action={
-            <Button variant="outline" size="sm">
-              Configure
-            </Button>
-          }
-        />
-      </div>
-
-      {/* MFA Setup Dialog */}
-      <Dialog open={showMfaSetup} onOpenChange={setShowMfaSetup}>
-        <DialogContent>
-          <MFASetup onClose={() => setShowMfaSetup(false)} />
-        </DialogContent>
-      </Dialog>
-
-      {/* Password Update Dialog */}
-      <Dialog open={showPasswordUpdate} onOpenChange={setShowPasswordUpdate}>
-        <DialogContent>
-          <PasswordUpdateForm onClose={() => setShowPasswordUpdate(false)} />
-        </DialogContent>
-      </Dialog>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Shield className="h-5 w-5 mr-2 text-primary" />
+            {t('accountSecurity')}
+          </CardTitle>
+          <CardDescription>
+            {t('manageAccountSecuritySettings')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <SecurityControlItem
+            icon={Lock}
+            title={t('password')}
+            description={t('updateYourPassword')}
+            action={
+              <Button variant="outline" onClick={onShowPasswordUpdate}>
+                {t('update')}
+              </Button>
+            }
+          />
+          
+          <SecurityControlItem
+            icon={SmartphoneNfc}
+            title={t('twoFactorAuthentication')}
+            description={t('addExtraLayerSecurity')}
+            action={
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {user?.mfaEnabled ? t('enabled') : t('disabled')}
+                </span>
+                <Switch 
+                  checked={user?.mfaEnabled || false}
+                  onCheckedChange={() => onShowMFASetup()}
+                />
+              </div>
+            }
+          />
+          
+          <SessionTimeoutControl />
+          
+          <SecurityControlItem
+            icon={AlertTriangle}
+            title={t('suspiciousActivityAlerts')}
+            description={t('receiveAlertsAboutSuspiciousActivity')}
+            action={
+              <Switch defaultChecked />
+            }
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -1,42 +1,32 @@
 
 import React, { ReactNode } from 'react';
+import { LucideIcon } from 'lucide-react';
 
-export interface SecurityControlItemProps {
-  icon: ReactNode;
+interface SecurityControlItemProps {
+  icon: LucideIcon;
   title: string;
   description: string;
-  action: ReactNode;
-  enabled?: boolean;
+  action?: ReactNode;
 }
 
 const SecurityControlItem: React.FC<SecurityControlItemProps> = ({
-  icon,
+  icon: Icon,
   title,
   description,
-  action,
-  enabled
+  action
 }) => {
   return (
-    <div className="flex items-start justify-between py-4 border-b border-border">
-      <div className="flex gap-4">
-        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-          {icon}
+    <div className="flex flex-wrap justify-between gap-4 items-center py-3 border-b border-border last:border-0 last:pb-0">
+      <div className="flex items-start gap-3">
+        <div className="p-2 bg-primary/10 rounded-md text-primary">
+          <Icon className="h-5 w-5" />
         </div>
-        <div className="space-y-1">
-          <div className="flex items-center">
-            <h3 className="font-medium">{title}</h3>
-            {enabled !== undefined && (
-              <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                {enabled ? 'Enabled' : 'Disabled'}
-              </span>
-            )}
-          </div>
+        <div>
+          <h4 className="text-sm font-medium">{title}</h4>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
       </div>
-      <div>
-        {action}
-      </div>
+      <div className="ml-auto">{action}</div>
     </div>
   );
 };

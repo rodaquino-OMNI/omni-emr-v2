@@ -5,11 +5,32 @@ import SecurityControls from './security/SecurityControls';
 import SecurityAuditLog from './SecurityAuditLog';
 import HipaaComplianceBanner from './security/HipaaComplianceBanner';
 import ComplianceInformation from './security/ComplianceInformation';
+import PasswordUpdateForm from './security/PasswordUpdateForm';
+import MFASetup from './security/MFASetup';
 
 const SecuritySettings = () => {
+  const [showPasswordUpdateForm, setShowPasswordUpdateForm] = useState(false);
+  const [showMFASetup, setShowMFASetup] = useState(false);
+  
+  const handleClosePasswordForm = () => {
+    setShowPasswordUpdateForm(false);
+  };
+  
+  const handleCloseMFASetup = () => {
+    setShowMFASetup(false);
+  };
+  
   return (
     <div className="space-y-6">
       <HipaaComplianceBanner />
+      
+      {showPasswordUpdateForm && (
+        <PasswordUpdateForm onClose={handleClosePasswordForm} />
+      )}
+      
+      {showMFASetup && (
+        <MFASetup onClose={handleCloseMFASetup} />
+      )}
       
       <Tabs defaultValue="controls" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -19,7 +40,10 @@ const SecuritySettings = () => {
         </TabsList>
         
         <TabsContent value="controls" className="space-y-4 py-4">
-          <SecurityControls />
+          <SecurityControls 
+            onShowPasswordUpdate={() => setShowPasswordUpdateForm(true)}
+            onShowMFASetup={() => setShowMFASetup(true)}
+          />
         </TabsContent>
         
         <TabsContent value="audit" className="space-y-4 py-4">

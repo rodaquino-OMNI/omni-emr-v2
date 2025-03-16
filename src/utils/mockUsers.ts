@@ -1,5 +1,5 @@
 
-import { User } from '../context/AuthContext';
+import { User } from '../types/auth';
 
 // Mock users for demo purposes
 export const mockUsers: User[] = [
@@ -9,6 +9,7 @@ export const mockUsers: User[] = [
     name: 'Admin User',
     role: 'admin',
     status: 'active',
+    permissions: ['all'],
   },
   {
     id: '2',
@@ -16,6 +17,7 @@ export const mockUsers: User[] = [
     name: 'Dr. Sarah Chen',
     role: 'doctor',
     status: 'active',
+    permissions: ['view_patients', 'edit_patients', 'prescribe_medications', 'view_records', 'edit_records', 'schedule_appointments', 'telemedicine', 'view_schedule'],
   },
   {
     id: '3',
@@ -23,6 +25,7 @@ export const mockUsers: User[] = [
     name: 'Nurse Johnson',
     role: 'nurse',
     status: 'active',
+    permissions: ['view_patients', 'edit_patients', 'view_medications', 'view_records', 'schedule_appointments', 'view_schedule'],
   },
   {
     id: '4',
@@ -30,5 +33,6 @@ export const mockUsers: User[] = [
     name: 'John Patient',
     role: 'patient',
     status: 'active',
+    permissions: ['view_own_records', 'view_own_medications', 'view_own_appointments'],
   }
 ];
