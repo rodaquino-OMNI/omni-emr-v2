@@ -3,6 +3,6 @@
 export * from './types';
 export * from './crudOperations';
 export * from './statusOperations';
-
-// Re-export main hooks and components
-export * from '../components/schedule/AppointmentsList/hooks/useAppointmentsQuery';
+export * from './getAppointments';
+export * from './createAppointment';
+export * from './updateAppointment';

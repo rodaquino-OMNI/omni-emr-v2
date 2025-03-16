@@ -28,6 +28,8 @@ const AppointmentsList = ({ className, selectedDate, patientId, limit }: Appoint
         appointments={appointments}
         selectedDate={selectedDate}
         patientId={patientId}
+        isLoading={isLoading}
+        error={error}
       />
     </div>
   );

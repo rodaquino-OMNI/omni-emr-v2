@@ -1,126 +1,44 @@
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { 
+  getAppointmentsByDate, 
+  getAppointmentsByPatient, 
+  getAllAppointments 
+} from '@/services/appointments';
+import { Appointment } from '@/services/appointments/types';
 
-export interface Appointment {
-  id: string;
-  patientName: string;
-  patientId: string;
-  providerId: string;
-  providerName: string;
-  startTime: Date;
-  endTime: Date;
-  status: 'scheduled' | 'completed' | 'canceled' | 'no-show';
-  type: string;
-  notes?: string;
-  location?: string;
-  reason?: string;
-}
-
-interface AppointmentsQueryProps {
+interface UseAppointmentsQueryProps {
   selectedDate?: Date;
   patientId?: string;
-  providerId?: string;
-  status?: string;
   limit?: number;
 }
 
-export const useAppointmentsQuery = ({
-  selectedDate,
-  patientId,
-  providerId,
-  status,
-  limit = 50
-}: AppointmentsQueryProps) => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+export const useAppointmentsQuery = ({ 
+  selectedDate, 
+  patientId, 
+  limit = 50 
+}: UseAppointmentsQueryProps) => {
+  const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : undefined;
 
-  const fetchAppointments = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // Mock data for demonstration
-      const mockAppointments: Appointment[] = [
-        {
-          id: '1',
-          patientName: 'John Doe',
-          patientId: '123',
-          providerId: '456',
-          providerName: 'Dr. Smith',
-          startTime: new Date(new Date().setHours(9, 0, 0)),
-          endTime: new Date(new Date().setHours(9, 30, 0)),
-          status: 'scheduled',
-          type: 'follow-up'
-        },
-        {
-          id: '2',
-          patientName: 'Jane Smith',
-          patientId: '124',
-          providerId: '456',
-          providerName: 'Dr. Smith',
-          startTime: new Date(new Date().setHours(10, 0, 0)),
-          endTime: new Date(new Date().setHours(10, 45, 0)),
-          status: 'scheduled',
-          type: 'initial-consultation'
-        }
-      ];
-      
-      // Filter appointments based on parameters
-      let filteredAppointments = [...mockAppointments];
-      
-      if (selectedDate) {
-        const dateStr = format(selectedDate, 'yyyy-MM-dd');
-        filteredAppointments = filteredAppointments.filter(app => 
-          format(app.startTime, 'yyyy-MM-dd') === dateStr
-        );
-      }
-      
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['appointments', { date: formattedDate, patientId, limit }],
+    queryFn: async () => {
       if (patientId) {
-        filteredAppointments = filteredAppointments.filter(app => 
-          app.patientId === patientId
-        );
+        return await getAppointmentsByPatient(patientId, limit);
+      } else if (formattedDate) {
+        return await getAppointmentsByDate(formattedDate, limit);
+      } else {
+        return await getAllAppointments(limit);
       }
-      
-      if (providerId) {
-        filteredAppointments = filteredAppointments.filter(app => 
-          app.providerId === providerId
-        );
-      }
-      
-      if (status && status !== 'all') {
-        filteredAppointments = filteredAppointments.filter(app => 
-          app.status === status
-        );
-      }
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setAppointments(filteredAppointments);
-    } catch (err) {
-      console.error('Error fetching appointments:', err);
-      setError(err instanceof Error ? err : new Error('Failed to fetch appointments'));
-      toast('Error', {
-        description: 'Failed to fetch appointments'
-      });
-    } finally {
-      setIsLoading(false);
     }
-  }, [selectedDate, patientId, providerId, status]);
-
-  useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+  });
 
   return {
-    appointments,
+    appointments: data || [],
     isLoading,
-    error,
-    refetch: fetchAppointments
+    error: error as Error | null
   };
 };
 
-export default useAppointmentsQuery;
+export type { Appointment };

@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { toast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { 
   Appointment, 
@@ -16,23 +15,10 @@ export const useAppointmentActions = (appointment: Appointment) => {
   const handleSendReminder = async () => {
     setIsLoading(true);
     try {
-      const result = await sendAppointmentReminder(appointment.id);
-      if (result) {
-        toast({
-          title: t('reminderSent'),
-          description: t('reminderSentDescription'),
-          variant: "success"
-        });
-      } else {
-        throw new Error('Failed to send reminder');
-      }
+      await sendAppointmentReminder(appointment.id);
     } catch (error) {
       console.error('Error sending reminder:', error);
-      toast({
-        title: t('errorSendingReminder'),
-        description: t('errorSendingReminderDescription'),
-        variant: "destructive"
-      });
+      // Error handling is now handled inside the service function
     } finally {
       setIsLoading(false);
     }
@@ -41,23 +27,10 @@ export const useAppointmentActions = (appointment: Appointment) => {
   const handleCompleteAppointment = async () => {
     setIsLoading(true);
     try {
-      const result = await completeAppointment(appointment.id);
-      if (result) {
-        toast({
-          title: t('appointmentCompleted'),
-          description: t('appointmentCompletedDescription'),
-          variant: "success"
-        });
-      } else {
-        throw new Error('Failed to complete appointment');
-      }
+      await completeAppointment(appointment.id);
     } catch (error) {
       console.error('Error completing appointment:', error);
-      toast({
-        title: t('errorCompletingAppointment'),
-        description: t('errorCompletingAppointmentDescription'),
-        variant: "destructive"
-      });
+      // Error handling is now handled inside the service function
     } finally {
       setIsLoading(false);
     }
@@ -66,23 +39,10 @@ export const useAppointmentActions = (appointment: Appointment) => {
   const handleCancelAppointment = async () => {
     setIsLoading(true);
     try {
-      const result = await cancelAppointment(appointment.id);
-      if (result) {
-        toast({
-          title: t('appointmentCancelled'),
-          description: t('appointmentCancelledDescription'),
-          variant: "success"
-        });
-      } else {
-        throw new Error('Failed to cancel appointment');
-      }
+      await cancelAppointment(appointment.id);
     } catch (error) {
       console.error('Error cancelling appointment:', error);
-      toast({
-        title: t('errorCancellingAppointment'),
-        description: t('errorCancellingAppointmentDescription'),
-        variant: "destructive"
-      });
+      // Error handling is now handled inside the service function
     } finally {
       setIsLoading(false);
     }

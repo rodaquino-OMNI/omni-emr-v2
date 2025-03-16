@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Appointment } from './hooks/useAppointmentsQuery';
+import { Appointment } from '@/services/appointments/types';
 import AppointmentCard from '../AppointmentCard';
 import AppointmentListEmpty from './AppointmentListEmpty';
 import AppointmentListLoading from './AppointmentListLoading';

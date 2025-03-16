@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useAuthProvider } from '../hooks/useAuthProvider';
@@ -14,7 +13,14 @@ const AuthContext = createContext<AuthContextType>({
   login: async (email: string, password: string) => ({ success: false }),
   logout: async () => {},
   signUp: async () => ({ success: false }),
-  resetPassword: async (email: string) => ({ success: false }),
+  resetPassword: async (email: string): Promise<{ success: boolean; error?: any }> => {
+    try {
+      const result = await someResetPasswordFunction(email);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  },
   updateUser: async () => {},
   sendPasswordResetEmail: async () => {},
   verifyEmail: async () => {},
