@@ -1,209 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import PatientHeader from '@/components/patients/PatientHeader';
-import PatientOverviewTab from '@/components/patients/tabs/PatientOverviewTab';
-import PatientRecordsTab from '@/components/patients/tabs/PatientRecordsTab';
-import PatientPrescriptionsTab from '@/components/patients/tabs/PatientPrescriptionsTab';
-import PatientAIInsightsTab from '@/components/patients/tabs/PatientAIInsightsTab';
-import { Patient, PatientStatus } from '@/types/patientTypes';
-import { mapToPatientStatus } from '@/utils/patientUtils';
-import { calculatePatientAge } from '@/utils/patientUtils';
-
-// Mock data for now (would come from API)
-const mockPatients = [
-  {
-    id: 'patient-1',
-    first_name: 'John',
-    last_name: 'Doe',
-    date_of_birth: '1980-01-01',
-    gender: 'Male',
-    mrn: '123456',
-    status: 'hospital' as PatientStatus,
-    is_assigned: true,
-    room_number: '101',
-    age: 43,
-    diagnosis: 'Hypertension',
-    name: 'John Doe'
-  },
-  {
-    id: 'patient-2',
-    first_name: 'Jane',
-    last_name: 'Smith',
-    date_of_birth: '1990-05-15',
-    gender: 'Female',
-    mrn: '789012',
-    status: 'home' as PatientStatus,
-    is_assigned: true,
-    room_number: '202',
-    age: 33,
-    diagnosis: 'Diabetes',
-    name: 'Jane Smith'
-  },
-  {
-    id: 'patient-3',
-    first_name: 'Robert',
-    last_name: 'Jones',
-    date_of_birth: '1975-11-20',
-    gender: 'Male',
-    mrn: '345678',
-    status: 'discharged' as PatientStatus,
-    is_assigned: false,
-    room_number: null,
-    age: 47,
-    diagnosis: 'Asthma',
-    name: 'Robert Jones'
-  }
-];
+import { usePatientData } from '@/hooks/usePatientData';
+import { usePatientInsights } from '@/hooks/usePatientInsights';
+import { usePatientPrescriptions } from '@/components/patients/hooks/usePatientPrescriptions';
+import PatientDetailHeader from '@/components/patients/detail/PatientDetailHeader';
+import PatientDetailContent from '@/components/patients/detail/PatientDetailContent';
+import PatientDetailLoader from '@/components/patients/detail/PatientDetailLoader';
 
 const PatientDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   
-  // Mock data for now (would come from API)
+  // Get the patient ID from params
   const patientId = id || '';
   
-  // Fetch patient data
-  const { data: patient, isLoading: patientLoading } = useQuery({
-    queryKey: ['patient', patientId],
-    queryFn: async () => {
-      if (!patientId) return null;
-      
-      // First check if the table exists and we can connect
-      const { data: connected, error: connError } = await supabase.rpc('check_connection');
-      
-      if (connError || !connected) {
-        console.error('Database connection error:', connError);
-        // Return mock data as fallback
-        const mockPatient = mockPatients.find(p => p.id === patientId);
-        return mockPatient || null;
-      }
-      
-      // Try to get from the new patient_status_view first
-      const { data: viewData, error: viewError } = await supabase
-        .from('patient_status_view')
-        .select('*')
-        .eq('id', patientId)
-        .single();
-      
-      if (!viewError && viewData) {
-        // Convert to Patient type with proper status mapping
-        return {
-          id: viewData.id,
-          first_name: viewData.first_name,
-          last_name: viewData.last_name,
-          name: `${viewData.first_name} ${viewData.last_name}`,
-          date_of_birth: viewData.date_of_birth,
-          gender: viewData.gender,
-          mrn: viewData.mrn,
-          room_number: viewData.room_number,
-          // Explicitly map the status string to PatientStatus enum type
-          status: mapToPatientStatus(viewData.mapped_status || 'stable'),
-          is_assigned: true, // Default value
-          // Calculate age from date of birth
-          age: calculateAge(viewData.date_of_birth),
-          diagnosis: "Primary diagnosis information would be fetched separately"
-        };
-      }
-      
-      // Fallback to patients table if view doesn't exist
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .eq('id', patientId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching patient:', error);
-        // Return mock data as fallback
-        const mockPatient = mockPatients.find(p => p.id === patientId);
-        return mockPatient || null;
-      }
-      
-      // Convert to Patient type
-      return {
-        id: data.id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        name: `${data.first_name} ${data.last_name}`,
-        date_of_birth: data.date_of_birth,
-        gender: data.gender,
-        mrn: data.mrn,
-        room_number: data.room_number,
-        // Map the status string to PatientStatus enum type
-        status: mapToPatientStatus(data.status || 'stable'),
-        is_assigned: true, // Default for the detail view
-        // Calculate age from date of birth
-        age: calculateAge(data.date_of_birth),
-        diagnosis: "Primary diagnosis information would be fetched separately"
-      };
-    },
-    enabled: !!patientId
-  });
+  // Fetch patient data using our custom hook
+  const { patient, isLoading: patientLoading } = usePatientData(patientId);
   
-  // Mock data for insights, records, and prescriptions
-  const { data: insights, isLoading: insightsLoading } = useQuery({
-    queryKey: ['patientInsights', patientId],
-    queryFn: async () => {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return [
-        { id: 'insight-1', text: 'Patient has a history of hypertension.' },
-        { id: 'insight-2', text: 'Patient is currently taking medication for diabetes.' }
-      ];
-    },
-    enabled: !!patientId
-  });
+  // Fetch insights data
+  const { data: insights, isLoading: insightsLoading } = usePatientInsights(patientId);
   
-  const { data: records, isLoading: recordsLoading } = useQuery({
-    queryKey: ['patientRecords', patientId],
-    queryFn: async () => {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return [
-        { id: 'record-1', type: 'Lab Report', date: '2023-01-01', description: 'Complete blood count' },
-        { id: 'record-2', type: 'Imaging', date: '2023-02-15', description: 'X-ray of chest' }
-      ];
-    },
-    enabled: !!patientId
-  });
+  // Fetch prescriptions data
+  const { prescriptions, loading: prescriptionsLoading } = usePatientPrescriptions(patientId);
   
-  const { data: prescriptions, isLoading: prescriptionsLoading } = useQuery({
-    queryKey: ['patientPrescriptions', patientId],
-    queryFn: async () => {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return [
-        { id: 'prescription-1', medication: 'Lisinopril', dosage: '10mg', refills: 3 },
-        { id: 'prescription-2', medication: 'Metformin', dosage: '500mg', refills: 2 }
-      ];
-    },
-    enabled: !!patientId
-  });
-  
-  // Function to calculate age from date of birth
-  const calculateAge = (dateOfBirth: string): number => {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
-    return age;
-  };
-  
+  // Handle tab changes
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
   
-  if (patientLoading) return <div>Loading patient data...</div>;
-  if (!patient) return <div>Patient not found.</div>;
+  // Loading state
+  if (patientLoading) return <PatientDetailLoader />;
+  
+  // Error state for patient not found
+  if (!patient) return (
+    <div className="p-6 text-center">
+      <h2 className="text-xl font-bold text-red-500">Patient not found</h2>
+      <p className="mt-2 text-gray-600">The requested patient could not be found.</p>
+    </div>
+  );
   
   // Check for critical insights (for the hasCriticalInsights prop)
   const hasCriticalInsights = false; // Default value, would be computed from insights data
@@ -215,32 +52,21 @@ const PatientDetail = () => {
         <Header />
         <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
           <div className="space-y-4">
-            <Button variant="secondary" onClick={() => navigate('/patients')}>
-              Back to Patients
-            </Button>
+            {/* Patient header with back button */}
+            <PatientDetailHeader
+              patient={patient}
+              hasCriticalInsights={hasCriticalInsights}
+            />
             
-            <PatientHeader patient={patient} hasCriticalInsights={hasCriticalInsights} />
-            
-            <Tabs defaultValue="overview" value={activeTab} onValueChange={handleTabChange} className="w-full">
-              <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="records">Medical Records</TabsTrigger>
-                <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
-                <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
-              </TabsList>
-              <TabsContent value="overview" className="space-y-2">
-                <PatientOverviewTab patientId={patientId} insights={insights || []} prescriptions={prescriptions || []} />
-              </TabsContent>
-              <TabsContent value="records" className="space-y-2">
-                <PatientRecordsTab patientId={patientId} />
-              </TabsContent>
-              <TabsContent value="prescriptions" className="space-y-2">
-                <PatientPrescriptionsTab patientId={patientId} prescriptions={prescriptions || []} />
-              </TabsContent>
-              <TabsContent value="ai-insights" className="space-y-2">
-                <PatientAIInsightsTab insights={insights || []} loading={insightsLoading} />
-              </TabsContent>
-            </Tabs>
+            {/* Main content with tabs */}
+            <PatientDetailContent
+              patientId={patientId}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              insights={insights || []}
+              insightsLoading={insightsLoading}
+              prescriptions={prescriptions || []}
+            />
           </div>
         </main>
       </div>
