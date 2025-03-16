@@ -287,7 +287,7 @@ export type Database = {
           charge_amount: number
           cpt_code: string | null
           created_at: string
-          diagnostic_codes: string[] | null
+          diagnostic_codes: Json | null
           encounter_id: string | null
           id: string
           insurance_billed: boolean | null
@@ -308,7 +308,7 @@ export type Database = {
           charge_amount: number
           cpt_code?: string | null
           created_at?: string
-          diagnostic_codes?: string[] | null
+          diagnostic_codes?: Json | null
           encounter_id?: string | null
           id?: string
           insurance_billed?: boolean | null
@@ -329,7 +329,7 @@ export type Database = {
           charge_amount?: number
           cpt_code?: string | null
           created_at?: string
-          diagnostic_codes?: string[] | null
+          diagnostic_codes?: Json | null
           encounter_id?: string | null
           id?: string
           insurance_billed?: boolean | null
@@ -968,6 +968,57 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_access_logs: {
+        Row: {
+          access_ended: string | null
+          access_started: string | null
+          approval_time: string | null
+          approved: boolean | null
+          approved_by: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          patient_id: string
+          reason: string
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          access_ended?: string | null
+          access_started?: string | null
+          approval_time?: string | null
+          approved?: boolean | null
+          approved_by?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          patient_id: string
+          reason: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          access_ended?: string | null
+          access_started?: string | null
+          approval_time?: string | null
+          approved?: boolean | null
+          approved_by?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          patient_id?: string
+          reason?: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       encounters: {
         Row: {
           account: Json | null
@@ -1063,6 +1114,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      extended_audit_logs: {
+        Row: {
+          access_reason: string | null
+          access_type: string | null
+          action: string
+          created_at: string | null
+          details: Json | null
+          emergency_reason: string | null
+          id: string
+          ip_address: string | null
+          is_emergency_access: boolean | null
+          patient_id: string | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_reason?: string | null
+          access_type?: string | null
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          emergency_reason?: string | null
+          id?: string
+          ip_address?: string | null
+          is_emergency_access?: boolean | null
+          patient_id?: string | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_reason?: string | null
+          access_type?: string | null
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          emergency_reason?: string | null
+          id?: string
+          ip_address?: string | null
+          is_emergency_access?: boolean | null
+          patient_id?: string | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       fluid_intakes: {
         Row: {
@@ -1202,6 +1304,108 @@ export type Database = {
         }
         Relationships: []
       }
+      immunizations: {
+        Row: {
+          created_at: string | null
+          dose_quantity: Json | null
+          education: Json | null
+          encounter_id: string | null
+          expiration_date: string | null
+          funding_source: Json | null
+          id: string
+          identifier: Json | null
+          is_subpotent: boolean | null
+          location_id: string | null
+          lot_number: string | null
+          manufacturer: Json | null
+          note: Json | null
+          occurrence_date_time: string | null
+          patient_id: string
+          performer: Json | null
+          primary_source: boolean | null
+          programmatic_eligibility: Json | null
+          protocol_applied: Json | null
+          reaction: Json | null
+          reason_code: Json | null
+          reason_reference: Json | null
+          recorded_date: string | null
+          report_origin: Json | null
+          route: Json | null
+          site: Json | null
+          status: string
+          status_reason: Json | null
+          subpotent_reason: Json | null
+          updated_at: string | null
+          vaccine_code: Json
+        }
+        Insert: {
+          created_at?: string | null
+          dose_quantity?: Json | null
+          education?: Json | null
+          encounter_id?: string | null
+          expiration_date?: string | null
+          funding_source?: Json | null
+          id?: string
+          identifier?: Json | null
+          is_subpotent?: boolean | null
+          location_id?: string | null
+          lot_number?: string | null
+          manufacturer?: Json | null
+          note?: Json | null
+          occurrence_date_time?: string | null
+          patient_id: string
+          performer?: Json | null
+          primary_source?: boolean | null
+          programmatic_eligibility?: Json | null
+          protocol_applied?: Json | null
+          reaction?: Json | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          recorded_date?: string | null
+          report_origin?: Json | null
+          route?: Json | null
+          site?: Json | null
+          status: string
+          status_reason?: Json | null
+          subpotent_reason?: Json | null
+          updated_at?: string | null
+          vaccine_code: Json
+        }
+        Update: {
+          created_at?: string | null
+          dose_quantity?: Json | null
+          education?: Json | null
+          encounter_id?: string | null
+          expiration_date?: string | null
+          funding_source?: Json | null
+          id?: string
+          identifier?: Json | null
+          is_subpotent?: boolean | null
+          location_id?: string | null
+          lot_number?: string | null
+          manufacturer?: Json | null
+          note?: Json | null
+          occurrence_date_time?: string | null
+          patient_id?: string
+          performer?: Json | null
+          primary_source?: boolean | null
+          programmatic_eligibility?: Json | null
+          protocol_applied?: Json | null
+          reaction?: Json | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          recorded_date?: string | null
+          report_origin?: Json | null
+          route?: Json | null
+          site?: Json | null
+          status?: string
+          status_reason?: Json | null
+          subpotent_reason?: Json | null
+          updated_at?: string | null
+          vaccine_code?: Json
+        }
+        Relationships: []
+      }
       insurance_information: {
         Row: {
           copay_amount: number | null
@@ -1337,6 +1541,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      locations: {
+        Row: {
+          address: Json | null
+          alias: Json | null
+          availability_exceptions: string | null
+          created_at: string | null
+          description: string | null
+          endpoint: Json | null
+          hours_of_operation: Json | null
+          id: string
+          identifier: Json | null
+          managing_organization: Json | null
+          mode: string | null
+          name: string | null
+          operational_status: Json | null
+          part_of_id: string | null
+          physical_type: Json | null
+          position: Json | null
+          status: string
+          telecom: Json | null
+          type: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: Json | null
+          alias?: Json | null
+          availability_exceptions?: string | null
+          created_at?: string | null
+          description?: string | null
+          endpoint?: Json | null
+          hours_of_operation?: Json | null
+          id?: string
+          identifier?: Json | null
+          managing_organization?: Json | null
+          mode?: string | null
+          name?: string | null
+          operational_status?: Json | null
+          part_of_id?: string | null
+          physical_type?: Json | null
+          position?: Json | null
+          status: string
+          telecom?: Json | null
+          type?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: Json | null
+          alias?: Json | null
+          availability_exceptions?: string | null
+          created_at?: string | null
+          description?: string | null
+          endpoint?: Json | null
+          hours_of_operation?: Json | null
+          id?: string
+          identifier?: Json | null
+          managing_organization?: Json | null
+          mode?: string | null
+          name?: string | null
+          operational_status?: Json | null
+          part_of_id?: string | null
+          physical_type?: Json | null
+          position?: Json | null
+          status?: string
+          telecom?: Json | null
+          type?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       medical_entry_systems: {
         Row: {
@@ -1551,6 +1824,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      medications: {
+        Row: {
+          amount: Json | null
+          batch: Json | null
+          code: Json | null
+          created_at: string | null
+          form: Json | null
+          id: string
+          identifier: Json | null
+          ingredient: Json | null
+          manufacturer: Json | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: Json | null
+          batch?: Json | null
+          code?: Json | null
+          created_at?: string | null
+          form?: Json | null
+          id?: string
+          identifier?: Json | null
+          ingredient?: Json | null
+          manufacturer?: Json | null
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: Json | null
+          batch?: Json | null
+          code?: Json | null
+          created_at?: string | null
+          form?: Json | null
+          id?: string
+          identifier?: Json | null
+          ingredient?: Json | null
+          manufacturer?: Json | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       medications_inventory: {
         Row: {
@@ -1777,6 +2092,54 @@ export type Database = {
           },
         ]
       }
+      organizations: {
+        Row: {
+          active: boolean | null
+          address: Json | null
+          alias: Json | null
+          contact: Json | null
+          created_at: string | null
+          endpoint: Json | null
+          id: string
+          identifier: Json | null
+          name: string
+          part_of_id: string | null
+          telecom: Json | null
+          type: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          address?: Json | null
+          alias?: Json | null
+          contact?: Json | null
+          created_at?: string | null
+          endpoint?: Json | null
+          id?: string
+          identifier?: Json | null
+          name: string
+          part_of_id?: string | null
+          telecom?: Json | null
+          type?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: Json | null
+          alias?: Json | null
+          contact?: Json | null
+          created_at?: string | null
+          endpoint?: Json | null
+          id?: string
+          identifier?: Json | null
+          name?: string
+          part_of_id?: string | null
+          telecom?: Json | null
+          type?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       patient_consents: {
         Row: {
           consent_type: string
@@ -1836,7 +2199,7 @@ export type Database = {
           file_type: string
           id: string
           patient_id: string
-          tags: string[] | null
+          tags: Json | null
           title: string
           updated_at: string
           upload_date: string
@@ -1854,7 +2217,7 @@ export type Database = {
           file_type: string
           id?: string
           patient_id: string
-          tags?: string[] | null
+          tags?: Json | null
           title: string
           updated_at?: string
           upload_date?: string
@@ -1872,7 +2235,7 @@ export type Database = {
           file_type?: string
           id?: string
           patient_id?: string
-          tags?: string[] | null
+          tags?: Json | null
           title?: string
           updated_at?: string
           upload_date?: string
@@ -2233,6 +2596,39 @@ export type Database = {
           phone?: string | null
           role?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      query_performance_logs: {
+        Row: {
+          created_at: string | null
+          execution_time: number
+          id: string
+          query_plan: Json | null
+          query_text: string
+          resource_type: string | null
+          rows_returned: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          execution_time: number
+          id?: string
+          query_plan?: Json | null
+          query_text: string
+          resource_type?: string | null
+          rows_returned?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          execution_time?: number
+          id?: string
+          query_plan?: Json | null
+          query_text?: string
+          resource_type?: string | null
+          rows_returned?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2792,6 +3188,12 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      refresh_materialized_view: {
+        Args: {
+          view_name: string
+        }
+        Returns: undefined
+      }
       set_limit: {
         Args: {
           "": number
@@ -2811,6 +3213,13 @@ export type Database = {
       update_expired_prescriptions: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      user_has_permission: {
+        Args: {
+          permission: string
+          resource_type?: string
+        }
+        Returns: boolean
       }
       user_has_role: {
         Args: {
