@@ -8,13 +8,16 @@ import PatientPrescriptionsTab from '@/components/patients/tabs/PatientPrescript
 import PatientAIInsightsTab from '@/components/patients/tabs/PatientAIInsightsTab';
 import AIInsights from '@/components/ai/AIInsights';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const DoctorPatientView: React.FC = () => {
+interface DoctorPatientViewProps {
+  patientId: string;
+}
+
+const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
   const { patient, isLoading, error } = usePatientContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Get the active tab from URL or default to overview
@@ -62,19 +65,19 @@ const DoctorPatientView: React.FC = () => {
         
         <TabsContent value="overview" className="space-y-6 mt-4">
           <PatientOverviewTab 
-            patientId={id || ''}
+            patientId={patientId} 
             insights={patient.insights || []} 
             prescriptions={patient.prescriptions || []} 
           />
         </TabsContent>
         
         <TabsContent value="records" className="space-y-6 mt-4">
-          <PatientRecordsTab patientId={id || ''} />
+          <PatientRecordsTab patientId={patientId} />
         </TabsContent>
         
         <TabsContent value="prescriptions" className="space-y-6 mt-4">
           <PatientPrescriptionsTab 
-            patientId={id || ''} 
+            patientId={patientId} 
             prescriptions={patient.prescriptions || []} 
           />
         </TabsContent>

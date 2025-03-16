@@ -7,9 +7,12 @@ import PatientOverviewTab from '@/components/patients/tabs/PatientOverviewTab';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 
-const DefaultPatientView: React.FC = () => {
+interface DefaultPatientViewProps {
+  patientId: string;
+}
+
+const DefaultPatientView: React.FC<DefaultPatientViewProps> = ({ patientId }) => {
   const { patient, isLoading } = usePatientContext();
-  const { id } = useParams();
   const { t } = useTranslation();
   
   if (isLoading) {
@@ -34,7 +37,7 @@ const DefaultPatientView: React.FC = () => {
             </TabsList>
             <TabsContent value="overview" className="space-y-6 mt-4">
               <PatientOverviewTab 
-                patientId={id || ''} 
+                patientId={patientId} 
                 insights={patient.insights || []}
                 prescriptions={patient.prescriptions || []}
               />

@@ -9,10 +9,47 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from '@/components/ui/label';
 import { toast } from "sonner";
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardList, Image, ArrowUpCircle } from 'lucide-react';
 import { recordService } from '@/services/recordService';
 import { ClinicalDocumentationFormData, RecordTypeOption } from '@/types/medicalRecordTypes';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import TemplateSelector, { DocumentationTemplate } from '@/components/clinical-documentation/TemplateSelector';
+import { useQuery } from '@tanstack/react-query';
+import NoteSectionEditor from '@/components/clinical-documentation/components/NoteSectionEditor';
+
+// Example templates - in a real app these would come from an API
+const documentTemplates: DocumentationTemplate[] = [
+  {
+    id: 'soap',
+    name: 'SOAP Note',
+    description: 'Standard SOAP format for visit documentation',
+    category: 'Visit Notes',
+    sections: ['Subjective', 'Objective', 'Assessment', 'Plan'],
+    isDefault: true
+  },
+  {
+    id: 'progress',
+    name: 'Progress Note',
+    description: 'Daily progress documentation',
+    category: 'Visit Notes',
+    sections: ['Status', 'Interventions', 'Response', 'Plan']
+  },
+  {
+    id: 'discharge',
+    name: 'Discharge Summary',
+    description: 'Complete discharge documentation',
+    category: 'Discharge',
+    sections: ['Admission Summary', 'Hospital Course', 'Discharge Medications', 'Follow-up Instructions']
+  },
+  {
+    id: 'consultation',
+    name: 'Consultation Note',
+    description: 'Specialist consultation findings',
+    category: 'Consultations',
+    sections: ['Reason for Consultation', 'Findings', 'Impression', 'Recommendations']
+  }
+];
 
 const ClinicalDocumentation = () => {
   const { id, patientId } = useParams<{ id?: string; patientId?: string }>();
@@ -27,8 +64,14 @@ const ClinicalDocumentation = () => {
     content: '',
     notes: ''
   });
+  
+  // State for template-based content
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+  const [sections, setSections] = useState<Record<string, string>>({});
   const [patientName, setPatientName] = useState(language === 'pt' ? 'Carregando...' : 'Loading...');
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   const recordTypes: RecordTypeOption[] = [
     { value: 'lab', label: language === 'pt' ? 'Resultados de Laboratório' : 'Lab Results' },
@@ -38,23 +81,24 @@ const ClinicalDocumentation = () => {
     { value: 'discharge', label: language === 'pt' ? 'Resumo de Alta' : 'Discharge Summary' },
   ];
 
+  // Fetch patient data using React Query
+  const { data: patient } = useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: async () => {
+      // In a real app, this would fetch the patient's data
+      return { name: 'Patient Name' };
+    },
+    enabled: !!patientId
+  });
+
   useEffect(() => {
-    // If we have a patient ID, fetch patient info
-    if (patientId) {
-      const fetchPatient = async () => {
-        try {
-          // In a real application, this would fetch the patient's name
-          // For now, we'll simulate it
-          setPatientName('Patient Name');
-          setFormData(prev => ({ ...prev, patientId }));
-        } catch (error) {
-          console.error('Error fetching patient:', error);
-        }
-      };
-      
-      fetchPatient();
+    if (patient) {
+      setPatientName(patient.name);
+      setFormData(prev => ({ ...prev, patientId: patientId || '' }));
     }
+  }, [patient, patientId]);
     
+  useEffect(() => {
     // If we have a record ID, fetch the record for editing
     if (id) {
       const fetchRecord = async () => {
@@ -80,7 +124,7 @@ const ClinicalDocumentation = () => {
       
       fetchRecord();
     }
-  }, [id, patientId]);
+  }, [id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -89,6 +133,46 @@ const ClinicalDocumentation = () => {
   
   const handleTypeChange = (value: string) => {
     setFormData(prev => ({ ...prev, type: value as any }));
+  };
+  
+  const handleSectionChange = (sectionTitle: string, content: string) => {
+    setSections(prev => ({ ...prev, [sectionTitle]: content }));
+  };
+
+  const handleSelectTemplate = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    
+    // Find the selected template
+    const template = documentTemplates.find(t => t.id === templateId);
+    if (template) {
+      // Initialize sections from template
+      const newSections: Record<string, string> = {};
+      template.sections.forEach(section => {
+        newSections[section] = '';
+      });
+      setSections(newSections);
+      
+      // Update form data
+      setFormData(prev => ({
+        ...prev,
+        title: template.name
+      }));
+    }
+  };
+
+  const compileContent = () => {
+    // Combine all sections into a single content string
+    let compiledContent = '';
+    
+    if (Object.keys(sections).length > 0) {
+      Object.entries(sections).forEach(([section, content]) => {
+        compiledContent += `## ${section}\n${content}\n\n`;
+      });
+    } else {
+      compiledContent = formData.content;
+    }
+    
+    return compiledContent;
   };
 
   const handleSave = async () => {
@@ -108,6 +192,8 @@ const ClinicalDocumentation = () => {
     
     setIsLoading(true);
     try {
+      const compiledContent = compileContent();
+      
       const record = {
         title: formData.title,
         type: formData.type,
@@ -115,8 +201,10 @@ const ClinicalDocumentation = () => {
         date: new Date().toISOString(),
         provider: user?.name || 'Unknown Provider',
         status: 'completed',
-        content: formData.content,
-        notes: formData.notes
+        content: compiledContent,
+        notes: formData.notes,
+        media: uploadedImages,
+        templateId: selectedTemplate || undefined
       };
       
       let result;
@@ -151,6 +239,17 @@ const ClinicalDocumentation = () => {
     }
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // In a real app, this would upload the image to a server
+    // For this example, we'll just simulate adding an image URL
+    if (event.target.files && event.target.files.length > 0) {
+      setUploadedImages(prev => [...prev, URL.createObjectURL(event.target.files![0])]);
+      
+      // Reset the input
+      event.target.value = '';
+    }
+  };
+
   return (
     <div className="container mx-auto mt-8 p-4">
       <Button variant="ghost" onClick={() => navigate('/records')} className="mb-4">
@@ -160,17 +259,37 @@ const ClinicalDocumentation = () => {
 
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
-          <h2 className="text-2xl font-bold">
-            {id 
-              ? (language === 'pt' ? 'Editar Documentação Clínica' : 'Edit Clinical Documentation')
-              : (language === 'pt' ? 'Nova Documentação Clínica' : 'New Clinical Documentation')
-            }
-          </h2>
-          <p className="text-muted-foreground">
-            {language === 'pt' 
-              ? 'Documentar detalhes e observações do paciente.' 
-              : 'Document patient details and observations.'}
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-bold">
+                {id 
+                  ? (language === 'pt' ? 'Editar Documentação Clínica' : 'Edit Clinical Documentation')
+                  : (language === 'pt' ? 'Nova Documentação Clínica' : 'New Clinical Documentation')
+                }
+              </h2>
+              <p className="text-muted-foreground">
+                {language === 'pt' 
+                  ? 'Documentar detalhes e observações do paciente.' 
+                  : 'Document patient details and observations.'}
+              </p>
+            </div>
+            <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                  <ClipboardList className="h-4 w-4 mr-1" />
+                  {language === 'pt' ? 'Usar Modelo' : 'Use Template'}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <TemplateSelector 
+                  templates={documentTemplates} 
+                  selectedTemplate={selectedTemplate}
+                  onSelectTemplate={handleSelectTemplate}
+                  onClose={() => setIsTemplateDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -244,22 +363,81 @@ const ClinicalDocumentation = () => {
             </div>
           </div>
           
-          <div>
-            <Label htmlFor="content">
-              {language === 'pt' ? 'Conteúdo' : 'Content'}
+          {/* Template-based content or basic textarea */}
+          {selectedTemplate && Object.keys(sections).length > 0 ? (
+            <div className="space-y-4">
+              <h3 className="font-medium text-sm text-muted-foreground">
+                {language === 'pt' ? 'Seções do Documento' : 'Document Sections'}
+              </h3>
+              
+              {Object.entries(sections).map(([sectionTitle, content]) => (
+                <NoteSectionEditor
+                  key={sectionTitle}
+                  sectionTitle={sectionTitle}
+                  content={content}
+                  onChange={(newContent) => handleSectionChange(sectionTitle, newContent)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div>
+              <Label htmlFor="content">
+                {language === 'pt' ? 'Conteúdo' : 'Content'}
+              </Label>
+              <Textarea
+                id="content"
+                name="content"
+                rows={8}
+                value={formData.content}
+                onChange={handleInputChange}
+                placeholder={
+                  language === 'pt' 
+                    ? "Digite o conteúdo principal do documento clínico aqui..." 
+                    : "Enter the main content of the clinical document here..."
+                }
+              />
+            </div>
+          )}
+          
+          {/* Image upload capability */}
+          <div className="space-y-2">
+            <Label htmlFor="images">
+              {language === 'pt' ? 'Adicionar Imagens' : 'Add Images'}
             </Label>
-            <Textarea
-              id="content"
-              name="content"
-              rows={8}
-              value={formData.content}
-              onChange={handleInputChange}
-              placeholder={
-                language === 'pt' 
-                  ? "Digite o conteúdo principal do documento clínico aqui..." 
-                  : "Enter the main content of the clinical document here..."
-              }
-            />
+            <div className="flex items-center gap-2">
+              <Label 
+                htmlFor="image-upload" 
+                className="flex items-center gap-1 px-3 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"
+              >
+                <Image className="h-4 w-4" />
+                {language === 'pt' ? 'Escolher arquivo' : 'Choose file'}
+              </Label>
+              <Input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </div>
+            
+            {/* Display uploaded images */}
+            {uploadedImages.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {uploadedImages.map((img, index) => (
+                  <div key={index} className="relative">
+                    <img src={img} alt="Uploaded" className="w-full h-24 object-cover rounded-md" />
+                    <button
+                      type="button"
+                      className="absolute top-1 right-1 bg-black/70 rounded-full p-1 text-white"
+                      onClick={() => setUploadedImages(prev => prev.filter((_, i) => i !== index))}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div>

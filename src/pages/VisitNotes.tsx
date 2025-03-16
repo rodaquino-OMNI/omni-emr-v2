@@ -12,7 +12,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Clipboard, Plus, Save, Check, Clock } from 'lucide-react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Clipboard, Plus, Save, Check, Clock, Image, Users } from 'lucide-react';
+import { toast } from 'sonner';
+import VisitNoteDrawingCanvas from '@/components/visit-notes/VisitNoteDrawingCanvas';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface VitalSigns {
   heartRate?: number;
@@ -30,6 +34,12 @@ const VisitNotes = () => {
   const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState('vitals');
   const [showVitalsForm, setShowVitalsForm] = useState(false);
+  const [showDrawingDialog, setShowDrawingDialog] = useState(false);
+  const [drawings, setDrawings] = useState<string[]>([]);
+  const [collaborators, setCollaborators] = useState<string[]>([]);
+  const [isCollaboratingDialogOpen, setIsCollaboratingDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+  
   const [vitalSigns, setVitalSigns] = useState<VitalSigns>({
     heartRate: 72,
     bloodPressure: '120/80',
@@ -51,14 +61,64 @@ const VisitNotes = () => {
     setShowVitalsForm(false);
   };
   
+  const handleAddDrawing = (dataUrl: string) => {
+    setDrawings([...drawings, dataUrl]);
+    setShowDrawingDialog(false);
+    toast.success(
+      language === 'pt' 
+        ? 'Desenho adicionado à nota' 
+        : 'Drawing added to note'
+    );
+  };
+  
+  const handleRemoveDrawing = (index: number) => {
+    const newDrawings = [...drawings];
+    newDrawings.splice(index, 1);
+    setDrawings(newDrawings);
+  };
+  
+  const handleAddCollaborator = (email: string) => {
+    // In a real app, this would send an invitation
+    // For this demo, we'll just add them to the list
+    if (email && !collaborators.includes(email)) {
+      setCollaborators([...collaborators, email]);
+      toast.success(
+        language === 'pt'
+          ? `Convite enviado para ${email}`
+          : `Invitation sent to ${email}`
+      );
+    }
+  };
+  
   const saveNote = () => {
-    // In a real app, this would save to the database
+    // Simulate saving with React Query
+    toast.success(
+      language === 'pt'
+        ? 'Nota salva com sucesso'
+        : 'Note saved successfully'
+    );
+    
+    // In a real app, this would be a mutation
     console.log('Saving note:', {
       vitalSigns,
       subjective,
       objective,
       assessmentNote,
-      planNote
+      planNote,
+      drawings,
+      collaborators
+    });
+    
+    // Optimistic UI update example
+    queryClient.setQueryData(['visitNotes', 'current'], {
+      vitalSigns,
+      subjective,
+      objective,
+      assessmentNote,
+      planNote,
+      drawings,
+      collaborators,
+      lastSaved: new Date()
     });
   };
   
@@ -79,10 +139,59 @@ const VisitNotes = () => {
                   <Clipboard className="h-4 w-4" />
                   {language === 'pt' ? 'Usar Modelo' : 'Use Template'}
                 </Button>
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  {language === 'pt' ? 'Rascunhos' : 'Drafts'}
-                </Button>
+                <Dialog open={isCollaboratingDialogOpen} onOpenChange={setIsCollaboratingDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex items-center gap-1">
+                      <Users className="h-4 w-4" />
+                      {language === 'pt' ? 'Colaboradores' : 'Collaborators'}
+                      {collaborators.length > 0 && <span className="ml-1">({collaborators.length})</span>}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <h2 className="text-lg font-semibold mb-4">
+                      {language === 'pt' ? 'Adicionar Colaboradores' : 'Add Collaborators'}
+                    </h2>
+                    <div className="space-y-4">
+                      <div className="flex gap-2">
+                        <Input 
+                          id="collaborator-email" 
+                          placeholder={language === 'pt' ? 'Email do colaborador' : 'Collaborator email'} 
+                        />
+                        <Button 
+                          onClick={() => handleAddCollaborator((document.getElementById('collaborator-email') as HTMLInputElement).value)}
+                        >
+                          {language === 'pt' ? 'Adicionar' : 'Add'}
+                        </Button>
+                      </div>
+                      
+                      {collaborators.length > 0 && (
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">
+                            {language === 'pt' ? 'Colaboradores Atuais' : 'Current Collaborators'}
+                          </h3>
+                          <ul className="space-y-1">
+                            {collaborators.map((email, index) => (
+                              <li key={index} className="flex justify-between items-center text-sm p-2 bg-muted rounded-md">
+                                {email}
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    const newCollaborators = [...collaborators];
+                                    newCollaborators.splice(index, 1);
+                                    setCollaborators(newCollaborators);
+                                  }}
+                                >
+                                  &times;
+                                </Button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <Button size="sm" className="flex items-center gap-1" onClick={saveNote}>
                   <Save className="h-4 w-4" />
                   {language === 'pt' ? 'Salvar' : 'Save'}
@@ -136,6 +245,50 @@ const VisitNotes = () => {
                 </TabsContent>
                 
                 <TabsContent value="soap" className="space-y-6 mt-4">
+                  {/* Drawing support */}
+                  <div className="flex justify-end mb-4">
+                    <Dialog open={showDrawingDialog} onOpenChange={setShowDrawingDialog}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex items-center gap-1">
+                          <Image className="h-4 w-4" />
+                          {language === 'pt' ? 'Adicionar Desenho' : 'Add Drawing'}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-[650px]">
+                        <VisitNoteDrawingCanvas onSaveDrawing={handleAddDrawing} />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  
+                  {/* Display added drawings */}
+                  {drawings.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      {drawings.map((drawing, index) => (
+                        <div key={index} className="relative border rounded-md overflow-hidden">
+                          <img src={drawing} alt="Clinical drawing" className="w-full h-auto" />
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={() => handleRemoveDrawing(index)}
+                          >
+                            &times;
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Collaborators indicator */}
+                  {collaborators.length > 0 && (
+                    <div className="bg-muted p-2 rounded-md mb-4 flex items-center text-sm text-muted-foreground">
+                      <Users className="h-4 w-4 mr-2" />
+                      {language === 'pt' 
+                        ? `${collaborators.length} colaboradores podem editar esta nota` 
+                        : `${collaborators.length} collaborators can edit this note`}
+                    </div>
+                  )}
+                  
                   <Card>
                     <CardHeader className="pb-3">
                       <CardTitle>

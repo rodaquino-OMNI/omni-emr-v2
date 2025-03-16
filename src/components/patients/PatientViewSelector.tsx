@@ -18,25 +18,25 @@ const PatientViewSelector: React.FC<PatientViewSelectorProps> = ({ patientId }) 
   // Determine which view to show based on user role
   const selectViewByRole = () => {
     if (!user || !user.role) {
-      return <DefaultPatientView />;
+      return <DefaultPatientView patientId={patientId} />;
     }
     
     switch (user.role) {
       case 'doctor':
       case 'physician':
       case 'specialist':
-        return <DoctorPatientView />;
+        return <DoctorPatientView patientId={patientId} />;
         
       case 'nurse':
-        return <NursePatientView />;
+        return <NursePatientView patientId={patientId} />;
         
       case 'lab_technician':
       case 'radiology_technician':
       case 'medical_assistant':
-        return <TechnicianPatientView />;
+        return <TechnicianPatientView patientId={patientId} />;
         
       default:
-        return <DefaultPatientView />;
+        return <DefaultPatientView patientId={patientId} />;
     }
   };
   
