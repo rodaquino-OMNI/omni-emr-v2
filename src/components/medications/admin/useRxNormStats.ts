@@ -84,11 +84,12 @@ export const useRxNormStats = () => {
       });
     } catch (error) {
       console.error('Error fetching RxNorm database stats:', error);
-      toast.error(
-        language === 'pt' 
+      toast({
+        title: language === 'pt' 
           ? 'Erro ao obter estatísticas do banco de dados' 
-          : 'Error fetching database statistics'
-      );
+          : 'Error fetching database statistics',
+        variant: 'error'
+      });
     }
   };
 
@@ -99,37 +100,36 @@ export const useRxNormStats = () => {
       const result = await syncFrequentlyUsedMedications();
       
       if (result.success) {
-        toast.success(
-          language === 'pt' 
+        toast({
+          title: language === 'pt' 
             ? 'Sincronização concluída com sucesso' 
             : 'Synchronization completed successfully',
-          {
-            description: language === 'pt'
-              ? `${result.count} medicamentos sincronizados`
-              : `${result.count} medications synchronized`
-          }
-        );
+          description: language === 'pt'
+            ? `${result.count} medicamentos sincronizados`
+            : `${result.count} medications synchronized`,
+          variant: 'success'
+        });
         
         fetchStats();
       } else {
-        toast.error(
-          language === 'pt' 
+        toast({
+          title: language === 'pt' 
             ? 'Erro na sincronização' 
             : 'Synchronization error',
-          {
-            description: language === 'pt'
-              ? 'Houve um problema ao sincronizar os dados'
-              : 'There was a problem synchronizing the data'
-          }
-        );
+          description: language === 'pt'
+            ? 'Houve um problema ao sincronizar os dados'
+            : 'There was a problem synchronizing the data',
+          variant: 'error'
+        });
       }
     } catch (error) {
       console.error('Error during synchronization:', error);
-      toast.error(
-        language === 'pt' 
+      toast({
+        title: language === 'pt' 
           ? 'Erro na sincronização' 
-          : 'Synchronization error'
-      );
+          : 'Synchronization error',
+        variant: 'error'
+      });
     } finally {
       setIsSyncing(false);
     }
@@ -142,27 +142,30 @@ export const useRxNormStats = () => {
       const result = await clearExpiredCache();
       
       if (result.success) {
-        toast.success(
-          language === 'pt' 
+        toast({
+          title: language === 'pt' 
             ? 'Cache limpo com sucesso' 
-            : 'Cache cleared successfully'
-        );
+            : 'Cache cleared successfully',
+          variant: 'success'
+        });
         
         fetchStats();
       } else {
-        toast.error(
-          language === 'pt' 
+        toast({
+          title: language === 'pt' 
             ? 'Erro ao limpar cache' 
-            : 'Error clearing cache'
-        );
+            : 'Error clearing cache',
+          variant: 'error'
+        });
       }
     } catch (error) {
       console.error('Error clearing cache:', error);
-      toast.error(
-        language === 'pt' 
+      toast({
+        title: language === 'pt' 
           ? 'Erro ao limpar cache' 
-          : 'Error clearing cache'
-      );
+          : 'Error clearing cache',
+        variant: 'error'
+      });
     } finally {
       setIsClearing(false);
     }

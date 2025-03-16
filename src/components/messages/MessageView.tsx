@@ -218,7 +218,11 @@ export const MessageView = ({ messageId }: MessageViewProps) => {
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
     
-    toast.success("Message sent", { description: "Your message has been sent successfully" });
+    toast({
+      title: "Message sent", 
+      description: "Your message has been sent successfully",
+      variant: "success"
+    });
     
     setNewMessage('');
   };

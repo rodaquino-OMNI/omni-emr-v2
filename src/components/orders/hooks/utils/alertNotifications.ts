@@ -12,7 +12,7 @@ export const showAnalyzingOrderToast = (language: string) => {
       ? 'Nossa IA está analisando o pedido para garantir a segurança' 
       : 'Our AI is analyzing the order to ensure safety',
     variant: "default",
-    icon: { icon: Shield, className: "h-4 w-4 text-purple-600" }
+    icon: <Shield className="h-4 w-4 text-purple-600" />
   });
 };
 
@@ -26,7 +26,7 @@ export const showVerificationSuccessToast = (language: string) => {
       ? 'Nenhum problema foi encontrado pela IA'
       : 'No issues were found by the AI',
     variant: "success",
-    icon: { icon: Shield, className: "h-4 w-4 text-green-600" }
+    icon: <Shield className="h-4 w-4 text-green-600" />
   });
 };
 

@@ -38,7 +38,7 @@ export const showAlertOverrideToast = (language: string) => {
       ? 'Os alertas foram ignorados com uma justificativa clínica'
       : 'Alerts have been overridden with clinical justification',
     variant: "warning",
-    icon: { icon: Shield, className: "h-4 w-4 text-amber-600" }
+    icon: <Shield className="h-4 w-4 text-amber-600" />
   });
 };
 

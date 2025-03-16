@@ -63,36 +63,33 @@ export const useSyncManager = () => {
       setSyncQueue(updatedQueue);
       
       if (result.success > 0) {
-        toast.success(
-          language === 'pt' ? 'Sincronização concluída' : 'Synchronization completed',
-          {
-            description: language === 'pt'
-              ? `${result.success} nota(s) sincronizada(s) com sucesso.`
-              : `${result.success} note(s) successfully synchronized.`
-          }
-        );
+        toast({
+          title: language === 'pt' ? 'Sincronização concluída' : 'Synchronization completed',
+          description: language === 'pt'
+            ? `${result.success} nota(s) sincronizada(s) com sucesso.`
+            : `${result.success} note(s) successfully synchronized.`,
+          variant: 'success'
+        });
       }
       
       if (result.failed > 0) {
-        toast.error(
-          language === 'pt' ? 'Sincronização parcial' : 'Partial synchronization',
-          {
-            description: language === 'pt'
-              ? `${result.failed} nota(s) não puderam ser sincronizadas e serão tentadas novamente.`
-              : `${result.failed} note(s) could not be synchronized and will be retried.`
-          }
-        );
+        toast({
+          title: language === 'pt' ? 'Sincronização parcial' : 'Partial synchronization',
+          description: language === 'pt'
+            ? `${result.failed} nota(s) não puderam ser sincronizadas e serão tentadas novamente.`
+            : `${result.failed} note(s) could not be synchronized and will be retried.`,
+          variant: 'error'
+        });
       }
     } catch (error) {
       console.error('Error syncing notes:', error);
-      toast.error(
-        language === 'pt' ? 'Erro de sincronização' : 'Synchronization error',
-        {
-          description: language === 'pt'
-            ? 'Ocorreu um erro ao sincronizar as notas. Tentaremos novamente mais tarde.'
-            : 'An error occurred while synchronizing notes. We will try again later.'
-        }
-      );
+      toast({
+        title: language === 'pt' ? 'Erro de sincronização' : 'Synchronization error',
+        description: language === 'pt'
+          ? 'Ocorreu um erro ao sincronizar as notas. Tentaremos novamente mais tarde.'
+          : 'An error occurred while synchronizing notes. We will try again later.',
+        variant: 'error'
+      });
     } finally {
       setIsSyncing(false);
     }

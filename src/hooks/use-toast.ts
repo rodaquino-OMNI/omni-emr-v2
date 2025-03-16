@@ -1,12 +1,16 @@
 
 import { toast as sonnerToast } from "sonner";
 import type { ToastT, ExternalToast } from "sonner";
+import { ReactNode } from "react";
 
 export type ToastProps = ExternalToast & {
   description?: string;
   duration?: number;
   action?: React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: {
+    icon: React.ComponentType<any>;
+    className?: string;
+  } | ReactNode;
   id?: string;
   className?: string;
   variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';

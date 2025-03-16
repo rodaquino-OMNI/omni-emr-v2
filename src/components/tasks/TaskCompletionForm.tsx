@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -61,8 +62,10 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
   
   const onSubmit = async (data: CompletionFormValues) => {
     if (!user) {
-      toast.error("Authentication required", {
-        description: "You must be logged in to complete tasks"
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to complete tasks",
+        variant: "error"
       });
       return;
     }
@@ -78,8 +81,10 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
       );
       
       if (result) {
-        toast.success("Task completed", {
-          description: `Task "${task.title}" has been marked as complete`
+        toast({
+          title: "Task completed",
+          description: `Task "${task.title}" has been marked as complete`,
+          variant: "success"
         });
         
         if (onSuccess) {
@@ -92,8 +97,10 @@ const TaskCompletionForm: React.FC<TaskCompletionFormProps> = ({
       }
     } catch (error) {
       console.error('Failed to complete task:', error);
-      toast.error("Error", {
-        description: "Failed to mark the task as complete. Please try again."
+      toast({
+        title: "Error",
+        description: "Failed to mark the task as complete. Please try again.",
+        variant: "error"
       });
     } finally {
       setIsSubmitting(false);

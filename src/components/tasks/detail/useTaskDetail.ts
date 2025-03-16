@@ -28,13 +28,17 @@ export const useTaskDetail = (id: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task', id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast.success('Task updated', {
+      toast({
+        title: 'Task updated',
         description: 'The task status has been updated successfully',
+        variant: 'success'
       });
     },
     onError: () => {
-      toast.error('Error', {
+      toast({
+        title: 'Error',
         description: 'Failed to update task status',
+        variant: 'error'
       });
     },
   });
