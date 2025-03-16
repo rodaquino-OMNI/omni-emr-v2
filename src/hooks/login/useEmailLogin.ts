@@ -53,7 +53,7 @@ export const useEmailLogin = (language: Language) => {
                 : 'Check your email for recovery instructions'
             }
           );
-        } else if (result.error) {
+        } else if ('error' in result && result.error) {
           throw result.error;
         }
       } else {
@@ -78,7 +78,7 @@ export const useEmailLogin = (language: Language) => {
           
           // Normal login success - navigate to sector selection
           navigate('/sectors');
-        } else if (result.error) {
+        } else if ('error' in result && result.error) {
           throw result.error;
         }
       }

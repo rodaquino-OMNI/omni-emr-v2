@@ -4,6 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Provider } from '@supabase/supabase-js';
 
+// Import hooks first to avoid declaration order issues
+import { useLoginForm } from '@/hooks/useLoginForm';
+import { useEmailLogin } from '@/hooks/login/useEmailLogin';
+import { usePhoneLogin } from '@/hooks/login/usePhoneLogin';
+
 // Import components
 import LoginHeader from './LoginHeader';
 import LoginCard from './LoginCard';
@@ -15,9 +20,6 @@ import SocialLoginButtons from '../SocialLoginButtons';
 // Supabase connection status
 import SupabaseConnectionStatus from '@/components/ui/SupabaseConnectionStatus';
 import TranslatedText from '@/components/common/TranslatedText';
-import { useLoginForm } from '@/hooks/useLoginForm';
-import { usePhoneLogin } from '@/hooks/login/usePhoneLogin';
-import { useEmailLogin } from '@/hooks/login/useEmailLogin';
 
 interface LoginContainerProps {
   isSupabaseConnected: boolean;
@@ -163,7 +165,9 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
           <div className="mb-8">
             <LoginHeader 
               t={t} 
-              language={language} 
+              language={language}
+              activeView={activeLoginMethod}
+              setActiveView={setActiveLoginMethod}
             />
             
             {!isSupabaseConnected && (
@@ -212,7 +216,13 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
                 forgotPassword={forgotPassword}
                 toggleForgotPassword={toggleForgotPassword}
                 validationErrors={validationErrors}
-                setValidationErrors={setValidationErrors}
+                setValidationErrors={err => {
+                  if (typeof err === 'function') {
+                    setValidationErrors(prev => ({ ...prev }));
+                  } else {
+                    setValidationErrors(err);
+                  }
+                }}
                 language={language}
                 t={t}
               />
@@ -230,7 +240,13 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
                 isSubmitting={isSubmittingPhone}
                 verificationSent={verificationSent}
                 validationErrors={validationErrors}
-                setValidationErrors={setValidationErrors}
+                setValidationErrors={err => {
+                  if (typeof err === 'function') {
+                    setValidationErrors(prev => ({ ...prev }));
+                  } else {
+                    setValidationErrors(err);
+                  }
+                }}
                 language={language}
                 t={t}
                 resetForm={resetPhoneForm}
