@@ -1,7 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-export type Provider = 'google' | 'facebook' | 'twitter' | 'azure';
+// Match the Provider type to what's used in the Supabase auth-js library
+export type Provider = 'google' | 'facebook' | 'twitter' | 'azure' | 'apple' | 'github' | 'gitlab' | 'bitbucket' | 'discord' | 'notion' | 'slack' | 'spotify' | 'twitch' | 'workos' | 'zoom';
 
 export interface AuthResult {
   success: boolean;
@@ -44,3 +45,6 @@ export const signInWithProvider = async (provider: Provider): Promise<AuthResult
     };
   }
 };
+
+// Add the loginWithSocial function as an alias to signInWithProvider for backward compatibility
+export const loginWithSocial = signInWithProvider;

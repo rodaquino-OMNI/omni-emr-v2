@@ -10,7 +10,9 @@ export const samplePatients: Patient[] = [
     gender: "Male",
     roomNumber: "203",
     status: "hospital",
-    diagnosis: "Post-op recovery"
+    diagnosis: "Post-op recovery",
+    isAssigned: false,
+    mrn: "MRN-001"
   },
   {
     id: "2",
@@ -19,7 +21,10 @@ export const samplePatients: Patient[] = [
     gender: "Female",
     status: "critical",
     roomNumber: "ICU-5",
-    diagnosis: "Pneumonia"
+    diagnosis: "Pneumonia",
+    isAssigned: true,
+    mrn: "MRN-002",
+    isCritical: true
   },
   {
     id: "3",
@@ -27,7 +32,9 @@ export const samplePatients: Patient[] = [
     age: 58,
     gender: "Male",
     status: "home",
-    diagnosis: "Chronic heart failure"
+    diagnosis: "Chronic heart failure",
+    isAssigned: false,
+    mrn: "MRN-003"
   },
   {
     id: "4",
@@ -36,7 +43,9 @@ export const samplePatients: Patient[] = [
     gender: "Female",
     roomNumber: "105",
     status: "improving",
-    diagnosis: "Diabetes management"
+    diagnosis: "Diabetes management",
+    isAssigned: false,
+    mrn: "MRN-004"
   },
   {
     id: "5",
@@ -45,7 +54,9 @@ export const samplePatients: Patient[] = [
     gender: "Male",
     status: "stable",
     roomNumber: "218",
-    diagnosis: "Hip replacement"
+    diagnosis: "Hip replacement",
+    isAssigned: false,
+    mrn: "MRN-005"
   },
   {
     id: "6",
@@ -53,7 +64,9 @@ export const samplePatients: Patient[] = [
     age: 83,
     gender: "Female",
     status: "home",
-    diagnosis: "Rehabilitation"
+    diagnosis: "Rehabilitation",
+    isAssigned: false,
+    mrn: "MRN-006"
   },
   {
     id: "7",
@@ -61,6 +74,8 @@ export const samplePatients: Patient[] = [
     age: 71,
     gender: "Male",
     status: "discharged",
-    diagnosis: "Recovered"
+    diagnosis: "Recovered",
+    isAssigned: false,
+    mrn: "MRN-007"
   }
 ];

@@ -1,9 +1,8 @@
 
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { Provider } from '@supabase/supabase-js';
+import { Provider, signInWithProvider } from '@/utils/auth/providerAuth';
 import { Language } from '@/types/auth';
-import { signInWithProvider } from '@/utils/authUtils';
 import { generateCSRFToken } from '@/utils/csrfUtils';
 import { useAuthError } from './useAuthError';
 
@@ -11,13 +10,12 @@ export const useSocialAuth = (language: Language) => {
   const { handleAuthError, getErrorMessage } = useAuthError(language);
 
   // Handle social login with improved PKCE flow
-  const loginWithSocial = useCallback(async (provider: Provider | string) => {
+  const loginWithSocial = useCallback(async (provider: Provider) => {
     try {
       // Generate new CSRF token for the OAuth flow
       generateCSRFToken();
-      // Convert provider to Provider type if it's a string
-      const providerValue = provider as Provider;
-      await signInWithProvider(providerValue);
+      // Sign in with the provider
+      const result = await signInWithProvider(provider);
       // Auth state change listener will handle user/session updates
       return { success: true };
     } catch (error) {

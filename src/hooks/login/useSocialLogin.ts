@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { loginWithSocial } from '@/utils/auth/providerAuth';
+import { Provider, loginWithSocial } from '@/utils/auth/providerAuth';
 import { Language } from '@/types/auth';
 
 export const useSocialLogin = (language: Language) => {
