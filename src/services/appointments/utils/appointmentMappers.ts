@@ -22,14 +22,14 @@ export const mapDbAppointmentToAppointment = (row: any): Appointment => ({
   reminder_sent: row.reminder_sent,
   created_at: row.created_at,
   updated_at: row.updated_at,
-  // Add support for new columns
+  // Add support for new columns - match them to actual database fields
   category: row.category,
   is_telehealth: row.is_telehealth,
   reminder_time: row.reminder_time,
   created_by: row.created_by
 });
 
-// Update the Database type declaration to include the new fields
+// Update the Database type declaration to include only the fields that exist in the database
 type AppointmentInsert = {
   id?: string;
   patient_id: string;
@@ -47,6 +47,7 @@ type AppointmentInsert = {
   reminder_sent?: boolean;
   created_at?: string;
   updated_at?: string;
+  // Match these fields to the actual columns in the database
   category?: string;
   is_telehealth?: boolean;
   reminder_time?: string;
@@ -87,7 +88,7 @@ export const mapAppointmentToDbFormat = (
     dbAppointment.reminder_sent = appointment.reminder_sent;
   }
   
-  // Add new fields
+  // Add new fields (only if they actually exist in the database)
   if (appointment.category !== undefined) {
     dbAppointment.category = appointment.category;
   }
