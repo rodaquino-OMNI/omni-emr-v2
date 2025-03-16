@@ -1,6 +1,4 @@
 
-// Export all functionality from the individual modules
-export * from './pageAccess';
-export * from './permissions';
-export * from './dependencies';
-export * from './display';
+// Export utility functions from the function blocks module
+export { hasAccessToFunctionBlock, getAvailableFunctionBlocks, getPermissionsFromFunctionBlocks } from './permissions';
+export { getFunctionDisplayName } from './displayNames';

@@ -1,62 +1,44 @@
 
-import { User } from '../../types/auth';
-import { hasPermission } from './roleChecks';
+import { User, UserRole } from '@/types/auth';
 
-// Emergency care specific permission checks
-export const canPerformEmergencyCare = (user: User | null, action: 'triage' | 'treatment'): boolean => {
+// Check if user can perform emergency care
+export const canPerformEmergencyCare = (
+  user: User | null,
+  action: 'triage' | 'treatment' | 'view'
+): boolean => {
   if (!user) return false;
   
-  if (user.role === 'doctor' || user.role === 'admin' || user.role === 'system_administrator') {
-    return true;
+  if (action === 'triage') {
+    return ['doctor', 'nurse', 'administrative'].includes(user.role as UserRole);
+  } else if (action === 'treatment') {
+    return ['doctor', 'nurse'].includes(user.role as UserRole);
+  } else if (action === 'view') {
+    return ['doctor', 'nurse', 'administrative', 'system_administrator'].includes(user.role as UserRole);
   }
   
-  switch (action) {
-    case 'triage':
-      return hasPermission(user, 'perform_triage');
-    case 'treatment':
-      return hasPermission(user, 'perform_emergency_treatment');
-    default:
-      return false;
-  }
+  return false;
 };
 
-// Care coordination specific permission checks
-export const canPerformCareCoordination = (user: User | null, action: 'planning' | 'transition'): boolean => {
+// Check if user can perform care coordination
+export const canPerformCareCoordination = (user: User | null): boolean => {
   if (!user) return false;
-  
-  if (user.role === 'doctor' || user.role === 'admin' || user.role === 'system_administrator') {
-    return true;
-  }
-  
-  switch (action) {
-    case 'planning':
-      return hasPermission(user, 'create_care_plan');
-    case 'transition':
-      return hasPermission(user, 'manage_care_transitions');
-    default:
-      return false;
-  }
+  return ['doctor', 'nurse', 'coordinator'].includes(user.role as UserRole);
 };
 
-// Telemedicine permission check
+// Check if user can perform telemedicine
 export const canPerformTelemedicine = (user: User | null): boolean => {
   if (!user) return false;
-  
-  return hasPermission(user, 'telemedicine');
+  return ['doctor', 'specialist', 'therapist'].includes(user.role as UserRole);
 };
 
-// Fluid balance management permission check
+// Check if user can manage fluid balance
 export const canManageFluidBalance = (user: User | null): boolean => {
   if (!user) return false;
-  
-  return hasPermission(user, 'document_fluid_balance') || 
-         hasPermission(user, 'manage_fluid_balance');
+  return ['doctor', 'nurse'].includes(user.role as UserRole);
 };
 
-// Triage assessment permission check
+// Check if user can perform triage assessment
 export const canPerformTriageAssessment = (user: User | null): boolean => {
   if (!user) return false;
-  
-  return user.role === 'nurse' || 
-         hasPermission(user, 'perform_triage');
+  return ['doctor', 'nurse', 'administrative'].includes(user.role as UserRole);
 };

@@ -9,6 +9,8 @@ import {
   PharmacistDashboard, 
   DefaultDashboard 
 } from '@/registry/entrypoints';
+import { componentRegistry } from '@/registry/RoleComponentRegistry';
+import { UserRole } from '@/types/auth';
 
 export const useRoleBasedDashboard = () => {
   const { user } = useAuth();
@@ -17,8 +19,17 @@ export const useRoleBasedDashboard = () => {
   // Get dashboard type based on user role
   const dashboardType = getRoleDashboard();
   
-  // Return the appropriate dashboard component based on role
+  // Get the component from registry if available
   const getDashboardComponent = (): React.ComponentType => {
+    // Try to get from component registry first
+    if (user?.role) {
+      const registryComponent = componentRegistry.getComponent('dashboard', user.role as UserRole);
+      if (registryComponent) {
+        return registryComponent;
+      }
+    }
+    
+    // Fall back to hardcoded mapping if registry doesn't have a component
     switch (dashboardType) {
       case 'physician':
         return DoctorDashboard;

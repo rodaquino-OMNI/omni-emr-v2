@@ -1,7 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { appRoutes } from './routes/index';
+import { createDynamicRoutes } from './routes/index';
 import { ThemeProvider } from './components/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { LanguageProvider } from './context/LanguageContext';
@@ -11,7 +11,6 @@ import { AuthProvider } from './context/AuthContext';
 import { PatientsProvider } from './hooks/usePatientsContext';
 import { useAuth } from './context/AuthContext';
 import { usePermissions } from './hooks/usePermissions';
-import { roleRouteConfig } from './registry/RoleBasedRouter';
 import './App.css';
 
 // Create a new query client instance for React Query
@@ -29,37 +28,32 @@ function AppRoutes() {
   const { user, isAuthenticated } = useAuth();
   const { hasPermission } = usePermissions(user);
   
-  // Create dynamic routes based on user role and permissions
-  const dynamicRoutes = useMemo(() => {
-    // Start with base routes from appRoutes
-    const routes = [...appRoutes];
+  // Get all user permissions
+  const userPermissions = useMemo(() => {
+    if (!user) return [];
     
-    // If user is authenticated, add role-specific routes
-    if (isAuthenticated && user) {
-      const roleSpecificRoutes = roleRouteConfig.filter(route => {
-        // Check if user has required role
-        const hasRole = route.roles.includes('all') || 
-                       (user.role && route.roles.includes(user.role));
-        
-        // Check if user has required permission
-        const hasRequiredPermission = !route.permissions.length || 
-                                     route.permissions.some(perm => hasPermission(perm));
-        
-        return hasRole && hasRequiredPermission;
-      });
-      
-      // Add the filtered routes
-      routes.push(...roleSpecificRoutes.map(route => ({
-        path: route.path,
-        element: <route.component />,
-      })));
+    if (user?.permissions) {
+      return user.permissions;
     }
     
-    return routes;
-  }, [user, isAuthenticated, hasPermission]);
+    // If no explicit permissions, derive from role (this is a fallback)
+    if (user?.role) {
+      if (user.role === 'admin' || user.role === 'system_administrator') {
+        return ['all'];
+      }
+      
+      // Return basic permissions based on role
+      return ['dashboard:view'];
+    }
+    
+    return [];
+  }, [user]);
   
-  // Create router using dynamic routes
-  const router = createBrowserRouter(dynamicRoutes);
+  // Create dynamic routes based on user role and permissions
+  const router = useMemo(() => {
+    const routes = createDynamicRoutes(user?.role, userPermissions);
+    return createBrowserRouter(routes);
+  }, [user, userPermissions]);
   
   return <RouterProvider router={router} />;
 }
