@@ -59,7 +59,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <LoadingState message="Loading authentication..." />;
   }
   
-  const { user, isAuthenticated, isLoading, hasPermission, language } = auth;
+  const { user, isAuthenticated, isLoading, language } = auth;
   
   // Access sector context to check if user has a selected sector
   let sectorContext;
@@ -93,14 +93,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
   
   // Use route permissions hook to handle redirects and permission checks
-  const { isRootOrDashboard } = useRoutePermissions({
-    user,
-    requiredPermission,
-    requiredRole,
-    hasPermission,
-    language,
-    isAuthenticated
-  });
+  const { isRootOrDashboard, hasPermission } = useRoutePermissions(requiredPermission);
   
   // Check if the current route is the root or dashboard and user has no selected sector
   // Redirect to sector selection if so
@@ -111,6 +104,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (needsSectorSelection) {
     return <Navigate to="/sectors" replace />;
   }
+  
+  // If required permission is specified and user doesn't have it,
+  // the useRoutePermissions hook will redirect to unauthorized page
   
   // Display HIPAA banner for patients if applicable
   const displayHipaaBanner = user?.role === 'patient';

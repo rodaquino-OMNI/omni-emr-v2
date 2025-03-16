@@ -1,14 +1,21 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { checkPermission } from '@/utils/permissions';
 
 export const useRoutePermissions = (requiredPermission?: string) => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, hasPermission: checkPermission } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [isCheckingPermissions, setIsCheckingPermissions] = useState<boolean>(true);
+  const [isRootOrDashboard, setIsRootOrDashboard] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Check if the current route is root or dashboard
+    const currentPath = location.pathname;
+    setIsRootOrDashboard(currentPath === '/' || currentPath === '/dashboard');
+  }, [location.pathname]);
 
   useEffect(() => {
     // If no permission is required, grant access
@@ -33,7 +40,7 @@ export const useRoutePermissions = (requiredPermission?: string) => {
     const checkUserPermission = async () => {
       try {
         // Check if the user has the required permission
-        const hasRequiredPermission = await checkPermission(user, requiredPermission);
+        const hasRequiredPermission = checkPermission(requiredPermission);
         setHasPermission(hasRequiredPermission);
       } catch (error) {
         console.error('Error checking permission:', error);
@@ -44,7 +51,7 @@ export const useRoutePermissions = (requiredPermission?: string) => {
     };
 
     checkUserPermission();
-  }, [user, isAuthenticated, isLoading, requiredPermission, navigate]);
+  }, [user, isAuthenticated, isLoading, requiredPermission, checkPermission]);
 
   // Handle permission denied (redirect to unauthorized page)
   useEffect(() => {
@@ -72,6 +79,7 @@ export const useRoutePermissions = (requiredPermission?: string) => {
 
   return {
     hasPermission,
-    isCheckingPermissions
+    isCheckingPermissions,
+    isRootOrDashboard
   };
 };
