@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import RolePermissionMatrix from '@/components/admin/RolePermissionMatrix';
 import RolesList from '@/components/admin/RolesList';
 import { Separator } from '@/components/ui/separator';
-import { Shield } from 'lucide-react';
+import { Shield, Package } from 'lucide-react';
 
 const RoleManagement = () => {
   const { user, hasPermission } = useAuth();
@@ -54,10 +54,28 @@ const RoleManagement = () => {
             
             <TabsContent value="roles" className="space-y-4">
               <RolesList />
+              
+              <div className="mt-6">
+                <Button variant="outline" asChild>
+                  <Link to="/admin/function-blocks">
+                    <Package className="mr-2 h-4 w-4" />
+                    Manage Function Blocks
+                  </Link>
+                </Button>
+              </div>
             </TabsContent>
             
             <TabsContent value="permissions" className="space-y-4">
               <RolePermissionMatrix />
+              
+              <div className="mt-6">
+                <Button variant="outline" asChild>
+                  <Link to="/admin/function-blocks">
+                    <Package className="mr-2 h-4 w-4" />
+                    Configure Function Blocks
+                  </Link>
+                </Button>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

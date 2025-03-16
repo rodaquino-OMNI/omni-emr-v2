@@ -10,6 +10,7 @@ import Medications from '../pages/Medications';
 import Unauthorized from '../pages/Unauthorized';
 import Admin from '../pages/Admin';
 import RoleManagement from '../pages/Admin/RoleManagement';
+import FunctionBlocks from '../pages/Admin/FunctionBlocks';
 
 export const protectedRoutes: RouteObject[] = [
   {
@@ -51,6 +52,14 @@ export const protectedRoutes: RouteObject[] = [
         element: (
           <ProtectedRoute requiredPermission="manage_roles">
             <RoleManagement />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: "/admin/function-blocks", 
+        element: (
+          <ProtectedRoute requiredPermission="manage_roles">
+            <FunctionBlocks />
           </ProtectedRoute>
         ) 
       },

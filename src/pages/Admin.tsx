@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate, Link, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PendingApprovalList from '@/components/auth/PendingApprovalList';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,9 @@ import RolesList from '@/components/admin/RolesList';
 const Admin = () => {
   const { t, language } = useTranslation();
   const { user, hasPermission } = useAuth();
-  const [activeTab, setActiveTab] = useState('user-approval');
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'user-approval');
   
   // Check if user has admin rights
   if (!user || !hasPermission('manage_users')) {
@@ -91,7 +93,12 @@ const Admin = () => {
             </div>
           </div>
           
-          <div className="flex justify-end">
+          <div className="flex justify-between">
+            <Button variant="outline" asChild>
+              <Link to="/admin/roles">
+                {language === 'pt' ? 'Gestão de Funções Avançada' : 'Advanced Role Management'}
+              </Link>
+            </Button>
             <Button>
               {language === 'pt' ? 'Salvar Alterações' : 'Save Changes'}
             </Button>
@@ -112,6 +119,14 @@ const Admin = () => {
               <FunctionBlocksManager />
             </CardContent>
           </Card>
+          
+          <div className="flex justify-end">
+            <Button variant="outline" asChild className="mr-2">
+              <Link to="/admin/function-blocks">
+                {language === 'pt' ? 'Gestão Avançada de Blocos' : 'Advanced Block Management'}
+              </Link>
+            </Button>
+          </div>
         </TabsContent>
         
         <TabsContent value="system-settings">

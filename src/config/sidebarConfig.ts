@@ -1,4 +1,3 @@
-
 import { LucideIcon, Home, Users, FileText, Pill, Calendar, MessageSquare, Video, HelpCircle, ClipboardList, Bell, ListChecks, Activity, Droplet, Settings, BarChart, Stethoscope, BookUser, FileHeart, FlaskConical, ClipboardCheck, Siren, Shield, Package } from 'lucide-react';
 
 export type SidebarItem = {
@@ -7,6 +6,7 @@ export type SidebarItem = {
   icon: LucideIcon;
   translationKey: string;
   permissionRequired?: string;
+  functionBlockRequired?: string; // New property to link to function blocks
   priority: number;
   roles?: string[]; // Specific roles that can see this item
   children?: Omit<SidebarItem, 'children'>[];
@@ -27,6 +27,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Siren,
     translationKey: 'emergencyCare',
     permissionRequired: 'view_emergency',
+    functionBlockRequired: 'emergency_care',
     priority: 2,
     roles: ['doctor', 'nurse', 'administrative']
   },
@@ -37,6 +38,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Pill,
     translationKey: 'medicationAdministration',
     permissionRequired: 'administer_medications',
+    functionBlockRequired: 'medication_management',
     priority: 3,
     roles: ['nurse', 'doctor']
   },
@@ -46,6 +48,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Droplet, 
     translationKey: 'fluidBalance',
     permissionRequired: 'manage_fluid_balance',
+    functionBlockRequired: 'fluid_balance',
     priority: 4,
     roles: ['nurse', 'doctor']
   },
@@ -55,6 +58,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardCheck,
     translationKey: 'visitNotes',
     permissionRequired: 'view_records',
+    functionBlockRequired: 'clinical_documentation',
     priority: 5
   },
   {
@@ -62,6 +66,7 @@ export const sidebarItems: SidebarItem[] = [
     path: '/patients',
     icon: Users,
     translationKey: 'patients',
+    functionBlockRequired: 'patient_management',
     priority: 6
   },
   {
@@ -70,6 +75,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Activity,
     translationKey: 'vitals',
     permissionRequired: 'view_vitals',
+    functionBlockRequired: 'vital_signs',
     priority: 7
   },
   {
@@ -78,6 +84,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Calendar,
     translationKey: 'schedule',
     permissionRequired: 'view_schedule',
+    functionBlockRequired: 'appointment_scheduling',
     priority: 8
   },
   {
@@ -93,6 +100,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: FileText,
     translationKey: 'records',
     permissionRequired: 'view_records',
+    functionBlockRequired: 'clinical_documentation',
     priority: 10
   },
   {
@@ -101,6 +109,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardList,
     translationKey: 'prescriptions',
     permissionRequired: 'view_prescriptions',
+    functionBlockRequired: 'medication_management',
     priority: 11
   },
   {
@@ -108,6 +117,7 @@ export const sidebarItems: SidebarItem[] = [
     path: '/messages',
     icon: MessageSquare,
     translationKey: 'messages',
+    functionBlockRequired: 'messaging',
     priority: 12
   },
   {
@@ -123,6 +133,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Video,
     translationKey: 'telemedicine',
     permissionRequired: 'telemedicine',
+    functionBlockRequired: 'telemedicine',
     priority: 14
   },
   {
@@ -184,7 +195,7 @@ export const sidebarItems: SidebarItem[] = [
       },
       {
         name: 'Function Blocks',
-        path: '/admin?tab=function-blocks',
+        path: '/admin/function-blocks',
         icon: Package,
         translationKey: 'functionBlocks',
         permissionRequired: 'manage_roles',
@@ -193,3 +204,31 @@ export const sidebarItems: SidebarItem[] = [
     ]
   }
 ];
+
+// Helper function to filter sidebar items based on function blocks
+export const filterSidebarItemsByFunctionBlocks = (
+  items: SidebarItem[],
+  hasAccess: (functionBlockId: string) => boolean
+): SidebarItem[] => {
+  return items
+    .filter(item => {
+      // If the item doesn't require a function block, show it
+      if (!item.functionBlockRequired) return true;
+      
+      // Otherwise, check if the user has access to the required function block
+      return hasAccess(item.functionBlockRequired);
+    })
+    .map(item => {
+      // If the item has children, filter them too
+      if (item.children && item.children.length > 0) {
+        return {
+          ...item,
+          children: item.children.filter(child => {
+            if (!child.functionBlockRequired) return true;
+            return hasAccess(child.functionBlockRequired);
+          })
+        };
+      }
+      return item;
+    });
+};
