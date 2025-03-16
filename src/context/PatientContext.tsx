@@ -5,10 +5,13 @@ import { Patient } from '@/types/patientTypes';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useSectorContext } from '@/hooks/useSectorContext';
+import { usePatientData } from '@/hooks/usePatientData';
+import { usePatientInsights } from '@/hooks/usePatientInsights';
+import { usePatientPrescriptions } from '@/components/patients/hooks/usePatientPrescriptions';
 import { toast } from 'sonner';
 
 interface PatientContextType {
-  patient: Patient | null;
+  patient: (Patient & { insights?: any[]; prescriptions?: any[] }) | null;
   isLoading: boolean;
   error: string | null;
   refreshPatient: () => Promise<void>;
@@ -31,17 +34,39 @@ const PatientContext = createContext<PatientContextType>({
 });
 
 export const PatientProvider: React.FC<PatientProviderProps> = ({ children, patientId: propPatientId }) => {
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const params = useParams();
   const { user } = useAuth();
   const permissions = usePermissions(user);
-  const { selectedSector, sectorPatients } = useSectorContext();
   
   // Use patientId from props or route params
-  const patientId = propPatientId || params.patientId;
+  const patientId = propPatientId || params.id;
+  
+  // Fetch patient data
+  const { 
+    patient, 
+    isLoading: patientLoading, 
+    error: patientError,
+    fetchPatient
+  } = usePatientData(patientId);
+  
+  // Fetch insights data
+  const { 
+    data: insights, 
+    isLoading: insightsLoading, 
+    refetch: refetchInsights 
+  } = usePatientInsights(patientId);
+  
+  // Fetch prescriptions data
+  const { 
+    prescriptions, 
+    loading: prescriptionsLoading,
+    refetchPrescriptions
+  } = usePatientPrescriptions(patientId);
+  
+  // Combined loading state
+  const isLoading = patientLoading || insightsLoading || prescriptionsLoading;
   
   // Check user permissions for this patient
   const canView = Boolean(
@@ -58,76 +83,27 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
      permissions.hasPermission('admin'))
   );
   
-  // Fetch patient data
-  const fetchPatient = async () => {
-    if (!patientId) {
-      setError('No patient ID specified');
-      setIsLoading(false);
-      return;
+  // Set error if patient data fetch fails
+  useEffect(() => {
+    if (patientError) {
+      setError(patientError);
     }
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // First check if patient is in the current sector's patients
-      const sectorPatient = sectorPatients.find(p => p.id === patientId);
-      
-      if (sectorPatient) {
-        // Convert SectorPatient to Patient
-        const patientData: Patient = {
-          id: sectorPatient.id,
-          first_name: sectorPatient.first_name,
-          last_name: sectorPatient.last_name,
-          date_of_birth: sectorPatient.date_of_birth,
-          gender: sectorPatient.gender || 'unknown',
-          mrn: sectorPatient.mrn,
-          status: sectorPatient.status as any, // Type conversion, we know these statuses map
-          email: null,
-          phone: null,
-          address: null,
-          insurance: null,
-          allergies: [],
-          medical_conditions: [],
-          medications: [],
-          emergency_contact: null,
-          primary_care_provider: null,
-          notes: null,
-          blood_type: null
-        };
-        
-        setPatient(patientData);
-        setIsLoading(false);
-      } else {
-        // If not in sector patients, we would fetch from API
-        // For now, show an error
-        setError('Patient not found in current sector');
-        setIsLoading(false);
-        
-        // Redirect back to patients list after a delay
-        setTimeout(() => {
-          toast.error('Patient not found in current sector');
-          navigate('/patients');
-        }, 2000);
-      }
-    } catch (err) {
-      console.error('Error fetching patient:', err);
-      setError('Failed to fetch patient data');
-      setIsLoading(false);
-    }
-  };
+  }, [patientError]);
   
   // Refresh patient data
   const refreshPatient = async () => {
-    await fetchPatient();
-  };
-  
-  // Load patient on mount or when patientId/sector changes
-  useEffect(() => {
-    if (patientId && selectedSector) {
-      fetchPatient();
+    try {
+      await Promise.all([
+        fetchPatient(),
+        refetchInsights(),
+        refetchPrescriptions()
+      ]);
+      setError(null);
+    } catch (err) {
+      console.error('Error refreshing patient data:', err);
+      setError('Failed to refresh patient data');
     }
-  }, [patientId, selectedSector]);
+  };
   
   // Handle unauthorized access
   useEffect(() => {
@@ -135,12 +111,19 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
       toast.error('You do not have permission to view this patient');
       navigate('/patients');
     }
-  }, [isLoading, canView, error]);
+  }, [isLoading, canView, error, navigate]);
+  
+  // Combine patient data with insights and prescriptions
+  const combinedPatientData = patient ? {
+    ...patient,
+    insights: insights || [],
+    prescriptions: prescriptions || []
+  } : null;
   
   return (
     <PatientContext.Provider
       value={{
-        patient,
+        patient: combinedPatientData,
         isLoading,
         error,
         refreshPatient,

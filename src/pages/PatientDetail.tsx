@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
@@ -7,18 +7,18 @@ import { usePatientData } from '@/hooks/usePatientData';
 import { usePatientInsights } from '@/hooks/usePatientInsights';
 import { usePatientPrescriptions } from '@/components/patients/hooks/usePatientPrescriptions';
 import PatientDetailHeader from '@/components/patients/detail/PatientDetailHeader';
-import PatientDetailContent from '@/components/patients/detail/PatientDetailContent';
 import PatientDetailLoader from '@/components/patients/detail/PatientDetailLoader';
+import PatientViewSelector from '@/components/patients/PatientViewSelector';
 import { mapToPatientStatus } from '@/types/patientTypes';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { PatientProvider } from '@/context/PatientContext';
 
 const PatientDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState('overview');
   const navigate = useNavigate();
   const { language } = useTranslation();
   
@@ -36,11 +36,6 @@ const PatientDetail = () => {
   
   // Fetch prescriptions data
   const { prescriptions, loading: prescriptionsLoading } = usePatientPrescriptions(patientId);
-  
-  // Handle tab changes
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-  };
 
   // Handle assignment toggle
   const handleAssignmentToggle = async () => {
@@ -108,7 +103,9 @@ const PatientDetail = () => {
   // Ensure patient has the correct status type
   const patientWithValidStatus = {
     ...patient,
-    status: mapToPatientStatus(patient.status?.toString() || 'stable')
+    status: mapToPatientStatus(patient.status?.toString() || 'stable'),
+    insights: insights || [],
+    prescriptions: prescriptions || []
   };
   
   return (
@@ -117,7 +114,7 @@ const PatientDetail = () => {
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-6xl mx-auto">
             {/* Patient header with back button */}
             <PatientDetailHeader
               patient={patientWithValidStatus}
@@ -125,15 +122,10 @@ const PatientDetail = () => {
               onAssignmentToggle={handleAssignmentToggle}
             />
             
-            {/* Main content with tabs */}
-            <PatientDetailContent
-              patientId={patientId}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              insights={insights || []}
-              insightsLoading={insightsLoading}
-              prescriptions={prescriptions || []}
-            />
+            {/* Patient context provider with role-based views */}
+            <PatientProvider patientId={patientId}>
+              <PatientViewSelector patientId={patientId} />
+            </PatientProvider>
           </div>
         </main>
       </div>
