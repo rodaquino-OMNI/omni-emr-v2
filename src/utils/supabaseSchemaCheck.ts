@@ -20,8 +20,6 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
     const tables = [
       'appointments',
       'audit_logs',
-      'extended_audit_logs',
-      'security_alerts',
       'profiles'
     ];
     

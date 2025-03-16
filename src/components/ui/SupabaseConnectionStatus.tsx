@@ -26,14 +26,20 @@ const SupabaseConnectionStatus: React.FC<SupabaseConnectionStatusProps> = ({
     let intervalId: NodeJS.Timeout;
     
     const checkConnection = async () => {
-      const status = await checkConnectivity();
-      setIsConnected(status);
-      if (onStatusChange) onStatusChange(status);
-      
-      // If connected, check if appointments table exists
-      if (status) {
-        const appoExists = await checkTableExists('appointments');
-        setTableStatus(prev => ({...prev, appointments: appoExists}));
+      try {
+        const status = await checkConnectivity();
+        setIsConnected(status);
+        if (onStatusChange) onStatusChange(status);
+        
+        // If connected, check if appointments table exists using the safe function
+        if (status) {
+          const appoExists = await checkTableExists('appointments');
+          setTableStatus(prev => ({...prev, appointments: appoExists}));
+        }
+      } catch (error) {
+        console.error('Error checking connection:', error);
+        setIsConnected(false);
+        if (onStatusChange) onStatusChange(false);
       }
     };
     
@@ -50,12 +56,40 @@ const SupabaseConnectionStatus: React.FC<SupabaseConnectionStatusProps> = ({
   
   const handleCheckConnection = async () => {
     setIsChecking(true);
-    const status = await checkConnectivity();
-    setIsConnected(status);
-    if (onStatusChange) onStatusChange(status);
-    
-    // If connected, check if appointments table exists
-    if (status) {
+    try {
+      const status = await checkConnectivity();
+      setIsConnected(status);
+      if (onStatusChange) onStatusChange(status);
+      
+      // If connected, check if appointments table exists using the safe function
+      if (status) {
+        const appoExists = await checkTableExists('appointments');
+        setTableStatus(prev => ({...prev, appointments: appoExists}));
+        
+        if (!appoExists) {
+          toast.error('Appointments table not found', {
+            description: 'The appointments table does not exist in the database. This may cause functionality issues.',
+            duration: 8000,
+          });
+        } else {
+          toast.success('Appointments table exists', {
+            description: 'The appointments table is properly configured in Supabase.',
+            duration: 3000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking connection:', error);
+      setIsConnected(false);
+      if (onStatusChange) onStatusChange(false);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+  
+  const checkAppointmentsTable = async () => {
+    setIsChecking(true);
+    try {
       const appoExists = await checkTableExists('appointments');
       setTableStatus(prev => ({...prev, appointments: appoExists}));
       
@@ -70,29 +104,11 @@ const SupabaseConnectionStatus: React.FC<SupabaseConnectionStatusProps> = ({
           duration: 3000,
         });
       }
+    } catch (error) {
+      console.error('Error checking appointments table:', error);
+    } finally {
+      setIsChecking(false);
     }
-    
-    setIsChecking(false);
-  };
-  
-  const checkAppointmentsTable = async () => {
-    setIsChecking(true);
-    const appoExists = await checkTableExists('appointments');
-    setTableStatus(prev => ({...prev, appointments: appoExists}));
-    
-    if (!appoExists) {
-      toast.error('Appointments table not found', {
-        description: 'The appointments table does not exist in the database. This may cause functionality issues.',
-        duration: 8000,
-      });
-    } else {
-      toast.success('Appointments table exists', {
-        description: 'The appointments table is properly configured in Supabase.',
-        duration: 3000,
-      });
-    }
-    
-    setIsChecking(false);
   };
   
   return (

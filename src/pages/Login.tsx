@@ -1,10 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import LoginContainer from '@/components/auth/login/LoginContainer';
 import ApprovalPendingMessage from '@/components/auth/ApprovalPendingMessage';
 import { useTranslation } from '@/hooks/useTranslation';
-import { checkSupabaseConnection } from '@/integrations/supabase/client';
+import { checkConnectivity } from '@/utils/supabaseConnectivity';
 
 const Login = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -15,8 +16,13 @@ const Login = () => {
   useEffect(() => {
     // Check Supabase connection
     const checkConnection = async () => {
-      const isConnected = await checkSupabaseConnection();
-      setIsSupabaseConnected(isConnected);
+      try {
+        const isConnected = await checkConnectivity();
+        setIsSupabaseConnected(isConnected);
+      } catch (error) {
+        console.error('Error checking Supabase connection:', error);
+        setIsSupabaseConnected(false);
+      }
     };
     
     checkConnection();

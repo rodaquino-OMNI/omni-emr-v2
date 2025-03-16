@@ -2,46 +2,35 @@
 import { supabase } from '@/integrations/supabase/core';
 
 /**
- * Checks if we can connect to Supabase
- * @returns Promise<boolean> True if connected, false otherwise
+ * Checks if the application can connect to Supabase
+ * @returns A boolean indicating if Supabase is connected
  */
 export const checkConnectivity = async (): Promise<boolean> => {
   try {
-    // Simple ping to the Supabase API
-    const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+    // Use the newly created check_connection function instead of directly querying a table
+    const { data, error } = await supabase.rpc('check_connection');
     
-    // If no error, we're connected
-    return !error;
+    if (error) {
+      console.error('Failed to connect to Supabase:', error);
+      return false;
+    }
+    
+    return !!data;
   } catch (error) {
-    console.error('Connectivity check failed:', error);
+    console.error('Exception when connecting to Supabase:', error);
     return false;
   }
 };
 
 /**
- * Checks if we're online (general internet connectivity)
- * @returns boolean True if online, false if offline
+ * Checks and displays a warning if the database connection is not working
  */
-export const isOnline = (): boolean => {
-  return navigator.onLine;
-};
-
-/**
- * Registers event listeners for online/offline status
- * @param onOffline Callback for offline event
- * @param onOnline Callback for online event
- * @returns Function to unregister listeners
- */
-export const registerConnectivityListeners = (
-  onOffline: () => void,
-  onOnline: () => void
-): () => void => {
-  window.addEventListener('offline', onOffline);
-  window.addEventListener('online', onOnline);
+export const showConnectionWarning = async (): Promise<void> => {
+  const isConnected = await checkConnectivity();
   
-  // Return cleanup function
-  return () => {
-    window.removeEventListener('offline', onOffline);
-    window.removeEventListener('online', onOnline);
-  };
+  if (!isConnected) {
+    // Use a more user-friendly approach for showing warnings
+    // This could be integrated with your toast/notification system
+    console.warn('Database connection failed - functionality may be limited');
+  }
 };
