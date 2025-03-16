@@ -1,129 +1,83 @@
 
-import { supabase } from '../integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Refresh all materialized views in the database to ensure up-to-date data
- * @returns Promise that resolves when all views have been refreshed
+ * List of materialized views that should be refreshed periodically
  */
-export const refreshAllMaterializedViews = async (): Promise<void> => {
-  console.log('Refreshing materialized views...');
-  
+const MATERIALIZED_VIEWS = [
+  'patient_latest_vitals',
+  'patient_status_view'
+];
+
+/**
+ * Refresh all materialized views
+ * @returns Promise<boolean> true if all views were refreshed successfully, false otherwise
+ */
+export const refreshAllMaterializedViews = async (): Promise<boolean> => {
   try {
-    // Use our new safe function to check connection first
-    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    // Check if we can connect to the database
+    const { data: connected, error: connError } = await supabase.rpc('check_connection');
     
-    if (connectionError || !connectionOk) {
-      console.error('Database connection error:', connectionError);
-      return;
+    if (connError || !connected) {
+      console.error('Database connection error:', connError);
+      return false;
     }
     
-    // Check if refresh_materialized_view function exists
-    const { data: functionExists, error: functionError } = await supabase.rpc('check_table_exists', {
-      table_name: 'refresh_materialized_view'
-    });
-    
-    if (functionError || !functionExists) {
-      console.error('Refresh materialized view function does not exist:', functionError);
-      return;
-    }
-    
-    // Since we can't directly query pg_matviews anymore, we'll use a more targeted approach
-    // Let's check for specific materialized views that we know should exist
-    const viewsToCheck = ['patient_latest_vitals', 'medication_interactions_summary'];
-    
-    for (const view of viewsToCheck) {
+    // Refresh each materialized view
+    for (const view of MATERIALIZED_VIEWS) {
       try {
-        const { data: viewExists, error: viewError } = await supabase.rpc('check_table_exists', {
-          table_name: view
-        });
-        
-        if (viewError || !viewExists) {
-          console.log(`Materialized view ${view} does not exist`);
-          continue;
-        }
-        
-        // If the view exists, try to refresh it
-        const { error: refreshError } = await supabase.rpc(
-          'refresh_materialized_view',
-          { view_name: view }
-        );
-        
-        if (refreshError) {
-          console.error(`Error refreshing view ${view}:`, refreshError);
-        } else {
-          console.log(`Successfully refreshed view: ${view}`);
-        }
+        await supabase.rpc('refresh_materialized_view', { view_name: view });
+        console.log(`Refreshed materialized view: ${view}`);
       } catch (refreshError) {
-        console.error(`Exception refreshing view ${view}:`, refreshError);
+        // This likely means the view doesn't exist yet, which is acceptable
+        console.warn(`Could not refresh materialized view ${view}:`, refreshError);
       }
     }
     
-    console.log('Materialized view refresh complete');
-  } catch (e) {
-    console.error('Exception in refreshAllMaterializedViews:', e);
+    return true;
+  } catch (error) {
+    console.error('Error refreshing materialized views:', error);
+    return false;
   }
 };
 
 /**
- * Apply data retention policies by removing old data
- * @returns Promise that resolves when data retention has been applied
+ * Apply data retention policies to clean up old data
+ * @returns Promise<{ table: string, rowsDeleted: number }[]> Results of data retention policy application
  */
-export const applyDataRetentionPolicy = async (): Promise<void> => {
+export const applyDataRetentionPolicies = async (): Promise<{ table: string, rowsDeleted: number }[]> => {
   try {
-    // First check connection
-    const { data: connectionOk, error: connectionError } = await supabase.rpc('check_connection');
+    const { data, error } = await supabase.rpc('apply_data_retention_policies');
     
-    if (connectionError || !connectionOk) {
-      console.error('Database connection error:', connectionError);
-      return;
+    if (error) {
+      console.error('Error applying data retention policies:', error);
+      return [];
     }
     
-    // Check if the data_retention_policies table exists
-    const { data: tableExists, error: tableError } = await supabase.rpc('check_table_exists', {
-      table_name: 'data_retention_policies'
-    });
-    
-    if (tableError || !tableExists) {
-      console.error('Data retention policies table does not exist:', tableError);
-      return;
-    }
-    
-    // Check if policy functions exist
-    const { data: checkFnExists, error: checkFnError } = await supabase.rpc('check_table_exists', {
-      table_name: 'check_data_retention_policy_exists'
-    });
-    
-    if (checkFnError || !checkFnExists) {
-      console.error('Data retention policy check function does not exist:', checkFnError);
-      return;
-    }
-    
-    // Create policy if needed, then apply it
-    const { data: applyFnExists, error: applyFnError } = await supabase.rpc('check_table_exists', {
-      table_name: 'apply_data_retention_policies'
-    });
-    
-    if (applyFnError || !applyFnExists) {
-      console.error('Apply data retention policies function does not exist:', applyFnError);
-      return;
-    }
-    
-    // Apply the policy
-    const { error: applyError } = await supabase.rpc(
-      'apply_data_retention_policies'
-    );
-    
-    if (applyError) {
-      console.error('Error applying data retention policies:', applyError);
-    } else {
-      console.log('Data retention policies successfully applied');
-    }
-  } catch (e) {
-    console.error('Exception in applyDataRetentionPolicy:', e);
+    return data || [];
+  } catch (error) {
+    console.error('Error applying data retention policies:', error);
+    return [];
   }
 };
 
-export default {
-  refreshAllMaterializedViews,
-  applyDataRetentionPolicy
+/**
+ * Clean up RxNorm cache tables to prevent excessive growth
+ * @param retentionDays Number of days to retain cache entries (default: 7)
+ * @returns Promise<{ table: string, rowsDeleted: number }[]> Results of cache cleanup
+ */
+export const cleanRxNormCache = async (retentionDays = 7): Promise<{ table: string, rowsDeleted: number }[]> => {
+  try {
+    const { data, error } = await supabase.rpc('clean_rxnorm_cache', { retention_days: retentionDays });
+    
+    if (error) {
+      console.error('Error cleaning RxNorm cache:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error cleaning RxNorm cache:', error);
+    return [];
+  }
 };

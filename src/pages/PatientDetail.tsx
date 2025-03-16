@@ -101,7 +101,7 @@ const PatientDetail = () => {
           gender: viewData.gender,
           mrn: viewData.mrn,
           room_number: viewData.room_number,
-          // Map the status string to PatientStatus enum type
+          // Explicitly map the status string to PatientStatus enum type
           status: mapToPatientStatus(viewData.mapped_status || 'stable'),
           is_assigned: true, // Default value
           // Calculate age from date of birth
@@ -120,7 +120,15 @@ const PatientDetail = () => {
       if (error) {
         console.error('Error fetching patient:', error);
         // Return mock data as fallback
-        return mockPatients.find(p => p.id === patientId) || null;
+        const mockPatient = mockPatients.find(p => p.id === patientId);
+        if (mockPatient) {
+          // Ensure mock patient data has the correct status type
+          return {
+            ...mockPatient,
+            status: mapToPatientStatus(mockPatient.status)
+          };
+        }
+        return null;
       }
       
       // Convert to Patient type
@@ -232,7 +240,7 @@ const PatientDetail = () => {
                 <PatientPrescriptionsTab patientId={patientId} prescriptions={prescriptions || []} />
               </TabsContent>
               <TabsContent value="ai-insights" className="space-y-2">
-                <PatientAIInsightsTab patientId={patientId} />
+                <PatientAIInsightsTab insights={insights || []} loading={insightsLoading} />
               </TabsContent>
             </Tabs>
           </div>

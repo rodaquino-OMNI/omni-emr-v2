@@ -1,5 +1,4 @@
 
-
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -27,4 +26,3 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
  * Alias for checkSupabaseConnection for backward compatibility
  */
 export const checkConnectivity = checkSupabaseConnection;
-
