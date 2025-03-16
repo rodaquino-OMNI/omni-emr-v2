@@ -11,11 +11,13 @@ export const useSocialAuth = (language: Language) => {
   const { handleAuthError, getErrorMessage } = useAuthError(language);
 
   // Handle social login with improved PKCE flow
-  const loginWithSocial = useCallback(async (provider: Provider) => {
+  const loginWithSocial = useCallback(async (provider: Provider | string) => {
     try {
       // Generate new CSRF token for the OAuth flow
       generateCSRFToken();
-      await signInWithProvider(provider);
+      // Convert provider to Provider type if it's a string
+      const providerValue = provider as Provider;
+      await signInWithProvider(providerValue);
       // Auth state change listener will handle user/session updates
       return { success: true };
     } catch (error) {

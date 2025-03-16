@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   setLanguage: () => {},
   login: async (email: string, password: string) => ({ success: false }),
   logout: async () => {},
-  loginWithSocial: async () => ({ success: false }),
+  loginWithSocial: async (provider: string) => ({ success: false }),
   signUp: async () => ({ success: false }),
   resetPassword: async (email: string): Promise<{ success: boolean; error?: any }> => {
     try {
