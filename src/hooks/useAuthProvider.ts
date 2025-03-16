@@ -68,10 +68,26 @@ export const useAuthProvider = () => {
   // Initialize permissions
   const { hasPermission, canAccessPatientData } = usePermissions(user);
 
+  // Mock function for updating user - would connect to backend in real implementation
+  const updateUser = async (updates: Partial<User>) => {
+    if (!user) return;
+    setUser({ ...user, ...updates });
+  };
+
+  // Mock function for checking auth status - would connect to backend in real implementation
+  const checkAuthStatus = async () => {
+    // Implementation would verify session validity with backend
+    console.log("Checking auth status");
+  };
+
+  // Create and return the auth context value with all required properties
   return {
     user,
+    setUser,
     isAuthenticated,
+    setIsAuthenticated: () => {}, // This is a derived value, but needed for type compatibility
     isLoading,
+    setIsLoading,
     language,
     setLanguage,
     login,
@@ -79,6 +95,8 @@ export const useAuthProvider = () => {
     signUp,
     resetPassword,
     logout,
+    updateUser,
+    checkAuthStatus,
     session,
     hasPermission,
     canAccessPatientData,
