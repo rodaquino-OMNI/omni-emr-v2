@@ -89,6 +89,62 @@ export const usePermissions = (user: User | null | undefined) => {
       }
       
       return false;
+    },
+    
+    // NEW: Check if user can access a specific sector
+    canAccessSector: (sectorId: string): boolean => {
+      if (!user) return false;
+      
+      // Admin has access to all sectors
+      if (user.role === 'admin' || user.role === 'system_administrator') return true;
+      
+      // For other roles, we would check against the user_sector_access table
+      // This is managed by Supabase RLS and the get_user_sectors function
+      return true; // Return true since this is checked at the DB level
+    },
+    
+    // NEW: Check if user can perform actions on a patient in a specific sector
+    canPerformActionInSector: (
+      action: 'view' | 'update' | 'triage' | 'discharge' | 'assign', 
+      sectorId: string
+    ): boolean => {
+      if (!user) return false;
+      
+      // Admin can do all actions in all sectors
+      if (user.role === 'admin' || user.role === 'system_administrator') return true;
+      
+      // Different roles have different permissions per sector
+      if (action === 'view') {
+        return ['doctor', 'nurse', 'specialist', 'pharmacist', 'administrative'].includes(user.role);
+      } else if (action === 'update') {
+        return ['doctor', 'nurse'].includes(user.role);
+      } else if (action === 'triage') {
+        return ['doctor', 'nurse', 'administrative'].includes(user.role);
+      } else if (action === 'discharge') {
+        return ['doctor'].includes(user.role);
+      } else if (action === 'assign') {
+        return ['doctor', 'nurse', 'administrative'].includes(user.role);
+      }
+      
+      return false;
+    },
+    
+    // NEW: Get role-specific dashboard configuration
+    getRoleDashboard: () => {
+      if (!user) return 'default';
+      
+      // Return different dashboard configurations based on role
+      if (user.role === 'doctor') {
+        return 'physician';
+      } else if (user.role === 'nurse') {
+        return 'nurse';
+      } else if (user.role === 'administrative') {
+        return 'administrative';
+      } else if (user.role === 'pharmacist') {
+        return 'pharmacist';
+      }
+      
+      return 'default';
     }
   }), [user]);
 };

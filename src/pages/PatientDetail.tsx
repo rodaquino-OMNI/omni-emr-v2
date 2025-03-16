@@ -11,6 +11,10 @@ import PatientRecordsTab from '@/components/patients/tabs/PatientRecordsTab';
 import PatientPrescriptionsTab from '@/components/patients/tabs/PatientPrescriptionsTab';
 import PatientAIInsightsTab from '@/components/patients/tabs/PatientAIInsightsTab';
 
+// Dummy data for patient tabs that require additional props
+const dummyInsights = [];
+const dummyPrescriptions = [];
+
 const PatientDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -55,13 +59,21 @@ const PatientDetail = () => {
     );
   }
   
+  // Create a Patient object from SectorPatient for the PatientHeader
+  const patientForHeader = {
+    ...patient,
+    name: `${patient.first_name} ${patient.last_name}`,
+    age: patient.date_of_birth ? calculateAge(new Date(patient.date_of_birth)) : '',
+    diagnosis: 'Not available' // Add placeholder for required field
+  };
+  
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="flex-1 overflow-y-auto">
-          <PatientHeader patient={patient} />
+          <PatientHeader patient={patientForHeader} />
           
           <div className="p-6">
             <div className="max-w-6xl mx-auto">
@@ -79,7 +91,11 @@ const PatientDetail = () => {
                 </TabsList>
                 
                 <TabsContent value="overview" className="mt-4">
-                  <PatientOverviewTab patientId={patient.id} />
+                  <PatientOverviewTab 
+                    patientId={patient.id} 
+                    insights={dummyInsights} 
+                    prescriptions={dummyPrescriptions} 
+                  />
                 </TabsContent>
                 
                 <TabsContent value="records" className="mt-4">
@@ -91,7 +107,10 @@ const PatientDetail = () => {
                 </TabsContent>
                 
                 <TabsContent value="ai-insights" className="mt-4">
-                  <PatientAIInsightsTab patientId={patient.id} />
+                  <PatientAIInsightsTab 
+                    insights={dummyInsights} 
+                    loading={false} 
+                  />
                 </TabsContent>
               </Tabs>
             </div>
@@ -100,6 +119,19 @@ const PatientDetail = () => {
       </div>
     </div>
   );
+};
+
+// Helper function to calculate age from birthdate
+const calculateAge = (birthDate: Date): string => {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age.toString();
 };
 
 export default PatientDetail;

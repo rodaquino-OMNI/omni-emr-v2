@@ -9,6 +9,7 @@ interface SectorContextType {
   sectorPatients: SectorPatient[];
   selectedSector: Sector | null;
   loading: boolean;
+  patientsLoading: boolean; // Added missing property
   error: Error | null;
   selectSector: (sector: Sector) => void;
   refreshSectors: () => Promise<void>;
@@ -28,6 +29,7 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return saved ? JSON.parse(saved) : null;
   });
   const [loading, setLoading] = useState<boolean>(true);
+  const [patientsLoading, setPatientsLoading] = useState<boolean>(false); // Added missing state
   const [error, setError] = useState<Error | null>(null);
 
   // Fetch sectors on mount
@@ -69,7 +71,7 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (!selectedSector) return;
     
     try {
-      setLoading(true);
+      setPatientsLoading(true); // Use the new state variable
       
       const { data, error } = await supabase.rpc('get_sector_patients', {
         p_sector_id: selectedSector.id
@@ -82,7 +84,7 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       console.error('Error fetching sector patients:', err);
       toast.error('Failed to load patients');
     } finally {
-      setLoading(false);
+      setPatientsLoading(false); // Set to false when done
     }
   };
 
@@ -174,6 +176,7 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       sectorPatients,
       selectedSector,
       loading,
+      patientsLoading, // Add the new property to the context
       error,
       selectSector,
       refreshSectors,

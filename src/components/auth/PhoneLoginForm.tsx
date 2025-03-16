@@ -29,6 +29,7 @@ const PhoneLoginForm = ({
   setVerificationCode,
   handlePhoneSubmit,
   handleVerifySubmit,
+  handleClearError,
   isSubmitting,
   verificationSent,
   validationErrors,
@@ -60,6 +61,7 @@ const PhoneLoginForm = ({
                     phone: ''
                   });
                 }
+                handleClearError();
               }}
               disabled={isSubmitting}
               placeholder="+1234567890"
@@ -108,6 +110,7 @@ const PhoneLoginForm = ({
                     code: ''
                   });
                 }
+                handleClearError();
               }}
               disabled={isSubmitting}
               placeholder="123456"
