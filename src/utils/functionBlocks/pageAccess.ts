@@ -25,7 +25,9 @@ const pageFunctionMapping: FunctionBlockMapping[] = [
   { pageRoute: '/hospital-workflows', requiredFunction: 'hospital_workflow' },
   { pageRoute: '/tasks', requiredFunction: 'task_management' },
   { pageRoute: '/orders', requiredFunction: 'order_management' },
-  { pageRoute: '/critical-results', requiredFunction: 'critical_results' }
+  { pageRoute: '/critical-results', requiredFunction: 'critical_results' },
+  // Add sectors page mapping - this is explicitly not restricted by function blocks
+  { pageRoute: '/sectors', requiredFunction: '' }
 ];
 
 /**
@@ -51,8 +53,8 @@ export const canAccessPage = (
     return m.pageRoute === pageRoute;
   });
   
-  // If no mapping found, assume access is allowed (no special function required)
-  if (!mapping) return true;
+  // If no mapping found or requiredFunction is empty, assume access is allowed
+  if (!mapping || !mapping.requiredFunction) return true;
   
   // Check if user has access to the required function
   return hasAccessToFunctionBlock(functionBlocks, mapping.requiredFunction, userRole);

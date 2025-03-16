@@ -58,42 +58,24 @@ const SectorCard: React.FC<{
 
 const SectorSelection = () => {
   const navigate = useNavigate();
-  const { loading, sectors, selectSector, sectorPatients } = useSectorContext();
+  const { loading, sectors, selectSector, refreshSectors } = useSectorContext();
   const { language } = useTranslation();
   const { user } = useAuth();
   
-  // Generate sector statistics based on user role
+  // Refresh sectors on component mount to ensure up-to-date data
+  useEffect(() => {
+    refreshSectors();
+  }, []);
+  
+  // Generate sector statistics 
   const getSectorStats = (sectorId: string) => {
-    // Filter patients by sector
-    const sectorPatientsData = sectorPatients.filter(p => p.id === sectorId);
-    
-    // Basic statistics
-    const basicStats = {
-      patients: sectorPatientsData.length,
-      alerts: Math.floor(Math.random() * 5), // Mock data, would come from API
-      tasks: Math.floor(Math.random() * 10), // Mock data, would come from API
-      criticalPatients: sectorPatientsData.filter(p => p.status === 'critical').length
+    // For now, return mock data
+    return {
+      patients: Math.floor(Math.random() * 20) + 5,
+      alerts: Math.floor(Math.random() * 5),
+      tasks: Math.floor(Math.random() * 10),
+      criticalPatients: Math.floor(Math.random() * 3)
     };
-    
-    // Role-specific statistics adjustments
-    if (user?.role === 'doctor') {
-      // Doctors might see more detailed clinical information
-      return basicStats;
-    } else if (user?.role === 'nurse') {
-      // Nurses might see more task-oriented information
-      return {
-        ...basicStats,
-        tasks: Math.floor(Math.random() * 15) // More tasks visible to nurses
-      };
-    } else if (user?.role === 'administrative') {
-      // Administrative staff might see more operational information
-      return {
-        ...basicStats,
-        alerts: Math.floor(Math.random() * 3) // Fewer clinical alerts
-      };
-    }
-    
-    return basicStats;
   };
   
   const handleSectorSelect = (sector: any) => {
@@ -101,9 +83,9 @@ const SectorSelection = () => {
     
     // Redirect based on user role
     if (user?.role === 'admin' || user?.role === 'system_administrator') {
-      navigate('/dashboard'); // Admin dashboard
+      navigate('/dashboard');
     } else {
-      navigate('/patients'); // Standard flow for clinical roles
+      navigate('/patients');
     }
   };
 
@@ -119,7 +101,7 @@ const SectorSelection = () => {
       }
     }
   }, [loading, sectors, user?.role, navigate, selectSector]);
-
+  
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />

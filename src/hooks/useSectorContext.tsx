@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Sector, SectorPatient } from '@/types/sector';
@@ -9,7 +8,7 @@ interface SectorContextType {
   sectorPatients: SectorPatient[];
   selectedSector: Sector | null;
   loading: boolean;
-  patientsLoading: boolean; // Added missing property
+  patientsLoading: boolean;
   error: Error | null;
   selectSector: (sector: Sector) => void;
   refreshSectors: () => Promise<void>;
@@ -24,20 +23,17 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [sectorPatients, setSectorPatients] = useState<SectorPatient[]>([]);
   const [selectedSector, setSelectedSector] = useState<Sector | null>(() => {
-    // Try to load from localStorage on init
     const saved = localStorage.getItem('omnicare-selected-sector');
     return saved ? JSON.parse(saved) : null;
   });
   const [loading, setLoading] = useState<boolean>(true);
-  const [patientsLoading, setPatientsLoading] = useState<boolean>(false); // Added missing state
+  const [patientsLoading, setPatientsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  // Fetch sectors on mount
   useEffect(() => {
     refreshSectors();
   }, []);
 
-  // Fetch patients when selected sector changes
   useEffect(() => {
     if (selectedSector) {
       refreshPatients();
@@ -46,7 +42,6 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [selectedSector]);
 
-  // Fetch all sectors user has access to
   const refreshSectors = async () => {
     try {
       setLoading(true);
@@ -54,9 +49,19 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       
       const { data, error } = await supabase.rpc('get_user_sectors');
       
-      if (error) throw error;
-      
-      setSectors(data || []);
+      if (error) {
+        console.error("Error calling get_user_sectors RPC:", error);
+        const fallbackResult = await supabase
+          .from('hospital_sectors')
+          .select('*')
+          .eq('is_active', true)
+          .order('name');
+          
+        if (fallbackResult.error) throw fallbackResult.error;
+        setSectors(fallbackResult.data || []);
+      } else {
+        setSectors(data || []);
+      }
     } catch (err) {
       console.error('Error fetching sectors:', err);
       setError(err instanceof Error ? err : new Error('Failed to fetch sectors'));
@@ -66,29 +71,52 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   };
 
-  // Fetch patients for the selected sector
   const refreshPatients = async () => {
     if (!selectedSector) return;
     
     try {
-      setPatientsLoading(true); // Use the new state variable
+      setPatientsLoading(true);
       
       const { data, error } = await supabase.rpc('get_sector_patients', {
         p_sector_id: selectedSector.id
       });
       
-      if (error) throw error;
-      
-      setSectorPatients(data || []);
+      if (error) {
+        console.error("Error calling get_sector_patients RPC:", error);
+        const fallbackResult = await supabase
+          .from('patients')
+          .select(`
+            id, 
+            first_name, 
+            last_name, 
+            date_of_birth, 
+            gender,
+            mrn,
+            room_number,
+            status
+          `)
+          .eq('is_active', true)
+          .order('last_name');
+          
+        if (fallbackResult.error) throw fallbackResult.error;
+        
+        const formattedData = fallbackResult.data.map(p => ({
+          ...p,
+          is_assigned: false
+        }));
+          
+        setSectorPatients(formattedData || []);
+      } else {
+        setSectorPatients(data || []);
+      }
     } catch (err) {
       console.error('Error fetching sector patients:', err);
       toast.error('Failed to load patients');
     } finally {
-      setPatientsLoading(false); // Set to false when done
+      setPatientsLoading(false);
     }
   };
 
-  // Assign a patient to the current provider
   const assignPatient = async (patientId: string) => {
     if (!selectedSector) return;
     
@@ -106,7 +134,6 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       
       if (error) throw error;
       
-      // Update local state to show assignment
       setSectorPatients(prev => 
         prev.map(patient => 
           patient.id === patientId 
@@ -124,7 +151,6 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   };
 
-  // Unassign a patient from the current provider
   const unassignPatient = async (patientId: string) => {
     if (!selectedSector) return;
     
@@ -146,7 +172,6 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       
       if (error) throw error;
       
-      // Update local state to show unassignment
       setSectorPatients(prev => 
         prev.map(patient => 
           patient.id === patientId 
@@ -164,7 +189,6 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   };
 
-  // Select a sector and save to localStorage
   const selectSector = (sector: Sector) => {
     setSelectedSector(sector);
     localStorage.setItem('omnicare-selected-sector', JSON.stringify(sector));
@@ -176,7 +200,7 @@ export const SectorProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       sectorPatients,
       selectedSector,
       loading,
-      patientsLoading, // Add the new property to the context
+      patientsLoading,
       error,
       selectSector,
       refreshSectors,

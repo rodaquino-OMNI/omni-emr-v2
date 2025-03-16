@@ -3192,6 +3192,7 @@ export type Database = {
       }
       user_sector_access: {
         Row: {
+          access_level: string
           created_at: string
           id: string
           sector_id: string
@@ -3199,6 +3200,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          access_level?: string
           created_at?: string
           id?: string
           sector_id: string
@@ -3206,6 +3208,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          access_level?: string
           created_at?: string
           id?: string
           sector_id?: string
