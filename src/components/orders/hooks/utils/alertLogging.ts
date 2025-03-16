@@ -1,56 +1,38 @@
 
-import { Shield } from 'lucide-react';
-import { OrderAlert } from '../types/orderAlerts';
+import { AlertTriangle, Info, Check } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { OrderAlert } from '../types/orderAlerts';
 
 /**
- * Logs overridden alerts to the audit log system
+ * Shows a toast notification for order alerts
  */
-export const logAlertOverrides = async (userId: string | undefined, updatedAlerts: OrderAlert[]) => {
-  try {
-    // This is a placeholder for real implementation
-    const { logAuditEvent, supabase } = await import('@/integrations/supabase/client');
-    
-    if (userId) {
-      await logAuditEvent(
-        userId,
-        'alert_override',
-        'medication_order',
-        'system',
-        { alerts: updatedAlerts }
-      );
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Failed to log alert overrides:', error);
-    return false;
-  }
-};
-
-/**
- * Shows a toast notification for alert overrides
- */
-export const showAlertOverrideToast = (language: string) => {
+export const showAlertToast = (alert: OrderAlert, language: string) => {
+  const variant = alert.severity === 'critical' ? 'destructive' : 
+                 alert.severity === 'moderate' ? 'warning' : 'info';
+  
+  const icon = alert.severity === 'critical' ? <AlertTriangle className="h-4 w-4" /> :
+              alert.severity === 'moderate' ? <Info className="h-4 w-4" /> :
+              <Check className="h-4 w-4" />;
+  
   toast({
-    title: language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden',
-    description: language === 'pt'
-      ? 'Os alertas foram ignorados com uma justificativa clínica'
-      : 'Alerts have been overridden with clinical justification',
-    variant: "warning",
-    icon: <Shield className="h-4 w-4 text-amber-600" />
+    title: language === 'pt' ? 'Alerta encontrado' : 'Alert found',
+    description: alert.message,
+    variant,
+    icon
   });
 };
 
 /**
- * Shows a toast notification for cancelled orders
+ * Logs alerts to console for debugging
  */
-export const showOrderCancelledToast = (language: string) => {
-  toast({
-    title: language === 'pt' ? 'Pedido cancelado' : 'Order cancelled',
-    description: language === 'pt'
-      ? 'O pedido foi cancelado devido aos alertas de segurança'
-      : 'The order was cancelled due to safety alerts',
-    variant: "info"
+export const logAlerts = (alerts: OrderAlert[]) => {
+  if (alerts.length === 0) {
+    console.log('No alerts found');
+    return;
+  }
+  
+  console.log(`Found ${alerts.length} alerts:`);
+  alerts.forEach(alert => {
+    console.log(`- [${alert.severity.toUpperCase()}] ${alert.message}`);
   });
 };

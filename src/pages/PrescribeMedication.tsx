@@ -1,15 +1,27 @@
+
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from '@/components/ui/calendar';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { PrescriptionItem, createPrescription } from '../services/prescriptionService';
-import { ArrowLeft, Save, Pill, AlertTriangle, Plus, Trash2 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Save, Pill, AlertTriangle, Plus, Trash2, Search } from 'lucide-react';
 
 type PrescriptionFormState = {
   patientId: string;
@@ -23,8 +35,7 @@ type CurrentItem = Omit<PrescriptionItem, 'id' | 'status'> & { index?: number };
 const PrescribeMedicationPage = () => {
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { toast } = useToast();
+  const { language } = useTranslation();
   const { user } = useAuth();
   
   const canPrescribe = user?.role === 'doctor' || user?.role === 'admin' || 
@@ -48,6 +59,12 @@ const PrescribeMedicationPage = () => {
     endDate: '',
     instructions: ''
   });
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   
   const [activeTab, setActiveTab] = useState<string>('medication');
   
@@ -81,24 +98,67 @@ const PrescribeMedicationPage = () => {
     const { name, value } = e.target;
     
     if (name === 'name' && value.length >= 3 && currentItem.type === 'medication') {
-      const commonMedications = [
-        'Acetaminophen', 'Ibuprofen', 'Aspirin', 'Lisinopril', 'Atorvastatin',
-        'Metformin', 'Levothyroxine', 'Amlodipine', 'Metoprolol', 'Omeprazole'
-      ];
-      
-      const matchingMeds = commonMedications.filter(med => 
-        med.toLowerCase().includes(value.toLowerCase())
-      );
-      
-      console.log('Medication suggestions:', matchingMeds);
+      searchMedications(value);
     }
     
     setCurrentItem(prev => ({ ...prev, [name]: value }));
   };
+
+  const searchMedications = (term: string) => {
+    const mockResults = [
+      { id: 1, name: 'Acetaminophen 500mg Tablet', generic: 'Acetaminophen', rxnorm: '198440' },
+      { id: 2, name: 'Ibuprofen 400mg Tablet', generic: 'Ibuprofen', rxnorm: '310965' },
+      { id: 3, name: 'Amoxicillin 500mg Capsule', generic: 'Amoxicillin', rxnorm: '308182' },
+      { id: 4, name: 'Lisinopril 10mg Tablet', generic: 'Lisinopril', rxnorm: '314076' },
+      { id: 5, name: 'Atorvastatin 20mg Tablet', generic: 'Atorvastatin', rxnorm: '259255' },
+      { id: 6, name: 'Metformin 500mg Tablet', generic: 'Metformin', rxnorm: '861007' },
+      { id: 7, name: 'Sertraline 50mg Tablet', generic: 'Sertraline', rxnorm: '312940' },
+      { id: 8, name: 'Albuterol 90mcg Inhaler', generic: 'Albuterol', rxnorm: '801095' }
+    ].filter(med => 
+      med.name.toLowerCase().includes(term.toLowerCase()) || 
+      med.generic.toLowerCase().includes(term.toLowerCase())
+    );
+    
+    setSearchResults(mockResults);
+    setShowSearch(term.length > 1);
+  };
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    
+    if (term.length > 1) {
+      searchMedications(term);
+    } else {
+      setSearchResults([]);
+      setShowSearch(false);
+    }
+  };
+  
+  const selectMedication = (medication: any) => {
+    setCurrentItem(prev => ({
+      ...prev,
+      name: medication.name,
+      rxnormCode: medication.rxnorm,
+      fhirMedication: {
+        coding: [{
+          system: "http://www.nlm.nih.gov/research/umls/rxnorm",
+          code: medication.rxnorm,
+          display: medication.name
+        }],
+        text: medication.name
+      }
+    }));
+    setSearchTerm(medication.name);
+    setShowSearch(false);
+  };
   
   const handleAddItem = () => {
     if (!currentItem.name) {
-      toast.success("Item name is required", { description: "Please enter a name for the item." });
+      toast({
+        title: "Item name is required",
+        description: "Please enter a name for the item."
+      });
       return;
     }
     
@@ -110,8 +170,8 @@ const PrescribeMedicationPage = () => {
       dosage: currentItem.dosage || undefined,
       frequency: currentItem.frequency || undefined,
       duration: currentItem.duration || undefined,
-      startDate: currentItem.startDate || undefined,
-      endDate: currentItem.endDate || undefined,
+      startDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
+      endDate: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
       instructions: currentItem.instructions || undefined,
       status: 'pending'
     };
@@ -139,7 +199,13 @@ const PrescribeMedicationPage = () => {
       instructions: ''
     });
     
-    toast.success(`${currentItem.name} added to prescription`, { description: "The item has been successfully added to the prescription." });
+    setStartDate(new Date());
+    setEndDate(undefined);
+    
+    toast({
+      title: `${newItem.name} added to prescription`,
+      description: "The item has been successfully added to the prescription."
+    });
   };
   
   const handleEditItem = (index: number) => {
@@ -157,6 +223,14 @@ const PrescribeMedicationPage = () => {
       instructions: item.instructions || '',
       index
     });
+    
+    if (item.startDate) {
+      setStartDate(new Date(item.startDate));
+    }
+    
+    if (item.endDate) {
+      setEndDate(new Date(item.endDate));
+    }
   };
   
   const handleRemoveItem = (index: number) => {
@@ -164,19 +238,30 @@ const PrescribeMedicationPage = () => {
     updatedItems.splice(index, 1);
     setPrescriptionData(prev => ({ ...prev, items: updatedItems }));
     
-    toast.success("Item removed", { description: "The item has been removed from the prescription." });
+    toast({
+      title: "Item removed",
+      description: "The item has been removed from the prescription."
+    });
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!canPrescribe) {
-      toast.error("Permission Denied", { description: "You don't have permission to prescribe medications." });
+      toast({
+        title: "Permission Denied",
+        description: "You don't have permission to prescribe medications.",
+        variant: "destructive"
+      });
       return;
     }
     
     if (prescriptionData.items.length === 0) {
-      toast.error("No Items", { description: "Please add at least one item to the prescription." });
+      toast({
+        title: "No Items",
+        description: "Please add at least one item to the prescription.",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -192,7 +277,11 @@ const PrescribeMedicationPage = () => {
         notes: prescriptionData.notes
       }, user!);
       
-      toast.success("Prescription created successfully", { description: "The prescription has been successfully created." });
+      toast({
+        title: "Prescription created successfully",
+        description: "The prescription has been successfully created.",
+        variant: "success"
+      });
       
       if (patientId) {
         navigate(`/patients/${patientId}`);
@@ -201,7 +290,11 @@ const PrescribeMedicationPage = () => {
       }
     } catch (error) {
       console.error("Error creating prescription:", error);
-      toast.error("Failed to create prescription", { description: "Failed to create the prescription." });
+      toast({
+        title: "Failed to create prescription",
+        description: "Failed to create the prescription.",
+        variant: "destructive"
+      });
     }
   };
   
@@ -220,7 +313,7 @@ const PrescribeMedicationPage = () => {
                   className="mb-2"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  {t('back')}
+                  {language === 'pt' ? 'Voltar' : 'Back'}
                 </Button>
                 <h1 className="text-2xl font-semibold">No Permission</h1>
               </div>
@@ -258,24 +351,23 @@ const PrescribeMedicationPage = () => {
                 className="mb-2"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                {t('back')}
+                {language === 'pt' ? 'Voltar' : 'Back'}
               </Button>
-              <h1 className="text-2xl font-semibold">{t('prescribeMedication')}</h1>
+              <h1 className="text-2xl font-semibold">{language === 'pt' ? 'Prescrever Medicamentos' : 'Prescribe Medication'}</h1>
             </div>
             
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div className="glass-card p-6">
-                  <h2 className="text-lg font-medium mb-4">Patient Information</h2>
+                  <h2 className="text-lg font-medium mb-4">{language === 'pt' ? 'Informações do Paciente' : 'Patient Information'}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label htmlFor="patientId" className="text-sm font-medium">
-                        Patient ID *
-                      </label>
-                      <input
+                      <Label htmlFor="patientId">
+                        {language === 'pt' ? 'ID do Paciente *' : 'Patient ID *'}
+                      </Label>
+                      <Input
                         id="patientId"
                         name="patientId"
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background"
                         required
                         value={prescriptionData.patientId}
                         onChange={handlePrescriptionChange}
@@ -284,13 +376,12 @@ const PrescribeMedicationPage = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="patientName" className="text-sm font-medium">
-                        Patient Name *
-                      </label>
-                      <input
+                      <Label htmlFor="patientName">
+                        {language === 'pt' ? 'Nome do Paciente *' : 'Patient Name *'}
+                      </Label>
+                      <Input
                         id="patientName"
                         name="patientName"
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background"
                         required
                         value={prescriptionData.patientName}
                         onChange={handlePrescriptionChange}
@@ -300,143 +391,189 @@ const PrescribeMedicationPage = () => {
                 </div>
                 
                 <div className="glass-card p-6">
-                  <h2 className="text-lg font-medium mb-4">Prescription Items</h2>
+                  <h2 className="text-lg font-medium mb-4">{language === 'pt' ? 'Itens da Prescrição' : 'Prescription Items'}</h2>
                   
                   <Tabs value={activeTab} onValueChange={handleTabChange}>
                     <TabsList className="mb-4">
-                      <TabsTrigger value="medication">Medication</TabsTrigger>
-                      <TabsTrigger value="procedure">Procedure</TabsTrigger>
-                      <TabsTrigger value="lab_test">Lab Test</TabsTrigger>
-                      <TabsTrigger value="imaging">Imaging</TabsTrigger>
+                      <TabsTrigger value="medication">{language === 'pt' ? 'Medicamento' : 'Medication'}</TabsTrigger>
+                      <TabsTrigger value="procedure">{language === 'pt' ? 'Procedimento' : 'Procedure'}</TabsTrigger>
+                      <TabsTrigger value="lab_test">{language === 'pt' ? 'Exame Laboratorial' : 'Lab Test'}</TabsTrigger>
+                      <TabsTrigger value="imaging">{language === 'pt' ? 'Imagem' : 'Imaging'}</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="medication">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                        <div className="space-y-2">
-                          <label htmlFor="name" className="text-sm font-medium">
-                            Medication Name *
-                          </label>
-                          <input
-                            id="name"
-                            name="name"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="medication-search">
+                            {language === 'pt' ? 'Buscar Medicamento' : 'Search Medication'}
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id="medication-search"
+                              placeholder={language === 'pt' ? 'Digite para buscar...' : 'Type to search...'}
+                              value={searchTerm}
+                              onChange={handleSearchChange}
+                              className="pr-10"
+                            />
+                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            
+                            {showSearch && searchResults.length > 0 && (
+                              <div className="absolute z-10 mt-1 w-full bg-background border rounded-md shadow-lg">
+                                <ul className="py-1 max-h-60 overflow-auto">
+                                  {searchResults.map((med) => (
+                                    <li 
+                                      key={med.id}
+                                      className="px-3 py-2 hover:bg-muted cursor-pointer"
+                                      onClick={() => selectMedication(med)}
+                                    >
+                                      <div className="font-medium">{med.name}</div>
+                                      <div className="text-xs text-muted-foreground">{med.generic}</div>
+                                      {med.rxnorm && (
+                                        <div className="text-xs text-blue-600">RxNorm: {med.rxnorm}</div>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="dosage">
+                              {language === 'pt' ? 'Dosagem *' : 'Dosage *'}
+                            </Label>
+                            <Input
+                              id="dosage"
+                              name="dosage"
+                              placeholder={language === 'pt' ? 'Ex: 500mg' : 'Ex: 500mg'}
+                              value={currentItem.dosage}
+                              onChange={handleItemChange}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <Label htmlFor="frequency">
+                              {language === 'pt' ? 'Frequência *' : 'Frequency *'}
+                            </Label>
+                            <select
+                              id="frequency"
+                              name="frequency"
+                              className="w-full h-10 px-3 rounded-md border border-border bg-background"
+                              required
+                              value={currentItem.frequency}
+                              onChange={handleItemChange}
+                            >
+                              <option value="">{language === 'pt' ? 'Selecionar Frequência' : 'Select Frequency'}</option>
+                              <option value="Once daily">{language === 'pt' ? 'Uma vez ao dia' : 'Once daily'}</option>
+                              <option value="Twice daily">{language === 'pt' ? 'Duas vezes ao dia' : 'Twice daily'}</option>
+                              <option value="Three times daily">{language === 'pt' ? 'Três vezes ao dia' : 'Three times daily'}</option>
+                              <option value="Four times daily">{language === 'pt' ? 'Quatro vezes ao dia' : 'Four times daily'}</option>
+                              <option value="Every morning">{language === 'pt' ? 'Todas as manhãs' : 'Every morning'}</option>
+                              <option value="Every evening">{language === 'pt' ? 'Todas as noites' : 'Every evening'}</option>
+                              <option value="Every 4 hours">{language === 'pt' ? 'A cada 4 horas' : 'Every 4 hours'}</option>
+                              <option value="Every 6 hours">{language === 'pt' ? 'A cada 6 horas' : 'Every 6 hours'}</option>
+                              <option value="Every 8 hours">{language === 'pt' ? 'A cada 8 horas' : 'Every 8 hours'}</option>
+                              <option value="As needed">{language === 'pt' ? 'Conforme necessário' : 'As needed'}</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="duration">
+                              {language === 'pt' ? 'Duração' : 'Duration'}
+                            </Label>
+                            <Input
+                              id="duration"
+                              name="duration"
+                              placeholder={language === 'pt' ? 'Ex: 10 dias, 2 semanas' : 'e.g., 10 days, 2 weeks'}
+                              value={currentItem.duration}
+                              onChange={handleItemChange}
+                            />
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <Label>
+                              {language === 'pt' ? 'Data de Início *' : 'Start Date *'}
+                            </Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-start text-left"
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {startDate ? format(startDate, 'PPP') : (language === 'pt' ? 'Selecionar data' : 'Select date')}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                  mode="single"
+                                  selected={startDate}
+                                  onSelect={setStartDate}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <Label>
+                              {language === 'pt' ? 'Data de Término' : 'End Date'}
+                            </Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-start text-left"
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {endDate ? format(endDate, 'PPP') : (language === 'pt' ? 'Selecionar data' : 'Select date')}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                  mode="single"
+                                  selected={endDate}
+                                  onSelect={setEndDate}
+                                  disabled={(date) => date < (startDate || new Date())}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                          <Label htmlFor="instructions">
+                            {language === 'pt' ? 'Instruções *' : 'Instructions *'}
+                          </Label>
+                          <Textarea
+                            id="instructions"
+                            name="instructions"
+                            placeholder={language === 'pt' ? 'Ex: Tomar com alimentos' : 'Ex: Take with food'}
+                            value={currentItem.instructions}
+                            onChange={handleItemChange}
                             required
-                            value={currentItem.name}
-                            onChange={handleItemChange}
                           />
                         </div>
-                        
-                        <div className="space-y-2">
-                          <label htmlFor="dosage" className="text-sm font-medium">
-                            Dosage *
-                          </label>
-                          <input
-                            id="dosage"
-                            name="dosage"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                            required
-                            value={currentItem.dosage}
-                            onChange={handleItemChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label htmlFor="frequency" className="text-sm font-medium">
-                            Frequency *
-                          </label>
-                          <select
-                            id="frequency"
-                            name="frequency"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                            required
-                            value={currentItem.frequency}
-                            onChange={handleItemChange}
-                          >
-                            <option value="">Select Frequency</option>
-                            <option value="Once daily">Once daily</option>
-                            <option value="Twice daily">Twice daily</option>
-                            <option value="Three times daily">Three times daily</option>
-                            <option value="Four times daily">Four times daily</option>
-                            <option value="Every morning">Every morning</option>
-                            <option value="Every evening">Every evening</option>
-                            <option value="Every 4 hours">Every 4 hours</option>
-                            <option value="Every 6 hours">Every 6 hours</option>
-                            <option value="Every 8 hours">Every 8 hours</option>
-                            <option value="As needed">As needed</option>
-                          </select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label htmlFor="duration" className="text-sm font-medium">
-                            Duration
-                          </label>
-                          <input
-                            id="duration"
-                            name="duration"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                            value={currentItem.duration}
-                            onChange={handleItemChange}
-                            placeholder="e.g., 10 days, 2 weeks"
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label htmlFor="startDate" className="text-sm font-medium">
-                            Start Date *
-                          </label>
-                          <input
-                            id="startDate"
-                            name="startDate"
-                            type="date"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                            required
-                            value={currentItem.startDate}
-                            onChange={handleItemChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label htmlFor="endDate" className="text-sm font-medium">
-                            End Date
-                          </label>
-                          <input
-                            id="endDate"
-                            name="endDate"
-                            type="date"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                            value={currentItem.endDate}
-                            onChange={handleItemChange}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <label htmlFor="instructions" className="text-sm font-medium">
-                          Instructions *
-                        </label>
-                        <textarea
-                          id="instructions"
-                          name="instructions"
-                          rows={3}
-                          className="w-full px-3 py-2 rounded-md border border-border bg-background"
-                          required
-                          value={currentItem.instructions}
-                          onChange={handleItemChange}
-                          placeholder="E.g., Take with food, Avoid alcohol, etc."
-                        />
                       </div>
                     </TabsContent>
                     
                     <TabsContent value="procedure">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                         <div className="space-y-2">
-                          <label htmlFor="name" className="text-sm font-medium">
-                            Procedure Name *
-                          </label>
-                          <input
+                          <Label htmlFor="name">
+                            {language === 'pt' ? 'Nome do Procedimento *' : 'Procedure Name *'}
+                          </Label>
+                          <Input
                             id="name"
                             name="name"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             required
                             value={currentItem.name}
                             onChange={handleItemChange}
@@ -444,74 +581,81 @@ const PrescribeMedicationPage = () => {
                         </div>
                         
                         <div className="space-y-2">
-                          <label htmlFor="details" className="text-sm font-medium">
-                            Details
-                          </label>
-                          <input
+                          <Label htmlFor="details">
+                            {language === 'pt' ? 'Detalhes' : 'Details'}
+                          </Label>
+                          <Input
                             id="details"
                             name="details"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             value={currentItem.details}
                             onChange={handleItemChange}
                           />
                         </div>
                         
                         <div className="space-y-2">
-                          <label htmlFor="frequency" className="text-sm font-medium">
-                            Frequency
-                          </label>
-                          <input
+                          <Label htmlFor="frequency">
+                            {language === 'pt' ? 'Frequência' : 'Frequency'}
+                          </Label>
+                          <Input
                             id="frequency"
                             name="frequency"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             value={currentItem.frequency}
                             onChange={handleItemChange}
-                            placeholder="e.g., Once weekly, Daily, etc."
+                            placeholder={language === 'pt' ? 'Ex: Uma vez por semana' : 'e.g., Once weekly'}
                           />
                         </div>
                         
                         <div className="space-y-2">
-                          <label htmlFor="duration" className="text-sm font-medium">
-                            Duration
-                          </label>
-                          <input
+                          <Label htmlFor="duration">
+                            {language === 'pt' ? 'Duração' : 'Duration'}
+                          </Label>
+                          <Input
                             id="duration"
                             name="duration"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             value={currentItem.duration}
                             onChange={handleItemChange}
-                            placeholder="e.g., 4 weeks, 2 months"
+                            placeholder={language === 'pt' ? 'Ex: 4 semanas' : 'e.g., 4 weeks'}
                           />
                         </div>
                         
-                        <div className="space-y-2">
-                          <label htmlFor="startDate" className="text-sm font-medium">
-                            Start Date
-                          </label>
-                          <input
-                            id="startDate"
-                            name="startDate"
-                            type="date"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                            value={currentItem.startDate}
-                            onChange={handleItemChange}
-                          />
+                        <div className="space-y-1.5">
+                          <Label>
+                            {language === 'pt' ? 'Data de Início' : 'Start Date'}
+                          </Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-start text-left"
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {startDate ? format(startDate, 'PPP') : (language === 'pt' ? 'Selecionar data' : 'Select date')}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={startDate}
+                                onSelect={setStartDate}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
                       
                       <div className="space-y-2 mb-4">
-                        <label htmlFor="instructions" className="text-sm font-medium">
-                          Instructions *
-                        </label>
-                        <textarea
+                        <Label htmlFor="instructions">
+                          {language === 'pt' ? 'Instruções *' : 'Instructions *'}
+                        </Label>
+                        <Textarea
                           id="instructions"
                           name="instructions"
                           rows={3}
-                          className="w-full px-3 py-2 rounded-md border border-border bg-background"
                           required
                           value={currentItem.instructions}
                           onChange={handleItemChange}
-                          placeholder="Special instructions for the procedure"
+                          placeholder={language === 'pt' ? 'Instruções especiais para o procedimento' : 'Special instructions for the procedure'}
                         />
                       </div>
                     </TabsContent>
@@ -519,13 +663,12 @@ const PrescribeMedicationPage = () => {
                     <TabsContent value="lab_test">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                         <div className="space-y-2">
-                          <label htmlFor="name" className="text-sm font-medium">
-                            Lab Test Name *
-                          </label>
-                          <input
+                          <Label htmlFor="name">
+                            {language === 'pt' ? 'Nome do Exame *' : 'Lab Test Name *'}
+                          </Label>
+                          <Input
                             id="name"
                             name="name"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             required
                             value={currentItem.name}
                             onChange={handleItemChange}
@@ -533,32 +676,30 @@ const PrescribeMedicationPage = () => {
                         </div>
                         
                         <div className="space-y-2">
-                          <label htmlFor="details" className="text-sm font-medium">
-                            Details
-                          </label>
-                          <input
+                          <Label htmlFor="details">
+                            {language === 'pt' ? 'Detalhes' : 'Details'}
+                          </Label>
+                          <Input
                             id="details"
                             name="details"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             value={currentItem.details}
                             onChange={handleItemChange}
-                            placeholder="Any specific details for this test"
+                            placeholder={language === 'pt' ? 'Detalhes específicos para este exame' : 'Any specific details for this test'}
                           />
                         </div>
                       </div>
                       
                       <div className="space-y-2 mb-4">
-                        <label htmlFor="instructions" className="text-sm font-medium">
-                          Instructions
-                        </label>
-                        <textarea
+                        <Label htmlFor="instructions">
+                          {language === 'pt' ? 'Instruções' : 'Instructions'}
+                        </Label>
+                        <Textarea
                           id="instructions"
                           name="instructions"
                           rows={3}
-                          className="w-full px-3 py-2 rounded-md border border-border bg-background"
                           value={currentItem.instructions}
                           onChange={handleItemChange}
-                          placeholder="E.g., Fasting required, No water for 12 hours, etc."
+                          placeholder={language === 'pt' ? 'Ex: Jejum necessário' : 'E.g., Fasting required'}
                         />
                       </div>
                     </TabsContent>
@@ -566,13 +707,12 @@ const PrescribeMedicationPage = () => {
                     <TabsContent value="imaging">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                         <div className="space-y-2">
-                          <label htmlFor="name" className="text-sm font-medium">
-                            Imaging Study Name *
-                          </label>
-                          <input
+                          <Label htmlFor="name">
+                            {language === 'pt' ? 'Nome do Exame de Imagem *' : 'Imaging Study Name *'}
+                          </Label>
+                          <Input
                             id="name"
                             name="name"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             required
                             value={currentItem.name}
                             onChange={handleItemChange}
@@ -580,32 +720,30 @@ const PrescribeMedicationPage = () => {
                         </div>
                         
                         <div className="space-y-2">
-                          <label htmlFor="details" className="text-sm font-medium">
-                            Details
-                          </label>
-                          <input
+                          <Label htmlFor="details">
+                            {language === 'pt' ? 'Detalhes' : 'Details'}
+                          </Label>
+                          <Input
                             id="details"
                             name="details"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background"
                             value={currentItem.details}
                             onChange={handleItemChange}
-                            placeholder="E.g., With contrast, Specific views, etc."
+                            placeholder={language === 'pt' ? 'Ex: Com contraste' : 'E.g., With contrast'}
                           />
                         </div>
                       </div>
                       
                       <div className="space-y-2 mb-4">
-                        <label htmlFor="instructions" className="text-sm font-medium">
-                          Instructions
-                        </label>
-                        <textarea
+                        <Label htmlFor="instructions">
+                          {language === 'pt' ? 'Instruções' : 'Instructions'}
+                        </Label>
+                        <Textarea
                           id="instructions"
                           name="instructions"
                           rows={3}
-                          className="w-full px-3 py-2 rounded-md border border-border bg-background"
                           value={currentItem.instructions}
                           onChange={handleItemChange}
-                          placeholder="Special instructions for the imaging study"
+                          placeholder={language === 'pt' ? 'Instruções especiais para o exame' : 'Special instructions for the imaging study'}
                         />
                       </div>
                     </TabsContent>
@@ -617,36 +755,46 @@ const PrescribeMedicationPage = () => {
                         className="flex items-center"
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        {currentItem.index !== undefined ? 'Update Item' : 'Add Item'}
+                        {currentItem.index !== undefined ? 
+                         (language === 'pt' ? 'Atualizar Item' : 'Update Item') : 
+                         (language === 'pt' ? 'Adicionar Item' : 'Add Item')}
                       </Button>
                     </div>
                   </Tabs>
                   
                   {prescriptionData.items.length > 0 && (
                     <div className="mt-6">
-                      <h3 className="font-medium mb-3">Added Items</h3>
+                      <h3 className="font-medium mb-3">{language === 'pt' ? 'Itens Adicionados' : 'Added Items'}</h3>
                       <div className="space-y-3">
                         {prescriptionData.items.map((item, index) => (
                           <div key={item.id} className="flex items-center justify-between p-3 border border-border rounded-md bg-background">
                             <div>
                               <div className="font-medium">{item.name}</div>
-                              <div className="text-sm text-muted-foreground capitalize">{item.type}</div>
+                              <div className="text-sm text-muted-foreground capitalize">{
+                                item.type === 'medication' ? (language === 'pt' ? 'Medicamento' : 'Medication') :
+                                item.type === 'procedure' ? (language === 'pt' ? 'Procedimento' : 'Procedure') :
+                                item.type === 'lab_test' ? (language === 'pt' ? 'Exame Laboratorial' : 'Lab Test') :
+                                (language === 'pt' ? 'Imagem' : 'Imaging')
+                              }</div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <button
+                              <Button
                                 type="button"
-                                className="p-1 hover:bg-accent rounded-md"
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => handleEditItem(index)}
                               >
                                 <Pill className="h-4 w-4" />
-                              </button>
-                              <button
+                              </Button>
+                              <Button
                                 type="button"
-                                className="p-1 hover:bg-accent rounded-md text-destructive"
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive"
                                 onClick={() => handleRemoveItem(index)}
                               >
                                 <Trash2 className="h-4 w-4" />
-                              </button>
+                              </Button>
                             </div>
                           </div>
                         ))}
@@ -656,40 +804,41 @@ const PrescribeMedicationPage = () => {
                 </div>
                 
                 <div className="glass-card p-6">
-                  <h2 className="text-lg font-medium mb-4">Additional Notes</h2>
+                  <h2 className="text-lg font-medium mb-4">{language === 'pt' ? 'Notas Adicionais' : 'Additional Notes'}</h2>
                   <div className="space-y-2">
-                    <label htmlFor="notes" className="text-sm font-medium">
-                      Notes
-                    </label>
-                    <textarea
+                    <Label htmlFor="notes">
+                      {language === 'pt' ? 'Notas' : 'Notes'}
+                    </Label>
+                    <Textarea
                       id="notes"
                       name="notes"
                       rows={3}
-                      className="w-full px-3 py-2 rounded-md border border-border bg-background"
                       value={prescriptionData.notes}
                       onChange={handlePrescriptionChange}
-                      placeholder="Any additional notes or comments"
+                      placeholder={language === 'pt' ? 'Quaisquer notas ou comentários adicionais' : 'Any additional notes or comments'}
                     />
                   </div>
                 </div>
                 
-                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6 dark:bg-yellow-900/20 dark:border-yellow-700/30">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                    <h4 className="font-medium text-yellow-700">Important Notice</h4>
+                    <h4 className="font-medium text-yellow-700 dark:text-yellow-400">{language === 'pt' ? 'Aviso Importante' : 'Important Notice'}</h4>
                   </div>
-                  <p className="text-sm text-yellow-600">
-                    Please verify all prescription details before saving. Check for potential drug interactions and allergies.
+                  <p className="text-sm text-yellow-600 dark:text-yellow-300">
+                    {language === 'pt' 
+                      ? 'Verifique todos os detalhes da prescrição antes de salvar. Verifique possíveis interações medicamentosas e alergias.'
+                      : 'Please verify all prescription details before saving. Check for potential drug interactions and allergies.'}
                   </p>
                 </div>
                 
                 <div className="flex justify-end gap-3">
                   <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-                    {t('cancel')}
+                    {language === 'pt' ? 'Cancelar' : 'Cancel'}
                   </Button>
                   <Button type="submit">
                     <Save className="mr-2 h-4 w-4" />
-                    Save Prescription
+                    {language === 'pt' ? 'Salvar Prescrição' : 'Save Prescription'}
                   </Button>
                 </div>
               </div>
