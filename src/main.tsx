@@ -1,9 +1,21 @@
 
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LanguageProvider } from './context/LanguageContext';
 import App from './App.tsx'
 import './index.css'
+
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // Get the root element and create a root
 const rootElement = document.getElementById("root");
@@ -18,9 +30,11 @@ const root = createRoot(rootElement);
 try {
   root.render(
     <React.StrictMode>
-      <LanguageProvider>
-        <App />
-      </LanguageProvider>
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </QueryClientProvider>
     </React.StrictMode>
   );
 } catch (error) {

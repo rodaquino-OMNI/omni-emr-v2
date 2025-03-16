@@ -10,7 +10,7 @@ export type ToastProps = ExternalToast & {
   icon?: ReactNode;
   id?: string;
   className?: string;
-  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
+  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info' | 'error';
   title?: string;
 };
 
