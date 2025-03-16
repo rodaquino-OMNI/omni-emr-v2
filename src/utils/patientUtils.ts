@@ -65,3 +65,27 @@ export const calculatePatientAge = (dateOfBirth: string): number => {
     return 0;
   }
 };
+
+/**
+ * Map a string to a valid PatientStatus, with fallback to 'stable'
+ * @param status String representation of patient status
+ * @returns Valid PatientStatus enum value
+ */
+export const mapToPatientStatus = (status: string): PatientStatus => {
+  // Map the string representation to a valid PatientStatus
+  switch (status.toLowerCase()) {
+    case 'hospital':
+      return 'hospital';
+    case 'home':
+      return 'home';
+    case 'discharged':
+      return 'discharged';
+    case 'critical':
+      return 'critical';
+    case 'improving':
+      return 'improving';
+    case 'stable':
+    default:
+      return 'stable';
+  }
+};

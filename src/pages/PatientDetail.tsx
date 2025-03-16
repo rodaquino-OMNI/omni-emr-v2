@@ -12,7 +12,9 @@ import PatientOverviewTab from '@/components/patients/tabs/PatientOverviewTab';
 import PatientRecordsTab from '@/components/patients/tabs/PatientRecordsTab';
 import PatientPrescriptionsTab from '@/components/patients/tabs/PatientPrescriptionsTab';
 import PatientAIInsightsTab from '@/components/patients/tabs/PatientAIInsightsTab';
-import { Patient, mapToPatientStatus } from '@/types/patientTypes';
+import { Patient, PatientStatus } from '@/types/patientTypes';
+import { mapToPatientStatus } from '@/utils/patientUtils';
+import { calculatePatientAge } from '@/utils/patientUtils';
 
 // Mock data for now (would come from API)
 const mockPatients = [
@@ -23,7 +25,7 @@ const mockPatients = [
     date_of_birth: '1980-01-01',
     gender: 'Male',
     mrn: '123456',
-    status: 'hospital',
+    status: 'hospital' as PatientStatus,
     is_assigned: true,
     room_number: '101',
     age: 43,
@@ -37,7 +39,7 @@ const mockPatients = [
     date_of_birth: '1990-05-15',
     gender: 'Female',
     mrn: '789012',
-    status: 'home',
+    status: 'home' as PatientStatus,
     is_assigned: true,
     room_number: '202',
     age: 33,
@@ -51,7 +53,7 @@ const mockPatients = [
     date_of_birth: '1975-11-20',
     gender: 'Male',
     mrn: '345678',
-    status: 'discharged',
+    status: 'discharged' as PatientStatus,
     is_assigned: false,
     room_number: null,
     age: 47,
@@ -80,7 +82,8 @@ const PatientDetail = () => {
       if (connError || !connected) {
         console.error('Database connection error:', connError);
         // Return mock data as fallback
-        return mockPatients.find(p => p.id === patientId) || null;
+        const mockPatient = mockPatients.find(p => p.id === patientId);
+        return mockPatient || null;
       }
       
       // Try to get from the new patient_status_view first
@@ -121,14 +124,7 @@ const PatientDetail = () => {
         console.error('Error fetching patient:', error);
         // Return mock data as fallback
         const mockPatient = mockPatients.find(p => p.id === patientId);
-        if (mockPatient) {
-          // Ensure mock patient data has the correct status type
-          return {
-            ...mockPatient,
-            status: mapToPatientStatus(mockPatient.status)
-          };
-        }
-        return null;
+        return mockPatient || null;
       }
       
       // Convert to Patient type
