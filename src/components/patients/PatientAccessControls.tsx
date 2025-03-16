@@ -1,341 +1,183 @@
+
 import React, { useState } from 'react';
-import { Shield, Lock, User, CheckCircle, XCircle } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import { supabase, logAuditEvent, encryptData } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Eye, EyeOff, Shield, UserPlus, UserMinus, AlertTriangle } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 interface PatientAccessControlsProps {
   patientId: string;
-  patientName: string;
+  hasAccess: boolean;
+  isBreakGlass?: boolean;
+  canManageAccess?: boolean;
 }
 
-interface AccessDelegate {
-  id: string;
-  name: string;
-  email: string;
-  relationship: string;
-  accessLevel: 'full' | 'limited' | 'emergency';
-}
-
-const PatientAccessControls: React.FC<PatientAccessControlsProps> = ({ patientId, patientName }) => {
+const PatientAccessControls: React.FC<PatientAccessControlsProps> = ({
+  patientId,
+  hasAccess,
+  isBreakGlass = false,
+  canManageAccess = false
+}) => {
+  const { language } = useTranslation();
   const { user } = useAuth();
+  const [accessStatus, setAccessStatus] = useState(hasAccess);
+  const [breakGlassStatus, setBreakGlassStatus] = useState(isBreakGlass);
   const [loading, setLoading] = useState(false);
-  const [delegates, setDelegates] = useState<AccessDelegate[]>([
-    // Mock data for demonstration
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@example.com',
-      relationship: 'Spouse',
-      accessLevel: 'full'
-    },
-    {
-      id: '2',
-      name: 'Michael Johnson',
-      email: 'michael.johnson@example.com',
-      relationship: 'Son',
-      accessLevel: 'limited'
-    }
-  ]);
-  const [showAddDelegate, setShowAddDelegate] = useState(false);
-  const [newDelegate, setNewDelegate] = useState({
-    name: '',
-    email: '',
-    relationship: '',
-    accessLevel: 'limited' as 'full' | 'limited' | 'emergency'
-  });
-  
-  const handleAddDelegate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+
+  const handleToggleAccess = async () => {
     setLoading(true);
-    
     try {
-      // In a real application, this would create a record in the database
-      // and send an invitation email with secure verification
+      // This would be an API call in a real application
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo purposes, just add to the local state
-      const newDelegateEntry: AccessDelegate = {
-        id: crypto.randomUUID(),
-        ...newDelegate
-      };
+      setAccessStatus(!accessStatus);
       
-      setDelegates([...delegates, newDelegateEntry]);
-      
-      // Reset form
-      setNewDelegate({
-        name: '',
-        email: '',
-        relationship: '',
-        accessLevel: 'limited'
-      });
-      
-      setShowAddDelegate(false);
-      
-      // Log this action for audit trail
-      if (user) {
-        // Encrypt sensitive data
-        const encryptedDetails = encryptData(JSON.stringify({
-          delegate_name: newDelegate.name,
-          delegate_email: newDelegate.email,
-          relationship: newDelegate.relationship,
-          access_level: newDelegate.accessLevel
-        }));
-        
-        await logAuditEvent(
-          user.id,
-          'create',
-          'access_delegation',
-          patientId,
-          { encrypted_details: encryptedDetails }
-        );
+      if (accessStatus) {
+        toast.info(language === 'pt' ? 'Acesso removido' : 'Access removed');
+      } else {
+        toast.success(language === 'pt' ? 'Acesso concedido' : 'Access granted');
       }
-      
-      toast.success("Access delegate added", {
-        description: `Access for ${newDelegate.name} has been granted successfully.`
-      });
     } catch (error) {
-      console.error('Error adding delegate:', error);
-      toast.error("Failed to add delegate", {
-        description: "An error occurred while adding the access delegate."
-      });
+      toast.error(language === 'pt' ? 'Erro ao alterar acesso' : 'Error changing access');
+      console.error('Error toggling access:', error);
     } finally {
       setLoading(false);
     }
   };
-  
-  const removeDelegate = async (delegateId: string) => {
+
+  const handleBreakGlassAccess = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
+      // This would be an API call in a real application
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // In a real application, this would remove the record from the database
-      // For demo purposes, just remove from local state
-      const delegateToRemove = delegates.find(d => d.id === delegateId);
-      setDelegates(delegates.filter(d => d.id !== delegateId));
+      setBreakGlassStatus(true);
+      setAccessStatus(true);
       
-      // Log this action for audit trail
-      if (user && delegateToRemove) {
-        // Encrypt sensitive data
-        const encryptedDetails = encryptData(JSON.stringify({
-          delegate_name: delegateToRemove.name,
-          delegate_email: delegateToRemove.email
-        }));
-        
-        await logAuditEvent(
-          user.id,
-          'delete',
-          'access_delegation',
-          patientId,
-          { encrypted_details: encryptedDetails }
-        );
-      }
-      
-      toast.success("Access delegate removed", {
-        description: "Access has been revoked successfully."
-      });
+      toast.success(language === 'pt' ? 'Acesso de emergência concedido' : 'Emergency access granted');
     } catch (error) {
-      console.error('Error removing delegate:', error);
-      toast.error("Failed to remove delegate", {
-        description: "An error occurred while removing the access delegate."
-      });
+      toast.error(language === 'pt' ? 'Erro ao conceder acesso de emergência' : 'Error granting emergency access');
+      console.error('Error with break glass access:', error);
     } finally {
       setLoading(false);
     }
   };
-  
+
+  const handleRevokeBreakGlass = async () => {
+    setLoading(true);
+    try {
+      // This would be an API call in a real application
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setBreakGlassStatus(false);
+      
+      toast.info(language === 'pt' ? 'Acesso de emergência revogado' : 'Emergency access revoked');
+    } catch (error) {
+      toast.error(language === 'pt' ? 'Erro ao revogar acesso de emergência' : 'Error revoking emergency access');
+      console.error('Error revoking break glass access:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-medium">Patient Access Controls</h2>
-          <p className="text-muted-foreground">
-            Manage who can access this patient's medical information.
-          </p>
-        </div>
-        
-        <div className="flex gap-2">
-          <button
-            className="h-10 bg-primary text-white rounded-md px-4 text-sm font-medium"
-            onClick={() => setShowAddDelegate(!showAddDelegate)}
-          >
-            {showAddDelegate ? 'Cancel' : 'Add Delegate'}
-          </button>
-        </div>
-      </div>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-medium flex items-center gap-2">
+          <Shield className="h-5 w-5 text-primary" />
+          {language === 'pt' ? 'Controles de Acesso' : 'Access Controls'}
+        </CardTitle>
+        <CardDescription>
+          {language === 'pt' 
+            ? 'Gerencie o acesso a este registro do paciente' 
+            : 'Manage access to this patient record'}
+        </CardDescription>
+      </CardHeader>
       
-      {/* HIPAA compliance notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-        <div className="flex items-center mb-2">
-          <Shield className="h-5 w-5 mr-2 text-blue-500" />
-          <h3 className="font-medium text-blue-800">HIPAA Compliant Access Controls</h3>
-        </div>
-        <p className="text-sm text-blue-700">
-          Access delegations are securely managed in compliance with HIPAA regulations.
-          All access grants and revocations are recorded in the security audit log.
-        </p>
-      </div>
-      
-      {/* Form to add new delegate */}
-      {showAddDelegate && (
-        <div className="border rounded-md p-4 bg-muted/10">
-          <h3 className="font-medium mb-4">Add New Access Delegate</h3>
-          
-          <form onSubmit={handleAddDelegate}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label htmlFor="delegateName" className="text-sm font-medium">
-                  Name
-                </label>
-                <input
-                  id="delegateName"
-                  className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                  value={newDelegate.name}
-                  onChange={(e) => setNewDelegate({...newDelegate, name: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="delegateEmail" className="text-sm font-medium">
-                  Email
-                </label>
-                <input
-                  id="delegateEmail"
-                  type="email"
-                  className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                  value={newDelegate.email}
-                  onChange={(e) => setNewDelegate({...newDelegate, email: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="relationship" className="text-sm font-medium">
-                  Relationship to Patient
-                </label>
-                <input
-                  id="relationship"
-                  className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                  value={newDelegate.relationship}
-                  onChange={(e) => setNewDelegate({...newDelegate, relationship: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="accessLevel" className="text-sm font-medium">
-                  Access Level
-                </label>
-                <select
-                  id="accessLevel"
-                  className="w-full h-10 px-3 rounded-md border border-border bg-background"
-                  value={newDelegate.accessLevel}
-                  onChange={(e) => setNewDelegate({
-                    ...newDelegate, 
-                    accessLevel: e.target.value as 'full' | 'limited' | 'emergency'
-                  })}
-                  required
-                >
-                  <option value="full">Full Access</option>
-                  <option value="limited">Limited Access</option>
-                  <option value="emergency">Emergency Only</option>
-                </select>
-              </div>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">
+                {language === 'pt' ? 'Status de Acesso' : 'Access Status'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {language === 'pt' 
+                  ? 'Seu acesso atual a este registro' 
+                  : 'Your current access to this record'}
+              </p>
             </div>
             
-            <div className="mt-4 flex justify-end">
-              <button
-                type="submit"
-                className="h-10 bg-primary text-white rounded-md px-4 text-sm font-medium"
-                disabled={loading}
-              >
-                Add Access
-                {loading && <span className="ml-2 animate-spin">↻</span>}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      
-      {/* List of current delegates */}
-      <div className="border rounded-md overflow-hidden">
-        <div className="bg-muted px-4 py-3 border-b">
-          <h3 className="font-medium">Current Access Delegates</h3>
-        </div>
-        
-        <div className="divide-y">
-          {delegates.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">
-              No access delegates have been added yet.
-            </div>
-          ) : (
-            delegates.map((delegate) => (
-              <div key={delegate.id} className="p-4 flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <User className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="font-medium">{delegate.name}</p>
-                    <p className="text-sm text-muted-foreground">{delegate.email}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {delegate.relationship} • 
-                      {delegate.accessLevel === 'full' && ' Full Access'}
-                      {delegate.accessLevel === 'limited' && ' Limited Access'}
-                      {delegate.accessLevel === 'emergency' && ' Emergency Only'}
-                    </p>
-                  </div>
-                </div>
-                
-                <button
-                  className="h-8 px-3 rounded-md border border-destructive/20 text-destructive text-sm hover:bg-destructive/10"
-                  onClick={() => removeDelegate(delegate.id)}
-                  disabled={loading}
-                >
-                  Revoke
-                </button>
+            <Badge 
+              variant={accessStatus ? "outline" : "destructive"} 
+              className={accessStatus 
+                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400"
+                : ""}
+            >
+              {accessStatus 
+                ? (language === 'pt' ? 'Acesso Concedido' : 'Access Granted') 
+                : (language === 'pt' ? 'Sem Acesso' : 'No Access')}
+            </Badge>
+          </div>
+          
+          {breakGlassStatus && (
+            <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md dark:bg-amber-950/20 dark:border-amber-800/30">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <div className="text-sm text-amber-800 dark:text-amber-300">
+                {language === 'pt' 
+                  ? 'Acesso de emergência ativo. Isso será registrado para fins de auditoria.' 
+                  : 'Emergency access active. This will be logged for audit purposes.'}
               </div>
-            ))
+            </div>
           )}
         </div>
-      </div>
+      </CardContent>
       
-      {/* Access levels explanation */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="border rounded-md p-4 bg-muted/10">
-          <div className="flex items-center mb-2">
-            <Lock className="h-5 w-5 mr-2 text-primary" />
-            <h3 className="font-medium">Full Access</h3>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Can view all medical information, history, prescriptions, and appointments.
-            Ideal for close family members or primary caregivers.
-          </p>
-        </div>
+      <CardFooter className="border-t pt-4 flex flex-wrap gap-2">
+        {canManageAccess && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleToggleAccess}
+            disabled={loading}
+            className="flex items-center gap-1"
+          >
+            {accessStatus 
+              ? <><UserMinus className="h-4 w-4" /> {language === 'pt' ? 'Remover Acesso' : 'Remove Access'}</>
+              : <><UserPlus className="h-4 w-4" /> {language === 'pt' ? 'Conceder Acesso' : 'Grant Access'}</>}
+          </Button>
+        )}
         
-        <div className="border rounded-md p-4 bg-muted/10">
-          <div className="flex items-center mb-2">
-            <Lock className="h-5 w-5 mr-2 text-amber-500" />
-            <h3 className="font-medium">Limited Access</h3>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Can view basic medical information and appointments, but not detailed
-            medical history or sensitive information.
-          </p>
-        </div>
+        {!accessStatus && (
+          <Button
+            variant="secondary" 
+            size="sm"
+            onClick={handleBreakGlassAccess}
+            disabled={loading}
+            className="flex items-center gap-1"
+          >
+            <Eye className="h-4 w-4" />
+            {language === 'pt' ? 'Acesso de Emergência' : 'Emergency Access'}
+          </Button>
+        )}
         
-        <div className="border rounded-md p-4 bg-muted/10">
-          <div className="flex items-center mb-2">
-            <Lock className="h-5 w-5 mr-2 text-red-500" />
-            <h3 className="font-medium">Emergency Only</h3>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Can only access critical information in emergency situations.
-            Access is time-limited and fully audited.
-          </p>
-        </div>
-      </div>
-    </div>
+        {breakGlassStatus && (
+          <Button
+            variant="outline" 
+            size="sm"
+            onClick={handleRevokeBreakGlass}
+            disabled={loading}
+            className="flex items-center gap-1 border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400"
+          >
+            <EyeOff className="h-4 w-4" />
+            {language === 'pt' ? 'Revogar Acesso de Emergência' : 'Revoke Emergency Access'}
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
   );
 };
 
