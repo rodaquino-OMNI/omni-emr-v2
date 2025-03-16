@@ -11,30 +11,49 @@ interface SidebarItemProps {
   badge?: number;
 }
 
+// Helper function to determine if an item is active based on the current path
+const isItemActive = (itemPath: string, currentPath: string): boolean => {
+  return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
+};
+
+// Helper function to get the appropriate CSS classes for the item
+const getItemClasses = (isActive: boolean): string => {
+  return cn(
+    "flex items-center gap-3 rounded-md px-3 py-2 transition-colors",
+    isActive 
+      ? "bg-primary/10 text-primary" 
+      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+  );
+};
+
+// Helper function to render the badge if it exists
+const renderBadge = (badge?: number): React.ReactNode => {
+  if (!badge) return null;
+  
+  return (
+    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+      {badge}
+    </span>
+  );
+};
+
 const SidebarItem = ({ item, onClick, badge }: SidebarItemProps) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const Icon = item.icon;
-  const isActive = pathname === item.path || pathname.startsWith(`${item.path}/`);
+  
+  const active = isItemActive(item.path, pathname);
+  const itemClasses = getItemClasses(active);
 
   return (
     <Link 
       to={item.path}
-      className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 transition-colors",
-        isActive 
-          ? "bg-primary/10 text-primary" 
-          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-      )}
+      className={itemClasses}
       onClick={onClick}
     >
       <Icon className="h-5 w-5" />
       <span>{t(item.translationKey as any)}</span>
-      {badge ? (
-        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-          {badge}
-        </span>
-      ) : null}
+      {renderBadge(badge)}
     </Link>
   );
 };
