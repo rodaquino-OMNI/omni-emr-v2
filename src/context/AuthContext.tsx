@@ -12,8 +12,11 @@ const AuthContext = createContext<AuthContextType>({
   setIsAuthenticated: () => {},
   isLoading: true,
   setIsLoading: () => {},
+  language: 'en',
+  setLanguage: () => {},
   login: async (email: string, password: string) => ({ success: false }),
   logout: async () => {},
+  loginWithSocial: async () => ({ success: false }),
   signUp: async () => ({ success: false }),
   resetPassword: async (email: string): Promise<{ success: boolean; error?: any }> => {
     try {
@@ -28,17 +31,11 @@ const AuthContext = createContext<AuthContextType>({
     }
   },
   updateUser: async () => {},
-  sendPasswordResetEmail: async () => {},
-  verifyEmail: async () => {},
-  refreshSession: async () => {},
   checkAuthStatus: async () => false,
-  isMFAEnabled: false,
-  setIsMFAEnabled: () => {},
-  verifyMFA: async () => false,
-  setupMFA: async () => '',
-  disableMFA: async () => {},
+  hasPermission: () => false,
+  canAccessPatientData: () => false,
+  session: null,
   lastActivity: new Date(),
-  updateLastActivity: () => {},
   sessionTimeoutMinutes: 30,
   setSessionTimeoutMinutes: () => {},
 });
