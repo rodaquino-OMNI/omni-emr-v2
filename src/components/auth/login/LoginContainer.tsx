@@ -1,304 +1,198 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Provider } from '@supabase/supabase-js';
 
-// Import hooks first to avoid declaration order issues
-import { useLoginForm } from '@/hooks/useLoginForm';
+// Import hooks
 import { useEmailLogin } from '@/hooks/login/useEmailLogin';
 import { usePhoneLogin } from '@/hooks/login/usePhoneLogin';
+import { useSocialLogin } from '@/hooks/login/useSocialLogin';
+import { useLoginValidation } from '@/hooks/login/useLoginValidation';
 
 // Import components
-import LoginHeader from './LoginHeader';
-import LoginCard from './LoginCard';
-import LanguageToggle from '../LanguageToggle';
+import LoginHeader, { LoginView } from './LoginHeader';
 import EmailLoginForm from '../EmailLoginForm';
 import PhoneLoginForm from '../PhoneLoginForm';
 import SocialLoginButtons from '../SocialLoginButtons';
 
-// Supabase connection status
-import SupabaseConnectionStatus from '@/components/ui/SupabaseConnectionStatus';
-import TranslatedText from '@/components/common/TranslatedText';
-
 interface LoginContainerProps {
-  isSupabaseConnected: boolean;
+  isSupabaseConnected?: boolean;
 }
 
-const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) => {
-  const { t, language, setLanguage } = useTranslation();
-  const navigate = useNavigate();
+const LoginContainer = ({ isSupabaseConnected = true }: LoginContainerProps) => {
+  const { t, language } = useTranslation();
+  const [activeView, setActiveView] = useState<LoginView>('email');
   
-  // Get login hooks
-  const { handleSocialLogin, isSubmittingSocial } = useLoginForm();
+  // Form validation errors
   const { 
-    email, 
-    setEmail, 
-    password, 
-    setPassword, 
+    validationErrors, 
+    setValidationErrors,
+    validateEmailPassword,
+    validatePhone 
+  } = useLoginValidation(language);
+  
+  // Email login
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
     forgotPassword,
     toggleForgotPassword,
     handleEmailSubmit,
-    isSubmitting: isSubmittingEmail,
-    pendingApproval
+    isSubmitting: isEmailSubmitting,
+    pendingApproval,
+    error: emailError,
+    clearError: clearEmailError
   } = useEmailLogin(language);
   
+  // Phone login
   const {
     phone,
     setPhone,
     verificationCode,
     setVerificationCode,
-    isSubmitting: isSubmittingPhone,
+    isSubmitting: isPhoneSubmitting,
     verificationSent,
+    usePhoneLogin: showPhoneLogin,
     togglePhoneLogin,
     resetPhoneForm,
     handlePhoneSubmit,
-    handleVerifySubmit
+    handleVerifySubmit,
+    error: phoneError
   } = usePhoneLogin(language);
   
-  // Login method tab state
-  const [activeLoginMethod, setActiveLoginMethod] = useState<'email' | 'phone'>('email');
+  // Social login
+  const {
+    handleSocialLogin,
+    isSubmitting: isSocialSubmitting,
+    socialError
+  } = useSocialLogin(language);
   
-  // Form validation errors
-  const [validationErrors, setValidationErrors] = useState({
-    email: '',
-    password: '',
-    phone: '',
-    code: ''
-  });
+  // Prepare login error message
+  const loginError = emailError || phoneError || socialError;
   
-  // Clear error helper function
-  const handleClearError = (field: string) => {
-    setValidationErrors(prev => ({
-      ...prev,
-      [field]: ''
-    }));
+  // Handle form submission for email login
+  const handleEmailFormSubmit = (e: React.FormEvent) => {
+    handleEmailSubmit(e, () => validateEmailPassword(email, password, forgotPassword));
   };
   
-  // Validate form
-  const validateEmailForm = () => {
-    let isValid = true;
-    const errors = { ...validationErrors };
-    
-    if (!email) {
-      errors.email = language === 'pt' ? 'Email é obrigatório' : 'Email is required';
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = language === 'pt' ? 'Email inválido' : 'Invalid email format';
-      isValid = false;
-    }
-    
-    if (!forgotPassword && !password) {
-      errors.password = language === 'pt' ? 'Senha é obrigatória' : 'Password is required';
-      isValid = false;
-    }
-    
-    setValidationErrors(errors);
-    return isValid;
+  // Handle form submission for phone login
+  const handlePhoneFormSubmit = (e: React.FormEvent) => {
+    handlePhoneSubmit(e, () => validatePhone(phone, verificationSent, verificationCode));
   };
   
-  const validatePhoneForm = () => {
-    let isValid = true;
-    const errors = { ...validationErrors };
-    
-    if (!verificationSent) {
-      // Validating phone number
-      if (!phone) {
-        errors.phone = language === 'pt' ? 'Número de telefone é obrigatório' : 'Phone number is required';
-        isValid = false;
-      } else if (!/^\+[1-9]\d{1,14}$/.test(phone)) {
-        errors.phone = language === 'pt' 
-          ? 'Formato inválido. Use o formato internacional: +1234567890' 
-          : 'Invalid format. Use international format: +1234567890';
-        isValid = false;
-      }
-    } else {
-      // Validating verification code
-      if (!verificationCode) {
-        errors.code = language === 'pt' ? 'Código de verificação é obrigatório' : 'Verification code is required';
-        isValid = false;
-      } else if (!/^\d{6}$/.test(verificationCode)) {
-        errors.code = language === 'pt' ? 'Código deve ter 6 dígitos' : 'Code must be 6 digits';
-        isValid = false;
-      }
-    }
-    
-    setValidationErrors(errors);
-    return isValid;
+  // Handle form submission for phone verification
+  const handleVerifyFormSubmit = (e: React.FormEvent) => {
+    handleVerifySubmit(e, () => validatePhone(phone, verificationSent, verificationCode));
   };
   
-  // Handle login method switching
-  const handleLoginMethodChange = (method: 'email' | 'phone') => {
-    setActiveLoginMethod(method);
-    setValidationErrors({
-      email: '',
-      password: '',
-      phone: '',
-      code: ''
-    });
-  };
-  
-  // Wrapper for email submit that returns Promise to match expected type
-  const handleEmailFormSubmit = async (e: React.FormEvent) => {
-    return handleEmailSubmit(e, validateEmailForm);
-  };
-  
-  // Wrapper for phone submit that returns Promise to match expected type
-  const handlePhoneFormSubmit = async (e: React.FormEvent) => {
-    return handlePhoneSubmit(e, validatePhoneForm);
-  };
-  
-  // Wrapper for verification submit that returns Promise to match expected type
-  const handleVerificationSubmit = async (e: React.FormEvent) => {
-    return handleVerifySubmit(e, validatePhoneForm);
-  };
+  // Reset validation errors when tab changes
+  useEffect(() => {
+    setValidationErrors({});
+  }, [activeView, setValidationErrors]);
   
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-gradient-to-b from-background to-background/80">
-      <div className="w-full max-w-md">
-        <LoginCard 
-          t={t} 
-          language={language} 
-          isSupabaseConnected={isSupabaseConnected}
-        >
-          <div className="mb-8">
-            <LoginHeader 
-              t={t} 
-              language={language}
-              activeView={activeLoginMethod}
-              setActiveView={setActiveLoginMethod}
-            />
-            
-            {!isSupabaseConnected && (
-              <div className="mt-4 p-4 bg-destructive/10 rounded-lg">
-                <TranslatedText 
-                  textKey="databaseConnectionError" 
-                  fallback="Database connection error. Please try again later."
-                  className="text-sm text-destructive"
-                />
-              </div>
-            )}
-          </div>
+    <div className="container mx-auto flex items-center justify-center min-h-screen p-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-6">
+          <LoginHeader 
+            t={t} 
+            language={language}
+            activeView={activeView}
+            setActiveView={setActiveView}
+          />
           
-          <div className="space-y-6">
-            {/* Login method tabs */}
-            <div className="flex border-b">
-              <button
-                className={`py-2 px-4 ${activeLoginMethod === 'email' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
-                onClick={() => handleLoginMethodChange('email')}
-              >
-                {t('emailLogin')}
-              </button>
-              <button
-                className={`py-2 px-4 ${activeLoginMethod === 'phone' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
-                onClick={() => handleLoginMethodChange('phone')}
-              >
-                {t('phoneLogin')}
-              </button>
-            </div>
-            
-            {/* Login forms */}
-            {activeLoginMethod === 'email' ? (
-              <EmailLoginForm
+          {!isSupabaseConnected && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>
+                {language === 'pt' ? 'Problema de Conexão' : 'Connection Issue'}
+              </AlertTitle>
+              <AlertDescription>
+                {language === 'pt' 
+                  ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem estar indisponíveis.'
+                  : 'Could not connect to the server. Some features may be unavailable.'}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {loginError && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>
+                {language === 'pt' ? 'Erro de Autenticação' : 'Authentication Error'}
+              </AlertTitle>
+              <AlertDescription>
+                {loginError}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {pendingApproval && (
+            <Alert className="mb-6 bg-amber-50 text-amber-900 border-amber-200">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>
+                {language === 'pt' ? 'Aprovação Pendente' : 'Approval Pending'}
+              </AlertTitle>
+              <AlertDescription>
+                {language === 'pt' 
+                  ? 'Sua conta está aguardando aprovação. Você será notificado assim que for aprovada.'
+                  : 'Your account is pending approval. You will be notified once it is approved.'}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          <Tabs value={activeView} className="w-full">
+            <TabsContent value="email" className="mt-0">
+              <EmailLoginForm 
                 email={email}
-                setEmail={(value) => {
-                  setEmail(value);
-                  handleClearError('email');
-                }}
+                setEmail={setEmail}
                 password={password}
-                setPassword={(value) => {
-                  setPassword(value);
-                  handleClearError('password');
-                }}
+                setPassword={setPassword}
                 handleSubmit={handleEmailFormSubmit}
-                isSubmitting={isSubmittingEmail}
-                forgotPassword={forgotPassword}
-                toggleForgotPassword={toggleForgotPassword}
+                isSubmitting={isEmailSubmitting}
                 validationErrors={validationErrors}
-                setValidationErrors={(errors) => {
-                  // Handle both function and direct object updates
-                  if (typeof errors === 'function') {
-                    setValidationErrors(prev => ({ ...prev }));
-                  } else {
-                    // Ensure we maintain structure of the validationErrors object
-                    setValidationErrors(prev => ({
-                      ...prev,
-                      ...errors
-                    }));
-                  }
-                }}
+                setValidationErrors={setValidationErrors}
                 language={language}
                 t={t}
+                forgotPassword={forgotPassword}
+                toggleForgotPassword={toggleForgotPassword}
               />
-            ) : (
-              <PhoneLoginForm
+            </TabsContent>
+            
+            <TabsContent value="phone" className="mt-0">
+              <PhoneLoginForm 
                 phone={phone}
                 setPhone={setPhone}
                 verificationCode={verificationCode}
                 setVerificationCode={setVerificationCode}
                 handlePhoneSubmit={handlePhoneFormSubmit}
-                handleVerifySubmit={handleVerificationSubmit}
-                handleClearError={() => {
-                  handleClearError(verificationSent ? 'code' : 'phone');
-                }}
-                isSubmitting={isSubmittingPhone}
+                handleVerifySubmit={handleVerifyFormSubmit}
+                handleClearError={clearEmailError}
+                isSubmitting={isPhoneSubmitting}
                 verificationSent={verificationSent}
                 validationErrors={validationErrors}
-                setValidationErrors={(errors) => {
-                  // Handle both function and direct object updates
-                  if (typeof errors === 'function') {
-                    setValidationErrors(prev => ({ ...prev }));
-                  } else {
-                    // Ensure we maintain structure of the validationErrors object
-                    setValidationErrors(prev => ({
-                      ...prev,
-                      ...errors
-                    }));
-                  }
-                }}
+                setValidationErrors={setValidationErrors}
                 language={language}
                 t={t}
                 resetForm={resetPhoneForm}
               />
-            )}
+            </TabsContent>
             
-            {/* Social login */}
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-background text-muted-foreground">
-                    {t('orContinueWith')}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <SocialLoginButtons
-                  isSubmitting={isSubmittingEmail || isSubmittingPhone || isSubmittingSocial}
-                  handleSocialLogin={handleSocialLogin} 
-                  isSupabaseConnected={isSupabaseConnected}
-                />
-              </div>
-            </div>
-          </div>
-          
-          {/* Connection status */}
-          <div className="mt-8 text-center">
-            <SupabaseConnectionStatus connected={isSupabaseConnected} />
-          </div>
-          
-          {/* Language toggle */}
-          <div className="mt-4 flex justify-center">
-            <LanguageToggle 
-              language={language}
-              setLanguage={setLanguage}
-            />
-          </div>
-        </LoginCard>
-      </div>
+            <TabsContent value="social" className="mt-0">
+              <SocialLoginButtons 
+                isSubmitting={isSocialSubmitting}
+                handleSocialLogin={handleSocialLogin}
+                isSupabaseConnected={isSupabaseConnected}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

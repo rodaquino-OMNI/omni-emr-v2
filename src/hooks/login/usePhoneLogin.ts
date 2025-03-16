@@ -33,7 +33,7 @@ export const usePhoneLogin = (language: Language) => {
     if (error) setError(null);
   }, [phone, verificationCode, error]);
 
-  const handlePhoneSubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean) => {
+  const handlePhoneSubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean): Promise<void> => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -96,7 +96,7 @@ export const usePhoneLogin = (language: Language) => {
     return Promise.resolve();
   }, [phone, language, navigate]);
 
-  const handleVerifySubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean) => {
+  const handleVerifySubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean): Promise<void> => {
     e.preventDefault();
     
     if (!validateForm()) {

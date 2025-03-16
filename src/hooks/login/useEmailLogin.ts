@@ -30,11 +30,11 @@ export const useEmailLogin = (language: Language) => {
     clearError();
   }, [email, password, clearError]);
   
-  const handleEmailSubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean) => {
+  const handleEmailSubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean): Promise<void> => {
     e.preventDefault();
     
     if (!validateForm()) {
-      return;
+      return Promise.resolve();
     }
     
     setIsSubmitting(true);
@@ -53,7 +53,7 @@ export const useEmailLogin = (language: Language) => {
                 : 'Check your email for recovery instructions'
             }
           );
-        } else if ('error' in result && result.error) {
+        } else if (result && 'error' in result && result.error) {
           throw result.error;
         }
       } else {
@@ -73,12 +73,12 @@ export const useEmailLogin = (language: Language) => {
               }
             );
             // No need to navigate since pendingApproval will be handled in the login page
-            return;
+            return Promise.resolve();
           }
           
           // Normal login success - navigate to sector selection
           navigate('/sectors');
-        } else if ('error' in result && result.error) {
+        } else if (result && 'error' in result) {
           throw result.error;
         }
       }
@@ -100,6 +100,8 @@ export const useEmailLogin = (language: Language) => {
     } finally {
       setIsSubmitting(false);
     }
+
+    return Promise.resolve();
   }, [email, password, forgotPassword, login, resetPassword, navigate, language]);
   
   return {

@@ -10,13 +10,13 @@ interface PhoneLoginFormProps {
   setPhone: (phone: string) => void;
   verificationCode: string;
   setVerificationCode: (code: string) => void;
-  handlePhoneSubmit: (e: React.FormEvent) => Promise<void>;
-  handleVerifySubmit: (e: React.FormEvent) => Promise<void>;
+  handlePhoneSubmit: (e: React.FormEvent, validateForm: () => boolean) => Promise<void>;
+  handleVerifySubmit: (e: React.FormEvent, validateForm: () => boolean) => Promise<void>;
   handleClearError: () => void;
   isSubmitting: boolean;
   verificationSent: boolean;
   validationErrors: { [key: string]: string };
-  setValidationErrors: (errors: { [key: string]: string } | ((prev: any) => any)) => void;
+  setValidationErrors: (errors: { [key: string]: string }) => void;
   language: Language;
   t: (key: string) => string;
   resetForm: () => void;
@@ -38,10 +38,46 @@ const PhoneLoginForm = ({
   t,
   resetForm
 }: PhoneLoginFormProps) => {
+  // Validation function for the phone form
+  const validatePhoneForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+    
+    if (!phone.trim()) {
+      errors.phone = language === 'pt' 
+        ? 'Número de telefone é obrigatório'
+        : 'Phone number is required';
+    } else if (!/^\+[1-9]\d{1,14}$/.test(phone)) {
+      errors.phone = language === 'pt'
+        ? 'Formato inválido. Use formato internacional (+123...)'
+        : 'Invalid format. Use international format (+123...)';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+  
+  // Validation function for the verification form
+  const validateVerificationForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+    
+    if (!verificationCode.trim()) {
+      errors.code = language === 'pt'
+        ? 'Código de verificação é obrigatório'
+        : 'Verification code is required';
+    } else if (!/^\d{6}$/.test(verificationCode)) {
+      errors.code = language === 'pt'
+        ? 'Código deve ter 6 dígitos'
+        : 'Code must be 6 digits';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   return (
     <div className="space-y-4">
       {!verificationSent ? (
-        <form onSubmit={handlePhoneSubmit} className="space-y-4">
+        <form onSubmit={(e) => handlePhoneSubmit(e, validatePhoneForm)} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="phone" className="text-sm font-medium">
               {language === 'pt' ? 'Número de Telefone' : 'Phone Number'}
@@ -90,7 +126,7 @@ const PhoneLoginForm = ({
           </Button>
         </form>
       ) : (
-        <form onSubmit={handleVerifySubmit} className="space-y-4">
+        <form onSubmit={(e) => handleVerifySubmit(e, validateVerificationForm)} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="verification-code" className="text-sm font-medium">
               {language === 'pt' ? 'Código de Verificação' : 'Verification Code'}

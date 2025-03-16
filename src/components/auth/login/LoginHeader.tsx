@@ -1,28 +1,54 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Language } from '@/types/auth';
 
-interface LoginHeaderProps {
+export type LoginView = 'email' | 'phone' | 'social';
+
+export interface LoginHeaderProps {
+  activeView?: LoginView;
+  setActiveView?: (view: LoginView) => void;
   t: (key: string) => string;
   language: Language;
-  activeView?: 'email' | 'phone';
-  setActiveView?: React.Dispatch<React.SetStateAction<'email' | 'phone'>>;
 }
 
-const LoginHeader = ({ t, language, activeView, setActiveView }: LoginHeaderProps) => {
+const LoginHeader = ({
+  activeView = 'email',
+  setActiveView,
+  t,
+  language
+}: LoginHeaderProps) => {
   return (
-    <div className="text-center mb-8">
-      <h1 className="text-3xl font-bold text-primary mb-2">{t('appName')}</h1>
-      <p className="text-muted-foreground">{t('signIn')}</p>
-      <Link 
-        to="/" 
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mt-2"
-      >
-        <ArrowLeft className="h-3 w-3 mr-1" />
-        {language === 'pt' ? 'Voltar para página inicial' : 'Back to home page'}
-      </Link>
+    <div className="text-center space-y-2 mb-6">
+      <h1 className="text-2xl font-bold">
+        {t('signIn')}
+      </h1>
+      <p className="text-sm text-muted-foreground">
+        {language === 'pt'
+          ? 'Acesse sua conta para continuar'
+          : 'Sign in to your account to continue'}
+      </p>
+      
+      {setActiveView && (
+        <Tabs 
+          defaultValue={activeView} 
+          value={activeView}
+          className="w-full mt-4" 
+          onValueChange={(value) => setActiveView(value as LoginView)}
+        >
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="email">
+              {language === 'pt' ? 'Email' : 'Email'}
+            </TabsTrigger>
+            <TabsTrigger value="phone">
+              {language === 'pt' ? 'Telefone' : 'Phone'}
+            </TabsTrigger>
+            <TabsTrigger value="social">
+              {language === 'pt' ? 'Social' : 'Social'}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      )}
     </div>
   );
 };
