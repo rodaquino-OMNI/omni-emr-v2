@@ -1,156 +1,131 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
-import { Navigate, Link, useSearchParams } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import PendingApprovalList from '@/components/auth/PendingApprovalList';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, ShieldCheck, Settings2, ClipboardList, UserPlus, Package } from 'lucide-react';
-import FunctionBlocksManager from '@/components/admin/FunctionBlocksManager';
-import RolePermissionMatrix from '@/components/admin/RolePermissionMatrix';
-import RolesList from '@/components/admin/RolesList';
+import { usePermissions } from '@/hooks/usePermissions';
+import { RolesList } from '@/components/admin/RolesList';
+import { RolePermissionMatrix } from '@/components/admin/RolePermissionMatrix';
+import { FunctionBlocksManager } from '@/components/admin/FunctionBlocksManager';
+import { PendingApprovalList } from '@/components/auth/PendingApprovalList';
 
-const Admin = () => {
-  const { t, language } = useTranslation();
-  const { user, hasPermission } = useAuth();
-  const [searchParams] = useSearchParams();
-  const tabFromUrl = searchParams.get('tab');
-  const [activeTab, setActiveTab] = useState(tabFromUrl || 'user-approval');
+const AdminPage: React.FC = () => {
+  const { language } = useTranslation();
+  const { user } = useAuth();
+  const { hasPermission } = usePermissions(user);
   
-  // Check if user has admin rights
-  if (!user || !hasPermission('manage_users')) {
-    return <Navigate to="/unauthorized" replace />;
+  const canManageUsers = hasPermission('manage_users');
+  const canManageRoles = hasPermission('manage_roles');
+  const canManageFunctionBlocks = hasPermission('manage_function_blocks');
+  
+  if (!canManageUsers && !canManageRoles) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>{language === 'pt' ? 'Acesso Negado' : 'Access Denied'}</CardTitle>
+            <CardDescription>
+              {language === 'pt' 
+                ? 'Você não tem permissão para acessar o painel administrativo.'
+                : 'You do not have permission to access the admin panel.'}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
   }
   
   return (
-    <div className="container mx-auto p-4 md:p-6">
-      <h1 className="text-2xl font-bold mb-6">
-        {language === 'pt' ? 'Administração' : 'Administration'}
+    <div className="max-w-6xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-6">
+        {language === 'pt' ? 'Painel Administrativo' : 'Admin Panel'}
       </h1>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="mb-4">
-          <TabsTrigger value="user-approval">
-            <UserPlus className="h-4 w-4 mr-2" />
-            {language === 'pt' ? 'Aprovação de Usuários' : 'User Approval'}
-          </TabsTrigger>
-          <TabsTrigger value="role-management">
-            <ShieldCheck className="h-4 w-4 mr-2" />
-            {language === 'pt' ? 'Gestão de Funções' : 'Role Management'}
-          </TabsTrigger>
-          <TabsTrigger value="function-blocks">
-            <Package className="h-4 w-4 mr-2" />
-            {language === 'pt' ? 'Blocos de Funções' : 'Function Blocks'}
-          </TabsTrigger>
-          <TabsTrigger value="system-settings">
-            <Settings2 className="h-4 w-4 mr-2" />
-            {language === 'pt' ? 'Configurações do Sistema' : 'System Settings'}
-          </TabsTrigger>
-          <TabsTrigger value="audit-logs">
-            <ClipboardList className="h-4 w-4 mr-2" />
-            {language === 'pt' ? 'Logs de Auditoria' : 'Audit Logs'}
-          </TabsTrigger>
+      <Tabs defaultValue="users">
+        <TabsList className="mb-6">
+          {canManageUsers && (
+            <TabsTrigger value="users">
+              {language === 'pt' ? 'Usuários' : 'Users'}
+            </TabsTrigger>
+          )}
+          {canManageRoles && (
+            <TabsTrigger value="roles">
+              {language === 'pt' ? 'Funções' : 'Roles'}
+            </TabsTrigger>
+          )}
+          {canManageFunctionBlocks && (
+            <TabsTrigger value="function-blocks">
+              {language === 'pt' ? 'Blocos Funcionais' : 'Function Blocks'}
+            </TabsTrigger>
+          )}
         </TabsList>
         
-        <TabsContent value="user-approval" className="space-y-4">
-          <PendingApprovalList />
-        </TabsContent>
+        {canManageUsers && (
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {language === 'pt' ? 'Aprovação de Usuários' : 'User Approval'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'pt' 
+                    ? 'Gerencie solicitações de acesso de novos usuários.'
+                    : 'Manage access requests from new users.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PendingApprovalList />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
         
-        <TabsContent value="role-management" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-12">
-            <div className="md:col-span-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{language === 'pt' ? 'Papéis do Sistema' : 'System Roles'}</CardTitle>
-                  <CardDescription>
-                    {language === 'pt' 
-                      ? 'Gerencie os papéis dos usuários no sistema' 
-                      : 'Manage user roles in the system'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RolesList />
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="md:col-span-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{language === 'pt' ? 'Permissões por Papel' : 'Role Permissions'}</CardTitle>
-                  <CardDescription>
-                    {language === 'pt' 
-                      ? 'Atribua permissões a cada papel de usuário' 
-                      : 'Assign permissions to each user role'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+        {canManageRoles && (
+          <TabsContent value="roles">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {language === 'pt' ? 'Gerenciamento de Funções' : 'Role Management'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'pt' 
+                    ? 'Configure funções e permissões do sistema.'
+                    : 'Configure system roles and permissions.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RolesList />
+                <div className="mt-8">
                   <RolePermissionMatrix />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          
-          <div className="flex justify-between">
-            <Button variant="outline" asChild>
-              <Link to="/admin/roles">
-                {language === 'pt' ? 'Gestão de Funções Avançada' : 'Advanced Role Management'}
-              </Link>
-            </Button>
-            <Button>
-              {language === 'pt' ? 'Salvar Alterações' : 'Save Changes'}
-            </Button>
-          </div>
-        </TabsContent>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
         
-        <TabsContent value="function-blocks" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{language === 'pt' ? 'Blocos de Funções' : 'Function Blocks'}</CardTitle>
-              <CardDescription>
-                {language === 'pt' 
-                  ? 'Configure blocos de funções que podem ser atribuídos a papéis de usuário' 
-                  : 'Configure function blocks that can be assigned to user roles'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FunctionBlocksManager />
-            </CardContent>
-          </Card>
-          
-          <div className="flex justify-end">
-            <Button variant="outline" asChild className="mr-2">
-              <Link to="/admin/function-blocks">
-                {language === 'pt' ? 'Gestão Avançada de Blocos' : 'Advanced Block Management'}
-              </Link>
-            </Button>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="system-settings">
-          <div className="rounded-md border p-6">
-            <p className="text-muted-foreground">
-              {language === 'pt' 
-                ? 'Configurações do sistema serão implementadas aqui.' 
-                : 'System settings will be implemented here.'}
-            </p>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="audit-logs">
-          <div className="rounded-md border p-6">
-            <p className="text-muted-foreground">
-              {language === 'pt' 
-                ? 'Logs de auditoria serão implementados aqui.' 
-                : 'Audit logs will be implemented here.'}
-            </p>
-          </div>
-        </TabsContent>
+        {canManageFunctionBlocks && (
+          <TabsContent value="function-blocks">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {language === 'pt' ? 'Blocos Funcionais' : 'Function Blocks'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'pt' 
+                    ? 'Gerencie blocos funcionais e atribuições a funções.'
+                    : 'Manage function blocks and assignments to roles.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FunctionBlocksManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
 };
 
-export default Admin;
+export default AdminPage;

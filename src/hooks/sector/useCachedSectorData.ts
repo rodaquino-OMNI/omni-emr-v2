@@ -42,7 +42,7 @@ export const useCachedSectorData = () => {
     queryKey: ['sectors'],
     queryFn: fetchSectors,
     staleTime: 5 * 60 * 1000, // 5 minutes before data is considered stale
-    cacheTime: 30 * 60 * 1000, // Cache data for 30 minutes
+    gcTime: 30 * 60 * 1000, // Cache data for 30 minutes (renamed from cacheTime)
   });
 
   // Check if cache should be refreshed

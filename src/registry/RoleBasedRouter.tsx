@@ -48,7 +48,16 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   );
 };
 
-export const roleRouteConfig = [
+// Define a type for route config items
+interface RouteConfig {
+  path: string;
+  roles: string[];
+  permissions: string[];
+  component: React.ComponentType<any>;
+}
+
+// Define the route configuration
+export const roleRouteConfig: RouteConfig[] = [
   {
     path: '/dashboard',
     roles: ['all'],
@@ -74,15 +83,15 @@ export const roleRouteConfig = [
     component: React.lazy(() => import('@/pages/PrescribeMedication'))
   },
   {
-    path: '/clinical-notes',
+    path: '/clinical-documentation',
     roles: ['doctor', 'nurse', 'specialist'],
     permissions: ['notes:view'],
-    component: React.lazy(() => import('@/pages/ClinicalNotes'))
+    component: React.lazy(() => import('@/pages/ClinicalDocumentation'))
   },
   {
     path: '/admin',
     roles: ['admin', 'system_administrator'],
     permissions: ['admin:access'],
-    component: React.lazy(() => import('@/pages/Admin/AdminPanel'))
+    component: React.lazy(() => import('@/pages/Admin'))
   }
 ];

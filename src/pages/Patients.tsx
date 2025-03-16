@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
 import { useFilteredSectorPatients, PatientAssignmentFilter, PatientSortField, SortDirection } from '@/hooks/sector/useFilteredSectorPatients';
+import SectorPatientListPagination from '@/components/patients/SectorPatientListPagination';
 
 const PatientsPage = () => {
   const location = useLocation();

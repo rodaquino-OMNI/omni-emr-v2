@@ -30,7 +30,7 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
   const { user } = useAuth();
   
   // Use our custom hooks with caching
-  const { sectors, isLoading, error, refreshSectors, isCacheStale } = useSectorData();
+  const { sectors, isLoading, error, fetchSectors, isCacheStale } = useSectorData();
   
   const { 
     sectorPatients, 
