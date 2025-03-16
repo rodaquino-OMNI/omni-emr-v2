@@ -22,7 +22,7 @@ export const useAlertDecisions = (alerts: OrderAlert[], setAlerts: React.Dispatc
       
       // Show a toast to acknowledge the alert override
       toast({
-        title: language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden', 
+        title: language === 'pt' ? 'Alertas ignorados' : 'Alerts overridden',
         description: language === 'pt'
           ? 'Os alertas foram ignorados com uma justificativa clínica'
           : 'Alerts have been overridden with clinical justification',
@@ -55,7 +55,7 @@ export const useAlertDecisions = (alerts: OrderAlert[], setAlerts: React.Dispatc
     
     if (!proceed) {
       toast({
-        title: language === 'pt' ? 'Pedido cancelado' : 'Order cancelled', 
+        title: language === 'pt' ? 'Pedido cancelado' : 'Order cancelled',
         description: language === 'pt'
           ? 'O pedido foi cancelado devido aos alertas de segurança'
           : 'The order was cancelled due to safety alerts',
