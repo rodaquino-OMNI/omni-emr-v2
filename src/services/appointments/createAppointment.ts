@@ -3,6 +3,7 @@ import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 import { Appointment } from './types';
 import { mockAppointments } from './mockData';
 import { mapDbAppointmentToAppointment, mapAppointmentToDbFormat } from './utils/appointmentMappers';
+import { handleAppointmentError } from './utils/errorHandling';
 
 /**
  * Create a new appointment
@@ -19,28 +20,7 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
       .single();
     
     if (error) {
-      console.error('Error creating appointment:', error);
-      // Fall back to mock data approach
-      const now = new Date().toISOString();
-      const newAppointment: Appointment = {
-        ...appointment,
-        id: `app-${Date.now()}`,
-        created_at: now,
-        updated_at: now
-      };
-      
-      mockAppointments.push(newAppointment);
-      
-      // Log the action
-      await logAuditEvent(
-        appointment.providerId,
-        'create',
-        'appointment',
-        newAppointment.id,
-        { patientId: appointment.patientId }
-      );
-      
-      return newAppointment;
+      throw error;
     }
     
     // Map the returned data back to our Appointment type
@@ -57,9 +37,7 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
     
     return result;
   } catch (error) {
-    console.error('Exception creating appointment:', error);
-    
-    // Fall back to mock data approach
+    // Create fallback mock appointment
     const now = new Date().toISOString();
     const newAppointment: Appointment = {
       ...appointment,
@@ -68,17 +46,18 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id' | 'c
       updated_at: now
     };
     
-    mockAppointments.push(newAppointment);
-    
-    // Log the action
-    await logAuditEvent(
-      appointment.providerId,
-      'create',
-      'appointment',
-      newAppointment.id,
-      { patientId: appointment.patientId }
-    );
-    
-    return newAppointment;
+    return handleAppointmentError(
+      error,
+      {
+        operation: 'create',
+        entityType: 'appointment',
+        providerId: appointment.providerId,
+        patientId: appointment.patientId
+      },
+      () => {
+        mockAppointments.push(newAppointment);
+        return newAppointment;
+      }
+    ) as Appointment;
   }
 };

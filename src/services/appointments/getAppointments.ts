@@ -3,106 +3,92 @@ import { supabase } from '@/integrations/supabase/client';
 import { Appointment } from './types';
 import { mockAppointments } from './mockData';
 import { mapDbAppointmentToAppointment } from './utils/appointmentMappers';
+import { handleAppointmentError } from './utils/errorHandling';
 
-/**
- * Get all appointments
- */
-export const getAllAppointments = async (): Promise<Appointment[]> => {
+// Base function to handle appointment fetching with various filters
+const getAppointmentsBase = async (
+  filters: Record<string, any> = {},
+  orderColumns: {column: string, ascending: boolean}[] = [{column: 'date', ascending: true}]
+): Promise<Appointment[]> => {
   try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .order('date', { ascending: true });
+    let query = supabase.from('appointments').select('*');
+    
+    // Apply all filters
+    Object.entries(filters).forEach(([column, value]) => {
+      query = query.eq(column, value);
+    });
+    
+    // Apply all ordering
+    orderColumns.forEach(({column, ascending}) => {
+      query = query.order(column, { ascending });
+    });
+    
+    const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching appointments:', error);
-      // Fall back to mock data if there's an error
-      return mockAppointments;
+      throw error;
     }
     
     // Map the database fields to our Appointment type
     return data.map(mapDbAppointmentToAppointment);
   } catch (error) {
-    console.error('Exception fetching appointments:', error);
-    // Fall back to mock data if there's an exception
-    return mockAppointments;
+    // Generate mock fallback data based on filters
+    const mockData = mockAppointments.filter(appointment => {
+      return Object.entries(filters).every(([key, value]) => {
+        // Handle snake_case to camelCase conversion (e.g. patient_id → patientId)
+        const camelKey = key.replace(/_([a-z])/g, (_, p1) => p1.toUpperCase());
+        return appointment[camelKey as keyof Appointment] === value;
+      });
+    });
+    
+    return handleAppointmentError(error, {
+      operation: 'fetch',
+      entityType: 'appointment'
+    }, () => mockData) as Appointment[];
   }
+};
+
+/**
+ * Get all appointments
+ */
+export const getAllAppointments = async (): Promise<Appointment[]> => {
+  return getAppointmentsBase();
 };
 
 /**
  * Get appointments by date
  */
 export const getAppointmentsByDate = async (date: string): Promise<Appointment[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('date', date)
-      .order('time', { ascending: true });
-    
-    if (error) {
-      console.error('Error fetching appointments by date:', error);
-      // Fall back to mock data if there's an error
-      return mockAppointments.filter(a => a.date === date);
-    }
-    
-    // Map the database fields to our Appointment type
-    return data.map(mapDbAppointmentToAppointment);
-  } catch (error) {
-    console.error('Exception fetching appointments by date:', error);
-    // Fall back to mock data if there's an exception
-    return mockAppointments.filter(a => a.date === date);
-  }
+  return getAppointmentsBase(
+    { date },
+    [
+      { column: 'time', ascending: true }
+    ]
+  );
 };
 
 /**
  * Get appointments by patient ID
  */
 export const getAppointmentsByPatient = async (patientId: string): Promise<Appointment[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('patient_id', patientId)
-      .order('date', { ascending: true })
-      .order('time', { ascending: true });
-    
-    if (error) {
-      console.error('Error fetching appointments by patient:', error);
-      // Fall back to mock data if there's an error
-      return mockAppointments.filter(a => a.patientId === patientId);
-    }
-    
-    return data.map(mapDbAppointmentToAppointment);
-  } catch (error) {
-    console.error('Exception fetching appointments by patient:', error);
-    // Fall back to mock data if there's an exception
-    return mockAppointments.filter(a => a.patientId === patientId);
-  }
+  return getAppointmentsBase(
+    { patient_id: patientId },
+    [
+      { column: 'date', ascending: true },
+      { column: 'time', ascending: true }
+    ]
+  );
 };
 
 /**
  * Get appointments by provider ID
  */
 export const getAppointmentsByProvider = async (providerId: string): Promise<Appointment[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('provider_id', providerId)
-      .order('date', { ascending: true })
-      .order('time', { ascending: true });
-    
-    if (error) {
-      console.error('Error fetching appointments by provider:', error);
-      // Fall back to mock data if there's an error
-      return mockAppointments.filter(a => a.providerId === providerId);
-    }
-    
-    return data.map(mapDbAppointmentToAppointment);
-  } catch (error) {
-    console.error('Exception fetching appointments by provider:', error);
-    // Fall back to mock data if there's an exception
-    return mockAppointments.filter(a => a.providerId === providerId);
-  }
+  return getAppointmentsBase(
+    { provider_id: providerId },
+    [
+      { column: 'date', ascending: true },
+      { column: 'time', ascending: true }
+    ]
+  );
 };

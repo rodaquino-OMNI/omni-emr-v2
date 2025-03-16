@@ -1,8 +1,8 @@
-
 import { supabase, logAuditEvent } from '@/integrations/supabase/client';
 import { Appointment } from './types';
 import { mockAppointments } from './mockData';
 import { mapDbAppointmentToAppointment, mapAppointmentToDbFormat } from './utils/appointmentMappers';
+import { handleAppointmentError } from './utils/errorHandling';
 
 /**
  * Update an appointment
@@ -20,30 +20,7 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
       .single();
     
     if (error) {
-      console.error('Error updating appointment:', error);
-      
-      // Fall back to mock data
-      const index = mockAppointments.findIndex(a => a.id === id);
-      if (index >= 0) {
-        mockAppointments[index] = {
-          ...mockAppointments[index],
-          ...updates,
-          updated_at: new Date().toISOString()
-        };
-        
-        // Log the action
-        await logAuditEvent(
-          mockAppointments[index].providerId,
-          'update',
-          'appointment',
-          id,
-          { patientId: mockAppointments[index].patientId, updates }
-        );
-        
-        return mockAppointments[index];
-      }
-      
-      return null;
+      throw error;
     }
     
     // Map the returned data back to our Appointment type
@@ -60,29 +37,35 @@ export const updateAppointment = async (id: string, updates: Partial<Appointment
     
     return result;
   } catch (error) {
-    console.error('Exception updating appointment:', error);
-    
-    // Update in mock data
+    // Find the appointment to update in mock data
     const index = mockAppointments.findIndex(a => a.id === id);
-    if (index >= 0) {
-      mockAppointments[index] = {
-        ...mockAppointments[index],
-        ...updates,
-        updated_at: new Date().toISOString()
-      };
-      
-      // Log the action
-      await logAuditEvent(
-        mockAppointments[index].providerId,
-        'update',
-        'appointment',
-        id,
-        { patientId: mockAppointments[index].patientId, updates }
-      );
-      
-      return mockAppointments[index];
+    
+    // If appointment not found, return null
+    if (index === -1) {
+      return null;
     }
     
-    return null;
+    // Otherwise, update the mock appointment
+    const updatedAppointment = {
+      ...mockAppointments[index],
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+    
+    return handleAppointmentError(
+      error,
+      {
+        operation: 'update',
+        entityType: 'appointment',
+        entityId: id,
+        providerId: updatedAppointment.providerId,
+        patientId: updatedAppointment.patientId,
+        updates
+      },
+      () => {
+        mockAppointments[index] = updatedAppointment;
+        return updatedAppointment;
+      }
+    ) as Appointment | null;
   }
 };
