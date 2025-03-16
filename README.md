@@ -41,6 +41,39 @@ Streamlined communication across care teams:
 - Task assignment and tracking
 - Secure information sharing
 
+## 📊 Project Statistics
+
+### Database Statistics
+- **Total Tables**: 31 tables in the Supabase database
+- **Key Tables**: patients, observations, prescriptions, medications_inventory, clinical_notes
+- **Database Functions**: 41 defined PostgreSQL functions
+- **Triggers**: 24 database triggers for data integrity
+
+### Code Structure
+- **Components**: Approximately 250+ React components
+- **Hooks**: 30+ custom hooks for various functionalities
+- **Services**: Multiple service layers for data access (RxNorm, patients, prescriptions)
+- **Utility Files**: Numerous utility functions for permissions, authentication, and data processing
+
+### Medical System Features
+- **RxNorm Integration**: Complete medication database with translation support (English/Portuguese)
+- **Alert System**: Comprehensive medication alert system with multiple severity levels
+- **Role-Based Access**: Doctor, Nurse, Admin role-specific dashboards and permissions
+- **Vitals Tracking**: Charts and monitoring for multiple vital signs
+- **Patient Management**: Complete patient records with medical history
+
+### Performance Indicators
+- **Caching**: Implementation of local and database caching for medication searches
+- **Translation Support**: Bilingual interface with complete language-switching capabilities
+- **Security Features**: MFA support, audit logging, and session timeout controls
+
+### Technical Highlights
+- Intelligent drug interaction detection system
+- Vital signs module with reference ranges and abnormal value identification
+- FHIR data model support for healthcare interoperability
+- Comprehensive audit logging for regulatory compliance
+- Fluid balance tracking for clinical care
+
 ## 🚀 Getting Started
 
 ### Project Setup
@@ -85,15 +118,6 @@ You can edit this code in several ways:
 - **Use your preferred IDE**: Clone this repo and push changes.
 - **Edit directly in GitHub**: Navigate to files and use the edit button.
 - **Use GitHub Codespaces**: Launch a new codespace from the repository.
-
-## 📈 Future Enhancements
-
-Planned improvements include:
-- Enhanced AI-powered documentation assistance
-- Advanced analytics and reporting
-- Expanded telemedicine capabilities
-- Integrated billing and insurance management
-- Mobile application for on-the-go access
 
 ---
 
