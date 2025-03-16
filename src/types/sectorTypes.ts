@@ -28,6 +28,7 @@ export interface SectorContextType {
   isLoading: boolean;
   error: string | null;
   fetchSectors: () => Promise<void>;
+  isCacheStale: boolean;
   sectorPatients: SectorPatient[];
   patientsLoading: boolean;
   refreshPatients: () => Promise<void>;

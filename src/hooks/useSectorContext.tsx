@@ -7,7 +7,7 @@ import {
   SectorContextType, 
   SectorProviderProps 
 } from '@/types/sectorTypes';
-import { useSectorData } from './sector/useSectorData';
+import { useSectorData } from './sector';
 import { useSectorPatients } from './sector/useSectorPatients';
 
 const SectorContext = createContext<SectorContextType>({
@@ -17,6 +17,7 @@ const SectorContext = createContext<SectorContextType>({
   isLoading: false,
   error: null,
   fetchSectors: async () => {},
+  isCacheStale: false,
   sectorPatients: [],
   patientsLoading: false,
   refreshPatients: async () => {},
@@ -28,8 +29,8 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
   const [selectedSector, setSelectedSector] = useState<SectorType | null>(null);
   const { user } = useAuth();
   
-  // Use our custom hooks
-  const { sectors, isLoading, error, fetchSectors } = useSectorData();
+  // Use our custom hooks with caching
+  const { sectors, isLoading, error, refreshSectors, isCacheStale } = useSectorData();
   
   const { 
     sectorPatients, 
@@ -49,8 +50,6 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
 
   // Initialize: fetch sectors and load previously selected sector
   useEffect(() => {
-    fetchSectors();
-    
     // Load previously selected sector from localStorage
     const savedSector = localStorage.getItem('selectedSector');
     if (savedSector) {
@@ -63,7 +62,7 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
         localStorage.removeItem('selectedSector');
       }
     }
-  }, [fetchSectors]);
+  }, [fetchPatients]);
 
   return (
     <SectorContext.Provider
@@ -74,6 +73,7 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
         isLoading,
         error,
         fetchSectors,
+        isCacheStale,
         sectorPatients,
         patientsLoading,
         refreshPatients,

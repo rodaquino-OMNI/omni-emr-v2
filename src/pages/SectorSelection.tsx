@@ -5,16 +5,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSectorContext } from '@/hooks/useSectorContext';
+import { EmptyState } from '@/components/ui/empty-state';
+import SectorSelectionSkeleton from '@/components/sector/SectorSelectionSkeleton';
 
 const SectorSelection: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
-  const { sectors, selectSector, isLoading, fetchSectors } = useSectorContext();
+  const { sectors, selectSector, isLoading, error, fetchSectors, isCacheStale } = useSectorContext();
   
   // Fetch sectors on component mount
   useEffect(() => {
@@ -75,11 +77,55 @@ const SectorSelection: React.FC = () => {
     }
   };
 
+  // Handle refresh
+  const handleRefresh = async () => {
+    await fetchSectors();
+  };
+
+  // If loading, show skeleton loader
+  if (isLoading) {
+    return <SectorSelectionSkeleton />;
+  }
+
+  // If error and no sectors, show error state
+  if (error && availableSectors.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>{t('sectorsUnavailable', 'Sectors Unavailable')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <EmptyState
+              variant="error"
+              title={t('unableToLoadSectors', 'Unable to Load Sectors')}
+              description={error}
+              actionLabel={t('retry', 'Retry')}
+              onAction={handleRefresh}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{t('selectSector')}</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t('selectSector')}</CardTitle>
+            {isCacheStale && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleRefresh}
+                title={t('refreshSectors', 'Refresh Sectors')}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
           <CardDescription>
             {t('selectSectorDescription')}
           </CardDescription>
@@ -97,25 +143,34 @@ const SectorSelection: React.FC = () => {
             </AlertDescription>
           </Alert>
           
-          <RadioGroup
-            value={selectedSector || ''}
-            onValueChange={setSelectedSector}
-            className="space-y-3"
-          >
-            {availableSectors.map((sector) => (
-              <div key={sector.id} className="flex items-start space-x-3 space-y-0">
-                <RadioGroupItem value={sector.id} id={sector.id} />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor={sector.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    {sector.name}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {sector.description}
-                  </p>
+          {availableSectors.length === 0 ? (
+            <EmptyState
+              title={t('noSectorsAvailable', 'No Sectors Available')}
+              description={t('noSectorsDescription', 'There are no active sectors available at the moment.')}
+              actionLabel={t('refresh', 'Refresh')}
+              onAction={handleRefresh}
+            />
+          ) : (
+            <RadioGroup
+              value={selectedSector || ''}
+              onValueChange={setSelectedSector}
+              className="space-y-3"
+            >
+              {availableSectors.map((sector) => (
+                <div key={sector.id} className="flex items-start space-x-3 space-y-0">
+                  <RadioGroupItem value={sector.id} id={sector.id} />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor={sector.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {sector.name}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {sector.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </RadioGroup>
+              ))}
+            </RadioGroup>
+          )}
         </CardContent>
         <CardFooter>
           <Button 
@@ -123,15 +178,7 @@ const SectorSelection: React.FC = () => {
             disabled={!selectedSector || isLoading}
             onClick={handleContinue}
           >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {t('loading', 'Loading...')}
-              </span>
-            ) : t('continue')}
+            {t('continue')}
           </Button>
         </CardFooter>
       </Card>

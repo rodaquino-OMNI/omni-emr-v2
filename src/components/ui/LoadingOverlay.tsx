@@ -9,7 +9,7 @@ interface LoadingOverlayProps {
   transparent?: boolean;
 }
 
-const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ 
+export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ 
   isLoading, 
   text, 
   children, 

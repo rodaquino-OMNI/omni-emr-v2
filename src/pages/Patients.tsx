@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
@@ -25,26 +24,45 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
+import { useFilteredSectorPatients, PatientAssignmentFilter, PatientSortField, SortDirection } from '@/hooks/sector/useFilteredSectorPatients';
 
 const PatientsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { language } = useTranslation();
-  const { selectedSector, refreshPatients, patientsLoading } = useSectorContext();
+  const { selectedSector, refreshPatients, patientsLoading, sectorPatients } = useSectorContext();
   
-  // Get status from URL query params
   const queryParams = new URLSearchParams(location.search);
   const statusFromUrl = queryParams.get('status') || 'all';
   const assignmentFromUrl = queryParams.get('assigned') || 'all';
   const sortByFromUrl = queryParams.get('sortBy') || 'name';
   const sortDirFromUrl = queryParams.get('sortDir') || 'asc';
+  const pageFromUrl = queryParams.get('page') ? parseInt(queryParams.get('page') || '1') : 1;
+  const pageSizeFromUrl = queryParams.get('pageSize') ? parseInt(queryParams.get('pageSize') || '10') : 10;
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>(statusFromUrl);
-  const [assignmentFilter, setAssignmentFilter] = useState<string>(assignmentFromUrl);
-  const [sortBy, setSortBy] = useState<string>(sortByFromUrl);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(sortDirFromUrl as 'asc' | 'desc');
-  
+  const {
+    filteredPatients,
+    displayedPatients,
+    pagination,
+    filterOptions,
+    setStatusFilter,
+    setSearchTerm,
+    setAssignmentFilter,
+    setSortBy,
+    setSortDirection,
+    setPage,
+    setPageSize,
+    goToPage
+  } = useFilteredSectorPatients(sectorPatients, {
+    statusFilter: statusFromUrl,
+    assignmentFilter: assignmentFromUrl as PatientAssignmentFilter,
+    sortBy: sortByFromUrl as PatientSortField,
+    sortDirection: sortDirFromUrl as SortDirection,
+    page: pageFromUrl,
+    pageSize: pageSizeFromUrl
+  });
+
   const statuses = [
     { value: 'all', label: language === 'pt' ? 'Todos os Pacientes' : 'All Patients' },
     { value: 'active', label: language === 'pt' ? 'Ativos' : 'Active' },
@@ -67,58 +85,62 @@ const PatientsPage = () => {
     { value: 'date', label: language === 'pt' ? 'Data de Nascimento' : 'Date of Birth' },
   ];
 
-  // Update URL with all filters
-  const updateUrlWithFilters = (filters: Record<string, string>) => {
-    const newParams = new URLSearchParams(location.search);
+  const pageSizeOptions = [
+    { value: 10, label: '10' },
+    { value: 20, label: '20' },
+    { value: 50, label: '50' },
+    { value: 100, label: '100' },
+  ];
+
+  const updateUrlWithFilters = () => {
+    const newParams = new URLSearchParams();
     
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value === 'all' && key !== 'sortBy' && key !== 'sortDir') {
-        newParams.delete(key);
-      } else {
-        newParams.set(key, value);
-      }
-    });
+    if (filterOptions.statusFilter !== 'all') {
+      newParams.set('status', filterOptions.statusFilter);
+    }
     
-    navigate(`/patients?${newParams.toString()}`);
+    if (filterOptions.assignmentFilter !== 'all') {
+      newParams.set('assigned', filterOptions.assignmentFilter);
+    }
+    
+    if (filterOptions.sortBy !== 'name') {
+      newParams.set('sortBy', filterOptions.sortBy);
+    }
+    
+    if (filterOptions.sortDirection !== 'asc') {
+      newParams.set('sortDir', filterOptions.sortDirection);
+    }
+    
+    if (filterOptions.page !== 1) {
+      newParams.set('page', filterOptions.page.toString());
+    }
+    
+    if (filterOptions.pageSize !== 10) {
+      newParams.set('pageSize', filterOptions.pageSize.toString());
+    }
+    
+    navigate(`/patients${newParams.toString() ? `?${newParams.toString()}` : ''}`);
   };
 
-  // Handle status change
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
-    updateUrlWithFilters({ status: value, assigned: assignmentFilter, sortBy, sortDir: sortDirection });
-  };
-
-  // Handle assignment filter change
-  const handleAssignmentChange = (value: string) => {
-    setAssignmentFilter(value);
-    updateUrlWithFilters({ status: statusFilter, assigned: value, sortBy, sortDir: sortDirection });
-  };
-
-  // Handle sort change
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-    updateUrlWithFilters({ status: statusFilter, assigned: assignmentFilter, sortBy: value, sortDir: sortDirection });
-  };
-
-  // Toggle sort direction
-  const toggleSortDirection = () => {
-    const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    setSortDirection(newDirection);
-    updateUrlWithFilters({ status: statusFilter, assigned: assignmentFilter, sortBy, sortDir: newDirection });
-  };
+  useEffect(() => {
+    updateUrlWithFilters();
+  }, [
+    filterOptions.statusFilter, 
+    filterOptions.assignmentFilter, 
+    filterOptions.sortBy, 
+    filterOptions.sortDirection,
+    filterOptions.page,
+    filterOptions.pageSize
+  ]);
 
   const handleNewPatient = () => {
-    // For now, just navigate to the first patient as a placeholder
-    // In a real app, this would open a form to create a new patient
     navigate('/patients/new');
   };
 
-  // Handle refresh
   const handleRefresh = async () => {
     await refreshPatients();
   };
 
-  // If no sector is selected, redirect to sector selection
   if (!selectedSector) {
     navigate('/sectors');
     return null;
@@ -128,7 +150,12 @@ const PatientsPage = () => {
     setStatusFilter('all');
     setAssignmentFilter('all');
     setSearchTerm('');
+    setPage(1);
     navigate('/patients');
+  };
+
+  const handlePageSizeChange = (newSize: string) => {
+    setPageSize(parseInt(newSize));
   };
 
   return (
@@ -154,14 +181,14 @@ const PatientsPage = () => {
                     type="text"
                     placeholder={language === 'pt' ? "Buscar pacientes..." : "Search patients..."}
                     className="w-full h-9 pl-3 pr-3 rounded-md border border-border bg-background"
-                    value={searchTerm}
+                    value={filterOptions.searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 
                 <Select
-                  value={statusFilter}
-                  onValueChange={handleStatusChange}
+                  value={filterOptions.statusFilter}
+                  onValueChange={setStatusFilter}
                 >
                   <SelectTrigger className="h-9 w-[140px]">
                     <SelectValue placeholder="Status" />
@@ -176,8 +203,8 @@ const PatientsPage = () => {
                 </Select>
                 
                 <Select
-                  value={assignmentFilter}
-                  onValueChange={handleAssignmentChange}
+                  value={filterOptions.assignmentFilter}
+                  onValueChange={setAssignmentFilter}
                 >
                   <SelectTrigger className="h-9 w-[160px]">
                     <SelectValue placeholder="Assignment" />
@@ -194,7 +221,11 @@ const PatientsPage = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="h-9 px-3 gap-1">
-                      <SortAsc className="h-4 w-4" />
+                      {filterOptions.sortDirection === 'asc' ? (
+                        <SortAsc className="h-4 w-4" />
+                      ) : (
+                        <SortDesc className="h-4 w-4" />
+                      )}
                       {language === 'pt' ? 'Ordenar' : 'Sort'}
                     </Button>
                   </DropdownMenuTrigger>
@@ -206,15 +237,15 @@ const PatientsPage = () => {
                     {sortOptions.map((option) => (
                       <DropdownMenuItem 
                         key={option.value}
-                        className={sortBy === option.value ? "bg-accent" : ""}
-                        onClick={() => handleSortChange(option.value)}
+                        className={filterOptions.sortBy === option.value ? "bg-accent" : ""}
+                        onClick={() => setSortBy(option.value as PatientSortField)}
                       >
                         {option.label}
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={toggleSortDirection}>
-                      {sortDirection === 'asc' ? (
+                    <DropdownMenuItem onClick={() => setSortDirection(filterOptions.sortDirection === 'asc' ? 'desc' : 'asc')}>
+                      {filterOptions.sortDirection === 'asc' ? (
                         <><SortAsc className="mr-2 h-4 w-4" /> {language === 'pt' ? 'Crescente' : 'Ascending'}</>
                       ) : (
                         <><SortDesc className="mr-2 h-4 w-4" /> {language === 'pt' ? 'Decrescente' : 'Descending'}</>
@@ -231,7 +262,11 @@ const PatientsPage = () => {
                   variant="outline" 
                   onClick={clearFilters} 
                   className="h-9 px-3"
-                  disabled={statusFilter === 'all' && assignmentFilter === 'all' && !searchTerm}
+                  disabled={
+                    filterOptions.statusFilter === 'all' && 
+                    filterOptions.assignmentFilter === 'all' && 
+                    !filterOptions.searchTerm
+                  }
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   {language === 'pt' ? 'Limpar' : 'Clear'}
@@ -247,14 +282,54 @@ const PatientsPage = () => {
               </div>
             </div>
             
-            <div className="glass-card p-6">
-              <SectorPatientList 
-                statusFilter={statusFilter} 
-                searchTerm={searchTerm} 
-                assignmentFilter={assignmentFilter}
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-              />
+            <div className="glass-card p-6 relative">
+              <LoadingOverlay isLoading={patientsLoading} text={language === 'pt' ? 'Carregando pacientes...' : 'Loading patients...'}>
+                <SectorPatientList 
+                  statusFilter={filterOptions.statusFilter} 
+                  searchTerm={filterOptions.searchTerm} 
+                  assignmentFilter={filterOptions.assignmentFilter}
+                  sortBy={filterOptions.sortBy}
+                  sortDirection={filterOptions.sortDirection}
+                  showPagination={false}
+                />
+                
+                {pagination.totalPages > 0 && (
+                  <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                    <div className="text-sm text-muted-foreground">
+                      {language === 'pt' 
+                        ? `Mostrando ${(pagination.currentPage - 1) * filterOptions.pageSize + 1} a ${Math.min(pagination.currentPage * filterOptions.pageSize, pagination.totalItems)} de ${pagination.totalItems} pacientes`
+                        : `Showing ${(pagination.currentPage - 1) * filterOptions.pageSize + 1} to ${Math.min(pagination.currentPage * filterOptions.pageSize, pagination.totalItems)} of ${pagination.totalItems} patients`
+                      }
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {language === 'pt' ? 'Itens por página:' : 'Items per page:'}
+                        </span>
+                        <Select value={filterOptions.pageSize.toString()} onValueChange={handlePageSizeChange}>
+                          <SelectTrigger className="h-8 w-[70px]">
+                            <SelectValue placeholder="10" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {pageSizeOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value.toString()}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <SectorPatientListPagination
+                        currentPage={pagination.currentPage}
+                        totalPages={pagination.totalPages}
+                        onPageChange={goToPage}
+                      />
+                    </div>
+                  </div>
+                )}
+              </LoadingOverlay>
             </div>
           </div>
         </main>
