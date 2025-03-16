@@ -17,7 +17,7 @@ export const generateMockMedicationAlerts = (medications: string[]): OrderAlert[
   if (medications.length > 1 && Math.random() > 0.5) {
     alerts.push({
       id: uuidv4(),
-      type: AlertType.DRUG_INTERACTION,
+      type: 'warning',
       message: `Potential interaction between ${medications[0]} and ${medications[1]}`,
       severity: 'warning',
       requiresAcknowledgement: true,
@@ -29,7 +29,7 @@ export const generateMockMedicationAlerts = (medications: string[]): OrderAlert[
   if (Math.random() > 0.75) {
     alerts.push({
       id: uuidv4(),
-      type: AlertType.ALLERGY,
+      type: 'critical',
       message: `Patient has a recorded allergy to ${medications[0]} or similar medications`,
       severity: 'error',
       requiresAcknowledgement: true,
@@ -41,7 +41,7 @@ export const generateMockMedicationAlerts = (medications: string[]): OrderAlert[
   if (Math.random() > 0.7) {
     alerts.push({
       id: uuidv4(),
-      type: AlertType.INAPPROPRIATE_DOSE,
+      type: 'warning',
       message: `The dosage for ${medications[0]} is outside recommended range`,
       severity: 'warning',
       requiresAcknowledgement: true,
@@ -62,7 +62,7 @@ export const generateMockLabAlerts = (): OrderAlert[] => {
   if (Math.random() > 0.6) {
     alerts.push({
       id: uuidv4(),
-      type: AlertType.DUPLICATE_ORDER,
+      type: 'info',
       message: "Similar laboratory tests were ordered in the past 48 hours",
       severity: 'info',
       requiresAcknowledgement: false,
@@ -83,7 +83,7 @@ export const generateMockRadiologyAlerts = (): OrderAlert[] => {
   if (Math.random() > 0.65) {
     alerts.push({
       id: uuidv4(),
-      type: AlertType.DUPLICATE_ORDER,
+      type: 'info',
       message: "Similar radiology procedure was ordered in the past 7 days",
       severity: 'info',
       requiresAcknowledgement: false,
@@ -95,7 +95,7 @@ export const generateMockRadiologyAlerts = (): OrderAlert[] => {
   if (Math.random() > 0.8) {
     alerts.push({
       id: uuidv4(),
-      type: AlertType.GUIDELINE_DEVIATION,
+      type: 'warning',
       message: "This order deviates from current radiology guidelines",
       severity: 'warning',
       requiresAcknowledgement: true,

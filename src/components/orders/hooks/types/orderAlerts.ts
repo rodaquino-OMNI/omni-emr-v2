@@ -9,20 +9,20 @@ export interface OrderAlert {
   timestamp?: string;
   requiresAcknowledgement?: boolean;
   source?: string;
-  overridden?: boolean;
+  overridden: boolean;
   overriddenReason?: string;
   overriddenBy?: string;
 }
 
 export enum AlertType {
-  DRUG_INTERACTION = 'DRUG_INTERACTION',
-  ALLERGY = 'ALLERGY',
-  DUPLICATE_ORDER = 'DUPLICATE_ORDER',
-  INAPPROPRIATE_DOSE = 'INAPPROPRIATE_DOSE',
-  CONTRAINDICATION = 'CONTRAINDICATION',
-  GUIDELINE_DEVIATION = 'GUIDELINE_DEVIATION',
-  AGE_INAPPROPRIATE = 'AGE_INAPPROPRIATE',
-  WORKFLOW = 'WORKFLOW'
+  DRUG_INTERACTION = 'warning',
+  ALLERGY = 'critical',
+  DUPLICATE_ORDER = 'info',
+  INAPPROPRIATE_DOSE = 'warning',
+  CONTRAINDICATION = 'critical',
+  GUIDELINE_DEVIATION = 'warning',
+  AGE_INAPPROPRIATE = 'warning',
+  WORKFLOW = 'info'
 }
 
 export enum AlertSeverity {

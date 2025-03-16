@@ -11,13 +11,6 @@ import MFASetup from './MFASetup';
 import PasswordUpdateForm from './PasswordUpdateForm';
 import { toast } from 'sonner';
 
-// Extend User type to include mfaEnabled
-declare module '@/context/AuthContext' {
-  interface User {
-    mfaEnabled?: boolean;
-  }
-}
-
 const SecurityControls = () => {
   const { language } = useTranslation();
   const { user } = useAuth();

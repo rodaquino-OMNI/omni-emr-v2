@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext } from 'react';
 import { Session, Provider, AuthError } from '@supabase/supabase-js';
 import { User, UserRole, Language } from '../types/auth';
@@ -36,6 +35,20 @@ interface AuthContextType {
   lastActivity?: number;
   sessionTimeoutMinutes?: number;
   setSessionTimeoutMinutes?: (minutes: number) => void;
+}
+
+export interface User {
+  id: string;
+  email?: string;
+  phone?: string;
+  name: string;
+  role: 'doctor' | 'nurse' | 'admin' | 'patient' | 'specialist' | 'pharmacist';
+  avatar?: string;
+  department?: string;
+  specialties?: string[];
+  status: 'active' | 'inactive' | 'pending_approval';
+  lastLogin?: Date;
+  mfaEnabled?: boolean;
 }
 
 // Create context with a default undefined value
