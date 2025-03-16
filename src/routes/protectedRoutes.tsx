@@ -7,6 +7,7 @@ import Patients from '../pages/Patients';
 import Settings from '../pages/Settings';
 import PatientDetail from '../pages/PatientDetail';
 import Medications from '../pages/Medications';
+import Unauthorized from '../pages/Unauthorized';
 
 export const protectedRoutes: RouteObject[] = [
   {
@@ -19,6 +20,7 @@ export const protectedRoutes: RouteObject[] = [
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/patients", element: <Patients /> },
       { path: "/settings", element: <Settings /> },
+      { path: "/unauthorized", element: <Unauthorized /> },
       
       // Role-specific routes with nested access control
       { path: "/patients/:id", element: <PatientDetail /> },
