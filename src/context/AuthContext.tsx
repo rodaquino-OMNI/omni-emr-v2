@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext } from 'react';
-import { Session, Provider, AuthError } from '@supabase/supabase-js';
+import { Session } from '@supabase/supabase-js';
 import { useAuthProvider } from '../hooks/useAuthProvider';
 import { User, Language, UserRole, ApprovalStatus, AuthContextType } from '../types/auth';
 
@@ -13,7 +13,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const auth = useAuthProvider();
   
   return (
-    <AuthContext.Provider value={auth as unknown as AuthContextType}>
+    <AuthContext.Provider value={auth}>
       {children}
     </AuthContext.Provider>
   );

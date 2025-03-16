@@ -25,6 +25,7 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
         name: supabaseUser.user_metadata?.name || 'User',
         role: (supabaseUser.user_metadata?.role as UserRole) || 'patient',
         permissions: [],
+        status: 'active',
         approvalStatus: 'approved' // Default to approved for backward compatibility
       };
     }
@@ -52,6 +53,7 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
       email: supabaseUser.email || '',
       name: profileData.name || supabaseUser.user_metadata?.name || 'User',
       role: validRole,
+      status: 'active',
       approvalStatus: approvalStatus,
       permissions: []
     };
@@ -77,6 +79,7 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
       name: supabaseUser.user_metadata?.name || 'User',
       role: (supabaseUser.user_metadata?.role as UserRole) || 'patient',
       permissions: [],
+      status: 'active',
       approvalStatus: 'approved' // Default for backward compatibility
     };
   }

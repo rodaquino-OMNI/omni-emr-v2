@@ -72,6 +72,23 @@ export const usePermissions = (user: User | null | undefined) => {
       }
       
       return false;
+    },
+
+    // Check medication permissions
+    checkMedicationPermission: (action: 'administer' | 'prescribe' | 'dispense' | 'view'): boolean => {
+      if (!user) return false;
+      
+      if (action === 'administer') {
+        return ['doctor', 'nurse'].includes(user.role);
+      } else if (action === 'prescribe') {
+        return ['doctor', 'specialist'].includes(user.role);
+      } else if (action === 'dispense') {
+        return ['pharmacist'].includes(user.role);
+      } else if (action === 'view') {
+        return ['doctor', 'nurse', 'pharmacist', 'specialist', 'administrative', 'system_administrator'].includes(user.role);
+      }
+      
+      return false;
     }
   }), [user]);
 };

@@ -11,7 +11,10 @@ export const useSocialLogin = (language: Language) => {
   const handleSocialLogin = useCallback(async (provider: 'google' | 'facebook' | 'twitter' | 'azure') => {
     try {
       setIsSubmitting(true);
-      await loginWithSocial(provider);
+      const result = await loginWithSocial(provider);
+      if (!result.success && result.error) {
+        throw result.error;
+      }
     } catch (error: any) {
       console.error(`${provider} login error:`, error);
       toast.error(

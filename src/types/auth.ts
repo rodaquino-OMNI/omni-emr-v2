@@ -6,12 +6,21 @@ export interface AuthContextType {
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  signIn: (credentials: any) => Promise<void>;
-  signOut: () => Promise<void>;
-  signUp: (data: any) => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  language: Language;
+  setLanguage: React.Dispatch<React.SetStateAction<Language>>;
+  login: (email: string, password: string) => Promise<{success: boolean; pendingApproval?: boolean}>;
+  logout: () => Promise<void>;
+  loginWithSocial: (provider: string) => Promise<{success: boolean; error?: any}>;
+  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{success: boolean; user?: User; error?: any}>;
+  resetPassword: (email: string) => Promise<{success: boolean; error?: any}>;
   updateUser: (updates: Partial<User>) => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  hasPermission: (permission: string) => boolean;
+  canAccessPatientData: (patientId: string) => boolean;
+  session: any;
+  sessionTimeoutMinutes: number;
+  setSessionTimeoutMinutes: React.Dispatch<React.SetStateAction<number>>;
+  lastActivity: Date;
 }
 
 export interface User {

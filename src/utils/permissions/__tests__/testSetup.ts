@@ -8,7 +8,9 @@ export const createMockUser = (role: string, customPermissions: string[] = []): 
     email: 'test@example.com',
     name: 'Test User',
     role: role as any,
-    permissions: customPermissions
+    permissions: customPermissions,
+    status: 'active',
+    approvalStatus: 'approved'
   };
 };
 
