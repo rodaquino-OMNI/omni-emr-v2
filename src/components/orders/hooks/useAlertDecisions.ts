@@ -27,7 +27,7 @@ export const useAlertDecisions = (alerts: OrderAlert[], setAlerts: React.Dispatc
           ? 'Os alertas foram ignorados com uma justificativa clínica'
           : 'Alerts have been overridden with clinical justification',
         variant: "warning",
-        icon: <Shield className="h-4 w-4 text-amber-600" />
+        icon: { icon: Shield, className: "h-4 w-4 text-amber-600" }
       });
       
       // In a real app, we would log these overrides to the audit log

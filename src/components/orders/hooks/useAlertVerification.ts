@@ -28,7 +28,7 @@ export const useAlertVerification = (
           ? 'Nossa IA está analisando o pedido para garantir a segurança' 
           : 'Our AI is analyzing the order to ensure safety',
         variant: "default",
-        icon: <Shield className="h-4 w-4 text-purple-600" />
+        icon: { icon: Shield, className: "h-4 w-4 text-purple-600" }
       });
       
       // In a real app, this would call a Supabase function or API endpoint
@@ -77,7 +77,7 @@ export const useAlertVerification = (
             ? 'Nenhum problema foi encontrado pela IA'
             : 'No issues were found by the AI',
           variant: "success",
-          icon: <Shield className="h-4 w-4 text-green-600" />
+          icon: { icon: Shield, className: "h-4 w-4 text-green-600" }
         });
       }
       
