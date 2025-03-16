@@ -1,105 +1,112 @@
 
-import React from 'react';
 import { RouteObject } from 'react-router-dom';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { roleRouteConfig } from '@/registry/RoleBasedRouter';
-
-// Public routes
+import SectorSelector from '@/pages/SectorSelector';
+import Patients from '@/pages/Patients';
+import PatientDetail from '@/pages/PatientDetail';
+import ProtectedRoute from '@/components/auth/protected-route';
+import Dashboard from '@/pages/Dashboard';
+import Admin from '@/pages/Admin';
+import MedicationsPage from '@/pages/Medications';
+import MedicationDetail from '@/pages/MedicationDetail';
+import RecordsPage from '@/pages/Records';
+import RecordDetail from '@/pages/RecordDetail';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
-import Unauthorized from '@/pages/Unauthorized';
-import NotFound from '@/pages/NotFound';
+import PageNotFound from '@/pages/PageNotFound';
+import { lazy } from 'react';
 
-// Basic layout with authentication
-import Layout from '@/components/layout/Layout';
-import Dashboard from '@/components/dashboard/Dashboard';
-import SectorSelection from '@/pages/SectorSelection';
+// Lazy-loaded routes
+const Settings = lazy(() => import('@/pages/Settings'));
+const Help = lazy(() => import('@/pages/Help'));
+const About = lazy(() => import('@/pages/About'));
 
-// Create base routes available to all users
-export const appRoutes: RouteObject[] = [
-  // Public routes (no authentication required)
+export interface AppRoute extends RouteObject {
+  title?: string;
+  requiredRole?: string[];
+  icon?: string;
+}
+
+export const routes: AppRoute[] = [
   {
     path: '/login',
-    element: <Login />
+    element: <Login />,
+    title: 'Login'
   },
   {
     path: '/register',
-    element: <Register />
+    element: <Register />,
+    title: 'Register'
   },
   {
-    path: '/forgot-password',
-    element: <ForgotPassword />
+    path: '/sectors',
+    element: <ProtectedRoute><SectorSelector /></ProtectedRoute>,
+    title: 'Sector Selection'
   },
   {
-    path: '/reset-password',
-    element: <ResetPassword />
+    path: '/dashboard',
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
+    title: 'Dashboard'
   },
   {
-    path: '/unauthorized',
-    element: <Unauthorized />
+    path: '/patients',
+    element: <ProtectedRoute><Patients /></ProtectedRoute>,
+    title: 'Patients'
   },
-  
-  // Protected routes with authentication
+  {
+    path: '/patients/:id',
+    element: <ProtectedRoute><PatientDetail /></ProtectedRoute>,
+    title: 'Patient Detail'
+  },
+  {
+    path: '/medications',
+    element: <ProtectedRoute requiredRole={['doctor', 'nurse', 'pharmacist']}><MedicationsPage /></ProtectedRoute>,
+    title: 'Medications'
+  },
+  {
+    path: '/medications/:id',
+    element: <ProtectedRoute><MedicationDetail /></ProtectedRoute>,
+    title: 'Medication Detail'
+  },
+  {
+    path: '/records',
+    element: <ProtectedRoute><RecordsPage /></ProtectedRoute>,
+    title: 'Records'
+  },
+  {
+    path: '/records/:id',
+    element: <ProtectedRoute><RecordDetail /></ProtectedRoute>,
+    title: 'Record Detail'
+  },
+  {
+    path: '/admin',
+    element: <ProtectedRoute requiredRole={['admin']}><Admin /></ProtectedRoute>,
+    title: 'Administration'
+  },
+  {
+    path: '/settings',
+    element: <ProtectedRoute><Settings /></ProtectedRoute>,
+    title: 'Settings'
+  },
+  {
+    path: '/help',
+    element: <ProtectedRoute><Help /></ProtectedRoute>,
+    title: 'Help'
+  },
+  {
+    path: '/about',
+    element: <ProtectedRoute><About /></ProtectedRoute>,
+    title: 'About'
+  },
   {
     path: '/',
-    element: <ProtectedRoute><Layout /></ProtectedRoute>,
-    children: [
-      {
-        path: '/',
-        element: <Dashboard />
-      },
-      {
-        path: '/dashboard',
-        element: <Dashboard />
-      },
-      {
-        path: '/sectors',
-        element: <SectorSelection />
-      }
-    ]
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
+    title: 'Home'
   },
-  
-  // 404 route
   {
     path: '*',
-    element: <NotFound />
+    element: <PageNotFound />,
+    title: 'Not Found'
   }
 ];
 
-// Helper function to create dynamic routes based on user role and permissions
-export const createDynamicRoutes = (
-  userRole?: string, 
-  permissions: string[] = []
-): RouteObject[] => {
-  if (!userRole) return appRoutes;
-  
-  // Filter routes based on user role and permissions
-  const authorizedRoutes = roleRouteConfig
-    .filter(route => {
-      // Check if user has required role
-      const hasRole = route.roles.includes('all') || route.roles.includes(userRole);
-      
-      // Check if user has required permission
-      const hasPermission = !route.permissions.length || 
-        route.permissions.some(perm => permissions.includes(perm));
-      
-      return hasRole && hasPermission;
-    })
-    .map(route => ({
-      path: route.path,
-      element: (
-        <ProtectedRoute 
-          requiredPermission={route.permissions[0]} 
-          requiredRole={userRole}
-        >
-          <Layout>
-            <route.component />
-          </Layout>
-        </ProtectedRoute>
-      )
-    }));
-  
-  return [...appRoutes, ...authorizedRoutes];
-};
+export default routes;

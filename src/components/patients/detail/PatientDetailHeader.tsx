@@ -4,10 +4,26 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Patient } from '@/types/patientTypes';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, ChevronLeft, UserPlus, UserMinus, Calendar } from 'lucide-react';
+import { 
+  AlertTriangle, 
+  ChevronLeft, 
+  UserPlus, 
+  UserMinus, 
+  Calendar, 
+  HeartPulse,
+  AlertCircle,
+  ClipboardList,
+  Phone
+} from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { calculatePatientAge } from '@/utils/patientUtils';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 
 type PatientDetailHeaderProps = {
   patient: Patient;
@@ -29,7 +45,10 @@ const PatientDetailHeader: React.FC<PatientDetailHeaderProps> = ({
   };
 
   return (
-    <div className="glass-card p-6">
+    <div className={cn(
+      "glass-card p-6",
+      patient.status === 'critical' && "border-l-4 border-red-500"
+    )}>
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-start">
           <Button 
@@ -43,10 +62,19 @@ const PatientDetailHeader: React.FC<PatientDetailHeaderProps> = ({
           
           <div className="flex items-center gap-2">
             {hasCriticalInsights && (
-              <Badge variant="destructive" className="flex items-center gap-1">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                {language === 'pt' ? 'Alerta crítico' : 'Critical alert'}
-              </Badge>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="destructive" className="flex items-center gap-1 animate-pulse">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      {language === 'pt' ? 'Alerta crítico' : 'Critical alert'}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{language === 'pt' ? 'Este paciente tem alertas críticos' : 'This patient has critical alerts'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             
             <StatusBadge status={patient.status} size="lg" />
@@ -78,6 +106,11 @@ const PatientDetailHeader: React.FC<PatientDetailHeaderProps> = ({
           <div className="flex-1">
             <h1 className="text-2xl font-bold">
               {patient.first_name} {patient.last_name}
+              {patient.status === 'critical' && (
+                <span className="inline-block ml-2">
+                  <HeartPulse className="h-5 w-5 text-red-500 inline" />
+                </span>
+              )}
             </h1>
             
             <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-muted-foreground">
@@ -107,11 +140,38 @@ const PatientDetailHeader: React.FC<PatientDetailHeaderProps> = ({
                 MRN: {patient.mrn}
               </div>
             </div>
+            
+            {patient.emergency_contact_name && patient.emergency_contact_phone && (
+              <div className="mt-3 flex items-center gap-1 text-sm">
+                <Badge variant="outline" className="gap-1">
+                  <Phone className="h-3 w-3" />
+                  {language === 'pt' ? 'Contato de emergência' : 'Emergency contact'}:
+                  {patient.emergency_contact_name} ({patient.emergency_contact_phone})
+                </Badge>
+              </div>
+            )}
           </div>
+          
+          {patient.status === 'critical' && (
+            <div className="bg-red-50 dark:bg-red-950/30 p-3 rounded-md border border-red-200 dark:border-red-900">
+              <div className="flex items-center gap-2 text-red-800 dark:text-red-300 font-medium">
+                <AlertTriangle className="h-5 w-5" />
+                <span>{language === 'pt' ? 'Atenção necessária' : 'Attention required'}</span>
+              </div>
+              <div className="text-sm mt-1 text-red-700 dark:text-red-400">
+                {language === 'pt' 
+                  ? 'Este paciente requer atenção médica imediata' 
+                  : 'This patient requires immediate medical attention'}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+// Import cn utility
+import { cn } from '@/lib/utils';
 
 export default PatientDetailHeader;

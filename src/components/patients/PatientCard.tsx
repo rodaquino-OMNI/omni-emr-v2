@@ -5,10 +5,11 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, User, UserPlus, UserMinus } from 'lucide-react';
+import { AlertCircle, AlertTriangle, User, UserPlus, UserMinus, Clock, CircleX, HeartPulse } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { useTranslation } from '@/hooks/useTranslation';
 import TranslatedText from '@/components/common/TranslatedText';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Export the Patient type so it can be imported in other files
 export interface Patient {
@@ -22,6 +23,11 @@ export interface Patient {
   isCritical?: boolean;
   mrn: string;
   diagnosis?: string;
+  lastUpdated?: string;
+  alerts?: Array<{
+    type: 'critical' | 'warning' | 'info';
+    message: string;
+  }>;
   onToggleAssignment?: (e: React.MouseEvent) => void;
 }
 
@@ -43,10 +49,74 @@ const PatientCard = ({ patient, className }: PatientCardProps) => {
       .substring(0, 2);
   };
 
+  // Get critical status indicator
+  const getCriticalIndicator = () => {
+    if (patient.status === 'critical' || patient.isCritical) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 shadow-md animate-pulse">
+                <AlertCircle className="h-3 w-3" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{language === 'pt' ? 'Paciente em estado crítico' : 'Patient in critical condition'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    return null;
+  };
+
+  // Get alert badges
+  const getAlertBadges = () => {
+    if (!patient.alerts || patient.alerts.length === 0) return null;
+    
+    return (
+      <div className="flex flex-wrap gap-1 mt-1">
+        {patient.alerts.map((alert, index) => {
+          const icon = alert.type === 'critical' ? 
+            <HeartPulse className="h-3 w-3 mr-1" /> : 
+            alert.type === 'warning' ? 
+              <AlertTriangle className="h-3 w-3 mr-1" /> : 
+              <CircleX className="h-3 w-3 mr-1" />;
+              
+          const bgColor = alert.type === 'critical' ? 
+            'bg-red-100 text-red-800 border-red-200' : 
+            alert.type === 'warning' ? 
+              'bg-amber-100 text-amber-800 border-amber-200' : 
+              'bg-blue-100 text-blue-800 border-blue-200';
+              
+          return (
+            <TooltipProvider key={index}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className={cn("text-xs", bgColor)}>
+                    {icon}
+                    {alert.type}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{alert.message}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <Link 
       to={`/patients/${patient.id}`} 
-      className={cn("block py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-md px-2 -mx-2", className)}
+      className={cn(
+        "block py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-md px-2 -mx-2",
+        patient.status === 'critical' && "border-l-4 border-red-500 pl-1",
+        className
+      )}
     >
       <div className="flex items-center gap-4">
         <div className="relative">
@@ -55,11 +125,7 @@ const PatientCard = ({ patient, className }: PatientCardProps) => {
             <AvatarFallback>{getInitials(patient.name)}</AvatarFallback>
           </Avatar>
           
-          {patient.isCritical && (
-            <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1">
-              <AlertTriangle className="h-3 w-3" />
-            </div>
-          )}
+          {getCriticalIndicator()}
         </div>
         
         <div className="flex-1 min-w-0">
@@ -86,7 +152,21 @@ const PatientCard = ({ patient, className }: PatientCardProps) => {
               <span>• {language === 'pt' ? 'Quarto' : 'Room'} {patient.roomNumber}</span>
             )}
             <span>• MRN: {patient.mrn}</span>
+            {patient.lastUpdated && (
+              <span className="flex items-center text-xs">
+                <Clock className="h-3 w-3 mr-1" />
+                {patient.lastUpdated}
+              </span>
+            )}
           </div>
+          
+          {getAlertBadges()}
+          
+          {patient.diagnosis && (
+            <div className="mt-1 text-xs text-muted-foreground italic truncate">
+              {patient.diagnosis}
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-3">
