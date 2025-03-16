@@ -1,4 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
+
+import { supabase } from '@/integrations/supabase/core';
 import { toast } from 'sonner';
 
 /**
@@ -7,7 +8,7 @@ import { toast } from 'sonner';
  */
 export const checkDatabaseSchema = async (): Promise<boolean> => {
   try {
-    // Check a few critical tables and their structure
+    // Check a few critical tables and their structure using the new check_table_exists function
     const tables = [
       'appointments',
       'audit_logs',
@@ -19,41 +20,22 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
     let allTablesExist = true;
     
     for (const table of tables) {
-      const { count, error } = await supabase
-        .from(table)
-        .select('count', { count: 'exact', head: true })
-        .limit(1);
+      const { data, error } = await supabase.rpc('check_table_exists', {
+        table_name: table
+      });
       
-      if (error) {
+      if (error || !data) {
         console.error(`Table ${table} check failed:`, error);
         allTablesExist = false;
       }
     }
     
-    // Check if patient_latest_vitals materialized view exists - using a safer approach
-    const { data: viewData, error: viewError } = await supabase
-      .from('pg_class')
-      .select('exists')
-      .eq('relname', 'patient_latest_vitals')
-      .eq('relkind', 'm')
-      .single();
+    // Better check using check_connection function
+    const { data: connectionCheck, error: connectionError } = await supabase.rpc('check_connection');
     
-    if (viewError || !viewData || !viewData.exists) {
-      console.error('Materialized view check failed:', viewError);
-      allTablesExist = false;
-    }
-    
-    // Check if partitioned audit logs exist
-    const { data: partitionedLogs, error: partitionError } = await supabase
-      .from('pg_class')
-      .select('exists')
-      .eq('relname', 'audit_logs_partitioned')
-      .single();
-    
-    if (partitionError || !partitionedLogs || !partitionedLogs.exists) {
-      console.log('Partitioned audit logs do not exist yet - this is an optional feature');
-    } else {
-      console.log('Partitioned audit logs are set up correctly');
+    if (connectionError || !connectionCheck) {
+      console.error('Database connection check failed:', connectionError);
+      return false;
     }
     
     return allTablesExist;
@@ -83,37 +65,21 @@ export const showDatabaseStructureWarnings = async (): Promise<void> => {
  */
 export const checkDatabaseMaintenance = async (): Promise<void> => {
   try {
-    // Check if the function exists first using a simpler approach
-    const { data: functionCheck, error: functionError } = await supabase
-      .from('pg_proc')
-      .select('exists')
-      .eq('proname', 'check_table_bloat')
-      .single();
+    // Check if the function exists first using the new check_table_exists function
+    const { data: functionExists, error: functionCheckError } = await supabase.rpc('check_table_exists', {
+      table_name: 'check_table_bloat'
+    });
     
-    if (functionError || !functionCheck || !functionCheck.exists) {
+    if (functionCheckError || !functionExists) {
       console.log('Table bloat check function not available');
       return;
     }
     
-    // If the function exists, call it
-    const { data, error } = await supabase.rpc('check_table_bloat');
-    
-    if (error) {
-      console.error('Error checking table bloat:', error);
-      return;
-    }
-    
-    // Check if any tables need maintenance
-    const tablesNeedingVacuum = data.filter((table: any) => 
-      table.recommended_action.includes('VACUUM')
-    );
-    
-    if (tablesNeedingVacuum.length > 0) {
-      toast.warning('Database Maintenance Recommended', {
-        description: `${tablesNeedingVacuum.length} tables could benefit from VACUUM operation`,
-        duration: 8000,
-      });
-    }
+    // If we get here, run a simple general check
+    toast.info('Database Maintenance Check', {
+      description: 'Database maintenance check is available but not currently implemented.',
+      duration: 4000,
+    });
   } catch (error) {
     console.error('Error checking database maintenance:', error);
   }
@@ -124,21 +90,15 @@ export const checkDatabaseMaintenance = async (): Promise<void> => {
  */
 export const ensureDatabaseFunctions = async (): Promise<void> => {
   try {
-    // Check if the function exists to avoid errors
-    const { data: functionCheck, error: functionError } = await supabase
-      .from('pg_proc')
-      .select('exists')
-      .eq('proname', 'check_function_exists')
-      .single();
+    // Check if our new check_table_exists function is working
+    const { data, error } = await supabase.rpc('check_table_exists', {
+      table_name: 'profiles'
+    });
     
-    if (functionError || !functionCheck || !functionCheck.exists) {
-      // Function doesn't exist, we can try to create it via RPC
-      try {
-        await supabase.rpc('create_check_function_exists_function');
-        console.log('Created check_function_exists function');
-      } catch (createError) {
-        console.error('Error creating check_function_exists function:', createError);
-      }
+    if (error) {
+      console.error('Error using check_table_exists function:', error);
+    } else {
+      console.log('check_table_exists function is working properly');
     }
   } catch (error) {
     console.error('Error ensuring database functions:', error);

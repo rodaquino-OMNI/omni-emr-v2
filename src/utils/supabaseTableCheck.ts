@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/core';
 import { toast } from 'sonner';
 
 type TableName = 'appointments' | 'audit_logs' | 'profiles';
@@ -11,25 +11,17 @@ type TableName = 'appointments' | 'audit_logs' | 'profiles';
  */
 export const checkTableExists = async (tableName: TableName): Promise<boolean> => {
   try {
-    const { error } = await supabase
-      .from(tableName)
-      .select('count')
-      .limit(1);
+    // Using our new check_table_exists function
+    const { data, error } = await supabase.rpc('check_table_exists', {
+      table_name: tableName
+    });
     
-    // If there's no error, the table exists
-    if (!error) {
-      return true;
-    }
-    
-    // Check the error message to determine if it's a table not found error
-    if (error.message.includes('relation') && error.message.includes('does not exist')) {
-      console.error(`Table '${tableName}' does not exist:`, error);
+    if (error) {
+      console.error(`Error checking if table '${tableName}' exists:`, error);
       return false;
     }
     
-    // Some other error occurred
-    console.error(`Error checking if table '${tableName}' exists:`, error);
-    return false;
+    return data || false;
   } catch (err) {
     console.error(`Exception checking if table '${tableName}' exists:`, err);
     return false;

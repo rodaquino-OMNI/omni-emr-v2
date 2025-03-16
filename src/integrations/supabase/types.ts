@@ -2942,6 +2942,51 @@ export type Database = {
         }
         Relationships: []
       }
+      security_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          is_resolved: boolean | null
+          message: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          is_resolved?: boolean | null
+          message: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          is_resolved?: boolean | null
+          message?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       telehealth_sessions: {
         Row: {
           actual_start: string | null
@@ -3108,10 +3153,20 @@ export type Database = {
           rows_deleted: number
         }[]
       }
+      check_connection: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       check_fhir_resource_exists: {
         Args: {
           resource_type: string
           resource_id: string
+        }
+        Returns: boolean
+      }
+      check_table_exists: {
+        Args: {
+          table_name: string
         }
         Returns: boolean
       }

@@ -1,4 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
+
+import { supabase } from '@/integrations/supabase/core';
 
 // Check if a user has MFA enabled
 export const hasEnabledMFA = async (userId: string): Promise<boolean> => {

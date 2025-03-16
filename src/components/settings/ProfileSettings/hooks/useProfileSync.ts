@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { supabase, logAuditEvent, logEnhancedAuditEvent } from '@/integrations/supabase/client';
+import { supabase, logAuditEvent, logEnhancedAuditEvent } from '@/integrations/supabase/core';
 import { useAuth } from '@/context/AuthContext';
 import { ProfileData, ProfileFormData } from '../types';
 import { format } from 'date-fns';

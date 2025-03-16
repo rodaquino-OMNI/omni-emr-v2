@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/core';
 
 export const logPatientAccess = async (userId: string, patientId: string) => {
   try {

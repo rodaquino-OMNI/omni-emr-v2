@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/core';
 import { UserRole } from '@/types/auth';
 
 export const signUpWithEmail = async (email: string, password: string, name: string, role: UserRole) => {
