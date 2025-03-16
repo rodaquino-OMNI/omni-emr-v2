@@ -4,4 +4,5 @@ export interface OrderAlert {
   message: string;
   overridden: boolean;
   overriddenReason?: string;
+  severity: 'critical' | 'moderate' | 'low'; // Added severity property for alertLogging.ts
 }
