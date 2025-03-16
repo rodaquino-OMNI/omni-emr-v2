@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserCheck, Loader2, KeyRound, ArrowLeft } from 'lucide-react';
+import { UserCheck, Loader2, KeyRound, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language } from '@/types/auth';
 
 interface EmailLoginFormProps {
@@ -35,6 +35,12 @@ const EmailLoginForm = ({
   forgotPassword = false,
   toggleForgotPassword
 }: EmailLoginFormProps) => {
+  const [showDemoCredentials, setShowDemoCredentials] = useState<boolean>(false);
+
+  const toggleDemoCredentials = () => {
+    setShowDemoCredentials(!showDemoCredentials);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -149,13 +155,24 @@ const EmailLoginForm = ({
           </Link>
         </p>
         
-        <div className="mt-4 pt-4 border-t border-input">
-          <p>{language === 'pt' ? 'Contas de demonstração:' : 'Demo accounts:'}</p>
-          <p>admin@omnicare.com</p>
-          <p>doctor@omnicare.com</p>
-          <p>nurse@omnicare.com</p>
-          <p className="mt-1">{language === 'pt' ? 'Senha: any' : 'Password: any'}</p>
-        </div>
+        <button
+          type="button"
+          onClick={toggleDemoCredentials}
+          className="mt-4 text-xs flex items-center justify-center mx-auto text-muted-foreground hover:text-primary"
+        >
+          {showDemoCredentials ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+          {language === 'pt' ? 'Credenciais de demonstração' : 'Demo credentials'}
+        </button>
+        
+        {showDemoCredentials && (
+          <div className="mt-2 pt-2 border-t border-input text-xs text-muted-foreground">
+            <p>{language === 'pt' ? 'Contas de demonstração:' : 'Demo accounts:'}</p>
+            <p>admin@omnicare.com</p>
+            <p>doctor@omnicare.com</p>
+            <p>nurse@omnicare.com</p>
+            <p className="mt-1">{language === 'pt' ? 'Senha: any' : 'Password: any'}</p>
+          </div>
+        )}
       </div>
     </form>
   );
