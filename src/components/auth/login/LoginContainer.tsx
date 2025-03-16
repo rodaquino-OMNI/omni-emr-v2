@@ -1,177 +1,157 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { AlertTriangle } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import LoginCard from '@/components/auth/login/LoginCard';
-import LoginHeader from '@/components/auth/login/LoginHeader';
-import EmailLoginForm from '@/components/auth/EmailLoginForm';
-import PhoneLoginForm from '@/components/auth/PhoneLoginForm';
-import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
-import LanguageToggle from '@/components/auth/LanguageToggle';
+import React, { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
-import SupabaseConnectionStatus from '@/components/ui/SupabaseConnectionStatus';
-import { checkDatabaseSchema } from '@/utils/supabaseSchemaCheck';
-import { Language } from '@/types/auth';
 import { useAuthLogin } from '@/hooks/useAuthLogin';
 
+// Import components
+import LoginHeader from './LoginHeader';
+import LoginCard, { LoginCardProps } from './LoginCard';
+import LanguageToggle from '../LanguageToggle';
+import EmailLoginForm from '../EmailLoginForm';
+import PhoneLoginForm from '../PhoneLoginForm';
+import SocialLoginButtons from '../SocialLoginButtons';
+
+// Supabase connection status
+import SupabaseConnectionStatus from '@/components/ui/SupabaseConnectionStatus';
+import TranslatedText from '@/components/common/TranslatedText';
+
 interface LoginContainerProps {
-  t: (key: string, ...params: any[]) => string;
-  language: Language;
-  isSupabaseConnected: boolean | null;
-  setIsSupabaseConnected: React.Dispatch<React.SetStateAction<boolean | null>>;
+  isSupabaseConnected: boolean;
 }
 
-const LoginContainer = ({ 
-  t, 
-  language,
-  isSupabaseConnected,
-  setIsSupabaseConnected
-}: LoginContainerProps) => {
-  const [activeView, setActiveView] = useState<'email' | 'phone'>('email');
-  const [showSchemaWarning, setShowSchemaWarning] = useState<boolean>(false);
+const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) => {
+  const { t, language } = useTranslation();
+  const authLogin = useAuthLogin();
   
-  // Authentication state
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [showVerification, setShowVerification] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Form state
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [verificationCode, setVerificationCode] = useState<string>('');
+  const [showPhoneVerification, setShowPhoneVerification] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
   
-  const { loginWithEmail, loginWithPhone, loginWithSocial, sendPhoneCode } = useAuthLogin();
+  // Login method tab state
+  const [activeLoginMethod, setActiveLoginMethod] = useState<'email' | 'phone'>('email');
   
-  // Check database schema on mount
-  useEffect(() => {
-    const checkSchema = async () => {
-      try {
-        // Only check schema if we have a connection
-        if (isSupabaseConnected) {
-          const isSchemaValid = await checkDatabaseSchema();
-          setShowSchemaWarning(!isSchemaValid);
-        }
-      } catch (error) {
-        console.error('Error checking database schema:', error);
-        // Don't show schema warnings on connection errors to avoid duplicate alerts
-      }
-    };
+  // Handle email login
+  const handleEmailLogin = async () => {
+    setLoading(true);
+    setError('');
     
-    checkSchema();
-  }, [isSupabaseConnected]);
-
+    try {
+      const result = await authLogin.login(email, password);
+      if (!result.success) {
+        setError(result.error || t('loginFailed'));
+      }
+    } catch (err) {
+      setError(t('loginFailed'));
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Social logins
+  const handleGoogleLogin = () => authLogin.loginWithSocial('google');
+  const handleMicrosoftLogin = () => authLogin.loginWithSocial('azure');
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <LoginCard 
-        isSupabaseConnected={isSupabaseConnected}
-      >
-        <LoginHeader 
-          t={t} 
-          language={language} 
-          activeView={activeView} 
-          setActiveView={setActiveView}
-        />
-        
-        {/* Database connection status indicator */}
-        <div className="mb-4 flex justify-end">
-          <SupabaseConnectionStatus 
-            showLabel={false} 
-            onStatusChange={(status) => {
-              if (setIsSupabaseConnected) setIsSupabaseConnected(status);
-            }} 
-          />
-        </div>
-        
-        {/* Database schema warning if needed */}
-        {showSchemaWarning && (
-          <Alert variant="warning" className="mb-4">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>{t('database.schemaIssuesTitle')}</AlertTitle>
-            <AlertDescription>
-              {t('database.schemaIssuesDescription')}
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {/* Connection error message */}
-        {isSupabaseConnected === false && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>{t('database.connectionErrorTitle')}</AlertTitle>
-            <AlertDescription>
-              {t('database.connectionErrorDescription')}
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {activeView === 'email' ? (
-          <EmailLoginForm 
-            t={t} 
-            language={language}
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            loading={loading}
-            error={error}
-            onLogin={() => {
-              setLoading(true);
-              setError(null);
-              loginWithEmail(email, password)
-                .catch(err => setError(err.message))
-                .finally(() => setLoading(false));
-            }}
-          />
-        ) : (
-          <PhoneLoginForm 
-            t={t} 
-            language={language}
-            phone={phone}
-            setPhone={setPhone}
-            verificationCode={verificationCode}
-            setVerificationCode={setVerificationCode}
-            showVerification={showVerification}
-            setShowVerification={setShowVerification}
-            loading={loading}
-            error={error}
-            onSendCode={() => {
-              setLoading(true);
-              setError(null);
-              sendPhoneCode(phone)
-                .then(() => setShowVerification(true))
-                .catch(err => setError(err.message))
-                .finally(() => setLoading(false));
-            }}
-            onLogin={() => {
-              setLoading(true);
-              setError(null);
-              loginWithPhone(phone, verificationCode)
-                .catch(err => setError(err.message))
-                .finally(() => setLoading(false));
-            }}
-          />
-        )}
-        
-        <div className="mt-6">
-          <SocialLoginButtons 
-            onGoogleLogin={() => loginWithSocial('google')}
-            onMicrosoftLogin={() => loginWithSocial('azure')}
-          />
-        </div>
-        
-        <div className="mt-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            {t('auth.noAccount')}{' '}
-            <Link to="/register" className="text-primary hover:underline">
-              {t('auth.createAccount')}
-            </Link>
-          </p>
-        </div>
-        
-        <div className="mt-4 flex justify-center">
-          <LanguageToggle language={language} setLanguage={() => {}} />
-        </div>
-      </LoginCard>
+    <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-gradient-to-b from-background to-background/80">
+      <div className="w-full max-w-md">
+        <LoginCard>
+          <div className="mb-8">
+            <LoginHeader />
+            
+            {!isSupabaseConnected && (
+              <div className="mt-4 p-4 bg-destructive/10 rounded-lg">
+                <TranslatedText 
+                  textKey="databaseConnectionError" 
+                  fallback="Database connection error. Please try again later."
+                  className="text-sm text-destructive"
+                />
+              </div>
+            )}
+          </div>
+          
+          <div className="space-y-6">
+            {/* Login method tabs */}
+            <div className="flex border-b">
+              <button
+                className={`py-2 px-4 ${activeLoginMethod === 'email' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
+                onClick={() => setActiveLoginMethod('email')}
+              >
+                {t('emailLogin')}
+              </button>
+              <button
+                className={`py-2 px-4 ${activeLoginMethod === 'phone' ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground'}`}
+                onClick={() => setActiveLoginMethod('phone')}
+              >
+                {t('phoneLogin')}
+              </button>
+            </div>
+            
+            {/* Login forms */}
+            {activeLoginMethod === 'email' ? (
+              <EmailLoginForm
+                t={t}
+                language={language}
+                email={email}
+                setEmail={setEmail}
+                password={password}
+                setPassword={setPassword}
+                onLogin={handleEmailLogin}
+                error={error}
+              />
+            ) : (
+              <PhoneLoginForm
+                t={t}
+                language={language}
+                phone={phone}
+                setPhone={setPhone}
+                verificationCode={verificationCode}
+                setVerificationCode={setVerificationCode}
+                onLogin={handleEmailLogin}
+                onSendCode={() => {}}
+                onClearError={() => setError('')}
+                error={error}
+              />
+            )}
+            
+            {/* Social login */}
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-background text-muted-foreground">
+                    {t('orContinueWith')}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <SocialLoginButtons
+                  onGoogle={handleGoogleLogin}
+                  onMicrosoft={handleMicrosoftLogin}
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Connection status */}
+          <div className="mt-8 text-center">
+            <SupabaseConnectionStatus isConnected={isSupabaseConnected} />
+          </div>
+          
+          {/* Language toggle */}
+          <div className="mt-4 flex justify-center">
+            <LanguageToggle />
+          </div>
+        </LoginCard>
+      </div>
     </div>
   );
 };

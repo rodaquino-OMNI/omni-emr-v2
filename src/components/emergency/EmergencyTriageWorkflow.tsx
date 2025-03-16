@@ -28,7 +28,6 @@ const EmergencyTriageWorkflow = ({ patientId, patientName }: EmergencyTriageWork
   const canPerformTriage = permissions.canPerformTriage();
   const canTreatEmergency = permissions.checkEmergencyCare('treatment');
   const isPhysician = user?.role === 'doctor';
-  const isNurse = user?.role === 'nurse';
   
   // Use the custom hook to manage triage state
   const {
