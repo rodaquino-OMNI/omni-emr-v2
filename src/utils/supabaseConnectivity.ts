@@ -7,16 +7,15 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
-    // Simple query to check if we can connect to Supabase
-    const { error } = await supabase.from('auth').select('*', { count: 'exact', head: true }).limit(1);
+    // Use the dedicated check_connection RPC function
+    const { data, error } = await supabase.rpc('check_connection');
     
-    // If there's an error that's not a "relation does not exist" error, consider it a connection issue
-    if (error && !error.message.includes('relation') && !error.message.includes('does not exist')) {
+    if (error) {
       console.error('Supabase connection test error:', error);
       return false;
     }
     
-    return true;
+    return !!data;
   } catch (error) {
     console.error('Supabase connection test failed:', error);
     return false;
