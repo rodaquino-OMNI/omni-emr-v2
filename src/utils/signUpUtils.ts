@@ -29,3 +29,19 @@ export const requestPasswordReset = async (email: string) => {
 
   return { success: true };
 };
+
+// Add the missing updatePassword function
+export const updatePassword = async (newPassword: string) => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating password:', error);
+    throw error;
+  }
+};

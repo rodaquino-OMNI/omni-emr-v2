@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { User, UserRole, Language } from '@/types/auth';
-import { signUpWithEmail } from '@/utils/authUtils';
+import { signUpWithEmail } from '@/utils/signUpUtils';
 import { useAuthError } from './useAuthError';
 
 export const useSignUpAuth = (
@@ -27,11 +27,26 @@ export const useSignUpAuth = (
           : 'Your account has been created. Please check your email to confirm.'
       });
       
+      // Convert Supabase user to our App User type if needed
+      let appUser: User | null = null;
+      
+      if (result.user) {
+        // Create our app's User type from Supabase User
+        appUser = {
+          id: result.user.id,
+          email: result.user.email,
+          name: name, // Use the name passed to the function
+          role: role, // Use the role passed to the function
+          status: 'active', // Default status for new users
+          mfaEnabled: false,
+          createdAt: result.user.created_at,
+          lastLogin: new Date().toISOString()
+        };
+      }
+      
       return {
         success: true,
-        user: result.user ? (typeof result.user === 'object' && 'role' in result.user 
-          ? result.user as User 
-          : null) : null,
+        user: appUser,
         session: result.session
       };
     } catch (error) {
