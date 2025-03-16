@@ -1,59 +1,117 @@
 
-import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
-import { 
-  getAppointmentsByDate, 
-  getAppointmentsByPatient,
-  Appointment
-} from '@/services/appointments';
-import { useFetchAppointments } from './useFetchAppointments';
-import { sortAppointmentsByTime, limitAppointments } from '../utils/appointmentUtils';
+import { toast } from 'sonner';
 
-type UseAppointmentsQueryProps = {
-  selectedDate?: Date;
-  patientId?: string;
-  limit?: number;
-};
+export interface Appointment {
+  id: string;
+  patientName: string;
+  patientId: string;
+  providerId: string;
+  providerName: string;
+  startTime: Date;
+  endTime: Date;
+  status: 'scheduled' | 'completed' | 'canceled' | 'no-show';
+  type: string;
+  notes?: string;
+  location?: string;
+  reason?: string;
+}
 
-export const useAppointmentsQuery = ({ selectedDate, patientId, limit }: UseAppointmentsQueryProps) => {
-  const fetchAppointments = useFetchAppointments();
-  
-  // Create a stable query key
-  const queryKey = useMemo(() => 
-    ['appointments', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null, patientId], 
-    [selectedDate, patientId]
-  );
-  
-  // Fetch appointments based on provided filters
-  const queryResult = useQuery({
-    queryKey,
-    queryFn: () => fetchAppointments(selectedDate, patientId),
-    enabled: !!(selectedDate || patientId),
-    staleTime: 5 * 60 * 1000, // 5 minutes stale time to reduce unnecessary refetches
-  });
-  
-  const appointments = queryResult.data || [];
-  const isLoading = queryResult.isLoading;
-  const error = queryResult.error;
-  
-  // Memoize sorted appointments to avoid recomputation on each render
-  const sortedAppointments = useMemo(() => 
-    sortAppointmentsByTime(appointments),
-    [appointments]
-  );
-  
-  // Memoize limited appointments
-  const sortedAndLimitedAppointments = useMemo(() => 
-    limitAppointments(sortedAppointments, limit),
-    [sortedAppointments, limit]
-  );
+export const useAppointmentsQuery = (
+  selectedDate?: Date,
+  patientId?: string,
+  providerId?: string,
+  status?: string
+) => {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchAppointments = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Mock data for demonstration
+      const mockAppointments: Appointment[] = [
+        {
+          id: '1',
+          patientName: 'John Doe',
+          patientId: '123',
+          providerId: '456',
+          providerName: 'Dr. Smith',
+          startTime: new Date(new Date().setHours(9, 0, 0)),
+          endTime: new Date(new Date().setHours(9, 30, 0)),
+          status: 'scheduled',
+          type: 'follow-up'
+        },
+        {
+          id: '2',
+          patientName: 'Jane Smith',
+          patientId: '124',
+          providerId: '456',
+          providerName: 'Dr. Smith',
+          startTime: new Date(new Date().setHours(10, 0, 0)),
+          endTime: new Date(new Date().setHours(10, 45, 0)),
+          status: 'scheduled',
+          type: 'initial-consultation'
+        }
+      ];
+      
+      // Filter appointments based on parameters
+      let filteredAppointments = [...mockAppointments];
+      
+      if (selectedDate) {
+        const dateStr = format(selectedDate, 'yyyy-MM-dd');
+        filteredAppointments = filteredAppointments.filter(app => 
+          format(app.startTime, 'yyyy-MM-dd') === dateStr
+        );
+      }
+      
+      if (patientId) {
+        filteredAppointments = filteredAppointments.filter(app => 
+          app.patientId === patientId
+        );
+      }
+      
+      if (providerId) {
+        filteredAppointments = filteredAppointments.filter(app => 
+          app.providerId === providerId
+        );
+      }
+      
+      if (status && status !== 'all') {
+        filteredAppointments = filteredAppointments.filter(app => 
+          app.status === status
+        );
+      }
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setAppointments(filteredAppointments);
+    } catch (err) {
+      console.error('Error fetching appointments:', err);
+      setError(err instanceof Error ? err : new Error('Failed to fetch appointments'));
+      toast('Error', {
+        description: 'Failed to fetch appointments'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedDate, patientId, providerId, status]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   return {
     appointments,
     isLoading,
     error,
-    sortedAppointments,
-    sortedAndLimitedAppointments
+    refetch: fetchAppointments
   };
 };
+
+export default useAppointmentsQuery;

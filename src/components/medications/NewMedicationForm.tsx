@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Form,
@@ -25,7 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { SearchIcon, AlertTriangle } from 'lucide-react';
 import {
   checkMedicationInteractions,
@@ -98,10 +99,8 @@ const NewMedicationForm: React.FC<NewMedicationFormProps> = ({ open, onOpenChang
       setMedications(results);
     } catch (error) {
       console.error('Failed to search medications:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to search medications',
-        variant: 'destructive'
+      toast('Error', {
+        description: 'Failed to search medications'
       });
       setMedications([]);
     } finally {
@@ -126,10 +125,9 @@ const NewMedicationForm: React.FC<NewMedicationFormProps> = ({ open, onOpenChang
   const onSubmitHandler = (values: z.infer<typeof formSchema>) => {
     onSubmit(values);
     onOpenChange(false);
-    toast({
-      title: "Medication added.",
-      description: "Your medication has been added to the list.",
-    })
+    toast("Medication added", {
+      description: "Your medication has been added to the list."
+    });
   }
 
   return (
@@ -167,7 +165,7 @@ const NewMedicationForm: React.FC<NewMedicationFormProps> = ({ open, onOpenChang
                       variant="outline"
                       size="sm"
                       className="rounded-l-none"
-                      isLoading={isSearching}
+                      disabled={isSearching}
                     >
                       <SearchIcon className="h-4 w-4 mr-2" />
                       Search
@@ -326,7 +324,10 @@ const NewMedicationForm: React.FC<NewMedicationFormProps> = ({ open, onOpenChang
             />
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <Button type="submit" isLoading={form.formState.isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={form.formState.isSubmitting}
+              >
                 Add Medication
               </Button>
             </AlertDialogFooter>

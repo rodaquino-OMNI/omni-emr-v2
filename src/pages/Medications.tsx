@@ -18,7 +18,6 @@ import {
   SheetContent, 
   SheetHeader, 
   SheetTitle,
-
   SheetTrigger 
 } from '@/components/ui/sheet';
 import NewMedicationForm from '../components/medications/NewMedicationForm';
@@ -84,27 +83,22 @@ const MedicationsPage = () => {
                   </SelectContent>
                 </Select>
                 
-                <Sheet open={isNewMedicationOpen} onOpenChange={setIsNewMedicationOpen}>
-                  <SheetTrigger asChild>
-                    <Button className="h-9 flex items-center gap-1">
-                      <PlusCircle className="h-4 w-4" />
-                      {language === 'pt' ? 'Novo Medicamento' : 'New Medication'}
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-                    <SheetHeader>
-                      <SheetTitle>
-                        {language === 'pt' ? 'Adicionar Novo Medicamento' : 'Add New Medication'}
-                      </SheetTitle>
-                    </SheetHeader>
-                    <div className="mt-6">
-                      <NewMedicationForm 
-                        onSuccess={handleMedicationCreated} 
-                        onCancel={() => setIsNewMedicationOpen(false)}
-                      />
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                <NewMedicationForm
+                  open={isNewMedicationOpen}
+                  onOpenChange={setIsNewMedicationOpen}
+                  onSubmit={(data) => {
+                    console.log('New medication data:', data);
+                    handleMedicationCreated();
+                  }}
+                />
+                
+                <Button 
+                  className="h-9 flex items-center gap-1"
+                  onClick={() => setIsNewMedicationOpen(true)}
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  {language === 'pt' ? 'Novo Medicamento' : 'New Medication'}
+                </Button>
               </div>
             </div>
             

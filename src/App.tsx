@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -62,16 +63,17 @@ function App() {
       
     const setupPeriodicMaintenance = async () => {
       const { checkDatabaseMaintenance } = await import('./utils/supabaseSchemaCheck');
-      const { refreshAllMaterializedViews } = await import('./utils/supabasePerformanceMonitor');
+      const supabasePerformanceMonitor = await import('./utils/supabasePerformanceMonitor');
       
-      refreshAllMaterializedViews()
+      // Use the imported module correctly
+      supabasePerformanceMonitor.refreshAllMaterializedViews()
         .catch(error => console.error('Error refreshing materialized views:', error));
       
       checkDatabaseMaintenance()
         .catch(error => console.error('Error checking database maintenance:', error));
       
       setInterval(() => {
-        refreshAllMaterializedViews()
+        supabasePerformanceMonitor.refreshAllMaterializedViews()
           .catch(error => console.error('Error in scheduled materialized view refresh:', error));
           
         checkDatabaseMaintenance()

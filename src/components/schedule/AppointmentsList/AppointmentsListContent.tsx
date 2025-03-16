@@ -1,35 +1,21 @@
 
-import React, { memo } from 'react';
-import { Appointment } from '@/services/appointments/types';
-import AppointmentCard from '@/components/schedule/AppointmentCard';
-import AppointmentListLoading from './AppointmentListLoading';
-import AppointmentListError from './AppointmentListError';
+import React from 'react';
+import { type Appointment } from './hooks/useAppointmentsQuery';
+import AppointmentCard from '../AppointmentCard';
 import AppointmentListEmpty from './AppointmentListEmpty';
 
 type AppointmentsListContentProps = {
-  isLoading: boolean;
-  error: Error | null;
   appointments: Appointment[];
   selectedDate?: Date;
   patientId?: string;
 };
 
-const AppointmentsListContent: React.FC<AppointmentsListContentProps> = ({
-  isLoading,
-  error,
+const AppointmentsListContent: React.FC<AppointmentsListContentProps> = ({ 
   appointments,
   selectedDate,
   patientId
 }) => {
-  if (isLoading) {
-    return <AppointmentListLoading />;
-  }
-
-  if (error) {
-    return <AppointmentListError error={error} />;
-  }
-
-  if (!appointments.length) {
+  if (appointments.length === 0) {
     return <AppointmentListEmpty selectedDate={selectedDate} patientId={patientId} />;
   }
 
@@ -37,13 +23,12 @@ const AppointmentsListContent: React.FC<AppointmentsListContentProps> = ({
     <div className="space-y-3">
       {appointments.map((appointment) => (
         <AppointmentCard 
-          key={appointment.id} 
-          appointment={appointment} 
+          key={appointment.id}
+          appointment={appointment}
         />
       ))}
     </div>
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
-export default memo(AppointmentsListContent);
+export default AppointmentsListContent;

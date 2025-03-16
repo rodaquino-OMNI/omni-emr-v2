@@ -1,36 +1,44 @@
 
-import React, { memo } from 'react';
-import { cn } from '@/lib/utils';
+import React from 'react';
 import { useAppointmentsQuery } from './hooks/useAppointmentsQuery';
 import AppointmentsListContent from './AppointmentsListContent';
+import AppointmentListLoading from './AppointmentListLoading';
+import AppointmentListError from './AppointmentListError';
 
 type AppointmentsListProps = {
-  className?: string;
   selectedDate?: Date;
   patientId?: string;
-  limit?: number;
+  providerId?: string;
+  status?: string;
 };
 
-const AppointmentsList = ({ className, selectedDate, patientId, limit }: AppointmentsListProps) => {
+const AppointmentsList: React.FC<AppointmentsListProps> = ({
+  selectedDate,
+  patientId,
+  providerId,
+  status
+}) => {
   const { 
     appointments, 
     isLoading, 
-    error, 
-    sortedAndLimitedAppointments 
-  } = useAppointmentsQuery({ selectedDate, patientId, limit });
+    error 
+  } = useAppointmentsQuery(selectedDate, patientId, providerId, status);
+
+  if (isLoading) {
+    return <AppointmentListLoading />;
+  }
+
+  if (error) {
+    return <AppointmentListError error={error} />;
+  }
 
   return (
-    <div className={cn("space-y-3", className)}>
-      <AppointmentsListContent 
-        isLoading={isLoading}
-        error={error}
-        appointments={sortedAndLimitedAppointments}
-        selectedDate={selectedDate}
-        patientId={patientId}
-      />
-    </div>
+    <AppointmentsListContent 
+      appointments={appointments}
+      selectedDate={selectedDate}
+      patientId={patientId}
+    />
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
-export default memo(AppointmentsList);
+export default AppointmentsList;

@@ -1,145 +1,98 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
 
 /**
- * Log slow query for performance monitoring
+ * Refresh all materialized views in the database to ensure up-to-date data
+ * @returns Promise that resolves when all views have been refreshed
  */
-export const logSlowQuery = async (
-  queryText: string,
-  executionTime: number,
-  rowsReturned: number,
-  queryPlan: any,
-  thresholdMs = 100
-): Promise<void> => {
+export const refreshAllMaterializedViews = async (): Promise<void> => {
+  console.log('Refreshing materialized views...');
+  
   try {
-    if (executionTime < thresholdMs) return;
+    // Get list of materialized views
+    const { data: views, error } = await supabase
+      .from('pg_matviews')
+      .select('matviewname')
+      .neq('matviewname', 'information_schema');
     
-    // Check if the table exists first
-    const { data: tableExists, error: tableError } = await supabase
-      .from('pg_tables')
-      .select('*')
-      .eq('schemaname', 'public')
-      .eq('tablename', 'query_performance_logs')
-      .single();
-    
-    if (tableError || !tableExists) {
-      console.log('Performance logs table does not exist - skipping logging');
+    if (error) {
+      console.error('Error fetching materialized views:', error);
       return;
     }
     
-    await supabase
-      .from('query_performance_logs')
-      .insert({
-        query_text: queryText,
-        execution_time: executionTime,
-        rows_returned: rowsReturned,
-        query_plan: queryPlan
-      });
-  } catch (error) {
-    console.error('Error logging slow query:', error);
-  }
-};
-
-/**
- * Get query performance statistics
- */
-export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 50) => {
-  try {
-    // Check if performance monitoring table exists
-    const { data: tableExists, error: tableError } = await supabase
-      .from('pg_tables')
-      .select('exists')
-      .eq('schemaname', 'public')
-      .eq('tablename', 'query_performance_logs')
-      .single();
-    
-    if (tableError || !tableExists || !tableExists.exists) {
-      console.error('Performance logs table does not exist');
-      return [];
+    if (!views || views.length === 0) {
+      console.log('No materialized views found to refresh');
+      return;
     }
     
-    const { data, error } = await supabase
-      .from('query_performance_logs')
-      .select('*')
-      .gte('execution_time', minExecutionTime)
-      .order('execution_time', { ascending: false })
-      .limit(limit);
-      
-    if (error) throw error;
-    return data || [];
-  } catch (error) {
-    console.error('Error getting query performance stats:', error);
-    return [];
-  }
-};
-
-/**
- * Apply data retention policy to specified tables
- */
-export const applyDataRetentionPolicy = async (tableNames: string[] = ['audit_logs', 'query_performance_logs']): Promise<boolean> => {
-  try {
-    // For each table, check if exists and if retention policy function exists
-    for (const tableName of tableNames) {
-      // Check if retention policy exists for this table
-      const { data: existsData, error: existsError } = await supabase
-        .from('pg_proc')
-        .select('exists')
-        .eq('proname', `apply_retention_policy_${tableName}`)
-        .single();
-      
-      if (existsError || !existsData || !existsData.exists) {
-        console.log(`No retention policy function for ${tableName}`);
-        continue;
-      }
-      
-      // If exists, call the function
+    // Refresh each view
+    for (const view of views) {
       try {
-        await supabase.rpc(`apply_retention_policy_${tableName}`);
-        console.log(`Applied retention policy to ${tableName}`);
-      } catch (error) {
-        console.error(`Error applying retention policy to ${tableName}:`, error);
+        const { error: refreshError } = await supabase.rpc(
+          'refresh_materialized_view',
+          { view_name: view.matviewname }
+        );
+        
+        if (refreshError) {
+          console.error(`Error refreshing view ${view.matviewname}:`, refreshError);
+        } else {
+          console.log(`Successfully refreshed view: ${view.matviewname}`);
+        }
+      } catch (refreshError) {
+        console.error(`Exception refreshing view ${view.matviewname}:`, refreshError);
       }
     }
     
-    return true;
-  } catch (error) {
-    console.error('Error in applyDataRetentionPolicy:', error);
-    return false;
+    console.log('Materialized view refresh complete');
+  } catch (e) {
+    console.error('Exception in refreshAllMaterializedViews:', e);
   }
 };
 
 /**
- * Get performance monitoring statistics
+ * Apply data retention policies by removing old data
+ * @returns Promise that resolves when data retention has been applied
  */
-export const getPerformanceStatistics = async (): Promise<any> => {
+export const applyDataRetentionPolicy = async (): Promise<void> => {
   try {
-    // Check if the view exists
-    const { data: viewExists, error: viewError } = await supabase
-      .from('pg_class')
-      .select('exists')
-      .eq('relname', 'performance_statistics')
-      .eq('relkind', 'v')
-      .single();
+    // Check if policy already exists
+    const { data: policyExists, error: checkError } = await supabase.rpc(
+      'check_data_retention_policy_exists'
+    );
     
-    if (viewError || !viewExists || !viewExists.exists) {
-      console.log('performance_statistics view does not exist');
-      return null;
+    if (checkError) {
+      console.error('Error checking data retention policy:', checkError);
+      return;
     }
     
-    // Query the view
-    const { data, error } = await supabase
-      .from('performance_statistics')
-      .select('*')
-      .single();
+    // Create policy if needed, then apply it
+    if (!policyExists) {
+      const { error: createError } = await supabase.rpc(
+        'create_data_retention_policy'
+      );
       
-    if (error) {
-      console.error('Error querying performance statistics:', error);
-      return null;
+      if (createError) {
+        console.error('Error creating data retention policy:', createError);
+        return;
+      }
     }
     
-    return data;
-  } catch (error) {
-    console.error('Error in getPerformanceStatistics:', error);
-    return null;
+    // Apply the policy
+    const { error: applyError } = await supabase.rpc(
+      'apply_data_retention_policies'
+    );
+    
+    if (applyError) {
+      console.error('Error applying data retention policies:', applyError);
+    } else {
+      console.log('Data retention policies successfully applied');
+    }
+  } catch (e) {
+    console.error('Exception in applyDataRetentionPolicy:', e);
   }
+};
+
+export default {
+  refreshAllMaterializedViews,
+  applyDataRetentionPolicy
 };
