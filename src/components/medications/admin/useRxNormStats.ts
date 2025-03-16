@@ -164,7 +164,7 @@ export const useRxNormStats = () => {
         title: language === 'pt' 
           ? 'Erro ao limpar cache' 
           : 'Error clearing cache',
-          variant: 'error'
+        variant: 'error'
       });
     } finally {
       setIsClearing(false);
