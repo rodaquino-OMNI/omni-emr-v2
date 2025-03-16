@@ -360,6 +360,81 @@ export type Database = {
           },
         ]
       }
+      care_plans: {
+        Row: {
+          activity: Json | null
+          addresses: Json | null
+          author_id: string | null
+          care_team: Json | null
+          category: Json | null
+          contributor: Json | null
+          created: string | null
+          created_at: string | null
+          description: string | null
+          encounter_id: string | null
+          goal: Json | null
+          id: string
+          identifier: Json | null
+          intent: string
+          note: Json | null
+          period_end: string | null
+          period_start: string | null
+          status: string
+          subject_id: string
+          supporting_info: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity?: Json | null
+          addresses?: Json | null
+          author_id?: string | null
+          care_team?: Json | null
+          category?: Json | null
+          contributor?: Json | null
+          created?: string | null
+          created_at?: string | null
+          description?: string | null
+          encounter_id?: string | null
+          goal?: Json | null
+          id?: string
+          identifier?: Json | null
+          intent: string
+          note?: Json | null
+          period_end?: string | null
+          period_start?: string | null
+          status: string
+          subject_id: string
+          supporting_info?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity?: Json | null
+          addresses?: Json | null
+          author_id?: string | null
+          care_team?: Json | null
+          category?: Json | null
+          contributor?: Json | null
+          created?: string | null
+          created_at?: string | null
+          description?: string | null
+          encounter_id?: string | null
+          goal?: Json | null
+          id?: string
+          identifier?: Json | null
+          intent?: string
+          note?: Json | null
+          period_end?: string | null
+          period_start?: string | null
+          status?: string
+          subject_id?: string
+          supporting_info?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       care_teams: {
         Row: {
           created_at: string
@@ -584,6 +659,36 @@ export type Database = {
           },
         ]
       }
+      data_retention_policies: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          policy_description: string | null
+          resource_type: string
+          retention_period: unknown
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_description?: string | null
+          resource_type: string
+          retention_period: unknown
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_description?: string | null
+          resource_type?: string
+          retention_period?: unknown
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       devices: {
         Row: {
           contact: Json | null
@@ -752,6 +857,117 @@ export type Database = {
           },
         ]
       }
+      diagnostic_reports: {
+        Row: {
+          based_on: Json | null
+          category: Json | null
+          code: Json
+          conclusion: string | null
+          conclusion_code: Json | null
+          created_at: string | null
+          effective_datetime: string | null
+          effective_period: Json | null
+          encounter_id: string | null
+          id: string
+          identifier: Json | null
+          imaging_study: Json | null
+          issued: string | null
+          media: Json | null
+          performer: Json | null
+          presented_form: Json | null
+          result: Json | null
+          result_interpreter: Json | null
+          specimen: Json | null
+          status: string
+          subject_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          based_on?: Json | null
+          category?: Json | null
+          code: Json
+          conclusion?: string | null
+          conclusion_code?: Json | null
+          created_at?: string | null
+          effective_datetime?: string | null
+          effective_period?: Json | null
+          encounter_id?: string | null
+          id?: string
+          identifier?: Json | null
+          imaging_study?: Json | null
+          issued?: string | null
+          media?: Json | null
+          performer?: Json | null
+          presented_form?: Json | null
+          result?: Json | null
+          result_interpreter?: Json | null
+          specimen?: Json | null
+          status: string
+          subject_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          based_on?: Json | null
+          category?: Json | null
+          code?: Json
+          conclusion?: string | null
+          conclusion_code?: Json | null
+          created_at?: string | null
+          effective_datetime?: string | null
+          effective_period?: Json | null
+          encounter_id?: string | null
+          id?: string
+          identifier?: Json | null
+          imaging_study?: Json | null
+          issued?: string | null
+          media?: Json | null
+          performer?: Json | null
+          presented_form?: Json | null
+          result?: Json | null
+          result_interpreter?: Json | null
+          specimen?: Json | null
+          status?: string
+          subject_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      document_versions: {
+        Row: {
+          change_summary: string | null
+          content: Json
+          created_at: string | null
+          document_id: string
+          document_type: string
+          id: string
+          modified_at: string | null
+          modified_by: string
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content: Json
+          created_at?: string | null
+          document_id: string
+          document_type: string
+          id?: string
+          modified_at?: string | null
+          modified_by: string
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          content?: Json
+          created_at?: string | null
+          document_id?: string
+          document_type?: string
+          id?: string
+          modified_at?: string | null
+          modified_by?: string
+          version_number?: number
+        }
+        Relationships: []
+      }
       encounters: {
         Row: {
           account: Json | null
@@ -917,6 +1133,72 @@ export type Database = {
           recorder_name?: string
           timestamp?: string
           type?: string
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          achievement_status: Json | null
+          addresses: Json | null
+          category: Json | null
+          created_at: string | null
+          description: Json
+          expressed_by_id: string | null
+          id: string
+          identifier: Json | null
+          lifecycle_status: string
+          note: Json | null
+          outcome_code: Json | null
+          outcome_reference: Json | null
+          priority: Json | null
+          start_date: Json | null
+          status_date: string | null
+          status_reason: string | null
+          subject_id: string
+          target: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          achievement_status?: Json | null
+          addresses?: Json | null
+          category?: Json | null
+          created_at?: string | null
+          description: Json
+          expressed_by_id?: string | null
+          id?: string
+          identifier?: Json | null
+          lifecycle_status: string
+          note?: Json | null
+          outcome_code?: Json | null
+          outcome_reference?: Json | null
+          priority?: Json | null
+          start_date?: Json | null
+          status_date?: string | null
+          status_reason?: string | null
+          subject_id: string
+          target?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          achievement_status?: Json | null
+          addresses?: Json | null
+          category?: Json | null
+          created_at?: string | null
+          description?: Json
+          expressed_by_id?: string | null
+          id?: string
+          identifier?: Json | null
+          lifecycle_status?: string
+          note?: Json | null
+          outcome_code?: Json | null
+          outcome_reference?: Json | null
+          priority?: Json | null
+          start_date?: Json | null
+          status_date?: string | null
+          status_reason?: string | null
+          subject_id?: string
+          target?: Json | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1330,6 +1612,63 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          body: string
+          created_at: string | null
+          encryption_metadata: Json | null
+          id: string
+          is_encrypted: boolean | null
+          is_read: boolean | null
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+          subject: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          encryption_metadata?: Json | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_read?: boolean | null
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          encryption_metadata?: Json | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_read?: boolean | null
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       observations: {
         Row: {
           body_site: Json | null
@@ -1432,6 +1771,53 @@ export type Database = {
           {
             foreignKeyName: "observations_subject_id_fkey"
             columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_consents: {
+        Row: {
+          consent_type: string
+          created_at: string | null
+          document_reference: string | null
+          end_date: string | null
+          id: string
+          patient_id: string
+          scope: string[] | null
+          start_date: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string | null
+          document_reference?: string | null
+          end_date?: string | null
+          id?: string
+          patient_id: string
+          scope?: string[] | null
+          start_date?: string | null
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string | null
+          document_reference?: string | null
+          end_date?: string | null
+          id?: string
+          patient_id?: string
+          scope?: string[] | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_consents_patient_id_fkey"
+            columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
@@ -1706,6 +2092,105 @@ export type Database = {
           patient_id?: string
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      procedures: {
+        Row: {
+          based_on: Json | null
+          body_site: Json | null
+          category: Json | null
+          code: Json
+          complication: Json | null
+          complication_detail: Json | null
+          created_at: string | null
+          encounter_id: string | null
+          follow_up: Json | null
+          id: string
+          identifier: Json | null
+          instantiates_canonical: Json | null
+          instantiates_uri: Json | null
+          location: Json | null
+          note: Json | null
+          outcome: Json | null
+          part_of: Json | null
+          performed_datetime: string | null
+          performed_period_end: string | null
+          performed_period_start: string | null
+          performer: Json | null
+          reason_code: Json | null
+          reason_reference: Json | null
+          report: Json | null
+          status: string
+          status_reason: Json | null
+          subject_id: string
+          updated_at: string | null
+          used_code: Json | null
+          used_reference: Json | null
+        }
+        Insert: {
+          based_on?: Json | null
+          body_site?: Json | null
+          category?: Json | null
+          code: Json
+          complication?: Json | null
+          complication_detail?: Json | null
+          created_at?: string | null
+          encounter_id?: string | null
+          follow_up?: Json | null
+          id?: string
+          identifier?: Json | null
+          instantiates_canonical?: Json | null
+          instantiates_uri?: Json | null
+          location?: Json | null
+          note?: Json | null
+          outcome?: Json | null
+          part_of?: Json | null
+          performed_datetime?: string | null
+          performed_period_end?: string | null
+          performed_period_start?: string | null
+          performer?: Json | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          report?: Json | null
+          status: string
+          status_reason?: Json | null
+          subject_id: string
+          updated_at?: string | null
+          used_code?: Json | null
+          used_reference?: Json | null
+        }
+        Update: {
+          based_on?: Json | null
+          body_site?: Json | null
+          category?: Json | null
+          code?: Json
+          complication?: Json | null
+          complication_detail?: Json | null
+          created_at?: string | null
+          encounter_id?: string | null
+          follow_up?: Json | null
+          id?: string
+          identifier?: Json | null
+          instantiates_canonical?: Json | null
+          instantiates_uri?: Json | null
+          location?: Json | null
+          note?: Json | null
+          outcome?: Json | null
+          part_of?: Json | null
+          performed_datetime?: string | null
+          performed_period_end?: string | null
+          performed_period_start?: string | null
+          performer?: Json | null
+          reason_code?: Json | null
+          reason_reference?: Json | null
+          report?: Json | null
+          status?: string
+          status_reason?: Json | null
+          subject_id?: string
+          updated_at?: string | null
+          used_code?: Json | null
+          used_reference?: Json | null
         }
         Relationships: []
       }
@@ -1998,6 +2483,74 @@ export type Database = {
         }
         Relationships: []
       }
+      telehealth_sessions: {
+        Row: {
+          actual_start: string | null
+          appointment_id: string | null
+          created_at: string | null
+          duration_minutes: number | null
+          end_time: string | null
+          id: string
+          patient_id: string
+          provider_id: string
+          recording_available: boolean | null
+          recording_url: string | null
+          scheduled_start: string
+          session_key: string | null
+          session_token: string | null
+          session_url: string | null
+          status: string
+          technical_issues: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_start?: string | null
+          appointment_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          patient_id: string
+          provider_id: string
+          recording_available?: boolean | null
+          recording_url?: string | null
+          scheduled_start: string
+          session_key?: string | null
+          session_token?: string | null
+          session_url?: string | null
+          status: string
+          technical_issues?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_start?: string | null
+          appointment_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          patient_id?: string
+          provider_id?: string
+          recording_available?: boolean | null
+          recording_url?: string | null
+          scheduled_start?: string
+          session_key?: string | null
+          session_token?: string | null
+          session_url?: string | null
+          status?: string
+          technical_issues?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telehealth_sessions_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vital_signs: {
         Row: {
           created_at: string
@@ -2065,9 +2618,37 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      patient_latest_vitals: {
+        Row: {
+          diastolic_bp: number | null
+          heart_rate: number | null
+          oxygen_saturation: number | null
+          pain_level: number | null
+          patient_id: string | null
+          respiratory_rate: number | null
+          systolic_bp: number | null
+          temperature: number | null
+          timestamp: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vital_signs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      apply_data_retention_policies: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          rows_deleted: number
+        }[]
+      }
       clean_rxnorm_cache: {
         Args: {
           retention_days?: number
@@ -2226,6 +2807,10 @@ export type Database = {
           "": string
         }
         Returns: string[]
+      }
+      update_expired_prescriptions: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       user_has_role: {
         Args: {
