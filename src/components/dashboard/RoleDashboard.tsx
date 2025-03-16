@@ -16,7 +16,7 @@ import {
   PlusCircle, 
   Pill, 
   ClipboardList, 
-  Flask, 
+  BeakerIcon, // Replaced Flask with BeakerIcon
   HeartPulse,
   Droplet,
   UserPlus
@@ -451,7 +451,7 @@ const PharmacistDashboard: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-lg font-medium">
-              <Flask className="mr-2 h-5 w-5 text-primary" />
+              <BeakerIcon className="mr-2 h-5 w-5 text-primary" /> {/* Changed from Flask to BeakerIcon */}
               {language === 'pt' ? 'Interações Medicamentosas' : 'Drug Interactions'}
             </CardTitle>
             <CardDescription>

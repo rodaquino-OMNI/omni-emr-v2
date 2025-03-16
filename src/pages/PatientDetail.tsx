@@ -138,7 +138,7 @@ const PatientDetail = () => {
   const patientForHeader = {
     ...patient,
     name: `${patient.first_name} ${patient.last_name}`,
-    age: patient.date_of_birth ? calculateAge(new Date(patient.date_of_birth)) : '',
+    age: patient.date_of_birth ? parseInt(calculateAge(new Date(patient.date_of_birth))) : 0, // Convert to number
     diagnosis: 'Not available' // Add placeholder for required field
   };
   
@@ -200,7 +200,7 @@ const PatientDetail = () => {
   );
 };
 
-// Helper function to calculate age from birthdate
+// Helper function to calculate age from birthdate - returns string but we'll convert it later
 const calculateAge = (birthDate: Date): string => {
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
