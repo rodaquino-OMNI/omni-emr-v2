@@ -1,104 +1,106 @@
 
-import { PatientStatus } from '@/types/patientTypes';
-import { Languages } from '@/types/auth';
+import { PatientStatus } from '../types/patientTypes';
 
-// Function to get status color class based on patient status
+/**
+ * Maps a string status to enum PatientStatus
+ */
+export const mapToPatientStatus = (status: string): PatientStatus => {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return PatientStatus.Active;
+    case 'discharged':
+      return PatientStatus.Discharged;
+    case 'inactive':
+      return PatientStatus.Inactive;
+    case 'scheduled':
+      return PatientStatus.Scheduled;
+    case 'on_leave':
+      return PatientStatus.OnLeave;
+    case 'critical':
+      return PatientStatus.Critical;
+    case 'stable':
+      return PatientStatus.Stable;
+    default:
+      return PatientStatus.Unknown;
+  }
+};
+
+/**
+ * Converts a string to PatientStatus
+ */
+export const convertToPatientStatus = (status: string): PatientStatus => {
+  return mapToPatientStatus(status);
+};
+
+/**
+ * Gets the appropriate color class based on patient status
+ */
 export const getStatusColorClass = (status: PatientStatus): string => {
-  const colorClasses = {
-    'stable': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    'improving': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    'critical': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    'discharged': 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400',
-    'hospital': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-    'home': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400'
-  };
-  
-  return colorClasses[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400';
+  switch (status) {
+    case PatientStatus.Active:
+      return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+    case PatientStatus.Discharged:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
+    case PatientStatus.Inactive:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
+    case PatientStatus.Scheduled:
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+    case PatientStatus.OnLeave:
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+    case PatientStatus.Critical:
+      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+    case PatientStatus.Stable:
+      return 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400';
+    case PatientStatus.Unknown:
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
+  }
 };
 
-// Function to get translated status label based on patient status and language
-export const getStatusLabel = (status: PatientStatus, language: Languages): string => {
-  const statusLabels = {
-    en: {
-      'stable': 'Stable',
-      'improving': 'Improving',
-      'critical': 'Critical',
-      'discharged': 'Discharged',
-      'hospital': 'In Hospital',
-      'home': 'At Home'
-    },
-    pt: {
-      'stable': 'Estável',
-      'improving': 'Melhorando',
-      'critical': 'Crítico',
-      'discharged': 'Alta',
-      'hospital': 'No Hospital',
-      'home': 'Em Casa'
+/**
+ * Gets a display label for the status
+ */
+export const getStatusLabel = (status: PatientStatus, language = 'en'): string => {
+  if (language === 'pt') {
+    switch (status) {
+      case PatientStatus.Active:
+        return 'Ativo';
+      case PatientStatus.Discharged:
+        return 'Alta';
+      case PatientStatus.Inactive:
+        return 'Inativo';
+      case PatientStatus.Scheduled:
+        return 'Agendado';
+      case PatientStatus.OnLeave:
+        return 'Em Licença';
+      case PatientStatus.Critical:
+        return 'Crítico';
+      case PatientStatus.Stable:
+        return 'Estável';
+      case PatientStatus.Unknown:
+      default:
+        return 'Desconhecido';
     }
-  };
-  
-  return statusLabels[language][status] || status;
-};
+  }
 
-// Function to determine patient status from various data points
-export const determinePatientStatus = (
-  currentStatus?: string | null,
-  vitalSigns?: any[],
-  admissionInfo?: any
-): PatientStatus => {
-  // If status is explicitly set, use that
-  if (currentStatus) {
-    if (
-      currentStatus === 'stable' ||
-      currentStatus === 'critical' ||
-      currentStatus === 'improving' ||
-      currentStatus === 'discharged' ||
-      currentStatus === 'hospital' ||
-      currentStatus === 'home'
-    ) {
-      return currentStatus;
-    }
+  // English labels
+  switch (status) {
+    case PatientStatus.Active:
+      return 'Active';
+    case PatientStatus.Discharged:
+      return 'Discharged';
+    case PatientStatus.Inactive:
+      return 'Inactive';
+    case PatientStatus.Scheduled:
+      return 'Scheduled';
+    case PatientStatus.OnLeave:
+      return 'On Leave';
+    case PatientStatus.Critical:
+      return 'Critical';
+    case PatientStatus.Stable:
+      return 'Stable';
+    case PatientStatus.Unknown:
+    default:
+      return 'Unknown';
   }
-  
-  // Check if patient is discharged
-  if (admissionInfo?.discharged) {
-    return 'discharged';
-  }
-  
-  // Check if patient is in hospital
-  if (admissionInfo?.isAdmitted) {
-    // Check vitals for critical status
-    if (vitalSigns && vitalSigns.length > 0) {
-      const latestVitals = vitalSigns[0];
-      
-      // Example logic for determining if patient is critical based on vitals
-      if (
-        (latestVitals.systolic_bp && (latestVitals.systolic_bp > 180 || latestVitals.systolic_bp < 90)) ||
-        (latestVitals.diastolic_bp && (latestVitals.diastolic_bp > 120 || latestVitals.diastolic_bp < 60)) ||
-        (latestVitals.heart_rate && (latestVitals.heart_rate > 120 || latestVitals.heart_rate < 50)) ||
-        (latestVitals.respiratory_rate && (latestVitals.respiratory_rate > 30 || latestVitals.respiratory_rate < 8)) ||
-        (latestVitals.oxygen_saturation && latestVitals.oxygen_saturation < 90)
-      ) {
-        return 'critical';
-      }
-      
-      // Compare with previous vitals to determine if improving
-      if (vitalSigns.length > 1) {
-        const previousVitals = vitalSigns[1];
-        
-        // Example logic for improvement - simplistic for demonstration
-        if (
-          (latestVitals.systolic_bp && previousVitals.systolic_bp && Math.abs(latestVitals.systolic_bp - 120) < Math.abs(previousVitals.systolic_bp - 120)) ||
-          (latestVitals.oxygen_saturation && previousVitals.oxygen_saturation && latestVitals.oxygen_saturation > previousVitals.oxygen_saturation)
-        ) {
-          return 'improving';
-        }
-      }
-    }
-    
-    return 'hospital';
-  }
-  
-  // Default for outpatients
-  return 'home';
 };

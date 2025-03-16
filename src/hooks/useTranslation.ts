@@ -1,64 +1,65 @@
 
 import { useContext } from 'react';
-import { LanguageContext } from '@/context/LanguageContext';
-import { Languages } from '@/types/auth';
+import { LanguageContext } from '../context/LanguageContext';
+import translations from '../i18n/translations';
 
-// Basic translations
-const translations = {
-  en: {
-    overview: 'Overview',
-    records: 'Records',
-    prescriptions: 'Prescriptions',
-    aiInsights: 'AI Insights',
-    patientNotFound: 'Patient not found',
-    loadingPatients: 'Loading patients...',
-    noSectorSelected: 'No sector selected',
-    noPatientFound: 'No patients found',
-    newPatient: 'New Patient',
-    viewAllPatients: 'View all patients',
-    assigned: 'Assigned',
-    // Add more translations as needed
-  },
-  pt: {
-    overview: 'Visão Geral',
-    records: 'Registros',
-    prescriptions: 'Prescrições',
-    aiInsights: 'Insights IA',
-    patientNotFound: 'Paciente não encontrado',
-    loadingPatients: 'Carregando pacientes...',
-    noSectorSelected: 'Nenhum setor selecionado',
-    noPatientFound: 'Nenhum paciente encontrado',
-    newPatient: 'Novo Paciente',
-    viewAllPatients: 'Ver todos os pacientes',
-    assigned: 'Atribuído',
-    // Add more translations as needed
-  }
-};
+interface TranslationHook {
+  t: (key: string) => string;
+  language: string;
+  changeLanguage: (lang: string) => void;
+  hasTranslation: (key: string) => boolean;
+}
 
-export const useTranslation = () => {
+export const useTranslation = (): TranslationHook => {
   const { language, setLanguage } = useContext(LanguageContext);
-  
-  // Translation function
+
   const t = (key: string): string => {
-    if (language === 'pt' && translations.pt[key as keyof typeof translations.pt]) {
-      return translations.pt[key as keyof typeof translations.pt];
+    try {
+      // Split the key by dots to access nested properties
+      const keys = key.split('.');
+      let translation = translations[language];
+      
+      for (const k of keys) {
+        if (translation && typeof translation === 'object' && k in translation) {
+          translation = translation[k];
+        } else {
+          // Return the key if translation not found
+          return key;
+        }
+      }
+      
+      return translation as string;
+    } catch (error) {
+      console.error(`Translation error for key "${key}":`, error);
+      return key;
     }
-    
-    if (translations.en[key as keyof typeof translations.en]) {
-      return translations.en[key as keyof typeof translations.en];
-    }
-    
-    // Return the key if no translation is found
-    return key;
   };
 
-  // Function to check if a translation exists
   const hasTranslation = (key: string): boolean => {
-    return (
-      (language === 'pt' && !!translations.pt[key as keyof typeof translations.pt]) ||
-      !!translations.en[key as keyof typeof translations.en]
-    );
+    try {
+      // Split the key by dots to access nested properties
+      const keys = key.split('.');
+      let translation = translations[language];
+      
+      for (const k of keys) {
+        if (translation && typeof translation === 'object' && k in translation) {
+          translation = translation[k];
+        } else {
+          return false;
+        }
+      }
+      
+      return typeof translation === 'string';
+    } catch (error) {
+      return false;
+    }
   };
-  
-  return { t, language, setLanguage, hasTranslation };
+
+  const changeLanguage = (lang: string) => {
+    setLanguage(lang);
+  };
+
+  return { t, language, changeLanguage, hasTranslation };
 };
+
+export default useTranslation;
