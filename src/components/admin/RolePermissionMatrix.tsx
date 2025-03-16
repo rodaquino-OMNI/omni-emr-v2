@@ -14,6 +14,7 @@ import { rolePermissions } from '@/utils/permissions/roleDefinitions';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AlertCircle, Save, Filter } from 'lucide-react';
+import { getFunctionDisplayName } from '@/utils/functionBlocks';
 
 // Helper function to group permissions
 const groupPermissionsByCategory = () => {
@@ -244,7 +245,7 @@ const RolePermissionMatrix = () => {
                   <TableRow key={permission} className="group hover:bg-muted/50">
                     <TableCell className="font-medium sticky left-0 bg-background group-hover:bg-muted/50">
                       <div className="flex items-center gap-2">
-                        {permission.replace(/_/g, ' ')}
+                        {getFunctionDisplayName(permission)}
                         {roleTypes.some(role => hasPermissionChanged(permission, role)) && (
                           <Badge variant="outline" className="bg-yellow-100">modified</Badge>
                         )}
