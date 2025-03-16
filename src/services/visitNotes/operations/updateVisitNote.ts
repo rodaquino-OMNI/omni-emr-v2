@@ -1,7 +1,7 @@
 
 import { VisitNote } from '../types';
 import { mockVisitNotes } from '../mockData';
-import { supabase, logAuditEvent } from '@/integrations/supabase/client';
+import { supabase, logAuditEvent, logEnhancedAuditEvent } from '@/integrations/supabase/client';
 
 /**
  * Update an existing visit note
@@ -39,18 +39,21 @@ export const updateNote = async (note: VisitNote): Promise<boolean> => {
       return false;
     }
 
-    // Log audit event for HIPAA compliance
+    // Log audit event for HIPAA compliance using enhanced logging
     if (note.createdById) {
-      await logAuditEvent(
-        note.createdById,
-        'update',
-        'VisitNote',
-        note.id,
-        {
-          patientId: note.patientId,
-          noteType: 'visit_note'
+      await logEnhancedAuditEvent({
+        userId: note.createdById,
+        action: 'update',
+        resourceType: 'VisitNote',
+        resourceId: note.id,
+        patientId: note.patientId,
+        accessType: 'standard_access',
+        accessReason: 'clinical_documentation',
+        details: {
+          noteType: 'visit_note',
+          updatedFields: ['note_title', 'note_content', 'status']
         }
-      );
+      });
     }
 
     return true;
@@ -96,18 +99,21 @@ export const deleteNote = async (id: string, userId?: string): Promise<boolean> 
       return false;
     }
 
-    // Log audit event for HIPAA compliance
+    // Log audit event for HIPAA compliance using enhanced logging
     if (userId && noteData) {
-      await logAuditEvent(
+      await logEnhancedAuditEvent({
         userId,
-        'delete',
-        'VisitNote',
-        id,
-        {
-          patientId: noteData.patient_id,
-          noteType: 'visit_note'
+        action: 'delete',
+        resourceType: 'VisitNote',
+        resourceId: id,
+        patientId: noteData.patient_id,
+        accessType: 'standard_access',
+        accessReason: 'clinical_documentation_management',
+        details: {
+          noteType: 'visit_note',
+          deletionReason: 'user_initiated'
         }
-      );
+      });
     }
 
     return true;
