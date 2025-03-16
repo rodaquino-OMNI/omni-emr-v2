@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Languages } from '@/constants/language';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Icons } from '@/components/ui/icons';
 import { ModeToggle } from '@/components/ModeToggle';
@@ -26,7 +25,7 @@ import LoginHeader, { LoginView } from './LoginHeader';
 
 const LoginCard: React.FC = () => {
   const { login, loginWithSocial, user, session, isLoading } = useAuth();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const navigate = useNavigate();
   
   const [activeView, setActiveView] = useState<LoginView>('email');
@@ -49,36 +48,10 @@ const LoginCard: React.FC = () => {
     setError(null);
     setValidationErrors({});
   };
-
-  // Define translate function to replace react-i18next
-  const t = (key: string): string => {
-    const translations: Record<string, Record<string, string>> = {
-      en: {
-        'login': 'Login',
-        'enterCredentials': 'Enter your credentials to continue',
-        'emailRequired': 'Email is required',
-        'passwordRequired': 'Password is required',
-        'signIn': 'Sign In',
-        'phoneRequired': 'Phone number is required',
-        'verificationCodeRequired': 'Verification code is required'
-      },
-      pt: {
-        'login': 'Entrar',
-        'enterCredentials': 'Digite suas credenciais para continuar',
-        'emailRequired': 'Email é obrigatório',
-        'passwordRequired': 'Senha é obrigatória',
-        'signIn': 'Entrar',
-        'phoneRequired': 'Número de telefone é obrigatório',
-        'verificationCodeRequired': 'Código de verificação é obrigatório'
-      }
-    };
-    
-    return translations[language][key] || key;
-  };
   
   useEffect(() => {
     if (user) {
-      // Since functionBlocks is not in the User type, we'll navigate directly
+      // Navigate to sectors
       navigate('/sectors');
     }
   }, [user, navigate]);
@@ -90,13 +63,13 @@ const LoginCard: React.FC = () => {
     setValidationErrors({});
     
     if (!email) {
-      setValidationErrors(prev => ({ ...prev, email: t('emailRequired') }));
+      setValidationErrors(prev => ({ ...prev, email: t('emailRequired', 'Email is required') }));
       setIsEmailSubmitting(false);
       return;
     }
     
     if (!password) {
-      setValidationErrors(prev => ({ ...prev, password: t('passwordRequired') }));
+      setValidationErrors(prev => ({ ...prev, password: t('passwordRequired', 'Password is required') }));
       setIsEmailSubmitting(false);
       return;
     }
@@ -119,7 +92,7 @@ const LoginCard: React.FC = () => {
     setValidationErrors({});
     
     if (!phone) {
-      setValidationErrors(prev => ({ ...prev, phone: t('phoneRequired') }));
+      setValidationErrors(prev => ({ ...prev, phone: t('phoneRequired', 'Phone number is required') }));
       setIsPhoneSubmitting(false);
       return;
     }
@@ -143,7 +116,7 @@ const LoginCard: React.FC = () => {
     setValidationErrors({});
     
     if (!verificationCode) {
-      setValidationErrors(prev => ({ ...prev, verificationCode: t('verificationCodeRequired') }));
+      setValidationErrors(prev => ({ ...prev, verificationCode: t('verificationCodeRequired', 'Verification code is required') }));
       setIsPhoneSubmitting(false);
       return;
     }
@@ -186,8 +159,8 @@ const LoginCard: React.FC = () => {
   return (
     <Card className="w-[380px] shadow-md">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">{t('login')}</CardTitle>
-        <CardDescription>{t('enterCredentials')}</CardDescription>
+        <CardTitle className="text-2xl">{t('login', 'Login')}</CardTitle>
+        <CardDescription>{t('enterCredentials', 'Enter your credentials to continue')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <LoginErrorAlert error={error} language={language} />

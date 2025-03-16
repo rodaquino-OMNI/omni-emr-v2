@@ -1,7 +1,6 @@
 
-// This file is now deprecated and simply re-exports from useTranslation.ts
-// This is to maintain backward compatibility with existing imports
-import { useTranslation } from './useTranslation';
+// Re-export from the implementation file
+import { useTranslation, TranslationReturn } from './useTranslation';
 
-export { useTranslation };
+export { useTranslation, TranslationReturn };
 export default useTranslation;

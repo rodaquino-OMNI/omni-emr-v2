@@ -33,7 +33,7 @@ const MainNavigation = ({ onItemClick }: MainNavigationProps) => {
     <>
       <div className="px-3 py-2">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Main Navigation ({visibleItems.length} items)
+          {t('mainNavigation', 'Main Navigation')} ({visibleItems.length} {t('items', 'items')})
         </h3>
       </div>
       
