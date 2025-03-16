@@ -9,7 +9,7 @@ export interface OrderAlert {
   timestamp?: string;
   requiresAcknowledgement?: boolean;
   source?: string;
-  overridden: boolean;
+  overridden: boolean; // Changed from optional to required
   overriddenReason?: string;
   overriddenBy?: string;
 }

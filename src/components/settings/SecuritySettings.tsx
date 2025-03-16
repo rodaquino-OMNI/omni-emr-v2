@@ -1,44 +1,35 @@
 
 import React from 'react';
-import { Shield } from 'lucide-react';
-import HipaaComplianceBanner from './security/HipaaComplianceBanner';
-import PasswordUpdateForm from './security/PasswordUpdateForm';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SecurityControls from './security/SecurityControls';
-import ComplianceInformation from './security/ComplianceInformation';
 import SecurityAuditLog from './SecurityAuditLog';
-import MFASetup from './security/MFASetup';
+import HipaaComplianceBanner from './security/HipaaComplianceBanner';
+import ComplianceInformation from './security/ComplianceInformation';
 
 const SecuritySettings = () => {
   return (
-    <div className="space-y-8">
-      {/* HIPAA Compliance Banner */}
+    <div className="space-y-6">
       <HipaaComplianceBanner />
       
-      {/* Password Update Form */}
-      <PasswordUpdateForm />
-      
-      {/* MFA Setup */}
-      <div className="border-t border-border pt-6">
-        <h2 className="text-lg font-medium mb-4">Multi-Factor Authentication</h2>
-        <MFASetup />
-      </div>
-      
-      {/* Security Controls */}
-      <div className="border-t border-border pt-6">
-        <h2 className="text-lg font-medium mb-4">HIPAA Security Controls</h2>
-        <SecurityControls />
-      </div>
-      
-      {/* Security compliance information */}
-      <div className="border-t border-border pt-6">
-        <h2 className="text-lg font-medium mb-4">HIPAA Compliance Information</h2>
-        <ComplianceInformation />
-      </div>
-      
-      {/* Security Audit Log */}
-      <div className="border-t border-border pt-6">
-        <SecurityAuditLog />
-      </div>
+      <Tabs defaultValue="controls" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="controls">Security Controls</TabsTrigger>
+          <TabsTrigger value="audit">Audit Log</TabsTrigger>
+          <TabsTrigger value="compliance">Compliance</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="controls" className="space-y-4 py-4">
+          <SecurityControls />
+        </TabsContent>
+        
+        <TabsContent value="audit" className="space-y-4 py-4">
+          <SecurityAuditLog />
+        </TabsContent>
+        
+        <TabsContent value="compliance" className="space-y-4 py-4">
+          <ComplianceInformation />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

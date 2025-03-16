@@ -1,11 +1,11 @@
 
-# MedCare EMR
+# OmniCare
 
 ## A Revolutionary Healthcare Management System
 
-**MedCare EMR** is a modern electronic medical record system designed to transform healthcare documentation and patient care. With a focus on intuitive design, AI assistance, and seamless workflows, MedCare adapts to how healthcare professionals actually work.
+**OmniCare** is a modern electronic medical record system designed to transform healthcare documentation and patient care. With a focus on intuitive design, AI assistance, and seamless workflows, OmniCare adapts to how healthcare professionals actually work.
 
-Built for physicians, nurses, and patients in both English and Portuguese environments, MedCare EMR makes healthcare management more efficient, secure, and patient-centered.
+Built for physicians, nurses, and patients in both English and Portuguese environments, OmniCare makes healthcare management more efficient, secure, and patient-centered.
 
 ## 🌟 Key Features
 
@@ -88,8 +88,8 @@ Streamlined communication across care teams:
 
 1. **Clone the repository**
    ```sh
-   git clone https://github.com/your-organization/medcare-emr.git
-   cd medcare-emr
+   git clone https://github.com/your-organization/omnicare.git
+   cd omnicare
    ```
 
 2. **Set up environment variables**
@@ -224,7 +224,7 @@ Streamlined communication across care teams:
 
 ## 💻 Technology Stack
 
-MedCare EMR is built with modern technologies:
+OmniCare is built with modern technologies:
 
 - **Frontend**: React, TypeScript, Vite
 - **UI**: Tailwind CSS, shadcn-ui components
@@ -235,6 +235,6 @@ MedCare EMR is built with modern technologies:
 ---
 
 <p align="center">
-  <b>MedCare EMR</b><br>
+  <b>OmniCare</b><br>
   Transforming Healthcare Management<br>
 </p>
