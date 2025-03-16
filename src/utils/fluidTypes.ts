@@ -1,49 +1,51 @@
 
-export type FluidIntakeType = 
-  | 'oral' 
-  | 'iv' 
-  | 'tube' 
-  | 'other';
+export type FluidIntakeType = 'water' | 'juice' | 'tea' | 'coffee' | 'milk' | 'soup' | 'other';
+export type FluidOutputType = 'urine' | 'vomit' | 'drainage' | 'stool' | 'other';
 
-export type FluidOutputType = 
-  | 'urine' 
-  | 'vomit' 
-  | 'drainage' 
-  | 'other';
+export const defaultFluidTypes: FluidIntakeType[] = ['water', 'juice', 'tea', 'coffee', 'milk', 'soup', 'other'];
+export const defaultFluidOutputTypes: FluidOutputType[] = ['urine', 'vomit', 'drainage', 'stool', 'other'];
 
-export type FluidIntake = {
-  id: string;
-  patientId: string;
-  timestamp: Date;
-  amount: number; // in milliliters
-  type: FluidIntakeType;
-  notes?: string;
-  recordedBy: string;
+type TranslationMap = {
+  [key: string]: {
+    en: string;
+    pt: string;
+  };
 };
 
-export type FluidOutput = {
-  id: string;
-  patientId: string;
-  timestamp: Date;
-  amount: number; // in milliliters
-  type: FluidOutputType;
-  notes?: string;
-  recordedBy: string;
+export const fluidTypeLabels: TranslationMap = {
+  water: { en: 'Water', pt: 'Água' },
+  juice: { en: 'Juice', pt: 'Suco' },
+  tea: { en: 'Tea', pt: 'Chá' },
+  coffee: { en: 'Coffee', pt: 'Café' },
+  milk: { en: 'Milk', pt: 'Leite' },
+  soup: { en: 'Soup', pt: 'Sopa' },
+  other: { en: 'Other', pt: 'Outro' }
 };
 
-export const fluidTypeLabels: Record<FluidIntakeType, { en: string; pt: string }> = {
-  oral: { en: 'Oral Intake', pt: 'Ingestão Oral' },
-  iv: { en: 'IV Fluids', pt: 'Fluidos IV' },
-  tube: { en: 'Tube Feeding', pt: 'Alimentação por Sonda' },
-  other: { en: 'Other', pt: 'Outro' },
-};
-
-export const fluidOutputLabels: Record<FluidOutputType, { en: string; pt: string }> = {
+export const fluidOutputLabels: TranslationMap = {
   urine: { en: 'Urine', pt: 'Urina' },
   vomit: { en: 'Vomit', pt: 'Vômito' },
   drainage: { en: 'Drainage', pt: 'Drenagem' },
-  other: { en: 'Other', pt: 'Outro' },
+  stool: { en: 'Stool', pt: 'Fezes' },
+  other: { en: 'Other', pt: 'Outro' }
 };
 
-export const defaultFluidTypes: FluidIntakeType[] = ['oral', 'iv', 'tube', 'other'];
-export const defaultFluidOutputTypes: FluidOutputType[] = ['urine', 'vomit', 'drainage', 'other'];
+export interface FluidIntake {
+  id: string;
+  patientId: string;
+  type: FluidIntakeType;
+  amount: number;
+  timestamp: Date;
+  notes?: string;
+  recordedBy?: string;
+}
+
+export interface FluidOutput {
+  id: string;
+  patientId: string;
+  type: FluidOutputType;
+  amount: number;
+  timestamp: Date;
+  notes?: string;
+  recordedBy?: string;
+}

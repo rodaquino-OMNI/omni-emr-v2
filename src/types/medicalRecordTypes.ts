@@ -39,3 +39,37 @@ export interface RecordFilters {
   };
   statusFilter?: string;
 }
+
+export interface VitalSignsRecord {
+  id: string;
+  patientId: string;
+  heartRate?: number;
+  bloodPressure?: string;
+  temperature?: number;
+  respiratoryRate?: number;
+  oxygenSaturation?: number;
+  painLevel?: number;
+  recordedAt: string;
+  recordedBy: string;
+  notes?: string;
+}
+
+export interface FluidIntakeRecord {
+  id: string;
+  patientId: string;
+  type: string;
+  amount: number;
+  timestamp: Date;
+  recordedBy: string;
+  notes?: string;
+}
+
+export interface FluidOutputRecord {
+  id: string;
+  patientId: string;
+  type: string;
+  amount: number;
+  timestamp: Date;
+  recordedBy: string;
+  notes?: string;
+}

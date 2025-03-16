@@ -15,10 +15,10 @@ import { useAuth } from '@/context/AuthContext';
 
 // Mock data for the patient list
 export const MOCK_PATIENTS = [
-  { id: '1', name: 'John Doe', mrn: 'MRN001', age: 45, gender: 'Male', roomNumber: '101' },
-  { id: '2', name: 'Jane Smith', mrn: 'MRN002', age: 32, gender: 'Female', roomNumber: '102' },
-  { id: '3', name: 'Michael Johnson', mrn: 'MRN003', age: 58, gender: 'Male', roomNumber: '103' },
-  { id: '4', name: 'Sarah Williams', mrn: 'MRN004', age: 29, gender: 'Female', roomNumber: '201' },
+  { id: '1', name: 'João Silva', mrn: 'MRN001', age: 45, gender: 'Masculino', roomNumber: '101' },
+  { id: '2', name: 'Maria Oliveira', mrn: 'MRN002', age: 32, gender: 'Feminino', roomNumber: '102' },
+  { id: '3', name: 'José Santos', mrn: 'MRN003', age: 58, gender: 'Masculino', roomNumber: '103' },
+  { id: '4', name: 'Ana Costa', mrn: 'MRN004', age: 29, gender: 'Feminino', roomNumber: '201' },
 ];
 
 type PatientData = typeof MOCK_PATIENTS[0];
@@ -149,7 +149,11 @@ const VitalSigns = () => {
                       <div className="text-center text-muted-foreground">
                         <Activity className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
                         <p className="text-lg font-medium text-muted-foreground">{t('selectPatientToViewVitals')}</p>
-                        <p className="text-sm mt-2 max-w-md">Select a patient from the list to view their vital signs and monitoring data.</p>
+                        <p className="text-sm mt-2 max-w-md">
+                          {language === 'pt' 
+                            ? 'Selecione um paciente da lista para visualizar seus sinais vitais.'
+                            : 'Select a patient from the list to view their vital signs and monitoring data.'}
+                        </p>
                       </div>
                     </div>
                   </div>

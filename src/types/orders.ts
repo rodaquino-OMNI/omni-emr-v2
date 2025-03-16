@@ -1,6 +1,7 @@
-export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'procedure' | 'consultation';
 
+export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'procedure' | 'consultation';
 export type OrderStatus = 'draft' | 'pending' | 'approved' | 'completed' | 'cancelled';
+export type OrderPriority = 'routine' | 'urgent' | 'stat';
 
 export interface Order {
   id: string;
@@ -11,66 +12,50 @@ export interface Order {
   status: OrderStatus;
   createdAt: Date;
   updatedAt: Date;
-  startDate?: Date;
-  endDate?: Date;
-  details: any; // Specific details based on order type
+  details: any;  // This varies based on order type
+  priority: OrderPriority;
   notes?: string;
-  priority: 'routine' | 'urgent' | 'stat';
-  alerts?: Array<{
-    type: 'warning' | 'critical' | 'info';
-    message: string;
-    overridden: boolean;
-    overriddenBy?: string;
-    overriddenReason?: string;
-  }>;
 }
 
-export interface MedicationOrder {
-  patientId?: string;
+export interface MedicationOrderDetails {
   medicationName: string;
   dosage: string;
   frequency: string;
   route: string;
   duration: string;
-  instructions: string;
-  substitutionAllowed: boolean;
-  priority: 'routine' | 'urgent' | 'stat';
-  rxnormCode?: string;
-  fhirMedication?: any;
+  instructions?: string;
 }
 
-export interface LaboratoryOrder {
+export interface LaboratoryOrderDetails {
   tests: string[];
   frequency: string;
-  clinicalReason: string;
-  specimenType?: string;
-  collectionInstructions?: string;
-  priority: 'routine' | 'urgent' | 'stat';
+  clinicalReason?: string;
 }
 
-export interface RadiologyOrder {
+export interface RadiologyOrderDetails {
   examType: string;
   bodyPart: string;
   contrast: boolean;
-  clinicalReason: string;
-  patientPrep?: string;
-  priority: 'routine' | 'urgent' | 'stat';
+  clinicalReason?: string;
 }
 
-export interface ProcedureOrder {
+export interface ProcedureOrderDetails {
   procedureName: string;
-  location: string;
-  scheduledTime?: Date;
-  preInstructions?: string;
-  postInstructions?: string;
-  equipmentNeeded?: string[];
-  priority: 'routine' | 'urgent' | 'stat';
+  scheduledDate?: Date;
+  clinicalReason?: string;
+  specialInstructions?: string;
 }
 
-export interface ConsultationOrder {
+export interface ConsultationOrderDetails {
   specialtyType: string;
   reason: string;
-  urgency: 'routine' | 'urgent' | 'stat';
-  additionalInfo?: string;
-  priority: 'routine' | 'urgent' | 'stat';
+  urgency: string;
+}
+
+export interface NewOrderFormData {
+  patientId: string;
+  type: OrderType;
+  priority: OrderPriority;
+  details: any;
+  notes?: string;
 }
