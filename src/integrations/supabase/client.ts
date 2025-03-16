@@ -1,7 +1,7 @@
 
 // This is just a re-export from core.ts to maintain compatibility
 // All implementations should gradually migrate to importing from core.ts directly
-import { supabase, checkSupabaseConnection, logAuditEvent, logEnhancedAuditEvent, EnhancedAuditPayload, createAuditLogPartition } from './core';
+import { supabase, checkSupabaseConnection, logAuditEvent, logEnhancedAuditEvent, type EnhancedAuditPayload, createAuditLogPartition } from './core';
 
 // Re-export everything
 export { 
@@ -9,7 +9,7 @@ export {
   checkSupabaseConnection,
   logAuditEvent,
   logEnhancedAuditEvent,
-  EnhancedAuditPayload,
+  type EnhancedAuditPayload,
   createAuditLogPartition
 };
 
