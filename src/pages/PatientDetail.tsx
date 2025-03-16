@@ -99,7 +99,11 @@ const PatientDetail = () => {
   );
   
   // Check for critical insights (for the hasCriticalInsights prop)
-  const hasCriticalInsights = insights?.some(insight => insight.severity === 'critical') || false;
+  const hasCriticalInsights = insights?.some(insight => 
+    typeof insight === 'object' && 
+    'severity' in insight && 
+    insight.severity === 'critical'
+  ) || false;
   
   // Ensure patient has the correct status type
   const patientWithValidStatus = {

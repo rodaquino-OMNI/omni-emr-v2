@@ -10,19 +10,23 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import { useTranslation } from '@/hooks/useTranslation';
 import TranslatedText from '@/components/common/TranslatedText';
 
+// Export the Patient type so it can be imported in other files
+export interface Patient {
+  id: string;
+  name: string;
+  age: number;
+  gender: string;
+  roomNumber?: string | null;
+  status: "hospital" | "home" | "discharged" | "critical" | "stable" | "improving";
+  isAssigned: boolean;
+  isCritical?: boolean;
+  mrn: string;
+  diagnosis?: string;
+  onToggleAssignment?: (e: React.MouseEvent) => void;
+}
+
 export type PatientCardProps = {
-  patient: {
-    id: string;
-    name: string;
-    age: number;
-    gender: string;
-    roomNumber?: string | null;
-    status: "hospital" | "home" | "discharged" | "critical" | "stable" | "improving";
-    isAssigned: boolean;
-    isCritical: boolean;
-    mrn: string;
-    onToggleAssignment: (e: React.MouseEvent) => void;
-  };
+  patient: Patient;
   className?: string;
 };
 
@@ -88,22 +92,24 @@ const PatientCard = ({ patient, className }: PatientCardProps) => {
         <div className="flex items-center gap-3">
           <StatusBadge status={patient.status} />
           
-          <Button
-            size="icon"
-            variant={patient.isAssigned ? "destructive" : "default"}
-            className="h-8 w-8"
-            onClick={patient.onToggleAssignment}
-            title={patient.isAssigned ? 
-              (language === 'pt' ? 'Remover atribuição' : 'Unassign') : 
-              (language === 'pt' ? 'Atribuir a mim' : 'Assign to me')
-            }
-          >
-            {patient.isAssigned ? (
-              <UserMinus className="h-4 w-4" />
-            ) : (
-              <UserPlus className="h-4 w-4" />
-            )}
-          </Button>
+          {patient.onToggleAssignment && (
+            <Button
+              size="icon"
+              variant={patient.isAssigned ? "destructive" : "default"}
+              className="h-8 w-8"
+              onClick={patient.onToggleAssignment}
+              title={patient.isAssigned ? 
+                (language === 'pt' ? 'Remover atribuição' : 'Unassign') : 
+                (language === 'pt' ? 'Atribuir a mim' : 'Assign to me')
+              }
+            >
+              {patient.isAssigned ? (
+                <UserMinus className="h-4 w-4" />
+              ) : (
+                <UserPlus className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </Link>

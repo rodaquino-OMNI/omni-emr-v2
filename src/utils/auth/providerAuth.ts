@@ -14,7 +14,7 @@ export interface AuthResult {
 /**
  * Handle social provider authentication
  */
-export const loginWithSocial = async (provider: Provider): Promise<AuthResult> => {
+export const signInWithProvider = async (provider: Provider): Promise<AuthResult> => {
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
