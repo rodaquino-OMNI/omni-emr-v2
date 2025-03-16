@@ -37,7 +37,7 @@ export const usePhoneLogin = (language: Language) => {
     e.preventDefault();
     
     if (!validateForm()) {
-      return;
+      return Promise.resolve();
     }
     
     setIsSubmitting(true);
@@ -92,13 +92,15 @@ export const usePhoneLogin = (language: Language) => {
     } finally {
       setIsSubmitting(false);
     }
+
+    return Promise.resolve();
   }, [phone, language, navigate]);
 
   const handleVerifySubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean) => {
     e.preventDefault();
     
     if (!validateForm()) {
-      return;
+      return Promise.resolve();
     }
     
     setIsSubmitting(true);
@@ -143,6 +145,8 @@ export const usePhoneLogin = (language: Language) => {
     } finally {
       setIsSubmitting(false);
     }
+
+    return Promise.resolve();
   }, [phone, verificationCode, language, navigate]);
 
   return {

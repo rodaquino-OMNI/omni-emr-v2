@@ -14,7 +14,7 @@ interface EmailLoginFormProps {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   isSubmitting: boolean;
   validationErrors: { [key: string]: string };
-  setValidationErrors: (errors: { [key: string]: string }) => void;
+  setValidationErrors: (errors: { [key: string]: string } | ((prev: any) => any)) => void;
   language: Language;
   t: (key: string) => string;
   forgotPassword?: boolean;

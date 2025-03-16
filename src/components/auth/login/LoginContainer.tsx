@@ -50,7 +50,6 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
     setVerificationCode,
     isSubmitting: isSubmittingPhone,
     verificationSent,
-    usePhoneLogin,
     togglePhoneLogin,
     resetPhoneForm,
     handlePhoneSubmit,
@@ -139,19 +138,19 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
     });
   };
   
-  // Wrapper for email submit
-  const handleEmailFormSubmit = (e: React.FormEvent) => {
-    handleEmailSubmit(e, validateEmailForm);
+  // Wrapper for email submit that returns Promise to match expected type
+  const handleEmailFormSubmit = async (e: React.FormEvent) => {
+    return handleEmailSubmit(e, validateEmailForm);
   };
   
-  // Wrapper for phone submit
-  const handlePhoneFormSubmit = (e: React.FormEvent) => {
-    handlePhoneSubmit(e, validatePhoneForm);
+  // Wrapper for phone submit that returns Promise to match expected type
+  const handlePhoneFormSubmit = async (e: React.FormEvent) => {
+    return handlePhoneSubmit(e, validatePhoneForm);
   };
   
-  // Wrapper for verification submit
-  const handleVerificationSubmit = (e: React.FormEvent) => {
-    handleVerifySubmit(e, validatePhoneForm);
+  // Wrapper for verification submit that returns Promise to match expected type
+  const handleVerificationSubmit = async (e: React.FormEvent) => {
+    return handleVerifySubmit(e, validatePhoneForm);
   };
   
   return (
@@ -216,11 +215,16 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
                 forgotPassword={forgotPassword}
                 toggleForgotPassword={toggleForgotPassword}
                 validationErrors={validationErrors}
-                setValidationErrors={err => {
-                  if (typeof err === 'function') {
+                setValidationErrors={(errors) => {
+                  // Handle both function and direct object updates
+                  if (typeof errors === 'function') {
                     setValidationErrors(prev => ({ ...prev }));
                   } else {
-                    setValidationErrors(err);
+                    // Ensure we maintain structure of the validationErrors object
+                    setValidationErrors(prev => ({
+                      ...prev,
+                      ...errors
+                    }));
                   }
                 }}
                 language={language}
@@ -240,11 +244,16 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected }) 
                 isSubmitting={isSubmittingPhone}
                 verificationSent={verificationSent}
                 validationErrors={validationErrors}
-                setValidationErrors={err => {
-                  if (typeof err === 'function') {
+                setValidationErrors={(errors) => {
+                  // Handle both function and direct object updates
+                  if (typeof errors === 'function') {
                     setValidationErrors(prev => ({ ...prev }));
                   } else {
-                    setValidationErrors(err);
+                    // Ensure we maintain structure of the validationErrors object
+                    setValidationErrors(prev => ({
+                      ...prev,
+                      ...errors
+                    }));
                   }
                 }}
                 language={language}

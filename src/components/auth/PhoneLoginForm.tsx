@@ -12,11 +12,11 @@ interface PhoneLoginFormProps {
   setVerificationCode: (code: string) => void;
   handlePhoneSubmit: (e: React.FormEvent) => Promise<void>;
   handleVerifySubmit: (e: React.FormEvent) => Promise<void>;
-  handleClearError: () => void; // Add this missing prop
+  handleClearError: () => void;
   isSubmitting: boolean;
   verificationSent: boolean;
   validationErrors: { [key: string]: string };
-  setValidationErrors: (errors: { [key: string]: string }) => void;
+  setValidationErrors: (errors: { [key: string]: string } | ((prev: any) => any)) => void;
   language: Language;
   t: (key: string) => string;
   resetForm: () => void;
