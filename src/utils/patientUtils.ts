@@ -1,41 +1,59 @@
 
-import { Patient, PatientStatus } from '@/types/patientTypes';
-import { mapToPatientStatus } from '@/utils/patientStatusUtils';
+import { Patient } from '@/types/patientTypes';
 
-export const calculateAge = (dateOfBirth: string): number => {
+/**
+ * Calculate the patient's age from date of birth
+ */
+export const calculatePatientAge = (patient: Patient): number => {
+  if (!patient.date_of_birth) return 0;
+  
+  const birthDate = new Date(patient.date_of_birth);
   const today = new Date();
-  const birthDate = new Date(dateOfBirth);
+  
   let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
+  
   return age;
 };
 
-export const getPatientName = (patient: Patient): string => {
-  return `${patient.first_name} ${patient.last_name}`;
+/**
+ * Get the patient's full name
+ */
+export const getPatientFullName = (patient: Patient): string => {
+  if (patient.name) return patient.name;
+  return `${patient.first_name || ''} ${patient.last_name || ''}`.trim();
 };
 
-export const transformPatientData = (data: any): Patient => {
-  return {
-    id: data.id || '',
-    first_name: data.first_name || '',
-    last_name: data.last_name || '',
-    date_of_birth: data.date_of_birth || '',
-    gender: data.gender || null,
-    mrn: data.mrn || '',
-    email: data.email || null,
-    phone: data.phone || null,
-    address: data.address || null,
-    city: data.city || null,
-    state: data.state || null,
-    zip_code: data.zip_code || null,
-    status: mapToPatientStatus(data.status || ''),
-    room_number: data.room_number || null,
-    blood_type: data.blood_type || null,
-    emergency_contact_name: data.emergency_contact_name || null,
-    emergency_contact_phone: data.emergency_contact_phone || null,
-    is_assigned: data.is_assigned || false
-  };
+/**
+ * Format patient status for display
+ */
+export const formatPatientStatus = (status: string): string => {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return 'Active';
+    case 'discharged':
+      return 'Discharged';
+    case 'inactive':
+      return 'Inactive';
+    case 'scheduled':
+      return 'Scheduled';
+    case 'on_leave':
+      return 'On Leave';
+    case 'critical':
+      return 'Critical';
+    case 'stable':
+      return 'Stable';
+    case 'hospital':
+      return 'In Hospital';
+    case 'home':
+      return 'At Home';
+    case 'improving':
+      return 'Improving';
+    default:
+      return 'Unknown';
+  }
 };

@@ -1,3 +1,4 @@
+
 import { commonTranslations } from './categories/common';
 import { authTranslations } from './categories/auth';
 import { patientsTranslations } from './categories/patients';
@@ -12,6 +13,7 @@ import { usersTranslations } from './categories/users';
 import { validationTranslations } from './categories/validations';
 import { hospitalTranslations } from './categories/hospital';
 import { emergencyTranslations } from './categories/emergency';
+import { Translations } from '@/types/i18n';
 
 export const translations: Translations = {
   en: {

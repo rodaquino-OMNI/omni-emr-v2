@@ -1,4 +1,3 @@
-
 export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'procedure' | 'consultation';
 export type OrderStatus = 'draft' | 'pending' | 'approved' | 'completed' | 'cancelled';
 export type OrderPriority = 'routine' | 'urgent' | 'stat';
@@ -23,14 +22,17 @@ export interface MedicationOrderDetails {
   dosage: string;
   frequency: string;
   route: string;
-  duration: string;
+  duration?: string;
   instructions?: string;
+  substitutionAllowed?: boolean;
 }
 
 export interface LaboratoryOrderDetails {
   tests: string[];
   frequency: string;
   clinicalReason?: string;
+  specimenType?: string;
+  collectionInstructions?: string;
 }
 
 export interface RadiologyOrderDetails {
@@ -38,19 +40,23 @@ export interface RadiologyOrderDetails {
   bodyPart: string;
   contrast: boolean;
   clinicalReason?: string;
+  patientPrep?: string;
 }
 
 export interface ProcedureOrderDetails {
   procedureName: string;
-  scheduledDate?: Date;
-  clinicalReason?: string;
-  specialInstructions?: string;
+  location?: string;
+  scheduledTime?: Date;
+  preInstructions?: string;
+  postInstructions?: string;
+  equipmentNeeded?: string[];
 }
 
 export interface ConsultationOrderDetails {
   specialtyType: string;
   reason: string;
-  urgency: string;
+  urgency: 'routine' | 'urgent' | 'stat';
+  additionalInfo?: string;
 }
 
 export interface NewOrderFormData {

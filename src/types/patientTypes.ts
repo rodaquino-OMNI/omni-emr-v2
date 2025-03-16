@@ -7,7 +7,11 @@ export enum PatientStatus {
   OnLeave = 'on_leave',
   Critical = 'critical',
   Stable = 'stable',
-  Unknown = 'unknown'
+  Unknown = 'unknown',
+  // Add these to fix type errors in components
+  Hospital = 'hospital',
+  Home = 'home',
+  Improving = 'improving'
 }
 
 export enum BloodType {
@@ -41,6 +45,9 @@ export interface Patient {
   emergency_contact_name?: string | null;
   emergency_contact_phone?: string | null;
   is_assigned?: boolean;
+  // Add name and age properties to fix component errors
+  name?: string;
+  age?: number;
 }
 
 export interface PatientVitals {
@@ -80,3 +87,53 @@ export interface MedicalHistoryEntry {
   providerId: string;
   notes?: string;
 }
+
+// Add missing types that are imported elsewhere
+export interface VitalSigns {
+  id: string;
+  patientId: string;
+  date: string;
+  temperature?: number;
+  heartRate?: number;
+  bloodPressure?: string;
+  respiratoryRate?: number;
+  oxygenSaturation?: number;
+}
+
+export interface Allergy {
+  id: string;
+  patientId: string;
+  allergen: string;
+  severity: 'mild' | 'moderate' | 'severe';
+  reaction: string;
+  onsetDate?: string;
+}
+
+export interface Diagnosis {
+  id: string;
+  patientId: string;
+  condition: string;
+  date: string;
+  status: 'active' | 'resolved' | 'recurrence';
+  notes?: string;
+}
+
+export interface Prescription {
+  id: string;
+  patientId: string;
+  medication: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  prescribedBy: string;
+  status: 'active' | 'completed' | 'cancelled';
+}
+
+// Helper function for patient status mapping
+export const mapToPatientStatus = (status: string): PatientStatus => {
+  if (Object.values(PatientStatus).includes(status as PatientStatus)) {
+    return status as PatientStatus;
+  }
+  return PatientStatus.Unknown;
+};

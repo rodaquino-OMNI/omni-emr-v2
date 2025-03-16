@@ -22,7 +22,7 @@ const SectorSelection: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const { sectors, selectSector, isLoading } = useSectorContext();
   
-  // Use sectors from context if available, otherwise use the five requested sectors
+  // Define the five requested sectors only
   const availableSectors = sectors.length > 0 ? sectors : [
     {
       id: 'emergency',

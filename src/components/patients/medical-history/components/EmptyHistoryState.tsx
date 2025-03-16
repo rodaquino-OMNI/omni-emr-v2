@@ -1,25 +1,44 @@
 
 import React from 'react';
+import { ClipboardList, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import TranslatedText from '@/components/common/TranslatedText';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const EmptyHistoryState: React.FC<{ onAddNew: () => void, type: string }> = ({ onAddNew, type }) => {
+interface EmptyHistoryStateProps {
+  onAddNew?: () => void;
+  type?: string;
+}
+
+const EmptyHistoryState: React.FC<EmptyHistoryStateProps> = ({ 
+  onAddNew,
+  type = 'medical-history'
+}) => {
+  const { t } = useTranslation();
+  
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed rounded-lg border-muted">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-medium mb-2">
-          <TranslatedText textKey={`no${type}Found`} fallback={`No ${type} records found`} />
-        </h3>
-        <p className="text-muted-foreground">
-          <TranslatedText textKey={`add${type}Description`} fallback={`Add a new ${type} record to keep track of the patient's health information.`} />
-        </p>
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed rounded-lg bg-muted/10">
+      <div className="mb-4 p-3 rounded-full bg-muted">
+        <ClipboardList className="h-6 w-6 text-muted-foreground" />
       </div>
+      <h3 className="text-lg font-medium mb-2">
+        {type === 'medical-history' 
+          ? t('noMedicalHistoryEntries', 'No Medical History') 
+          : t('noRecords', 'No Records')}
+      </h3>
+      <p className="text-muted-foreground max-w-md mb-6">
+        {type === 'medical-history'
+          ? t('noMedicalHistoryDescription', 'There are no medical history entries for this patient yet.')
+          : t('noRecordsDescription', 'There are no records available for this patient yet.')}
+      </p>
       
-      <Button onClick={onAddNew} className="flex items-center">
-        <PlusCircle className="mr-2 h-4 w-4" />
-        <TranslatedText textKey={`add${type}`} fallback={`Add ${type}`} />
-      </Button>
+      {onAddNew && (
+        <Button onClick={onAddNew} className="gap-1">
+          <PlusCircle className="h-4 w-4" />
+          {type === 'medical-history'
+            ? t('addMedicalHistoryEntry', 'Add Medical History')
+            : t('addRecord', 'Add Record')}
+        </Button>
+      )}
     </div>
   );
 };
