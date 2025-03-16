@@ -2,16 +2,18 @@
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
+import { Save, AlertTriangle } from 'lucide-react';
 
 interface MedicationFormButtonsProps {
   isSubmitting: boolean;
   onCancel: () => void;
+  interactionsLoading?: boolean;
 }
 
 const MedicationFormButtons = ({
   isSubmitting,
   onCancel,
+  interactionsLoading
 }: MedicationFormButtonsProps) => {
   const { language } = useTranslation();
   
@@ -25,9 +27,17 @@ const MedicationFormButtons = ({
       >
         {language === 'pt' ? 'Cancelar' : 'Cancel'}
       </Button>
+      
+      {interactionsLoading && (
+        <Button type="button" variant="outline" disabled className="flex items-center gap-1">
+          <AlertTriangle className="h-4 w-4" />
+          {language === 'pt' ? 'Verificando interações...' : 'Checking interactions...'}
+        </Button>
+      )}
+      
       <Button 
         type="submit" 
-        disabled={isSubmitting}
+        disabled={isSubmitting || interactionsLoading}
         className="flex items-center gap-1"
       >
         {isSubmitting ? (

@@ -1,18 +1,22 @@
-
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Label } from '@/components/ui/label';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Control } from 'react-hook-form';
 
 interface MedicationStatusFieldProps {
-  id: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  id?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  control?: Control<any>;
 }
 
 const MedicationStatusField = ({
   id,
   value,
   onChange,
+  control
 }: MedicationStatusFieldProps) => {
   const { language } = useTranslation();
   
@@ -29,6 +33,37 @@ const MedicationStatusField = ({
     { value: 'unknown', label: language === 'pt' ? 'Desconhecido' : 'Unknown' },
   ];
   
+  // If control is provided, use react-hook-form integration
+  if (control) {
+    return (
+      <FormField
+        control={control}
+        name="status"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{language === 'pt' ? 'Status' : 'Status'}</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={language === 'pt' ? 'Selecione o status' : 'Select status'} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {statuses.map((statusOption) => (
+                  <SelectItem key={statusOption.value} value={statusOption.value}>
+                    {statusOption.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  }
+  
+  // Otherwise use standard select
   return (
     <div>
       <Label htmlFor={id}>

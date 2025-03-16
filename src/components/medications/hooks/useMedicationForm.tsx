@@ -2,16 +2,18 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 interface UseMedicationFormProps {
   patientId?: string;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
-export const useMedicationForm = ({ patientId, onSuccess }: UseMedicationFormProps) => {
+export const useMedicationForm = (props?: UseMedicationFormProps) => {
   const { user } = useAuth();
   const { language } = useTranslation();
+  const { patientId, onSuccess } = props || {};
   
   // Form state
   const [name, setName] = useState('');
@@ -23,6 +25,18 @@ export const useMedicationForm = ({ patientId, onSuccess }: UseMedicationFormPro
   const [notes, setNotes] = useState('');
   const [patient, setPatient] = useState(patientId || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [interactionsLoading, setInteractionsLoading] = useState(false);
+  
+  // Additional properties needed by NewMedicationForm component
+  const initialValues = {
+    rxcui: '',
+    patientId: patientId || '',
+    dosage: '',
+    frequency: '',
+    route: '',
+    startDate: new Date(),
+    status: 'active',
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,25 +62,79 @@ export const useMedicationForm = ({ patientId, onSuccess }: UseMedicationFormPro
       console.log('New medication created:', newMedication);
       
       // Success message and cleanup
-      toast({
-        title: language === 'pt' 
-          ? 'Medicamento adicionado com sucesso' 
-          : 'Medication added successfully',
-        variant: "success"
-      });
+      toast.success(language === 'pt' 
+        ? 'Medicamento adicionado com sucesso' 
+        : 'Medication added successfully');
       
-      onSuccess();
+      if (onSuccess) {
+        onSuccess();
+      }
       
     } catch (error) {
       console.error('Error creating medication:', error);
-      toast({
-        title: language === 'pt' 
-          ? 'Erro ao adicionar medicamento' 
-          : 'Error adding medication',
-        variant: "destructive"
-      });
+      toast.error(language === 'pt' 
+        ? 'Erro ao adicionar medicamento' 
+        : 'Error adding medication');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+  
+  // Function to save medication from react-hook-form data
+  const saveMedication = async (data: any, medicationName: string) => {
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const newMedication = {
+        ...data,
+        name: medicationName,
+        prescribedBy: user?.name || 'Unknown Provider',
+      };
+      
+      console.log('New medication created with form data:', newMedication);
+      
+      toast.success(language === 'pt' 
+        ? 'Medicamento adicionado com sucesso' 
+        : 'Medication added successfully');
+      
+      if (onSuccess) {
+        onSuccess();
+      }
+      
+      return newMedication;
+    } catch (error) {
+      console.error('Error creating medication:', error);
+      toast.error(language === 'pt' 
+        ? 'Erro ao adicionar medicamento' 
+        : 'Error adding medication');
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  // Check interactions between medications
+  const checkInteractions = async (patientId: string, rxcui: string) => {
+    setInteractionsLoading(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log(`Checking interactions for patient ${patientId} and medication ${rxcui}`);
+      
+      // In a real implementation, this would make an API call to check for interactions
+      
+      setInteractionsLoading(false);
+      
+      return { hasInteractions: false };
+    } catch (error) {
+      console.error('Error checking interactions:', error);
+      setInteractionsLoading(false);
+      throw error;
     }
   };
 
@@ -88,6 +156,11 @@ export const useMedicationForm = ({ patientId, onSuccess }: UseMedicationFormPro
     patient,
     setPatient,
     isSubmitting,
-    handleSubmit
+    handleSubmit,
+    // New properties required by NewMedicationForm
+    initialValues,
+    saveMedication,
+    checkInteractions,
+    interactionsLoading
   };
 };

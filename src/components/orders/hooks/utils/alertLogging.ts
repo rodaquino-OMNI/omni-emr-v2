@@ -1,75 +1,61 @@
 
+import { supabase } from '@/integrations/supabase/client';
 import { OrderAlert } from '../types/orderAlerts';
-import { toast } from 'sonner';
-import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { OrderType } from '@/types/orders';
 import React from 'react';
+import { Pill, AlertCircle, AlertTriangle } from 'lucide-react';
 
 /**
- * Logs alert information to the system logs and displays a toast notification
+ * Log alert reactions (acknowledge/override/cancel) to the database
  */
-export const logOrderAlert = (alert: OrderAlert) => {
-  console.info(`Order alert triggered: ${alert.message} (${alert.type})`);
-
-  const iconMap = {
-    error: React.createElement(AlertTriangle, { className: "h-4 w-4" }),
-    warning: React.createElement(AlertTriangle, { className: "h-4 w-4" }),
-    info: React.createElement(Info, { className: "h-4 w-4" })
-  };
-
-  const icon = iconMap[alert.severity || 'info'];
-
-  toast(alert.title || "Order Alert", {
-    description: alert.message,
-    icon
-  });
+export const logAlertReaction = async (
+  alertId: string, 
+  patientId: string,
+  providerId: string,
+  orderType: OrderType,
+  action: 'acknowledge' | 'override' | 'cancel',
+  reason?: string
+) => {
+  try {
+    const { error } = await supabase
+      .from('alert_reactions')
+      .insert({
+        alert_id: alertId,
+        patient_id: patientId,
+        provider_id: providerId,
+        order_type: orderType,
+        action: action,
+        reason: reason,
+        timestamp: new Date().toISOString()
+      });
+      
+    if (error) throw error;
+    
+    console.log(`Alert reaction logged: ${action} for alert ${alertId}`);
+    return true;
+  } catch (error) {
+    console.error('Error logging alert reaction:', error);
+    return false;
+  }
 };
 
 /**
- * Logs when an alert has been dismissed by the user
+ * Get alert icon based on severity
  */
-export const logAlertDismissal = (alert: OrderAlert, reason: string) => {
-  console.info(`Alert dismissed: ${alert.message} - Reason: ${reason}`);
-};
-
-/**
- * Logs when an alert has been acknowledged by the user
- */
-export const logAlertAcknowledgement = (alert: OrderAlert) => {
-  console.info(`Alert acknowledged: ${alert.message}`);
+export const getAlertIcon = (alert: OrderAlert) => {
+  const severity = alert.severity || 'info';
   
-  toast("Alert Acknowledged", {
-    description: `You've acknowledged: ${alert.message}`,
-    icon: React.createElement(CheckCircle, { className: "h-4 w-4" })
-  });
-};
-
-/**
- * Logs when alerts are overridden by a user
- */
-export const logAlertOverrides = (userId: string | undefined, alerts: OrderAlert[]) => {
-  console.info(`Alerts overridden by user: ${userId || 'Unknown'}`);
-  
-  alerts.forEach(alert => {
-    console.info(`  - ${alert.message} (${alert.type})`);
-  });
-};
-
-/**
- * Shows a toast notification when alerts are overridden
- */
-export const showAlertOverrideToast = (language: string) => {
-  toast.success("Alerts Overridden", {
-    description: "You have overridden the medication safety alerts",
-    duration: 3000
-  });
-};
-
-/**
- * Shows a toast notification when an order is cancelled
- */
-export const showOrderCancelledToast = (language: string) => {
-  toast.info("Order Cancelled", {
-    description: "The order has been cancelled",
-    duration: 3000
-  });
+  if (severity === 'error') {
+    return React.createElement(AlertCircle, {
+      className: 'h-5 w-5 text-red-600'
+    });
+  } else if (severity === 'warning') {
+    return React.createElement(AlertTriangle, {
+      className: 'h-5 w-5 text-amber-600'
+    });
+  } else {
+    return React.createElement(Pill, {
+      className: 'h-5 w-5 text-blue-600'
+    });
+  }
 };

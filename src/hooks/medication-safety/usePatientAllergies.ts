@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { useTranslation } from '../useTranslation';
-import { toast } from '../use-toast';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { PatientAllergy } from './constants';
 import { isPenicillinFamily, isSulfaFamily, isNSAID } from './medicationFamilies';
@@ -28,9 +28,7 @@ export function usePatientAllergies(patientId: string) {
       setAllergies(data || []);
     } catch (error) {
       console.error('Error fetching patient allergies:', error);
-      toast.error(t('error'), {
-        description: t('errorFetchingAllergies'),
-      });
+      toast.error(t('errorFetchingAllergies'));
     } finally {
       setIsLoadingAllergies(false);
     }

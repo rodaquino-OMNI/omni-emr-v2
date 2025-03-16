@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import MedicationAutocomplete from './MedicationAutocomplete';
+import { MedicationAutocomplete } from './MedicationAutocomplete';
 import PatientField from './form/PatientField';
 import MedicationTextField from './form/MedicationTextField';
 import MedicationTextareaField from './form/MedicationTextareaField';
@@ -36,7 +36,13 @@ const medicationSchema = z.object({
 
 type MedicationFormValues = z.infer<typeof medicationSchema>;
 
-const NewMedicationForm = () => {
+interface NewMedicationFormProps {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  patientId?: string;
+}
+
+const NewMedicationForm = ({ onSuccess, onCancel, patientId }: NewMedicationFormProps) => {
   const { t, language } = useTranslation();
   const { 
     saveMedication, 
@@ -44,7 +50,7 @@ const NewMedicationForm = () => {
     checkInteractions,
     initialValues,
     interactionsLoading
-  } = useMedicationForm();
+  } = useMedicationForm({ patientId, onSuccess });
   const [selectedMedication, setSelectedMedication] = useState<{ name: string; rxcui: string } | null>(null);
 
   const form = useForm<MedicationFormValues>({
@@ -85,6 +91,12 @@ const NewMedicationForm = () => {
     }
   };
 
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -93,7 +105,11 @@ const NewMedicationForm = () => {
             <CardTitle>{t('newMedication')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <PatientField onPatientSelect={handlePatientSelect} />
+            <PatientField 
+              onPatientSelect={handlePatientSelect}
+              value={form.getValues('patientId')}
+              onChange={(e) => form.setValue('patientId', e.target.value)}
+            />
             
             <FormField
               control={form.control}
@@ -103,8 +119,8 @@ const NewMedicationForm = () => {
                   <FormLabel>{t('medication')}</FormLabel>
                   <FormControl>
                     <MedicationAutocomplete 
-                      onMedicationSelect={handleMedicationSelect}
-                      selected={selectedMedication}
+                      onSelectMedication={handleMedicationSelect}
+                      initialSearchTerm={selectedMedication?.name || ''}
                       patientId={form.getValues('patientId')}
                     />
                   </FormControl>
@@ -177,10 +193,7 @@ const NewMedicationForm = () => {
             <MedicationFormButtons 
               isSubmitting={isSubmitting}
               interactionsLoading={interactionsLoading}
-              onCancel={() => {
-                form.reset();
-                setSelectedMedication(null);
-              }}
+              onCancel={handleCancel}
             />
           </CardFooter>
         </Card>

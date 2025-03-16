@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { useTranslation } from '../useTranslation';
-import { toast } from '../use-toast';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 export function usePatientWeight(patientId: string) {
@@ -68,16 +68,12 @@ export function usePatientWeight(patientId: string) {
       setPatientWeight(weight);
       setWeightLastUpdated(new Date());
       
-      toast.success(t('success'), {
-        description: t('weightUpdatedSuccessfully')
-      });
+      toast.success(t('weightUpdatedSuccessfully'));
       
       return true;
     } catch (error) {
       console.error('Error updating patient weight:', error);
-      toast.error(t('error'), {
-        description: t('errorUpdatingWeight')
-      });
+      toast.error(t('errorUpdatingWeight'));
       return false;
     }
   };

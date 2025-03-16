@@ -1,6 +1,7 @@
 
 import { OrderAlert, AlertType } from '../types/orderAlerts';
 import { v4 as uuidv4 } from 'uuid';
+import { OrderType } from '@/types/orders';
 
 /**
  * Generates mock medication order alerts for testing
@@ -103,4 +104,20 @@ export const generateMockRadiologyAlerts = (): OrderAlert[] => {
   }
   
   return alerts;
+};
+
+/**
+ * Generate mock alerts based on order type and data
+ */
+export const generateMockAlerts = (orderType: OrderType, orderData: any): OrderAlert[] => {
+  switch (orderType) {
+    case 'medication':
+      return generateMockMedicationAlerts([orderData.medicationName]);
+    case 'laboratory':
+      return generateMockLabAlerts();
+    case 'radiology':
+      return generateMockRadiologyAlerts();
+    default:
+      return [];
+  }
 };
