@@ -1,5 +1,4 @@
-
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -46,7 +45,46 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const Unauthorized = lazy(() => import('./pages/Unauthorized'));
 const Index = lazy(() => import('./pages/Index'));
 
-const App = () => {
+function App() {
+  useEffect(() => {
+    import('./utils/supabaseSchemaCheck')
+      .then(({ showDatabaseStructureWarnings, ensureDatabaseFunctions }) => {
+        showDatabaseStructureWarnings();
+        
+        ensureDatabaseFunctions()
+          .catch(error => {
+            console.error('Error ensuring database functions:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error initializing database checks:', error);
+      });
+      
+    const setupPeriodicMaintenance = async () => {
+      const { checkDatabaseMaintenance } = await import('./utils/supabaseSchemaCheck');
+      const { refreshAllMaterializedViews } = await import('./utils/supabasePerformanceMonitor');
+      
+      refreshAllMaterializedViews()
+        .catch(error => console.error('Error refreshing materialized views:', error));
+      
+      checkDatabaseMaintenance()
+        .catch(error => console.error('Error checking database maintenance:', error));
+      
+      setInterval(() => {
+        refreshAllMaterializedViews()
+          .catch(error => console.error('Error in scheduled materialized view refresh:', error));
+          
+        checkDatabaseMaintenance()
+          .catch(error => console.error('Error in scheduled maintenance check:', error));
+      }, 24 * 60 * 60 * 1000);
+    };
+    
+    if (process.env.NODE_ENV === 'production') {
+      setupPeriodicMaintenance()
+        .catch(error => console.error('Error setting up periodic maintenance:', error));
+    }
+  }, []);
+  
   return (
     <ErrorBoundary>
       <AuthProvider>
@@ -60,16 +98,13 @@ const App = () => {
             }
           >
             <Routes>
-              {/* Landing page */}
               <Route path="/" element={<Index />} />
               
-              {/* Auth routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               
-              {/* Protected routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/patients" element={<Patients />} />
@@ -103,7 +138,6 @@ const App = () => {
                 <Route path="/help" element={<Help />} />
               </Route>
               
-              {/* Error routes */}
               <Route path="/unauthorized" element={<Unauthorized />} />
               <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" replace />} />
@@ -113,6 +147,6 @@ const App = () => {
       </AuthProvider>
     </ErrorBoundary>
   );
-};
+}
 
 export default App;

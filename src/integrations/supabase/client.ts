@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
@@ -76,8 +75,23 @@ export const logEnhancedAuditEvent = async (payload: EnhancedAuditPayload): Prom
  */
 export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 50) => {
   try {
+    // Check if performance monitoring table exists
+    const { data: tableExists, error: tableError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_tables
+        WHERE schemaname = 'public'
+        AND tablename = 'query_performance_logs'
+      ) as exists
+    `);
+    
+    if (tableError || !tableExists || !tableExists[0]?.exists) {
+      console.error('Performance logs table does not exist');
+      return [];
+    }
+    
     const { data, error } = await supabase
-      .from('query_performance_logs' as any)
+      .from('query_performance_logs')
       .select('*')
       .gte('execution_time', minExecutionTime)
       .order('execution_time', { ascending: false })
@@ -96,8 +110,40 @@ export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 5
  */
 export const userHasPermission = async (userId: string, permissionCode: string): Promise<boolean> => {
   try {
+    // Check if the function exists
+    const { data: functionExists, error: functionError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = 'user_has_permission'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (functionError || !functionExists || !functionExists[0]?.exists) {
+      console.error('user_has_permission function does not exist');
+      // Fallback to a simpler check
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+        
+      if (userError) throw userError;
+      
+      // Simplified permission check based on role
+      const userRole = userData?.role;
+      if (userRole === 'admin') return true;
+      if (permissionCode.includes('read') && ['doctor', 'nurse'].includes(userRole)) return true;
+      if (permissionCode.includes('write') && userRole === 'doctor') return true;
+      
+      return false;
+    }
+    
+    // If function exists, use it
     const { data, error } = await supabase.rpc(
-      'user_has_permission' as any, 
+      'user_has_permission', 
       {
         p_user_id: userId,
         p_permission_code: permissionCode
@@ -126,8 +172,23 @@ export const logSlowQuery = async (
   try {
     if (executionTime < thresholdMs) return;
     
+    // Check if the table exists first
+    const { data: tableExists, error: tableError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_tables
+        WHERE schemaname = 'public'
+        AND tablename = 'query_performance_logs'
+      ) as exists
+    `);
+    
+    if (tableError || !tableExists || !tableExists[0]?.exists) {
+      console.log('Performance logs table does not exist - skipping logging');
+      return;
+    }
+    
     await supabase
-      .from('query_performance_logs' as any)
+      .from('query_performance_logs')
       .insert({
         query_text: queryText,
         execution_time: executionTime,
@@ -144,9 +205,55 @@ export const logSlowQuery = async (
  */
 export const refreshMaterializedView = async (viewName: string): Promise<boolean> => {
   try {
-    await supabase.rpc('refresh_materialized_view' as any, {
+    // First check if the view exists
+    const { data: viewExists, error: viewError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+        WHERE c.relname = '${viewName}'
+        AND n.nspname = 'public'
+        AND c.relkind = 'm'
+      ) as exists
+    `);
+    
+    if (viewError || !viewExists || !viewExists[0]?.exists) {
+      console.error(`Materialized view ${viewName} does not exist`);
+      return false;
+    }
+    
+    // Check if the refresh function exists
+    const { data: functionExists, error: functionError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = 'refresh_materialized_view'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (functionError || !functionExists || !functionExists[0]?.exists) {
+      console.error('refresh_materialized_view function does not exist');
+      
+      // Try a direct refresh
+      const { error: directError } = await supabase.query(`
+        REFRESH MATERIALIZED VIEW ${viewName}
+      `);
+      
+      if (directError) {
+        console.error(`Error directly refreshing materialized view ${viewName}:`, directError);
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Use the function if it exists
+    await supabase.rpc('refresh_materialized_view', {
       view_name: viewName
     });
+    
     return true;
   } catch (error) {
     console.error(`Error refreshing materialized view ${viewName}:`, error);
@@ -164,5 +271,111 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
   } catch (error) {
     console.error('Failed to connect to Supabase:', error);
     return false;
+  }
+};
+
+/**
+ * Create a new partition for audit logs if needed
+ */
+export const createAuditLogPartition = async (): Promise<boolean> => {
+  try {
+    // Check if the function exists
+    const { data: functionExists, error: functionError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = 'create_audit_log_partition'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (functionError || !functionExists || !functionExists[0]?.exists) {
+      console.log('create_audit_log_partition function does not exist');
+      return false;
+    }
+    
+    // Call the function
+    await supabase.rpc('create_audit_log_partition');
+    return true;
+  } catch (error) {
+    console.error('Error creating audit log partition:', error);
+    return false;
+  }
+};
+
+/**
+ * Safe method to execute a database maintenance function
+ */
+export const safeExecuteMaintenanceFunction = async (functionName: string, params: any = {}): Promise<any> => {
+  try {
+    // Check if the function exists
+    const { data: functionExists, error: functionError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = '${functionName}'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (functionError || !functionExists || !functionExists[0]?.exists) {
+      console.log(`Maintenance function ${functionName} does not exist`);
+      return null;
+    }
+    
+    // Call the function
+    const { data, error } = await supabase.rpc(functionName, params);
+    
+    if (error) {
+      console.error(`Error executing ${functionName}:`, error);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error(`Error in safeExecuteMaintenanceFunction for ${functionName}:`, error);
+    return null;
+  }
+};
+
+/**
+ * Get performance monitoring statistics
+ */
+export const getPerformanceStatistics = async (): Promise<any> => {
+  try {
+    // Check if the view exists
+    const { data: viewExists, error: viewError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+        WHERE c.relname = 'performance_statistics'
+        AND n.nspname = 'public'
+        AND c.relkind = 'v'
+      ) as exists
+    `);
+    
+    if (viewError || !viewExists || !viewExists[0]?.exists) {
+      console.log('performance_statistics view does not exist');
+      return null;
+    }
+    
+    // Query the view
+    const { data, error } = await supabase
+      .from('performance_statistics')
+      .select('*')
+      .single();
+      
+    if (error) {
+      console.error('Error querying performance statistics:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error in getPerformanceStatistics:', error);
+    return null;
   }
 };

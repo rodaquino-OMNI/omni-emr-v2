@@ -31,13 +31,38 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
       }
     }
     
-    // Check if patient_latest_vitals materialized view exists
-    const { data: viewData, error: viewError } = await supabase
-      .rpc('check_view_exists', { view_name: 'patient_latest_vitals' });
+    // Check if patient_latest_vitals materialized view exists - using a safer approach
+    const { data: viewData, error: viewError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+        WHERE c.relname = 'patient_latest_vitals'
+        AND n.nspname = 'public'
+        AND c.relkind = 'm'
+      ) as exists
+    `);
     
-    if (viewError || !viewData) {
+    if (viewError || !viewData || !viewData[0]?.exists) {
       console.error('Materialized view check failed:', viewError);
       allTablesExist = false;
+    }
+    
+    // Check if partitioned audit logs exist
+    const { data: partitionedLogs, error: partitionError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+        WHERE c.relname = 'audit_logs_partitioned'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (partitionError || !partitionedLogs || !partitionedLogs[0]?.exists) {
+      console.log('Partitioned audit logs do not exist yet - this is an optional feature');
+    } else {
+      console.log('Partitioned audit logs are set up correctly');
     }
     
     return allTablesExist;
@@ -48,56 +73,9 @@ export const checkDatabaseSchema = async (): Promise<boolean> => {
 };
 
 /**
- * Creates a helper function in the database to check if a view exists
- */
-export const createViewCheckFunction = async (): Promise<void> => {
-  try {
-    await supabase.rpc('create_view_check_function');
-  } catch (error) {
-    console.error('Error creating view check function:', error);
-    
-    // Try to create the function directly if RPC call fails
-    try {
-      const { error: fnError } = await supabase.query(`
-        CREATE OR REPLACE FUNCTION public.check_view_exists(view_name TEXT)
-        RETURNS BOOLEAN
-        LANGUAGE plpgsql
-        SECURITY DEFINER
-        SET search_path TO 'public'
-        AS $$
-        DECLARE
-          view_exists BOOLEAN;
-        BEGIN
-          SELECT EXISTS (
-            SELECT 1
-            FROM pg_catalog.pg_class c
-            JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            WHERE c.relname = check_view_exists.view_name
-              AND n.nspname = 'public'
-              AND c.relkind = 'm'
-          ) INTO view_exists;
-          
-          RETURN view_exists;
-        END;
-        $$;
-      `);
-      
-      if (fnError) {
-        console.error('Error creating view check function directly:', fnError);
-      }
-    } catch (directError) {
-      console.error('Exception creating view check function:', directError);
-    }
-  }
-};
-
-/**
  * Shows database structure warnings if needed
  */
 export const showDatabaseStructureWarnings = async (): Promise<void> => {
-  // Create the view check function first
-  await createViewCheckFunction();
-  
   // Check the schema
   const isSchemaValid = await checkDatabaseSchema();
   
@@ -106,5 +84,96 @@ export const showDatabaseStructureWarnings = async (): Promise<void> => {
       description: 'Some database objects may be missing or incorrectly configured. Contact your administrator.',
       duration: 10000,
     });
+  }
+};
+
+/**
+ * Check if any database maintenance is recommended
+ */
+export const checkDatabaseMaintenance = async (): Promise<void> => {
+  try {
+    // Check if the function exists first using a simple query
+    const { data: functionCheck, error: functionError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = 'check_table_bloat'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (functionError || !functionCheck || !functionCheck[0]?.exists) {
+      console.log('Table bloat check function not available');
+      return;
+    }
+    
+    // If the function exists, call it
+    const { data, error } = await supabase.rpc('check_table_bloat');
+    
+    if (error) {
+      console.error('Error checking table bloat:', error);
+      return;
+    }
+    
+    // Check if any tables need maintenance
+    const tablesNeedingVacuum = data.filter((table: any) => 
+      table.recommended_action.includes('VACUUM')
+    );
+    
+    if (tablesNeedingVacuum.length > 0) {
+      toast.warning('Database Maintenance Recommended', {
+        description: `${tablesNeedingVacuum.length} tables could benefit from VACUUM operation`,
+        duration: 8000,
+      });
+    }
+  } catch (error) {
+    console.error('Error checking database maintenance:', error);
+  }
+};
+
+/**
+ * Creates database maintenance functions if they don't exist
+ */
+export const ensureDatabaseFunctions = async (): Promise<void> => {
+  try {
+    // Check if the function exists to avoid errors
+    const { data: functionCheck, error: functionError } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = 'check_function_exists'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (functionError || !functionCheck || !functionCheck[0]?.exists) {
+      // Create the function to check if other functions exist
+      await supabase.query(`
+        CREATE OR REPLACE FUNCTION public.check_function_exists(function_name TEXT)
+        RETURNS BOOLEAN
+        LANGUAGE plpgsql
+        SECURITY DEFINER
+        SET search_path TO 'public'
+        AS $$
+        DECLARE
+          function_exists BOOLEAN;
+        BEGIN
+          SELECT EXISTS (
+            SELECT 1
+            FROM pg_proc p
+            JOIN pg_namespace n ON p.pronamespace = n.oid
+            WHERE p.proname = check_function_exists.function_name
+            AND n.nspname = 'public'
+          ) INTO function_exists;
+          
+          RETURN function_exists;
+        END;
+        $$;
+      `);
+    }
+  } catch (error) {
+    console.error('Error ensuring database functions:', error);
   }
 };

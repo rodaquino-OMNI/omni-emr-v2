@@ -62,7 +62,6 @@ export const refreshAllMaterializedViews = async () => {
   try {
     // List of materialized views to refresh
     const viewsToRefresh = [
-      'patient_summaries',
       'patient_latest_vitals'
     ];
     
@@ -104,8 +103,15 @@ export const runDatabaseMaintenance = async () => {
       // Clean expired cache
       supabase.rpc('clean_rxnorm_cache', { retention_days: 7 }),
       
-      // Apply data retention policies
-      supabase.rpc('apply_data_retention_policies')
+      // Apply data retention policies - safely check if function exists first
+      supabase.rpc('check_function_exists', { function_name: 'apply_data_retention_policies' })
+        .then(({ data, error }) => {
+          if (!error && data) {
+            return supabase.rpc('apply_data_retention_policies');
+          }
+          console.log('apply_data_retention_policies function does not exist, skipping');
+          return Promise.resolve();
+        })
     ];
     
     await Promise.all(maintenanceTasks);
@@ -115,6 +121,104 @@ export const runDatabaseMaintenance = async () => {
   } catch (error) {
     console.error('Error running database maintenance:', error);
     toast.error('Failed to complete database maintenance');
+    return false;
+  }
+};
+
+/**
+ * Check for table bloat and recommend optimizations
+ */
+export const checkTableBloat = async () => {
+  try {
+    // First check if the function exists
+    const { data: functionExists, error: functionCheckError } = await supabase
+      .rpc('check_function_exists', { function_name: 'check_table_bloat' });
+    
+    if (functionCheckError || !functionExists) {
+      console.log('check_table_bloat function does not exist');
+      return null;
+    }
+    
+    // Call the function to check table bloat
+    const { data, error } = await supabase.rpc('check_table_bloat');
+    
+    if (error) {
+      throw error;
+    }
+    
+    const tablesNeedingAction = data.filter((table: any) => 
+      table.recommended_action !== 'No action needed'
+    );
+    
+    if (tablesNeedingAction.length > 0) {
+      toast.warning('Database optimization recommended', {
+        description: `${tablesNeedingAction.length} tables could benefit from maintenance`,
+        duration: 10000,
+      });
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error checking table bloat:', error);
+    return null;
+  }
+};
+
+/**
+ * Get database performance statistics
+ */
+export const getDatabasePerformanceStats = async () => {
+  try {
+    // Check if the view exists
+    const { data: viewExists, error: viewCheckError } = await supabase
+      .rpc('check_view_exists', { view_name: 'performance_statistics' });
+    
+    if (viewCheckError || !viewExists) {
+      console.log('performance_statistics view does not exist');
+      return null;
+    }
+    
+    // Query the performance statistics view
+    const { data, error } = await supabase
+      .from('performance_statistics')
+      .select('*')
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error getting database performance stats:', error);
+    return null;
+  }
+};
+
+/**
+ * Create helper function to check if a database function exists
+ * This should be called before trying to use any custom function
+ */
+export const checkFunctionExists = async (functionName: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = '${functionName}'
+        AND n.nspname = 'public'
+      ) as exists
+    `);
+    
+    if (error) {
+      console.error(`Error checking if function ${functionName} exists:`, error);
+      return false;
+    }
+    
+    return data[0]?.exists || false;
+  } catch (error) {
+    console.error(`Exception checking if function ${functionName} exists:`, error);
     return false;
   }
 };
