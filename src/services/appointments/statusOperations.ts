@@ -8,13 +8,13 @@ export const cancelAppointment = async (id: string, reason?: string): Promise<bo
   try {
     const result = await updateAppointment(id, { status: 'cancelled' });
     
-    if (result) {
-      await handleServiceSuccess(result, {
-        userId: result.providerId,
+    if (result.success && result.data) {
+      await handleServiceSuccess(result.data, {
+        userId: result.data.providerId,
         operation: 'cancel',
         entityType: 'appointment',
         entityId: id,
-        patientId: result.patientId,
+        patientId: result.data.patientId,
         details: { reason },
         showToast: true,
         toastMessage: 'Appointment cancelled successfully'
@@ -49,13 +49,13 @@ export const completeAppointment = async (id: string, notes?: string): Promise<b
     
     const result = await updateAppointment(id, updates);
     
-    if (result) {
-      await handleServiceSuccess(result, {
-        userId: result.providerId,
+    if (result.success && result.data) {
+      await handleServiceSuccess(result.data, {
+        userId: result.data.providerId,
         operation: 'complete',
         entityType: 'appointment',
         entityId: id,
-        patientId: result.patientId,
+        patientId: result.data.patientId,
         showToast: true,
         toastMessage: 'Appointment marked as completed'
       });
@@ -84,16 +84,16 @@ export const sendAppointmentReminder = async (id: string): Promise<boolean> => {
   try {
     const result = await updateAppointment(id, { reminder_sent: true });
     
-    if (result) {
+    if (result.success && result.data) {
       // In a real app, this would trigger an email or SMS notification
       console.log(`Reminder sent for appointment ID: ${id}`);
       
-      await handleServiceSuccess(result, {
-        userId: result.providerId,
+      await handleServiceSuccess(result.data, {
+        userId: result.data.providerId,
         operation: 'reminder_sent',
         entityType: 'appointment',
         entityId: id,
-        patientId: result.patientId,
+        patientId: result.data.patientId,
         showToast: true,
         toastMessage: 'Reminder sent to patient'
       });

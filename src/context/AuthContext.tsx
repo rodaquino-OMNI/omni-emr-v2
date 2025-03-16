@@ -1,7 +1,9 @@
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useAuthProvider } from '../hooks/useAuthProvider';
 import { User, Language, UserRole, ApprovalStatus, AuthContextType } from '../types/auth';
+import { supabase } from '../integrations/supabase/client';
 
 const AuthContext = createContext<AuthContextType>({
   user: null,

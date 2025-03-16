@@ -19,9 +19,23 @@ export const updateAppointment = async (
   updates: Partial<Appointment>
 ): Promise<AppointmentUpdateResponse> => {
   try {
+    // Validate input parameters
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      throw new Error('Invalid appointment ID provided');
+    }
+
+    if (!updates || typeof updates !== 'object') {
+      throw new Error('Invalid updates object provided');
+    }
+
     // Convert from our API format to database format with correct typing
     const dbUpdates = mapAppointmentToDbFormat(updates);
     
+    // Ensure we have valid updates
+    if (Object.keys(dbUpdates).length === 0) {
+      throw new Error('No valid updates provided');
+    }
+
     const { data, error } = await supabase
       .from('appointments')
       .update(dbUpdates)
@@ -48,6 +62,11 @@ export const updateAppointment = async (
   } catch (error) {
     // Define a fallback function that uses mock data in development
     const createFallbackAppointment = () => {
+      // Validate ID before using it to find the appointment
+      if (!id || typeof id !== 'string') {
+        return null;
+      }
+
       // Find the appointment to update in mock data
       const index = mockAppointments.findIndex(a => a.id === id);
       
@@ -56,10 +75,11 @@ export const updateAppointment = async (
         return null;
       }
       
-      // Create a single updated mock appointment object
+      // Create a single updated mock appointment object with type safety
+      const validUpdates = { ...updates };
       const updatedAppointment = {
         ...mockAppointments[index],
-        ...updates,
+        ...validUpdates,
         updated_at: new Date().toISOString()
       };
       
