@@ -5,6 +5,7 @@ import { createNote } from './operations/createVisitNote';
 import { updateNote, deleteNote } from './operations/updateVisitNote';
 import { recordVitalSigns, getFHIRVitalSigns } from './operations/vitalSignsOperations';
 import { logAuditEvent, logEnhancedAuditEvent } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
 // Export types with proper type keyword
 export type { VisitNote, VitalSigns, FHIRVitalSign, AuditEvent } from './types';
@@ -70,12 +71,12 @@ export const visitNoteService = {
     try {
       // Record the emergency access
       const { data, error } = await supabase
-        .from('emergency_access_logs')
+        .from('emergency_access_logs' as any)
         .insert({
           user_id: userId,
           patient_id: patientId,
           reason: reason,
-          ip_address: 'client_ip', // In a real implementation, this would be the client's IP
+          ip_address: 'client_ip_address', // In a real implementation, this would be the client's IP
           user_agent: navigator?.userAgent || 'unknown'
         })
         .select()
@@ -98,7 +99,7 @@ export const visitNoteService = {
         isEmergencyAccess: true,
         emergencyReason: reason,
         details: {
-          emergencyAccessId: data.id,
+          emergencyAccessId: (data as any).id,
           accessMethod: 'break_glass_procedure'
         }
       });

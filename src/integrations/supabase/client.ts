@@ -51,7 +51,7 @@ export interface EnhancedAuditPayload {
 export const logEnhancedAuditEvent = async (payload: EnhancedAuditPayload): Promise<void> => {
   try {
     await supabase
-      .from('extended_audit_logs')
+      .from('extended_audit_logs' as any)
       .insert({
         user_id: payload.userId,
         action: payload.action,
@@ -63,7 +63,7 @@ export const logEnhancedAuditEvent = async (payload: EnhancedAuditPayload): Prom
         is_emergency_access: payload.isEmergencyAccess,
         emergency_reason: payload.emergencyReason,
         details: payload.details,
-        ip_address: 'client_ip_address', // In a production app, this would be captured
+        ip_address: 'client_ip_address', // In a real implementation, this would be the client's IP
         user_agent: navigator.userAgent
       });
   } catch (error) {
@@ -77,7 +77,7 @@ export const logEnhancedAuditEvent = async (payload: EnhancedAuditPayload): Prom
 export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 50) => {
   try {
     const { data, error } = await supabase
-      .from('query_performance_logs')
+      .from('query_performance_logs' as any)
       .select('*')
       .gte('execution_time', minExecutionTime)
       .order('execution_time', { ascending: false })
@@ -96,10 +96,15 @@ export const getQueryPerformanceStats = async (minExecutionTime = 100, limit = 5
  */
 export const userHasPermission = async (userId: string, permissionCode: string): Promise<boolean> => {
   try {
-    const { data } = await supabase.rpc('user_has_permission', {
-      p_user_id: userId,
-      p_permission_code: permissionCode
-    });
+    const { data, error } = await supabase.rpc(
+      'user_has_permission' as any, 
+      {
+        p_user_id: userId,
+        p_permission_code: permissionCode
+      }
+    );
+    
+    if (error) throw error;
     
     return !!data;
   } catch (error) {
@@ -122,7 +127,7 @@ export const logSlowQuery = async (
     if (executionTime < thresholdMs) return;
     
     await supabase
-      .from('query_performance_logs')
+      .from('query_performance_logs' as any)
       .insert({
         query_text: queryText,
         execution_time: executionTime,
@@ -139,12 +144,25 @@ export const logSlowQuery = async (
  */
 export const refreshMaterializedView = async (viewName: string): Promise<boolean> => {
   try {
-    await supabase.rpc('refresh_materialized_view', {
+    await supabase.rpc('refresh_materialized_view' as any, {
       view_name: viewName
     });
     return true;
   } catch (error) {
     console.error(`Error refreshing materialized view ${viewName}:`, error);
+    return false;
+  }
+};
+
+/**
+ * Check Supabase connection
+ */
+export const checkSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.from('audit_logs').select('count(*)', { count: 'exact', head: true });
+    return !error;
+  } catch (error) {
+    console.error('Failed to connect to Supabase:', error);
     return false;
   }
 };

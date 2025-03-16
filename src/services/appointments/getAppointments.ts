@@ -62,14 +62,14 @@ const getAppointmentsBase = async (
  * Get all appointments
  */
 export const getAllAppointments = async (): Promise<Appointment[]> => {
-  return getAppointmentsBase();
+  return await getAppointmentsBase();
 };
 
 /**
  * Get appointments by date
  */
 export const getAppointmentsByDate = async (date: string): Promise<Appointment[]> => {
-  return getAppointmentsBase(
+  return await getAppointmentsBase(
     { date },
     [
       { column: 'time', ascending: true }
@@ -81,7 +81,7 @@ export const getAppointmentsByDate = async (date: string): Promise<Appointment[]
  * Get appointments by patient ID
  */
 export const getAppointmentsByPatient = async (patientId: string): Promise<Appointment[]> => {
-  return getAppointmentsBase(
+  return await getAppointmentsBase(
     { patient_id: patientId },
     [
       { column: 'date', ascending: true },
@@ -94,7 +94,7 @@ export const getAppointmentsByPatient = async (patientId: string): Promise<Appoi
  * Get appointments by provider ID
  */
 export const getAppointmentsByProvider = async (providerId: string): Promise<Appointment[]> => {
-  return getAppointmentsBase(
+  return await getAppointmentsBase(
     { provider_id: providerId },
     [
       { column: 'date', ascending: true },

@@ -166,7 +166,7 @@ export const getFHIRVitalSigns = async (patientId: string): Promise<FHIRVitalSig
   try {
     // Query observations table for vital signs
     const { data, error } = await supabase
-      .from('observations')
+      .from('observations' as any)
       .select('*')
       .eq('subject_id', patientId)
       .order('effective_date_time', { ascending: false });
@@ -177,7 +177,7 @@ export const getFHIRVitalSigns = async (patientId: string): Promise<FHIRVitalSig
     }
     
     // Transform the database records into proper FHIR Observation resources
-    const fhirObservations: FHIRVitalSign[] = data.map(record => ({
+    const fhirObservations: FHIRVitalSign[] = data.map((record: any) => ({
       resourceType: 'Observation',
       id: record.id,
       status: record.status as 'final' | 'amended' | 'entered-in-error',

@@ -12,11 +12,8 @@ type ResourceType =
   | 'FamilyMemberHistory'
   | 'DocumentReference';
 
-type TableMapping = {
-  [key in ResourceType]: string;
-};
-
-const tableMapping: TableMapping = {
+// Map FHIR resource names to database table names
+const tableMapping: Record<ResourceType, string> = {
   'Patient': 'patients',
   'Condition': 'conditions',
   'Observation': 'observations',
@@ -27,9 +24,7 @@ const tableMapping: TableMapping = {
   'DocumentReference': 'document_references'
 };
 
-/**
- * Subject ID column mapping (handles the inconsistency in column naming)
- */
+// Map subject/patient ID column names across tables
 const patientIdColumnMapping: Record<string, string> = {
   'patients': 'id',
   'conditions': 'subject_id',
@@ -41,17 +36,20 @@ const patientIdColumnMapping: Record<string, string> = {
   'document_references': 'subject_id'
 };
 
+// Hook options interface
+interface FHIRResourceOptions {
+  patientId?: string;
+  limit?: number;
+  page?: number;
+  filter?: Record<string, any>;
+}
+
 /**
  * Hook for fetching FHIR resources
  */
 export function useFHIRResources<T extends Record<string, any>>(
   resourceType: ResourceType,
-  options?: {
-    patientId?: string;
-    limit?: number;
-    page?: number;
-    filter?: Record<string, any>;
-  }
+  options?: FHIRResourceOptions
 ) {
   const [resources, setResources] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +67,7 @@ export function useFHIRResources<T extends Record<string, any>>(
     
     try {
       // Start building the query
-      let query = supabase.from(tableName).select('*', { count: 'exact' });
+      let query = supabase.from(tableName as any).select('*', { count: 'exact' });
       
       // Apply patient filter if provided
       if (options?.patientId && patientIdColumn) {
@@ -98,7 +96,7 @@ export function useFHIRResources<T extends Record<string, any>>(
       
       if (error) throw error;
       
-      setResources(data as T[]);
+      setResources(data as unknown as T[]);
       
       if (count !== null) {
         setTotalCount(count);
@@ -131,7 +129,7 @@ export function useFHIRResources<T extends Record<string, any>>(
   const addResource = async (resource: Omit<T, 'id'>): Promise<T | null> => {
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .insert(resource)
         .select()
         .single();
@@ -139,9 +137,10 @@ export function useFHIRResources<T extends Record<string, any>>(
       if (error) throw error;
       
       // Update local state
-      setResources(prev => [...prev, data as T]);
+      const newResource = data as unknown as T;
+      setResources(prev => [...prev, newResource]);
       
-      return data as T;
+      return newResource;
     } catch (err) {
       console.error(`Error adding ${resourceType} resource:`, err);
       return null;
@@ -154,7 +153,7 @@ export function useFHIRResources<T extends Record<string, any>>(
   const updateResource = async (id: string, updates: Partial<T>): Promise<T | null> => {
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .update(updates)
         .eq('id', id)
         .select()
@@ -163,11 +162,14 @@ export function useFHIRResources<T extends Record<string, any>>(
       if (error) throw error;
       
       // Update local state
-      setResources(prev => prev.map(item => 
-        (item as any).id === id ? data as T : item
-      ));
+      const updatedResource = data as unknown as T;
+      setResources(prev => 
+        prev.map(item => 
+          ((item as any).id === id) ? updatedResource : item
+        )
+      );
       
-      return data as T;
+      return updatedResource;
     } catch (err) {
       console.error(`Error updating ${resourceType} resource:`, err);
       return null;
@@ -180,14 +182,14 @@ export function useFHIRResources<T extends Record<string, any>>(
   const deleteResource = async (id: string): Promise<boolean> => {
     try {
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .delete()
         .eq('id', id);
       
       if (error) throw error;
       
       // Update local state
-      setResources(prev => prev.filter(item => (item as any).id !== id));
+      setResources(prev => prev.filter(item => ((item as any).id !== id)));
       
       return true;
     } catch (err) {

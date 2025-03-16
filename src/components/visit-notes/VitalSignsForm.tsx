@@ -77,7 +77,7 @@ const VitalSignsForm: React.FC<VitalSignsFormProps> = ({
       }
       
       const success = await visitNoteService.recordVitalSigns(
-        note.patientId, 
+        note.patientId,
         formData,
         user.id,
         user.name || 'Unknown Provider'

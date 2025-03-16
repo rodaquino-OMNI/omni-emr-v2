@@ -6,7 +6,7 @@ import { ProfileData, ProfileFormData } from '../types';
 import { format } from 'date-fns';
 
 export function useProfileSync(
-  setFormData: (data: ProfileFormData) => void,
+  setFormData: React.Dispatch<React.SetStateAction<ProfileFormData>>,
   setLastSynced: (time: string) => void
 ) {
   const { user } = useAuth();
@@ -26,7 +26,7 @@ export function useProfileSync(
         // Update local data when remote changes occur
         if (payload.new) {
           const profileData = payload.new as unknown as ProfileData;
-          setFormData(current => ({
+          setFormData((current) => ({
             ...current,
             name: profileData.name || user?.name || current.name,
             email: profileData.email || user?.email || current.email,
