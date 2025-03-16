@@ -1,11 +1,10 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
-export const useEmailLogin = (language: Language) => {
+export const useEmailLogin = (language: Languages) => {
   const navigate = useNavigate();
   const { login, resetPassword } = useAuth();
   
@@ -25,7 +24,6 @@ export const useEmailLogin = (language: Language) => {
     if (error) setError(null);
   }, [error]);
   
-  // Clear error when email/password changes
   useEffect(() => {
     clearError();
   }, [email, password, clearError]);
@@ -42,7 +40,6 @@ export const useEmailLogin = (language: Language) => {
     
     try {
       if (forgotPassword) {
-        // Handle password reset request
         const result = await resetPassword(email);
         
         if (result.success) {
@@ -57,12 +54,10 @@ export const useEmailLogin = (language: Language) => {
           throw result.error;
         }
       } else {
-        // Handle login
         const result = await login(email, password);
         
         if (result.success) {
           if (result.pendingApproval) {
-            // User account is pending approval
             setPendingApproval(true);
             
             toast.info(
@@ -72,11 +67,9 @@ export const useEmailLogin = (language: Language) => {
                   : 'Your account is awaiting administrator approval'
               }
             );
-            // No need to navigate since pendingApproval will be handled in the login page
             return Promise.resolve();
           }
           
-          // Normal login success - navigate to sector selection
           navigate('/sectors');
         } else if (result && 'error' in result) {
           throw result.error;
@@ -85,7 +78,6 @@ export const useEmailLogin = (language: Language) => {
     } catch (error: any) {
       console.error('Login error:', error);
       
-      // Set error message
       setError(error.message || (language === 'pt' 
         ? 'Falha na autenticação' 
         : 'Authentication failed'));

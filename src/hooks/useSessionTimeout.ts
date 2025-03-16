@@ -1,10 +1,10 @@
 
 import { useSessionTimeoutHook } from './auth/useSessionTimeoutHook';
-import { Language } from '../types/auth';
+import { Languages } from '../types/auth';
 
 interface UseSessionTimeoutProps {
   isAuthenticated: boolean;
-  language: Language;
+  language: Languages;
   onTimeout: () => Promise<void>;
 }
 

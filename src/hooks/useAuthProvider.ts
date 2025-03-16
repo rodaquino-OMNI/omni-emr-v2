@@ -1,6 +1,5 @@
-
 import { Session, Provider } from '@supabase/supabase-js';
-import { User, UserRole, Language } from '../types/auth';
+import { User, UserRole, Languages } from '../types/auth';
 import { useLanguageSettings } from './useLanguageSettings';
 import { useAuthState } from './useAuthState';
 import { useAuthLogin } from './useAuthLogin';

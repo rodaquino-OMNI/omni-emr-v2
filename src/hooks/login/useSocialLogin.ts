@@ -1,11 +1,10 @@
-
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Provider, loginWithSocial } from '@/utils/auth/providerAuth';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
-export const useSocialLogin = (language: Language) => {
+export const useSocialLogin = (language: Languages) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

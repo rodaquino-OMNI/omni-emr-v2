@@ -2,11 +2,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Globe } from 'lucide-react';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface LanguageToggleProps {
-  language: Language;
-  setLanguage: (language: Language) => void;
+  language: Languages;
+  setLanguage: (language: Languages) => void;
 }
 
 const LanguageToggle = ({ language, setLanguage }: LanguageToggleProps) => {

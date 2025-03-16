@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { Session } from '@supabase/supabase-js';
-import { User, Language } from '@/types/auth';
+import { User, Languages } from '@/types/auth';
 import { signInWithEmail } from '@/utils/auth/emailAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthError } from './useAuthError';
@@ -14,7 +14,7 @@ export const useEmailAuth = (
   setIsLoading: (isLoading: boolean) => void,
   handleLoginRateLimit: () => void,
   resetLoginAttempts: () => void,
-  language: Language,
+  language: Languages,
   startSessionRefreshTimer: (session: Session | null) => void
 ) => {
   const { handleAuthError, getErrorMessage } = useAuthError(language);

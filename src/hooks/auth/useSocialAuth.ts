@@ -2,11 +2,11 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { Provider, signInWithProvider } from '@/utils/auth/providerAuth';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 import { generateCSRFToken } from '@/utils/csrfUtils';
 import { useAuthError } from './useAuthError';
 
-export const useSocialAuth = (language: Language) => {
+export const useSocialAuth = (language: Languages) => {
   const { handleAuthError, getErrorMessage } = useAuthError(language);
 
   // Handle social login with improved PKCE flow

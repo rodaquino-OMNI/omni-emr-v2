@@ -1,10 +1,10 @@
 
 import React, { createContext, useState, useEffect } from 'react';
-import { Language } from '../types/auth';
+import { Languages } from '../types/auth';
 
 interface LanguageContextType {
-  language: Language;
-  setLanguage: (lang: Language) => void;
+  language: Languages;
+  setLanguage: (lang: Languages) => void;
 }
 
 // Create context with default values
@@ -15,11 +15,11 @@ export const LanguageContext = createContext<LanguageContextType>({
 
 export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   // Try to get stored language from localStorage, default to 'en'
-  const [language, setLanguage] = useState<Language>(() => {
+  const [language, setLanguage] = useState<Languages>(() => {
     try {
       const storedLanguage = localStorage.getItem('language');
       return (storedLanguage === 'en' || storedLanguage === 'pt') 
-        ? storedLanguage as Language
+        ? storedLanguage as Languages
         : 'en';
     } catch (error) {
       console.error('Error accessing localStorage:', error);
@@ -48,7 +48,7 @@ export const useLanguageContext = () => {
   const context = React.useContext(LanguageContext);
   if (!context) {
     console.warn('useLanguageContext: Context not available, using default values');
-    return { language: 'en' as Language, setLanguage: () => {} };
+    return { language: 'en' as Languages, setLanguage: () => {} };
   }
   return context;
 };

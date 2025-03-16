@@ -4,31 +4,24 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Icons } from '@/components/ui/icons';
 import { ModeToggle } from '@/components/ModeToggle';
 import { Button } from '@/components/ui/button';
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { useNavigate } from 'react-router-dom';
-import { 
-  canAccessPage,
-  getAvailableFunctionBlocks, 
-  getPermissionsFromFunctionBlocks 
-} from '@/utils/functionBlocks';
-import { UserRole } from '@/types/auth';
 
 import LoginTabs from './LoginTabs';
 import LoginErrorAlert from './LoginErrorAlert';
 import ConnectionAlert from './ConnectionAlert';
 import ApprovalPendingAlert from './ApprovalPendingAlert';
-import LoginHeader, { LoginView } from './LoginHeader';
+import LoginHeader from './LoginHeader';
 
 const LoginCard: React.FC = () => {
   const { login, loginWithSocial, user, session, isLoading } = useAuth();
   const { language, t } = useTranslation();
   const navigate = useNavigate();
   
-  const [activeView, setActiveView] = useState<LoginView>('email');
+  const [activeView, setActiveView] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
@@ -198,7 +191,12 @@ const LoginCard: React.FC = () => {
           isSupabaseConnected={isSupabaseConnected}
         />
         
-        <LoginHeader activeView={activeView} setActiveView={setActiveView} t={t} language={language} />
+        <LoginHeader 
+          activeView={activeView} 
+          setActiveView={setActiveView} 
+          t={t} 
+          language={language} 
+        />
       </CardContent>
     </Card>
   );

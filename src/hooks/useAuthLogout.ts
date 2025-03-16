@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
-import { User, Language } from '../types/auth';
+import { User, Languages } from '../types/auth';
 import { signOut } from '../utils/authUtils';
 import { logAuditEvent } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -11,7 +11,7 @@ export const useAuthLogout = (
   user: User | null,
   setUser: (user: User | null) => void,
   setSession: (session: Session | null) => void,
-  language: Language
+  language: Languages
 ) => {
   // Get sector context to clear it on logout
   let sectorContext;

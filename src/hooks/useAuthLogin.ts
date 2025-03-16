@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Session } from '@supabase/supabase-js';
-import { User, Language } from '../types/auth';
+import { User, Languages } from '../types/auth';
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/client';
 
@@ -11,7 +11,7 @@ export const useAuthLogin = (
   setIsLoading: (isLoading: boolean) => void,
   handleLoginRateLimit: () => void,
   resetLoginAttempts: () => void,
-  language: Language,
+  language: Languages,
   startSessionRefreshTimer: (session: Session | null) => void
 ) => {
   // Implementation for login

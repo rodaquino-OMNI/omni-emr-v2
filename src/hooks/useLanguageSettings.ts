@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { Language } from '../types/auth';
+import { Languages } from '../types/auth';
 import { secureStorage } from '../utils/secureStorage';
 
 export const useLanguageSettings = () => {
-  const [language, setLanguage] = useState<Language>(() => {
-    return secureStorage.getItem('language', 'pt') as Language;
+  const [language, setLanguage] = useState<Languages>(() => {
+    return secureStorage.getItem('language', 'pt') as Languages;
   });
 
   // Save language preference to secured storage when it changes

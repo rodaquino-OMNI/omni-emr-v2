@@ -1,7 +1,6 @@
-
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
 interface AuthError extends Error {
   message: string;
@@ -9,7 +8,7 @@ interface AuthError extends Error {
   code?: string;
 }
 
-export const useAuthError = (language: Language) => {
+export const useAuthError = (language: Languages) => {
   const [lastError, setLastError] = useState<AuthError | null>(null);
 
   // Common error handler to reduce duplication

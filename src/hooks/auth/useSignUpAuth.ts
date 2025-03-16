@@ -1,13 +1,12 @@
-
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { User, UserRole, Language } from '@/types/auth';
+import { User, UserRole, Languages } from '@/types/auth';
 import { signUpWithEmail } from '@/utils/signUpUtils';
 import { useAuthError } from './useAuthError';
 
 export const useSignUpAuth = (
   setIsLoading: (isLoading: boolean) => void,
-  language: Language
+  language: Languages
 ) => {
   const { handleAuthError, getErrorMessage } = useAuthError(language);
 

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
-export const useLoginValidation = (language: Language) => {
+export const useLoginValidation = (language: Languages) => {
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
 
   const validateEmailPassword = useCallback((email: string, password: string, forgotPassword: boolean): boolean => {

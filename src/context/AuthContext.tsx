@@ -1,8 +1,7 @@
-
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useAuthProvider } from '../hooks/useAuthProvider';
-import { User, Language, UserRole, ApprovalStatus, AuthContextType } from '../types/auth';
+import { User, Languages, UserRole, ApprovalStatus, AuthContextType } from '../types/auth';
 import { supabase } from '../integrations/supabase/client';
 
 // Create the auth context with default values
@@ -19,7 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   loginWithSocial: async (provider: string) => ({ success: false }),
   signUp: async () => ({ success: false }),
-  resetPassword: async (email: string): Promise<{ success: boolean; error?: any }> => {
+  resetPassword: async (email: string): Promise<{success: boolean; error?: any}> => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
       
@@ -64,4 +63,4 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-export type { User, Language, UserRole, ApprovalStatus };
+export type { User, Languages, UserRole, ApprovalStatus };
