@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -206,6 +205,9 @@ const PatientDetail = () => {
   if (patientLoading) return <div>Loading patient data...</div>;
   if (!patient) return <div>Patient not found.</div>;
   
+  // Check for critical insights (for the hasCriticalInsights prop)
+  const hasCriticalInsights = false; // Default value, would be computed from insights data
+  
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
@@ -217,7 +219,7 @@ const PatientDetail = () => {
               Back to Patients
             </Button>
             
-            <PatientHeader patient={patient} />
+            <PatientHeader patient={patient} hasCriticalInsights={hasCriticalInsights} />
             
             <Tabs defaultValue="overview" value={activeTab} onValueChange={handleTabChange} className="w-full">
               <TabsList>

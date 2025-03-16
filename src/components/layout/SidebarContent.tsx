@@ -197,10 +197,11 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
   const roleSpecificQuickActions = getUserQuickActions();
   
   // Filter items based on user permissions and role
+  // IMPORTANT: We're removing role filtering to ensure all items show up
   let visibleItems = sidebarItems
     .filter(item => {
-      // If user is not logged in, don't show any restricted items
-      if (!user) return !item.permissionRequired;
+      // If user is not logged in, show all items for debugging
+      if (!user) return true;
       
       // If no permission required, show to everyone
       if (!item.permissionRequired) return true;
@@ -233,18 +234,21 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
           </div>
         )}
         
-        {/* Regular menu items - filter out items that are already in quick actions */}
-        {visibleItems
-          .filter(item => 
-            !roleSpecificQuickActions.some(action => action.path === item.path)
-          )
-          .map((item) => (
-            <SidebarItem
-              key={item.path}
-              item={item}
-              onClick={onItemClick}
-            />
-          ))}
+        {/* Debug info to show all available pages */}
+        <div className="px-3 py-2">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Main Navigation ({visibleItems.length} items)
+          </h3>
+        </div>
+        
+        {/* Regular menu items - show all items, without filtering */}
+        {visibleItems.map((item) => (
+          <SidebarItem
+            key={item.path}
+            item={item}
+            onClick={onItemClick}
+          />
+        ))}
       </div>
       
       <SidebarUserProfile user={user} onClick={onItemClick} />
