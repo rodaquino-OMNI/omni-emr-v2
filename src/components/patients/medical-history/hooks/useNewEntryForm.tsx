@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 interface UseNewEntryFormProps {
   patientId: string;
@@ -89,11 +89,17 @@ export const useNewEntryForm = ({ patientId, onEntryAdded, onClose }: UseNewEntr
       onEntryAdded();
       
       // Show success message
-      toast.success('Medical history entry added successfully');
+      toast({
+        title: 'Medical history entry added successfully',
+        variant: "success"
+      });
     } catch (err) {
       console.error('Error saving entry:', err);
       setError('Failed to save entry. Please try again.');
-      toast.error('Failed to save medical history entry');
+      toast({
+        title: 'Failed to save medical history entry',
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
