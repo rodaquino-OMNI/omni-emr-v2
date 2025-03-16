@@ -1,9 +1,6 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useTranslation } from '@/hooks/useTranslation';
 
 // Import hooks
@@ -14,9 +11,10 @@ import { usePhoneLogin } from '@/hooks/login/usePhoneLogin';
 
 // Import components
 import LoginHeader, { LoginView } from './LoginHeader';
-import EmailLoginForm from '../EmailLoginForm';
-import PhoneLoginForm from '../PhoneLoginForm';
-import SocialLoginButtons from '../SocialLoginButtons';
+import LoginErrorAlert from './LoginErrorAlert';
+import ApprovalPendingAlert from './ApprovalPendingAlert';
+import ConnectionAlert from './ConnectionAlert';
+import LoginTabs from './LoginTabs';
 
 interface LoginContainerProps {
   isSupabaseConnected?: boolean;
@@ -118,91 +116,40 @@ const LoginContainer = ({ isSupabaseConnected = true }: LoginContainerProps) => 
             setActiveView={setActiveView}
           />
           
-          {!isSupabaseConnected && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>
-                {language === 'pt' ? 'Problema de Conexão' : 'Connection Issue'}
-              </AlertTitle>
-              <AlertDescription>
-                {language === 'pt' 
-                  ? 'Não foi possível conectar ao servidor. Algumas funcionalidades podem estar indisponíveis.'
-                  : 'Could not connect to the server. Some features may be unavailable.'}
-              </AlertDescription>
-            </Alert>
-          )}
+          <ConnectionAlert isSupabaseConnected={isSupabaseConnected} language={language} />
+          <LoginErrorAlert error={loginError} language={language} />
+          <ApprovalPendingAlert pendingApproval={pendingApproval} language={language} />
           
-          {loginError && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>
-                {language === 'pt' ? 'Erro de Autenticação' : 'Authentication Error'}
-              </AlertTitle>
-              <AlertDescription>
-                {loginError}
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          {pendingApproval && (
-            <Alert className="mb-6 bg-amber-50 text-amber-900 border-amber-200">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>
-                {language === 'pt' ? 'Aprovação Pendente' : 'Approval Pending'}
-              </AlertTitle>
-              <AlertDescription>
-                {language === 'pt' 
-                  ? 'Sua conta está aguardando aprovação. Você será notificado assim que for aprovada.'
-                  : 'Your account is pending approval. You will be notified once it is approved.'}
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          <Tabs value={activeView} className="w-full">
-            <TabsContent value="email" className="mt-0">
-              <EmailLoginForm 
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                handleSubmit={handleEmailFormSubmit}
-                isSubmitting={isEmailSubmitting}
-                validationErrors={validationErrors}
-                setValidationErrors={setValidationErrors}
-                language={language}
-                t={t}
-                forgotPassword={forgotPassword}
-                toggleForgotPassword={toggleForgotPassword}
-              />
-            </TabsContent>
+          <LoginTabs
+            activeView={activeView}
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            handleEmailFormSubmit={handleEmailFormSubmit}
+            isEmailSubmitting={isEmailSubmitting}
+            validationErrors={validationErrors}
+            setValidationErrors={setValidationErrors}
+            language={language}
+            t={t}
+            forgotPassword={forgotPassword}
+            toggleForgotPassword={toggleForgotPassword}
             
-            <TabsContent value="phone" className="mt-0">
-              <PhoneLoginForm 
-                phone={phone}
-                setPhone={setPhone}
-                verificationCode={verificationCode}
-                setVerificationCode={setVerificationCode}
-                handlePhoneSubmit={handlePhoneFormSubmit}
-                handleVerifySubmit={handleVerifyFormSubmit}
-                handleClearError={clearEmailError}
-                isSubmitting={isPhoneSubmitting}
-                verificationSent={verificationSent}
-                validationErrors={validationErrors}
-                setValidationErrors={setValidationErrors}
-                language={language}
-                t={t}
-                resetForm={resetPhoneForm}
-              />
-            </TabsContent>
+            phone={phone}
+            setPhone={setPhone}
+            verificationCode={verificationCode}
+            setVerificationCode={setVerificationCode}
+            handlePhoneFormSubmit={handlePhoneFormSubmit}
+            handleVerifyFormSubmit={handleVerifyFormSubmit}
+            clearEmailError={clearEmailError}
+            isPhoneSubmitting={isPhoneSubmitting}
+            verificationSent={verificationSent}
+            resetPhoneForm={resetPhoneForm}
             
-            <TabsContent value="social" className="mt-0">
-              <SocialLoginButtons 
-                isSubmitting={isSocialSubmitting}
-                handleSocialLogin={handleSocialLogin}
-                isSupabaseConnected={isSupabaseConnected}
-              />
-            </TabsContent>
-          </Tabs>
+            handleSocialLogin={handleSocialLogin}
+            isSocialSubmitting={isSocialSubmitting}
+            isSupabaseConnected={isSupabaseConnected}
+          />
         </CardContent>
       </Card>
     </div>
