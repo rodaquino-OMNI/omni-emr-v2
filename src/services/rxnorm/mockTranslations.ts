@@ -397,7 +397,6 @@ export const medicationTranslations: Record<string, string> = {
   'pyrazinamide': 'Pirazinamida',
   'ethambutol': 'Etambutol',
   'quinine': 'Quinino',
-  'hydroxychloroquine': 'Hidroxicloroquina',
   'chloroquine': 'Cloroquina',
   'pyridostigmine': 'Piridostigmina',
   'calcitonin': 'Calcitonina',
@@ -434,8 +433,6 @@ export const medicationTranslations: Record<string, string> = {
   'azathioprine': 'Azatioprina',
   'methotrexate': 'Metotrexato',
   'leflunomide': 'Leflunomida',
-  'sulfasalazine': 'Sulfassalazina',
-  'mesalamine': 'Mesalamina',
   'acamprosate': 'Acamprosato',
   'disulfiram': 'Dissulfiram',
   'nicotine': 'Nicotina',
@@ -464,7 +461,8 @@ export const medicationTranslations: Record<string, string> = {
   'sodium bicarbonate': 'Bicarbonato de Sódio',
   'caffeine': 'Cafeína',
   'melatonin': 'Melatonina',
-  'valerian': 'Valeriana'
+  'valerian': 'Valeriana',
+  'dexamethasone': 'Dexametasona'
 };
 
 /**
