@@ -1,9 +1,11 @@
 
 import { RouteObject } from 'react-router-dom';
-import Index from '../pages/Index';
+import Home from '../pages/Home';
 import NotFound from '../pages/NotFound';
+import Unauthorized from '../pages/Unauthorized';
 
 export const publicRoutes: RouteObject[] = [
-  { path: "/", element: <Index /> },
+  { path: "/", element: <Home /> },
+  { path: "/unauthorized", element: <Unauthorized /> },
   { path: "*", element: <NotFound /> }
 ];

@@ -1,33 +1,30 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Globe } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Languages } from '@/types/auth';
 
-interface LanguageToggleProps {
+export interface LanguageToggleProps {
   language: Languages;
   setLanguage: (language: Languages) => void;
 }
 
-const LanguageToggle = ({ language, setLanguage }: LanguageToggleProps) => {
+const LanguageToggle: React.FC = () => {
+  const { language, setLanguage } = useTranslation();
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'pt' : 'en');
+  };
+
   return (
-    <div className="flex justify-end mb-4">
-      <div className="relative">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex items-center gap-2"
-          onClick={() => {
-            // Toggle between Portuguese and English only
-            const nextLang = language === 'pt' ? 'en' : 'pt';
-            setLanguage(nextLang);
-          }}
-        >
-          <Globe className="h-4 w-4" />
-          {language === 'pt' ? 'Português' : 'English'}
-        </Button>
-      </div>
-    </div>
+    <Button 
+      variant="ghost" 
+      size="sm" 
+      onClick={toggleLanguage}
+      className="flex items-center text-xs"
+    >
+      {language === 'en' ? 'PT' : 'EN'}
+    </Button>
   );
 };
 

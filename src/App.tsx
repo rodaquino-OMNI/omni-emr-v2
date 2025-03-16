@@ -1,53 +1,23 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
+import router from './routes/index';
 import { ThemeProvider } from './components/ThemeProvider';
-import { Toaster } from 'sonner';
-import ErrorBoundary from './components/ErrorBoundary';
-import { AuthProvider } from './context/AuthContext';
+import { Toaster } from '@/components/ui/toaster';
+import { LanguageProvider } from './context/LanguageContext';
 import { SectorProvider } from './hooks/useSectorContext';
-import { appRoutes } from './routes';
+import './App.css';
 
 function App() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider defaultTheme="system" storageKey="omnicare-theme">
-        <AuthProvider>
-          <SectorProvider>
-            <Router>
-              <Routes>
-                {appRoutes.map((route, index) => {
-                  // If the route has children, it will be handled by its element (like ProtectedRoute)
-                  if (route.children) {
-                    return (
-                      <Route key={index} path={route.path} element={route.element}>
-                        {route.children.map((childRoute, childIndex) => (
-                          <Route
-                            key={`${index}-${childIndex}`}
-                            path={childRoute.path}
-                            element={childRoute.element}
-                          />
-                        ))}
-                      </Route>
-                    );
-                  }
-                  
-                  // Simple route
-                  return (
-                    <Route 
-                      key={index} 
-                      path={route.path} 
-                      element={route.element} 
-                    />
-                  );
-                })}
-              </Routes>
-              <Toaster position="top-right" richColors closeButton />
-            </Router>
-          </SectorProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+    <ThemeProvider defaultTheme="system" storageKey="omnicare-theme">
+      <LanguageProvider>
+        <SectorProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </SectorProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

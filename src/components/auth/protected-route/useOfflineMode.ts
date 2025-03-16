@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { checkConnectivity } from '@/utils/supabaseConnectivity';
 import { toast } from 'sonner';
-import { Language } from '@/types/auth';
+import { Languages } from '@/types/auth';
 
-export const useOfflineMode = (isAuthenticated: boolean, language: Language) => {
+export const useOfflineMode = (isAuthenticated: boolean, language: Languages) => {
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [checkingConnectivity, setCheckingConnectivity] = useState(true);
 

@@ -1,9 +1,17 @@
+
 import { useContext } from 'react';
 import { LanguageContext } from '@/context/LanguageContext';
 import { Languages } from '@/types/auth';
 import { translations } from '@/translations';
 
-export const useTranslation = () => {
+export interface TranslationReturn {
+  language: Languages;
+  setLanguage: (language: Languages) => void;
+  t: (key: string, fallback?: string) => string;
+  hasTranslation: (key: string) => boolean;
+}
+
+export const useTranslation = (): TranslationReturn => {
   const { language, setLanguage } = useContext(LanguageContext);
 
   // Function to get the translated value for a key
@@ -48,3 +56,5 @@ export const useTranslation = () => {
     hasTranslation
   };
 };
+
+export default useTranslation;

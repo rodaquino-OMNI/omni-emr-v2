@@ -1,54 +1,73 @@
 
-export interface AuthContextType {
-  user: User | null | undefined;
-  setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
-  isAuthenticated: boolean;
-  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
-  isLoading: boolean;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  language: Languages;
-  setLanguage: React.Dispatch<React.SetStateAction<Languages>>;
-  login: (email: string, password: string) => Promise<{success: boolean; pendingApproval?: boolean}>;
-  logout: () => Promise<void>;
-  loginWithSocial: (provider: string) => Promise<{success: boolean; error?: any}>;
-  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{success: boolean; user?: User; error?: any}>;
-  resetPassword: (email: string) => Promise<{success: boolean; error?: any}>;
-  updateUser: (updates: Partial<User>) => Promise<void>;
-  checkAuthStatus: () => Promise<boolean>;
-  hasPermission: (permission: string) => boolean;
-  canAccessPatientData: (patientId: string) => boolean;
-  session: any;
-  sessionTimeoutMinutes: number;
-  setSessionTimeoutMinutes: React.Dispatch<React.SetStateAction<number>>;
-  lastActivity: Date;
-  updateLastActivity?: () => void;
-}
+// User roles
+export type UserRole = 
+  | 'admin'
+  | 'system_administrator'
+  | 'physician'
+  | 'nurse'
+  | 'pharmacist'
+  | 'lab_technician'
+  | 'radiologist'
+  | 'therapist'
+  | 'patient'
+  | 'receptionist'
+  | 'medical_assistant'
+  | 'insurance_staff'
+  | 'researcher'
+  | 'coordinator'
+  | 'student'
+  | 'guest';
 
+// User permissions
+export type Permission = string;
+
+// User interface
 export interface User {
   id: string;
-  email?: string;
-  phone?: string;
-  name: string;
-  role: UserRole;
-  status: 'active' | 'pending' | 'suspended' | 'inactive' | 'pending_approval';
-  permissions?: string[];
-  mfaEnabled?: boolean;
-  createdAt?: string;
-  organization?: string;
-  lastLogin?: string | Date; // Accept both string and Date
-  preferredLanguage?: Languages;
-  approvalStatus?: ApprovalStatus;
-  avatar?: string;
-  department?: string;
-  specialties?: string[];
+  email: string;
+  name?: string;
+  role?: UserRole;
+  permissions?: Permission[];
+  metadata?: Record<string, any>;
+  lastLogin?: Date;
+  isActive?: boolean;
+  profileImageUrl?: string;
+  phoneNumber?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface Permission {
-  id: string;
-  name: string;
-  description?: string;
+// Auth context state
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  language: Languages;
 }
 
+// Supported languages
 export type Languages = 'en' | 'pt';
-export type UserRole = 'doctor' | 'nurse' | 'admin' | 'patient' | 'pharmacist' | 'lab_technician' | 'administrative' | 'specialist' | 'system_administrator' | 'caregiver' | 'radiology_technician';
-export type ApprovalStatus = 'approved' | 'pending' | 'rejected';
+
+// Auth provider props
+export interface AuthProviderProps {
+  children: React.ReactNode;
+}
+
+// Login credentials
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+// Registration data
+export interface RegistrationData extends LoginCredentials {
+  name: string;
+  role?: UserRole;
+}
+
+// Auth error
+export interface AuthError {
+  message: string;
+  code?: string;
+}

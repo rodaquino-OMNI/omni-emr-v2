@@ -1,54 +1,45 @@
 
-import React, { createContext, useState, useEffect } from 'react';
-import { Languages } from '../types/auth';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import { Languages } from '@/types/auth';
 
-interface LanguageContextType {
+interface LanguageContextProps {
   language: Languages;
-  setLanguage: (lang: Languages) => void;
+  setLanguage: (language: Languages) => void;
 }
 
-// Create context with default values
-export const LanguageContext = createContext<LanguageContextType>({
+export const LanguageContext = createContext<LanguageContextProps>({
   language: 'en',
-  setLanguage: () => {}
+  setLanguage: () => {},
 });
 
-export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  // Try to get stored language from localStorage, default to 'en'
-  const [language, setLanguage] = useState<Languages>(() => {
-    try {
-      const storedLanguage = localStorage.getItem('language');
-      return (storedLanguage === 'en' || storedLanguage === 'pt') 
-        ? storedLanguage as Languages
-        : 'en';
-    } catch (error) {
-      console.error('Error accessing localStorage:', error);
-      return 'en';
-    }
-  });
+interface LanguageProviderProps {
+  children: ReactNode;
+}
 
-  // Store language changes in localStorage
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+  const [language, setLanguage] = useState<Languages>('en');
+
   useEffect(() => {
-    try {
-      localStorage.setItem('language', language);
-    } catch (error) {
-      console.error('Error writing to localStorage:', error);
+    const savedLanguage = localStorage.getItem('language') as Languages;
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'pt')) {
+      setLanguage(savedLanguage);
+    } else {
+      // Try to get browser language, defaulting to English if not available
+      const browserLang = navigator.language.substring(0, 2).toLowerCase();
+      if (browserLang === 'pt') {
+        setLanguage('pt');
+      }
     }
-  }, [language]);
+  }, []);
+
+  const handleSetLanguage = (newLanguage: Languages) => {
+    setLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
-};
-
-// Export a hook for easier context consumption
-export const useLanguageContext = () => {
-  const context = React.useContext(LanguageContext);
-  if (!context) {
-    console.warn('useLanguageContext: Context not available, using default values');
-    return { language: 'en' as Languages, setLanguage: () => {} };
-  }
-  return context;
 };
