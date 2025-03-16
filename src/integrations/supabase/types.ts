@@ -3534,6 +3534,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_fhir_resource_by_reference: {
         Args: {
           reference: string

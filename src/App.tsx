@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { createDynamicRoutes } from './routes/index';
@@ -12,6 +11,9 @@ import { PatientsProvider } from './hooks/usePatientsContext';
 import { useAuth } from './context/AuthContext';
 import { usePermissions } from './hooks/usePermissions';
 import './App.css';
+
+// Import registry configuration
+import './registry/PatientViewRegistration';
 
 // Create a new query client instance for React Query
 const queryClient = new QueryClient({
