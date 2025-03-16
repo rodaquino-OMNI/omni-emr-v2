@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,70 +10,66 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSectorContext } from '@/hooks/useSectorContext';
 
-interface Sector {
-  id: string;
-  name: string;
-  description: string;
-}
-
 const SectorSelection: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
-  const { sectors, selectSector, isLoading } = useSectorContext();
+  const { sectors, selectSector, isLoading, fetchSectors } = useSectorContext();
   
-  // Define the five requested sectors only
-  const availableSectors = sectors.length > 0 ? sectors : [
+  // Fetch sectors on component mount
+  useEffect(() => {
+    fetchSectors();
+  }, [fetchSectors]);
+  
+  // Define fallback sectors for when context is empty
+  const fallbackSectors = [
     {
       id: 'emergency',
       name: language === 'pt' ? 'Emergência' : 'Emergency',
-      description: language === 'pt' ? 'Departamento de emergência para atendimento urgente' : 'Emergency department for urgent care'
+      description: language === 'pt' ? 'Departamento de emergência para atendimento urgente' : 'Emergency department for urgent care',
+      code: 'EMG',
+      is_active: true
     },
     {
       id: 'icu',
       name: language === 'pt' ? 'UTI' : 'ICU',
-      description: language === 'pt' ? 'Unidade de Terapia Intensiva para pacientes críticos' : 'Intensive Care Unit for critical patients'
+      description: language === 'pt' ? 'Unidade de Terapia Intensiva para pacientes críticos' : 'Intensive Care Unit for critical patients',
+      code: 'ICU',
+      is_active: true
     },
     {
       id: 'general',
-      name: language === 'pt' ? 'Enfermaria Geral' : 'General Medical Ward',
-      description: language === 'pt' ? 'Enfermaria médica geral para internação padrão' : 'General medical ward for standard inpatient care'
+      name: language === 'pt' ? 'Enfermaria Geral' : 'General Medical',
+      description: language === 'pt' ? 'Enfermaria médica geral para internação padrão' : 'General medical ward for standard inpatient care',
+      code: 'GEN',
+      is_active: true
     },
     {
       id: 'outpatient',
-      name: language === 'pt' ? 'Ambulatório' : 'Outpatient Clinics',
-      description: language === 'pt' ? 'Clínicas e serviços ambulatoriais' : 'Outpatient clinics and services'
+      name: language === 'pt' ? 'Ambulatório' : 'Outpatient',
+      description: language === 'pt' ? 'Clínicas e serviços ambulatoriais' : 'Outpatient clinics and services',
+      code: 'OUT',
+      is_active: true
     },
     {
       id: 'homecare',
       name: language === 'pt' ? 'Cuidados Domiciliares' : 'Home Care',
-      description: language === 'pt' ? 'Serviços de cuidados remotos para pacientes em casa' : 'Remote care services for patients at home'
+      description: language === 'pt' ? 'Serviços de cuidados remotos para pacientes em casa' : 'Remote care services for patients at home',
+      code: 'HMC',
+      is_active: true
     }
   ];
+
+  // Use context sectors if available, otherwise use fallback
+  const availableSectors = sectors.length > 0 
+    ? sectors 
+    : fallbackSectors;
 
   const handleContinue = () => {
     if (selectedSector) {
       const sector = availableSectors.find(s => s.id === selectedSector);
       if (sector) {
-        // If using the context
-        if (sectors.length > 0) {
-          selectSector({
-            id: sector.id,
-            name: sector.name,
-            code: sector.id.toUpperCase().substring(0, 3),
-            description: sector.description,
-            is_active: true
-          });
-        } else {
-          // Fallback to localStorage if context is not fully implemented
-          localStorage.setItem('selectedSector', JSON.stringify({
-            id: sector.id,
-            name: sector.name,
-            code: sector.id.toUpperCase().substring(0, 3),
-            description: sector.description,
-            is_active: true
-          }));
-        }
+        selectSector(sector);
         navigate('/dashboard');
       }
     }

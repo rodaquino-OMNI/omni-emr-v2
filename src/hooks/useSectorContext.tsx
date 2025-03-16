@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
@@ -66,17 +67,18 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
   const { user } = useAuth();
 
   // Fetch sectors from Supabase
-  const fetchSectors = async () => {
+  const fetchSectors = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      // Mock sectors if needed for development
+      // Mock sectors as fallback
       const mockSectors: SectorType[] = [
-        { id: '1', name: 'Emergency Department', code: 'ED', is_active: true, description: 'Emergency care unit' },
-        { id: '2', name: 'Intensive Care Unit', code: 'ICU', is_active: true, description: 'Critical care unit' },
-        { id: '3', name: 'Cardiology', code: 'CARD', is_active: true, description: 'Heart care unit' },
-        { id: '4', name: 'Pediatrics', code: 'PED', is_active: true, description: 'Child care unit' },
+        { id: 'emergency', name: 'Emergency', code: 'EMG', is_active: true, description: 'Emergency care unit' },
+        { id: 'icu', name: 'ICU', code: 'ICU', is_active: true, description: 'Critical care unit' },
+        { id: 'general', name: 'General Medical', code: 'GEN', is_active: true, description: 'General medical ward' },
+        { id: 'outpatient', name: 'Outpatient', code: 'OUT', is_active: true, description: 'Outpatient services' },
+        { id: 'homecare', name: 'Home Care', code: 'HMC', is_active: true, description: 'Home care services' },
       ];
       
       // Try to fetch from Supabase if connected
@@ -100,13 +102,13 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
       setError('Failed to load sectors. Please try again later.');
       // Fall back to mock data
       setSectors([
-        { id: '1', name: 'Emergency Department', code: 'ED', is_active: true, description: 'Emergency care unit' },
-        { id: '2', name: 'Intensive Care Unit', code: 'ICU', is_active: true, description: 'Critical care unit' },
+        { id: 'emergency', name: 'Emergency', code: 'EMG', is_active: true, description: 'Emergency care unit' },
+        { id: 'icu', name: 'ICU', code: 'ICU', is_active: true, description: 'Critical care unit' },
       ]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Fetch patients for the selected sector
   const fetchPatients = async (sectorId: string) => {
@@ -254,7 +256,7 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
         localStorage.removeItem('selectedSector');
       }
     }
-  }, []);
+  }, [fetchSectors]);
 
   return (
     <SectorContext.Provider
