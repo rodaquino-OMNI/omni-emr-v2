@@ -1,5 +1,5 @@
 
-// Re-export all auth utilities from their respective modules
+// Re-export only the necessary utilities from their respective modules
 export { 
   permissionCategories, 
   sharedPermissions 
@@ -9,19 +9,14 @@ export { rolePermissions } from './permissions/roleDefinitions';
 
 export { 
   hasPermission, 
-  getUserPermissions
-} from './permissions/roleChecks';
-
-export { 
-  canAccessPatientData
-} from './permissions/patientAccess';
-
-export {
+  getUserPermissions,
+  canAccessPatientData,
   canPerformClinicalDocumentation,
   canPerformMedicationAction,
   canPerformAppointmentAction
 } from './permissions/index';
 
+// Only include authentication functions that aren't already in more specific modules
 export { 
   signInWithProvider, 
   signInWithEmail, 

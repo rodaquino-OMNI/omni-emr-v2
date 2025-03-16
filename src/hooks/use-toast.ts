@@ -7,7 +7,7 @@ export type ToastProps = ExternalToast & {
   description?: string;
   duration?: number;
   action?: React.ReactNode;
-  icon?: ReactNode;
+  icon?: ReactNode; // Ensure icon is properly typed as ReactNode
   id?: string;
   className?: string;
   variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info' | 'error';
@@ -24,7 +24,7 @@ type ToastFunction = {
   
   (options: ToastProps | string): ToastT;
   
-  // Common scenario methods
+  // Common scenario methods - only include those that are actually used in the codebase
   saved: () => ToastT;
   deleted: () => ToastT;
   updated: () => ToastT;
@@ -38,7 +38,7 @@ type ToastFunction = {
   
   // For shadcn/ui compatibility
   toast: typeof sonnerToast;
-  toasts: any[];
+  toasts: any[]; // Keep for compatibility
 };
 
 // Helper function to handle both string and object parameters
