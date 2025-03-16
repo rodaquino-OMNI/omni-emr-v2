@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -45,7 +44,6 @@ const ClinicalDocumentationPage = () => {
   const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
-  // Monitor online status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -68,11 +66,9 @@ const ClinicalDocumentationPage = () => {
     try {
       let fetchedNotes: ClinicalNote[] = [];
       
-      // Fetch notes from service (which handles online/offline)
       if (patientId) {
         fetchedNotes = await noteService.getNotesByPatient(patientId);
       } else {
-        // Mocked notes for demo
         fetchedNotes = [
           {
             id: '1',
@@ -118,7 +114,6 @@ const ClinicalDocumentationPage = () => {
         ];
       }
       
-      // Filter notes based on type and status
       let filteredNotes = [...fetchedNotes];
       
       if (noteTypeFilter !== 'all') {
@@ -140,7 +135,11 @@ const ClinicalDocumentationPage = () => {
       setNotes(filteredNotes);
     } catch (error) {
       console.error('Error fetching notes:', error);
-      toast.error(language === 'pt' ? 'Erro ao carregar notas clínicas' : 'Error loading clinical notes');
+      toast.error(
+        language === 'pt' 
+          ? 'Falha ao carregar notas clínicas' 
+          : 'Failed to load clinical notes'
+      );
     } finally {
       setLoading(false);
     }
@@ -159,11 +158,9 @@ const ClinicalDocumentationPage = () => {
   };
   
   const handleViewNote = (noteId: string) => {
-    // In a real app, this would navigate to a note detail page
     const note = notes.find(n => n.id === noteId);
     if (note) {
       setCurrentNote(note);
-      // Navigate to note view page
       navigate(`/clinical-notes/${noteId}`);
     }
   };

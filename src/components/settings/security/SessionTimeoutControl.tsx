@@ -1,33 +1,53 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
+import SecurityControlItem from './SecurityControlItem';
+import { Clock } from 'lucide-react';
 
 interface SessionTimeoutControlProps {
-  sessionTimeout: string;
-  setSessionTimeout: (value: string) => void;
+  sessionTimeout?: string;
+  setSessionTimeout?: (value: string) => void;
 }
 
-const SessionTimeoutControl = ({ sessionTimeout, setSessionTimeout }: SessionTimeoutControlProps) => {
+const SessionTimeoutControl = ({ 
+  sessionTimeout = '30', 
+  setSessionTimeout 
+}: SessionTimeoutControlProps) => {
+  const { language } = useTranslation();
+  const [localTimeout, setLocalTimeout] = useState(sessionTimeout);
+  
+  const handleTimeoutChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value;
+    setLocalTimeout(newValue);
+    if (setSessionTimeout) {
+      setSessionTimeout(newValue);
+    }
+  };
+  
   return (
-    <div className="space-y-2">
-      <label htmlFor="sessionTimeout" className="text-sm font-medium">
-        Session Timeout (minutes)
-      </label>
-      <select
-        id="sessionTimeout"
-        className="w-full md:w-64 h-10 px-3 rounded-md border border-border bg-background"
-        value={sessionTimeout}
-        onChange={(e) => setSessionTimeout(e.target.value)}
-      >
-        <option value="15">15 minutes</option>
-        <option value="30">30 minutes</option>
-        <option value="60">1 hour</option>
-        <option value="120">2 hours</option>
-        <option value="240">4 hours</option>
-      </select>
-      <p className="text-xs text-muted-foreground">
-        Automatically log out after a period of inactivity for HIPAA compliance.
-      </p>
-    </div>
+    <SecurityControlItem
+      icon={<Clock className="h-5 w-5" />}
+      title={language === 'pt' ? 'Tempo de Inatividade' : 'Session Timeout'}
+      description={language === 'pt' ? 
+        'Tempo até que sua sessão seja encerrada automaticamente após inatividade' : 
+        'Time until your session automatically logs out after inactivity'}
+      action={
+        <div className="w-32">
+          <select
+            id="sessionTimeout"
+            className="w-full h-9 px-2 rounded-md border border-border bg-background"
+            value={localTimeout}
+            onChange={handleTimeoutChange}
+          >
+            <option value="15">15 {language === 'pt' ? 'minutos' : 'minutes'}</option>
+            <option value="30">30 {language === 'pt' ? 'minutos' : 'minutes'}</option>
+            <option value="60">1 {language === 'pt' ? 'hora' : 'hour'}</option>
+            <option value="120">2 {language === 'pt' ? 'horas' : 'hours'}</option>
+            <option value="240">4 {language === 'pt' ? 'horas' : 'hours'}</option>
+          </select>
+        </div>
+      }
+    />
   );
 };
 

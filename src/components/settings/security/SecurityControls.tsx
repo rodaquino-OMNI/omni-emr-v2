@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, ShieldAlert, Lock, Key } from 'lucide-react';
+import { Shield, ShieldAlert, Lock, Key, Clock } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import SecurityControlItem from './SecurityControlItem';
@@ -11,11 +11,19 @@ import MFASetup from './MFASetup';
 import PasswordUpdateForm from './PasswordUpdateForm';
 import { toast } from 'sonner';
 
+// Extend User type to include mfaEnabled
+declare module '@/context/AuthContext' {
+  interface User {
+    mfaEnabled?: boolean;
+  }
+}
+
 const SecurityControls = () => {
   const { language } = useTranslation();
   const { user } = useAuth();
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState('30');
   
   const handleSecurityAudit = () => {
     toast.info(language === 'pt' ? 'Auditoria de segurança iniciada' : 'Security audit initiated');
@@ -77,7 +85,10 @@ const SecurityControls = () => {
               }
             />
             
-            <SessionTimeoutControl />
+            <SessionTimeoutControl 
+              sessionTimeout={sessionTimeout}
+              setSessionTimeout={setSessionTimeout}
+            />
             
             <SecurityControlItem
               icon={<ShieldAlert className="h-5 w-5" />}

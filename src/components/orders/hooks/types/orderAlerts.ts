@@ -1,7 +1,7 @@
 
 export interface OrderAlert {
   id: string;
-  type: string | 'info' | 'warning' | 'critical';
+  type: 'info' | 'warning' | 'critical';
   title?: string;
   message: string;
   details?: any;

@@ -1,64 +1,84 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { CalendarPlus, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/hooks/useTranslation';
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetTrigger 
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
+import React, { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
-import AppointmentsList from '../components/schedule/AppointmentsList';
-import ScheduleConsultationForm from '../components/schedule/ScheduleConsultationForm';
-import { getAppointmentsByDate } from '@/services/appointments';
+import { Calendar } from 'lucide-react';
+import { Calendar as CalendarIcon } from "@/components/ui/calendar"
+import { format } from 'date-fns'
+import { cn } from "@/lib/utils"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useTranslation } from '../hooks/useTranslation';
+import { toast } from 'sonner';
 
 const SchedulePage = () => {
-  const { t } = useTranslation();
-  const { toast } = useToast();
+  const { language } = useTranslation();
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [month, setMonth] = useState<Date>(new Date());
-  const [isScheduleFormOpen, setIsScheduleFormOpen] = useState(false);
-  
-  const { 
-    data: appointments = [], 
-    isLoading, 
-    refetch 
-  } = useQuery({
-    queryKey: ['appointments', date ? format(date, 'yyyy-MM-dd') : ''],
-    queryFn: () => date ? getAppointmentsByDate(format(date, 'yyyy-MM-dd')) : Promise.resolve([]),
-    enabled: !!date,
+  const [appointments, setAppointments] = useState([
+    { id: 1, time: '9:00 AM', patient: 'John Doe', type: 'Check-up' },
+    { id: 2, time: '11:00 AM', patient: 'Jane Smith', type: 'Follow-up' },
+  ]);
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] = useState(false);
+  const [newAppointment, setNewAppointment] = useState({
+    time: '',
+    patient: '',
+    type: '',
+    notes: '',
   });
-  
-  const handlePreviousMonth = () => {
-    const previousMonth = new Date(month);
-    previousMonth.setMonth(previousMonth.getMonth() - 1);
-    setMonth(previousMonth);
+
+  useEffect(() => {
+    // Simulate fetching appointments for the selected date
+    // In a real application, you would fetch this data from an API
+    console.log('Fetching appointments for:', date);
+  }, [date]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setNewAppointment({ ...newAppointment, [e.target.name]: e.target.value });
   };
-  
-  const handleNextMonth = () => {
-    const nextMonth = new Date(month);
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    setMonth(nextMonth);
+
+  const handleSelectChange = (e: string, name: string) => {
+    setNewAppointment({ ...newAppointment, [name]: e });
   };
-  
-  const formatMonthYear = (date: Date) => {
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulate submitting the new appointment
+    const newId = appointments.length > 0 ? appointments[appointments.length - 1].id + 1 : 1;
+    setAppointments([...appointments, { id: newId, ...newAppointment }]);
+    setIsNewAppointmentModalOpen(false);
+    setNewAppointment({ time: '', patient: '', type: '', notes: '' });
+    toast.success(language === 'pt' ? 'Consulta agendada com sucesso!' : 'Appointment scheduled successfully!');
   };
-  
-  const handleScheduleSuccess = () => {
-    setIsScheduleFormOpen(false);
-    refetch();
-    toast.success(t('appointmentScheduled'), { description: t('appointmentScheduledSuccess') });
+
+  const handleDelete = (id: number) => {
+    setAppointments(appointments.filter(appointment => appointment.id !== id));
+    toast.success(language === 'pt' ? 'Consulta cancelada com sucesso!' : 'Appointment cancelled successfully!');
   };
+
+  const handleDateSelect = (newDate: Date | undefined) => {
+    setDate(newDate);
+  };
+
+  useEffect(() => {
+    // Simulate loading appointments
+    setTimeout(() => {
+      // Simulate an error
+      toast.error(
+        language === 'pt' 
+          ? 'Falha ao carregar consultas' 
+          : 'Failed to load appointments'
+      );
+    }, 1500);
+  }, [language]);
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -68,102 +88,110 @@ const SchedulePage = () => {
         <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <h1 className="text-2xl font-semibold">{t('schedule')}</h1>
-              
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => refetch()}
-                  className="gap-1"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  {t('refresh')}
-                </Button>
-                
-                <Sheet open={isScheduleFormOpen} onOpenChange={setIsScheduleFormOpen}>
-                  <SheetTrigger asChild>
-                    <Button className="h-9 flex items-center gap-1 w-fit">
-                      <CalendarPlus className="h-4 w-4" />
-                      {t('newAppointment')}
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-                    <SheetHeader>
-                      <SheetTitle>{t('scheduleConsultation')}</SheetTitle>
-                    </SheetHeader>
-                    <div className="mt-6">
-                      <ScheduleConsultationForm 
-                        onSuccess={handleScheduleSuccess} 
-                        onCancel={() => setIsScheduleFormOpen(false)} 
-                      />
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
+              <h1 className="text-2xl font-semibold">
+                {language === 'pt' ? 'Agendamentos' : 'Schedule'}
+              </h1>
+              <Button onClick={() => setIsNewAppointmentModalOpen(true)}>
+                {language === 'pt' ? '+ Novo Agendamento' : '+ New Appointment'}
+              </Button>
             </div>
-            
-            <div className="grid md:grid-cols-[350px_1fr] gap-6">
-              <div className="glass-card p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <button 
-                    onClick={handlePreviousMonth}
-                    className="p-1 rounded-full hover:bg-secondary"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <h2 className="font-medium">{formatMonthYear(month)}</h2>
-                  <button 
-                    onClick={handleNextMonth}
-                    className="p-1 rounded-full hover:bg-secondary"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </div>
-                
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  month={month}
-                  onMonthChange={setMonth}
-                  className="rounded-md border pointer-events-auto"
-                />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border rounded-md p-4">
+                <h2 className="text-lg font-semibold mb-4">{language === 'pt' ? 'Calendário' : 'Calendar'}</h2>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>{language === 'pt' ? 'Selecionar data' : 'Select date'}</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={handleDateSelect}
+                      disabled={(date) =>
+                        date > new Date()
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
-              
-              <div className="glass-card p-6">
-                <Tabs defaultValue="appointments">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium">
-                      {date ? format(date, 'EEEE, MMMM d, yyyy') : t('selectDate')}
-                    </h2>
-                    <TabsList>
-                      <TabsTrigger value="appointments">{t('appointments')}</TabsTrigger>
-                      <TabsTrigger value="reminders">{t('reminders')}</TabsTrigger>
-                    </TabsList>
-                  </div>
-                  
-                  <TabsContent value="appointments" className="mt-0">
-                    {isLoading ? (
-                      <div className="py-10 text-center text-muted-foreground animate-pulse">
-                        {t('loading')}...
-                      </div>
-                    ) : (
-                      <AppointmentsList selectedDate={date} />
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="reminders" className="mt-0">
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p>{t('noRemindersScheduled')}</p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+
+              <div className="border rounded-md p-4">
+                <h2 className="text-lg font-semibold mb-4">{language === 'pt' ? 'Agendamentos do Dia' : 'Today\'s Appointments'}</h2>
+                {appointments.length > 0 ? (
+                  <ul className="space-y-2">
+                    {appointments.map(appointment => (
+                      <li key={appointment.id} className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <div className="font-semibold">{appointment.time}</div>
+                          <div className="text-sm">{appointment.patient} - {appointment.type}</div>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(appointment.id)}>
+                          {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-muted-foreground">{language === 'pt' ? 'Nenhum agendamento para hoje.' : 'No appointments for today.'}</p>
+                )}
               </div>
             </div>
           </div>
         </main>
       </div>
+
+      {/* New Appointment Modal */}
+      {isNewAppointmentModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-md max-w-md w-full">
+            <h2 className="text-lg font-semibold mb-4">{language === 'pt' ? 'Novo Agendamento' : 'New Appointment'}</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="time">{language === 'pt' ? 'Horário' : 'Time'}</Label>
+                <Input type="time" id="time" name="time" value={newAppointment.time} onChange={handleInputChange} required className="w-full" />
+              </div>
+              <div>
+                <Label htmlFor="patient">{language === 'pt' ? 'Paciente' : 'Patient'}</Label>
+                <Input type="text" id="patient" name="patient" value={newAppointment.patient} onChange={handleInputChange} required className="w-full" />
+              </div>
+              <div>
+                <Label>{language === 'pt' ? 'Tipo' : 'Type'}</Label>
+                <Select onValueChange={(e) => handleSelectChange(e, 'type')}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={language === 'pt' ? "Selecionar tipo" : "Select type"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Check-up">{language === 'pt' ? 'Check-up' : 'Check-up'}</SelectItem>
+                    <SelectItem value="Follow-up">{language === 'pt' ? 'Acompanhamento' : 'Follow-up'}</SelectItem>
+                    <SelectItem value="Consultation">{language === 'pt' ? 'Consulta' : 'Consultation'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="notes">{language === 'pt' ? 'Notas' : 'Notes'}</Label>
+                <Textarea id="notes" name="notes" value={newAppointment.notes} onChange={handleInputChange} className="w-full" />
+              </div>
+              <div className="flex justify-end">
+                <Button type="button" variant="ghost" onClick={() => setIsNewAppointmentModalOpen(false)} className="mr-2">
+                  {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                </Button>
+                <Button type="submit">{language === 'pt' ? 'Agendar' : 'Schedule'}</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
