@@ -1,4 +1,3 @@
-
 export interface AuthContextType {
   user: User | null | undefined;
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
@@ -21,6 +20,7 @@ export interface AuthContextType {
   sessionTimeoutMinutes: number;
   setSessionTimeoutMinutes: React.Dispatch<React.SetStateAction<number>>;
   lastActivity: Date;
+  updateLastActivity?: () => void;
 }
 
 export interface User {
@@ -48,7 +48,6 @@ export interface Permission {
   description?: string;
 }
 
-// Adding language types for better compatibility
 export type Language = 'en' | 'pt';
 export type UserRole = 'doctor' | 'nurse' | 'admin' | 'patient' | 'pharmacist' | 'lab_technician' | 'administrative' | 'specialist' | 'system_administrator' | 'caregiver' | 'radiology_technician';
 export type ApprovalStatus = 'approved' | 'pending' | 'rejected';
