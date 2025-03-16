@@ -2,26 +2,26 @@
 import { toast as sonnerToast } from "sonner";
 import type { ToastT, ExternalToast } from "sonner";
 
-export type ToastOptions = ExternalToast & {
+export type ToastProps = ExternalToast & {
   description?: string;
   duration?: number;
   action?: React.ReactNode;
   icon?: React.ReactNode;
   id?: string;
   className?: string;
-  variant?: 'default' | 'destructive';
+  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
   title?: string;
 };
 
 // Create a specific type for the toast function to avoid type errors
 type ToastFunction = {
-  success: (message: string, options?: ToastOptions) => ToastT;
-  error: (message: string, options?: ToastOptions) => ToastT;
-  warning: (message: string, options?: ToastOptions) => ToastT;
-  info: (message: string, options?: ToastOptions) => ToastT;
-  default: (message: string, options?: ToastOptions) => ToastT;
+  success: (options: ToastProps | string) => ToastT;
+  error: (options: ToastProps | string) => ToastT;
+  warning: (options: ToastProps | string) => ToastT;
+  info: (options: ToastProps | string) => ToastT;
+  default: (options: ToastProps | string) => ToastT;
   
-  (message: string, options?: ToastOptions): ToastT;
+  (options: ToastProps | string): ToastT;
   
   // Common scenario methods
   saved: () => ToastT;
@@ -40,17 +40,44 @@ type ToastFunction = {
   toasts: any[];
 };
 
+// Helper function to handle both string and object parameters
+const handleToastParams = (options: ToastProps | string): [string | undefined, ExternalToast] => {
+  if (typeof options === 'string') {
+    return [options, {}];
+  }
+  const { title, ...rest } = options;
+  return [title, rest];
+};
+
 // Create the toast object with function properties
 export const toast: ToastFunction = Object.assign(
   // Base function
-  (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options) as unknown as ToastT,
+  (options: ToastProps | string): ToastT => {
+    const [title, rest] = handleToastParams(options);
+    return sonnerToast(title || '', rest) as unknown as ToastT;
+  },
   // Methods
   {
-    success: (message: string, options?: ToastOptions): ToastT => sonnerToast.success(message, options) as unknown as ToastT,
-    error: (message: string, options?: ToastOptions): ToastT => sonnerToast.error(message, options) as unknown as ToastT,
-    warning: (message: string, options?: ToastOptions): ToastT => sonnerToast.warning(message, options) as unknown as ToastT,
-    info: (message: string, options?: ToastOptions): ToastT => sonnerToast.info(message, options) as unknown as ToastT,
-    default: (message: string, options?: ToastOptions): ToastT => sonnerToast(message, options) as unknown as ToastT,
+    success: (options: ToastProps | string): ToastT => {
+      const [title, rest] = handleToastParams(options);
+      return sonnerToast.success(title || '', rest) as unknown as ToastT;
+    },
+    error: (options: ToastProps | string): ToastT => {
+      const [title, rest] = handleToastParams(options);
+      return sonnerToast.error(title || '', rest) as unknown as ToastT;
+    },
+    warning: (options: ToastProps | string): ToastT => {
+      const [title, rest] = handleToastParams(options);
+      return sonnerToast.warning(title || '', rest) as unknown as ToastT;
+    },
+    info: (options: ToastProps | string): ToastT => {
+      const [title, rest] = handleToastParams(options);
+      return sonnerToast.info(title || '', rest) as unknown as ToastT;
+    },
+    default: (options: ToastProps | string): ToastT => {
+      const [title, rest] = handleToastParams(options);
+      return sonnerToast(title || '', rest) as unknown as ToastT;
+    },
     
     // Common scenarios with pre-defined messages
     saved: (): ToastT => sonnerToast.success('Successfully saved') as unknown as ToastT,

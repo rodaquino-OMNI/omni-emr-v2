@@ -155,7 +155,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
       
       <div className="grid grid-cols-2 gap-4 mt-2">
         <Button 
-          variant={patientScanned ? "success" : "outline"}
+          variant={patientScanned ? "default" : "outline"}
           onClick={() => onCapture('patient')}
           disabled={patientScanned}
           className={`${patientScanned ? "bg-green-600 hover:bg-green-700 text-white" : ""} h-14 rounded-lg shadow-sm transition-all duration-200`}
@@ -172,7 +172,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
           </div>
         </Button>
         <Button 
-          variant={medicationScanned ? "success" : "outline"}
+          variant={medicationScanned ? "default" : "outline"}
           onClick={() => onCapture('medication')}
           disabled={medicationScanned}
           className={`${medicationScanned ? "bg-green-600 hover:bg-green-700 text-white" : ""} h-14 rounded-lg shadow-sm transition-all duration-200`}

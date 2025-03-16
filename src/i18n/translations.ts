@@ -1,3 +1,4 @@
+
 import { authTranslations } from './categories/auth';
 import { commonTranslations } from './categories/common';
 import { medicalHistoryTranslations } from './categories/medicalHistory';
