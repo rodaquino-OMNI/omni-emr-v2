@@ -4,31 +4,23 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 interface TranslatedTextProps {
   textKey: string;
-  fallback?: string;
+  fallback: string;
   className?: string;
-  as?: React.ElementType;
 }
 
-/**
- * A component to display translated text with fallback options
- */
-const TranslatedText: React.FC<TranslatedTextProps> = ({
-  textKey,
+const TranslatedText: React.FC<TranslatedTextProps> = ({ 
+  textKey, 
   fallback,
-  className,
-  as: Component = 'span'
+  className 
 }) => {
-  const { t, hasTranslation } = useTranslation();
+  const { t } = useTranslation();
   
-  // If the key exists in translations, use it, otherwise use fallback or key itself
-  const displayText = hasTranslation(textKey) 
-    ? t(textKey)
-    : fallback || textKey;
+  const translatedText = t(textKey) || fallback;
   
   return (
-    <Component className={className}>
-      {displayText}
-    </Component>
+    <span className={className}>
+      {translatedText}
+    </span>
   );
 };
 

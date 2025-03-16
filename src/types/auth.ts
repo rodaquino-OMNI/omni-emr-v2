@@ -16,7 +16,12 @@ export type UserRole =
   | 'researcher'
   | 'coordinator'
   | 'student'
-  | 'guest';
+  | 'guest'
+  | 'doctor'
+  | 'specialist'
+  | 'administrative'
+  | 'caregiver'
+  | 'radiology_technician';
 
 // User permissions
 export type Permission = string;
@@ -35,6 +40,9 @@ export interface User {
   phoneNumber?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  avatar?: string;
+  approvalStatus?: ApprovalStatus;
+  status?: string;
 }
 
 // Auth context state
@@ -70,4 +78,29 @@ export interface RegistrationData extends LoginCredentials {
 export interface AuthError {
   message: string;
   code?: string;
+}
+
+// Auth context type
+export interface AuthContextType {
+  user: User | null;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (data: RegistrationData) => Promise<void>;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  setError: (error: string | null) => void;
+  resetPassword: (email: string) => Promise<void>;
+  updateProfile: (profile: Partial<User>) => Promise<void>;
+}
+
+// Approval status for user accounts
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+// Session timeout props
+export interface UseSessionTimeoutProps {
+  defaultTimeoutMinutes?: number;
+  onTimeout: () => void;
+  onWarning?: () => void;
+  warningThresholdMinutes?: number;
 }
