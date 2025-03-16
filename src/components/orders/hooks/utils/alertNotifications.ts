@@ -1,43 +1,62 @@
 
-import { AlertTriangle, InfoIcon, Ban } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
 import { OrderAlert } from '../types/orderAlerts';
+import { toast } from 'sonner';
+import { AlertTriangle, Info, Bell } from 'lucide-react';
+import React from 'react';
 
 /**
- * Shows a toast notification for critical alerts that cannot be overridden
+ * Shows a critical alert notification in the UI that requires immediate attention
  */
-export const showCriticalToast = (alert: OrderAlert) => {
-  toast({
-    title: 'Critical Alert',
+export const showCriticalAlert = (alert: OrderAlert) => {
+  console.error(`CRITICAL ALERT: ${alert.message}`);
+  
+  toast.error(alert.title || "Critical Alert", {
     description: alert.message,
-    variant: 'destructive',
-    icon: <AlertTriangle className="h-5 w-5" />,
-    duration: 5000,
+    duration: 10000, // longer duration for critical alerts
+    icon: <AlertTriangle className="h-4 w-4" />
   });
 };
 
 /**
- * Shows a toast notification for warning alerts that can be overridden
+ * Shows a warning notification that should be reviewed but is not critical
  */
-export const showWarningToast = (alert: OrderAlert) => {
-  toast({
-    title: 'Warning Alert',
+export const showWarningAlert = (alert: OrderAlert) => {
+  console.warn(`Warning Alert: ${alert.message}`);
+  
+  toast.warning(alert.title || "Warning", {
     description: alert.message,
-    variant: 'warning',
-    icon: <InfoIcon className="h-5 w-5" />,
+    duration: 6000,
+    icon: <AlertTriangle className="h-4 w-4" />
+  });
+};
+
+/**
+ * Shows an informational notification about the order
+ */
+export const showInfoAlert = (alert: OrderAlert) => {
+  console.info(`Info Alert: ${alert.message}`);
+  
+  toast.info(alert.title || "Information", {
+    description: alert.message,
     duration: 4000,
+    icon: <Info className="h-4 w-4" />
   });
 };
 
 /**
- * Shows a toast notification for alerts that have been overridden
+ * Dispatches the alert to the appropriate notification method based on its severity
  */
-export const showOverriddenToast = (alert: OrderAlert) => {
-  toast({
-    title: 'Alert Overridden',
-    description: `${alert.message} - Reason: ${alert.overriddenReason || 'Not specified'}`,
-    variant: 'info',
-    icon: <Ban className="h-5 w-5" />,
-    duration: 3000,
-  });
+export const dispatchAlert = (alert: OrderAlert) => {
+  switch (alert.severity) {
+    case 'error':
+      showCriticalAlert(alert);
+      break;
+    case 'warning':
+      showWarningAlert(alert);
+      break;
+    case 'info':
+    default:
+      showInfoAlert(alert);
+      break;
+  }
 };
