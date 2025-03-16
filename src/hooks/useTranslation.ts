@@ -1,6 +1,7 @@
 
 import { useContext } from 'react';
 import { LanguageContext } from '@/context/LanguageContext';
+import { Languages } from '@/types/auth';
 
 // Basic translations
 const translations = {
@@ -16,6 +17,7 @@ const translations = {
     newPatient: 'New Patient',
     viewAllPatients: 'View all patients',
     assigned: 'Assigned',
+    // Add more translations as needed
   },
   pt: {
     overview: 'Visão Geral',
@@ -29,6 +31,7 @@ const translations = {
     newPatient: 'Novo Paciente',
     viewAllPatients: 'Ver todos os pacientes',
     assigned: 'Atribuído',
+    // Add more translations as needed
   }
 };
 
@@ -48,6 +51,14 @@ export const useTranslation = () => {
     // Return the key if no translation is found
     return key;
   };
+
+  // Function to check if a translation exists
+  const hasTranslation = (key: string): boolean => {
+    return (
+      (language === 'pt' && !!translations.pt[key as keyof typeof translations.pt]) ||
+      !!translations.en[key as keyof typeof translations.en]
+    );
+  };
   
-  return { t, language, setLanguage };
+  return { t, language, setLanguage, hasTranslation };
 };

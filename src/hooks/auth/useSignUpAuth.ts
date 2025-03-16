@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { User, UserRole, Languages } from '@/types/auth';
@@ -33,13 +34,13 @@ export const useSignUpAuth = (
         // Create our app's User type from Supabase User
         appUser = {
           id: result.user.id,
-          email: result.user.email,
+          email: result.user.email ?? '',
           name: name, // Use the name passed to the function
           role: role, // Use the role passed to the function
           status: 'active', // Default status for new users
           mfaEnabled: false,
-          createdAt: result.user.created_at,
-          lastLogin: new Date().toISOString()
+          createdAt: new Date(result.user.created_at),
+          lastLogin: new Date(Date.now())
         };
       }
       

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { useAuthProvider } from '../hooks/useAuthProvider';
@@ -7,38 +8,26 @@ import { supabase } from '../integrations/supabase/client';
 // Create the auth context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  setUser: () => {},
   isAuthenticated: false,
-  setIsAuthenticated: () => {},
   isLoading: true,
-  setIsLoading: () => {},
-  language: 'en',
-  setLanguage: () => {},
-  login: async (email: string, password: string) => ({ success: false }),
+  error: null,
+  login: async () => ({ success: false }),
   logout: async () => {},
-  loginWithSocial: async (provider: string) => ({ success: false }),
-  signUp: async () => ({ success: false }),
-  resetPassword: async (email: string): Promise<{success: boolean; error?: any}> => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      
-      if (error) throw error;
-      
-      return { success: true };
-    } catch (error) {
-      console.error("Reset password error:", error);
-      return { success: false, error };
-    }
-  },
-  updateUser: async () => {},
-  checkAuthStatus: async () => false,
+  register: async () => ({ success: false }),
+  resetPassword: async () => ({ success: false }),
+  updateProfile: async () => {},
+  setError: () => {},
   hasPermission: () => false,
   canAccessPatientData: () => false,
+  language: 'en',
+  setLanguage: () => {},
+  loginWithSocial: async () => ({ success: false }),
   session: null,
   lastActivity: new Date(),
   updateLastActivity: () => {},
   sessionTimeoutMinutes: 30,
   setSessionTimeoutMinutes: () => {},
+  signUp: async () => ({ success: false }),
 });
 
 // Create the auth provider component

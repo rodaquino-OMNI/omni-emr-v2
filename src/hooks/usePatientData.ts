@@ -1,144 +1,115 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Patient, PatientStatus, mapToPatientStatus } from '@/types/patientTypes';
-import { calculatePatientAge } from '@/utils/patientUtils';
+import { toast } from 'sonner';
 
-// Mock data for fallback
-const mockPatients = [
-  {
-    id: 'patient-1',
-    first_name: 'John',
-    last_name: 'Doe',
-    date_of_birth: '1980-01-01',
-    gender: 'Male',
-    mrn: '123456',
-    status: 'hospital',
-    is_assigned: true,
-    room_number: '101',
-    age: 43,
-    diagnosis: 'Hypertension',
-    name: 'John Doe'
-  },
-  {
-    id: 'patient-2',
-    first_name: 'Jane',
-    last_name: 'Smith',
-    date_of_birth: '1990-05-15',
-    gender: 'Female',
-    mrn: '789012',
-    status: 'home',
-    is_assigned: true,
-    room_number: '202',
-    age: 33,
-    diagnosis: 'Diabetes',
-    name: 'Jane Smith'
-  },
-  {
-    id: 'patient-3',
-    first_name: 'Robert',
-    last_name: 'Jones',
-    date_of_birth: '1975-11-20',
-    gender: 'Male',
-    mrn: '345678',
-    status: 'discharged',
-    is_assigned: false,
-    room_number: null,
-    age: 47,
-    diagnosis: 'Asthma',
-    name: 'Robert Jones'
-  }
-];
+export interface Patient {
+  id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  gender: string | null;
+  mrn: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  created_at: string;
+  updated_at: string;
+  room_number: string | null;
+  status: string | null;
+  blood_type: string | null;
+}
 
-export const usePatientData = (patientId: string) => {
+export const usePatientData = (patientId?: string) => {
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
   // Fetch patient data
-  const { data: patient, isLoading: patientLoading } = useQuery({
-    queryKey: ['patient', patientId],
-    queryFn: async () => {
-      if (!patientId) return null;
-      
-      // First check if the table exists and we can connect
-      const { data: connected, error: connError } = await supabase.rpc('check_connection');
-      
-      if (connError || !connected) {
-        console.error('Database connection error:', connError);
-        // Return mock data as fallback
-        const mockPatient = mockPatients.find(p => p.id === patientId);
-        return mockPatient ? {
-          ...mockPatient,
-          status: mapToPatientStatus(mockPatient.status)
-        } : null;
-      }
-      
-      // Try to get from the new patient_status_view first
-      const { data: viewData, error: viewError } = await supabase
-        .from('patient_status_view')
-        .select('*')
-        .eq('id', patientId)
-        .single();
-      
-      if (!viewError && viewData) {
-        // Convert to Patient type with proper status mapping
-        const patientData: Patient = {
-          id: viewData.id,
-          first_name: viewData.first_name,
-          last_name: viewData.last_name,
-          name: `${viewData.first_name} ${viewData.last_name}`,
-          date_of_birth: viewData.date_of_birth,
-          gender: viewData.gender,
-          mrn: viewData.mrn,
-          room_number: viewData.room_number,
-          // Explicitly map the status string to PatientStatus enum type
-          status: mapToPatientStatus(viewData.mapped_status || 'stable'),
-          is_assigned: true, // Default value
-          // Calculate age from date of birth
-          age: calculatePatientAge(viewData.date_of_birth),
-          diagnosis: "Primary diagnosis information would be fetched separately"
-        };
-        return patientData;
-      }
-      
-      // Fallback to patients table if view doesn't exist
+  const fetchPatient = useCallback(async () => {
+    if (!patientId) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .eq('id', patientId)
         .single();
+
+      if (error) throw error;
       
-      if (error) {
-        console.error('Error fetching patient:', error);
-        // Return mock data as fallback
-        const mockPatient = mockPatients.find(p => p.id === patientId);
-        return mockPatient ? {
-          ...mockPatient,
-          status: mapToPatientStatus(mockPatient.status)
-        } : null;
+      if (data) {
+        setPatient(data as Patient);
+      } else {
+        setError('Patient not found');
       }
+    } catch (err) {
+      console.error('Error fetching patient:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while fetching patient data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [patientId]);
+
+  // Update patient data
+  const updatePatient = useCallback(async (updatedPatient: Partial<Patient> & { id: string }) => {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .update({
+          first_name: updatedPatient.first_name,
+          last_name: updatedPatient.last_name,
+          date_of_birth: updatedPatient.date_of_birth,
+          gender: updatedPatient.gender,
+          mrn: updatedPatient.mrn,
+          email: updatedPatient.email,
+          phone: updatedPatient.phone,
+          address: updatedPatient.address,
+          city: updatedPatient.city,
+          state: updatedPatient.state,
+          zip_code: updatedPatient.zip_code,
+          emergency_contact_name: updatedPatient.emergency_contact_name,
+          emergency_contact_phone: updatedPatient.emergency_contact_phone,
+          room_number: updatedPatient.room_number,
+          status: updatedPatient.status,
+          blood_type: updatedPatient.blood_type,
+        })
+        .eq('id', updatedPatient.id)
+        .select()
+        .single();
+
+      if (error) throw error;
       
-      // Convert to Patient type
-      const patientData: Patient = {
-        id: data.id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        name: `${data.first_name} ${data.last_name}`,
-        date_of_birth: data.date_of_birth,
-        gender: data.gender,
-        mrn: data.mrn,
-        room_number: data.room_number,
-        // Map the status string to PatientStatus enum type
-        status: mapToPatientStatus(data.status || 'stable'),
-        is_assigned: true, // Default for the detail view
-        // Calculate age from date of birth
-        age: calculatePatientAge(data.date_of_birth),
-        diagnosis: "Primary diagnosis information would be fetched separately"
-      };
-      return patientData;
-    },
-    enabled: !!patientId
-  });
+      setPatient(data as Patient);
+      return data;
+    } catch (err) {
+      console.error('Error updating patient:', err);
+      throw err;
+    }
+  }, []);
+
+  // Effect to fetch patient data on mount or when patientId changes
+  useEffect(() => {
+    fetchPatient();
+  }, [fetchPatient]);
 
   return {
     patient,
-    isLoading: patientLoading
+    setPatient,
+    isLoading,
+    error,
+    fetchPatient,
+    updatePatient
   };
 };

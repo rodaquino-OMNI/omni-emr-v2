@@ -1,98 +1,104 @@
 
 import { PatientStatus } from '@/types/patientTypes';
+import { Languages } from '@/types/auth';
 
-/**
- * Converts a string to a valid PatientStatus type
- * 
- * @param status Status string from any source
- * @returns Valid PatientStatus enum value
- */
-export function convertToPatientStatus(status: string): PatientStatus {
-  switch (status.toLowerCase()) {
-    case 'hospital':
-    case 'active':
-      return 'hospital';
-    case 'home':
-      return 'home';
-    case 'discharged':
-    case 'inactive':
-      return 'discharged';
-    case 'critical':
-      return 'critical';
-    case 'improving':
-      return 'improving';
-    case 'stable':
-    default:
-      return 'stable';
-  }
-}
+// Function to get status color class based on patient status
+export const getStatusColorClass = (status: PatientStatus): string => {
+  const colorClasses = {
+    'stable': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    'improving': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    'critical': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+    'discharged': 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400',
+    'hospital': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+    'home': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400'
+  };
+  
+  return colorClasses[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-400';
+};
 
-/**
- * Returns status color class based on patient status
- * 
- * @param status Patient status
- * @returns Tailwind color class
- */
-export function getStatusColorClass(status: PatientStatus): string {
-  switch (status) {
-    case 'critical':
-      return 'text-red-500 bg-red-100';
-    case 'hospital':
-      return 'text-blue-500 bg-blue-100';
-    case 'improving':
-      return 'text-green-500 bg-green-100';
-    case 'stable':
-      return 'text-emerald-500 bg-emerald-100';
-    case 'home':
-      return 'text-amber-500 bg-amber-100';
-    case 'discharged':
-      return 'text-gray-500 bg-gray-100';
-    default:
-      return 'text-gray-500 bg-gray-100';
-  }
-}
-
-/**
- * Returns a user-friendly status label based on patient status
- * 
- * @param status Patient status
- * @param language Current language (en/pt)
- * @returns User-friendly status label
- */
-export function getStatusLabel(status: PatientStatus, language: string = 'en'): string {
-  if (language === 'pt') {
-    switch (status) {
-      case 'critical':
-        return 'Crítico';
-      case 'hospital':
-        return 'Hospitalizado';
-      case 'improving':
-        return 'Melhorando';
-      case 'stable':
-        return 'Estável';
-      case 'home':
-        return 'Em Casa';
-      case 'discharged':
-        return 'Alta';
-      default:
-        return 'Desconhecido';
+// Function to get translated status label based on patient status and language
+export const getStatusLabel = (status: PatientStatus, language: Languages): string => {
+  const statusLabels = {
+    en: {
+      'stable': 'Stable',
+      'improving': 'Improving',
+      'critical': 'Critical',
+      'discharged': 'Discharged',
+      'hospital': 'In Hospital',
+      'home': 'At Home'
+    },
+    pt: {
+      'stable': 'Estável',
+      'improving': 'Melhorando',
+      'critical': 'Crítico',
+      'discharged': 'Alta',
+      'hospital': 'No Hospital',
+      'home': 'Em Casa'
     }
-  } else {
-    switch (status) {
-      case 'critical':
-        return 'Critical';
-      case 'hospital':
-        return 'Hospitalized';
-      case 'improving':
-        return 'Improving';
-      case 'stable':
-        return 'Stable';
-      case 'home':
-        return 'At Home';
-      case 'discharged':
-        return 'Discharged';
-      default:
-        return 'Unknown';
+  };
+  
+  return statusLabels[language][status] || status;
+};
+
+// Function to determine patient status from various data points
+export const determinePatientStatus = (
+  currentStatus?: string | null,
+  vitalSigns?: any[],
+  admissionInfo?: any
+): PatientStatus => {
+  // If status is explicitly set, use that
+  if (currentStatus) {
+    if (
+      currentStatus === 'stable' ||
+      currentStatus === 'critical' ||
+      currentStatus === 'improving' ||
+      currentStatus === 'discharged' ||
+      currentStatus === 'hospital' ||
+      currentStatus === 'home'
+    ) {
+      return currentStatus;
     }
   }
-}
+  
+  // Check if patient is discharged
+  if (admissionInfo?.discharged) {
+    return 'discharged';
+  }
+  
+  // Check if patient is in hospital
+  if (admissionInfo?.isAdmitted) {
+    // Check vitals for critical status
+    if (vitalSigns && vitalSigns.length > 0) {
+      const latestVitals = vitalSigns[0];
+      
+      // Example logic for determining if patient is critical based on vitals
+      if (
+        (latestVitals.systolic_bp && (latestVitals.systolic_bp > 180 || latestVitals.systolic_bp < 90)) ||
+        (latestVitals.diastolic_bp && (latestVitals.diastolic_bp > 120 || latestVitals.diastolic_bp < 60)) ||
+        (latestVitals.heart_rate && (latestVitals.heart_rate > 120 || latestVitals.heart_rate < 50)) ||
+        (latestVitals.respiratory_rate && (latestVitals.respiratory_rate > 30 || latestVitals.respiratory_rate < 8)) ||
+        (latestVitals.oxygen_saturation && latestVitals.oxygen_saturation < 90)
+      ) {
+        return 'critical';
+      }
+      
+      // Compare with previous vitals to determine if improving
+      if (vitalSigns.length > 1) {
+        const previousVitals = vitalSigns[1];
+        
+        // Example logic for improvement - simplistic for demonstration
+        if (
+          (latestVitals.systolic_bp && previousVitals.systolic_bp && Math.abs(latestVitals.systolic_bp - 120) < Math.abs(previousVitals.systolic_bp - 120)) ||
+          (latestVitals.oxygen_saturation && previousVitals.oxygen_saturation && latestVitals.oxygen_saturation > previousVitals.oxygen_saturation)
+        ) {
+          return 'improving';
+        }
+      }
+    }
+    
+    return 'hospital';
+  }
+  
+  // Default for outpatients
+  return 'home';
+};

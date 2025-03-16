@@ -40,29 +40,24 @@ export const useEmailAuth = (
       
       // Process user data with type safety
       if (authUser) {
-        if ('role' in authUser) {
-          // For mock users
-          setUser(authUser as unknown as User);
-        } else {
-          // For real Supabase users
-          const mappedUser = await mapSupabaseUserToUser(authUser);
+        // For mock users or real Supabase users, map to our User type
+        const mappedUser = await mapSupabaseUserToUser(authUser);
           
-          // Check if the user's account is approved
-          if (mappedUser.approvalStatus === 'pending') {
-            // Still set the user and session so the pending approval message can be shown
-            setUser(mappedUser);
-            setSession(authSession);
-            
-            // Return a special response for pending approval
-            return { success: true, pendingApproval: true };
-          } else if (mappedUser.approvalStatus === 'rejected') {
-            throw new Error(language === 'pt'
-              ? 'Sua conta foi rejeitada. Entre em contato com o suporte para mais informações.'
-              : 'Your account has been rejected. Please contact support for more information.');
-          }
-          
+        // Check if the user's account is approved
+        if (mappedUser.approvalStatus === 'pending') {
+          // Still set the user and session so the pending approval message can be shown
           setUser(mappedUser);
+          setSession(authSession);
+          
+          // Return a special response for pending approval
+          return { success: true, pendingApproval: true };
+        } else if (mappedUser.approvalStatus === 'rejected') {
+          throw new Error(language === 'pt'
+            ? 'Sua conta foi rejeitada. Entre em contato com o suporte para mais informações.'
+            : 'Your account has been rejected. Please contact support for more information.');
         }
+        
+        setUser(mappedUser);
       } else {
         setUser(null);
         throw new Error(language === 'pt'

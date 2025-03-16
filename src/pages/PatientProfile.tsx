@@ -1,399 +1,255 @@
 
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
-import { usePatientData } from '@/hooks/usePatientData';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/useTranslation';
+import PatientDetailHeader from '@/components/patients/PatientDetailHeader';
+import Header from '@/components/layout/Header';
+import Sidebar from '@/components/layout/Sidebar';
+import { toast } from 'sonner';
+import { usePatientData } from '@/hooks/usePatientData';
+import PatientDetailLoader from '@/components/patients/detail/PatientDetailLoader';
+
+interface PatientFormData {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  mrn: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  email: string;
+}
 
 const PatientProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { t } = useTranslation();
+  const { patient, isLoading, updatePatient } = usePatientData(id);
   
-  const { patient, isLoading } = usePatientData(id || '');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Form states
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [dob, setDob] = useState('');
-  const [gender, setGender] = useState('');
-  const [mrn, setMrn] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [roomNumber, setRoomNumber] = useState('');
-  const [status, setStatus] = useState('');
-  
-  // Initialize form fields when patient data is loaded
-  React.useEffect(() => {
+  const [formData, setFormData] = useState<PatientFormData>({
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    gender: '',
+    mrn: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    phone: '',
+    email: ''
+  });
+
+  useEffect(() => {
     if (patient) {
-      setFirstName(patient.first_name);
-      setLastName(patient.last_name);
-      setDob(patient.date_of_birth);
-      setGender(patient.gender || '');
-      setMrn(patient.mrn);
-      setAddress(patient.address || '');
-      setCity(patient.city || '');
-      setState(patient.state || '');
-      setZipCode(patient.zip_code || '');
-      setPhone(patient.phone || '');
-      setEmail(patient.email || '');
-      setRoomNumber(patient.room_number || '');
-      setStatus(patient.status);
+      setFormData({
+        firstName: patient.first_name || '',
+        lastName: patient.last_name || '',
+        dateOfBirth: patient.date_of_birth ? new Date(patient.date_of_birth).toISOString().split('T')[0] : '',
+        gender: patient.gender || '',
+        mrn: patient.mrn || '',
+        address: patient.address || '',
+        city: patient.city || '',
+        state: patient.state || '',
+        zipCode: patient.zip_code || '',
+        phone: patient.phone || '',
+        email: patient.email || ''
+      });
     }
   }, [patient]);
-  
-  // Handle form submission
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!patient) return;
-    
     try {
-      setIsSubmitting(true);
+      if (!id) return;
       
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await updatePatient({
+        id,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: formData.dateOfBirth,
+        gender: formData.gender,
+        mrn: formData.mrn,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zip_code: formData.zipCode,
+        phone: formData.phone,
+        email: formData.email
+      });
       
-      toast.success(
-        language === 'pt' 
-          ? 'Perfil do paciente atualizado com sucesso' 
-          : 'Patient profile updated successfully'
-      );
-      
-      // Navigate back to patient detail page
+      toast.success(t('profileUpdated') || 'Patient profile updated successfully');
       navigate(`/patients/${id}`);
     } catch (error) {
       console.error('Error updating patient profile:', error);
-      toast.error(
-        language === 'pt' 
-          ? 'Erro ao atualizar perfil do paciente' 
-          : 'Error updating patient profile'
-      );
-    } finally {
-      setIsSubmitting(false);
+      toast.error(t('profileUpdateError') || 'Failed to update patient profile');
     }
   };
-  
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex bg-background">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
-          <main className="flex-1 p-6 overflow-y-auto">
-            <div className="max-w-4xl mx-auto">
-              <div className="animate-pulse space-y-4">
-                <div className="h-8 bg-muted rounded w-1/3"></div>
-                <div className="h-64 bg-muted rounded"></div>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
+
+  if (isLoading || !patient) {
+    return <PatientDetailLoader />;
   }
-  
-  // Error state for patient not found
-  if (!patient) {
-    return (
-      <div className="min-h-screen flex bg-background">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
-          <main className="flex-1 p-6 overflow-y-auto">
-            <div className="max-w-4xl mx-auto">
-              <Button 
-                variant="ghost" 
-                className="mb-4"
-                onClick={() => navigate('/patients')}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                {language === 'pt' ? 'Voltar para pacientes' : 'Back to patients'}
-              </Button>
-              
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="text-xl font-bold text-red-500">
-                    {language === 'pt' ? 'Paciente não encontrado' : 'Patient not found'}
-                  </div>
-                  <p className="mt-2 text-muted-foreground">
-                    {language === 'pt' 
-                      ? 'O paciente solicitado não pôde ser encontrado.' 
-                      : 'The requested patient could not be found.'}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
-  
+
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => navigate(`/patients/${id}`)}
-                  className="mr-4"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  {language === 'pt' ? 'Voltar ao paciente' : 'Back to patient'}
-                </Button>
-                <h1 className="text-2xl font-bold">
-                  {language === 'pt' ? 'Editar perfil do paciente' : 'Edit Patient Profile'}
-                </h1>
-              </div>
-              
-              <Button 
-                type="submit" 
-                form="patient-form" 
-                disabled={isSubmitting}
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {language === 'pt' ? 'Salvar alterações' : 'Save changes'}
-              </Button>
-            </div>
+        <main className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-6xl mx-auto">
+            <PatientDetailHeader patient={patient} />
             
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {`${firstName} ${lastName}`}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="personal">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="personal">
-                      {language === 'pt' ? 'Informações pessoais' : 'Personal Info'}
-                    </TabsTrigger>
-                    <TabsTrigger value="contact">
-                      {language === 'pt' ? 'Contato' : 'Contact Info'}
-                    </TabsTrigger>
-                    <TabsTrigger value="medical">
-                      {language === 'pt' ? 'Informações médicas' : 'Medical Info'}
-                    </TabsTrigger>
-                  </TabsList>
+            <div className="glass-card p-6 mb-6">
+              <h2 className="text-2xl font-bold mb-6">{t('editProfile') || 'Edit Patient Profile'}</h2>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('firstName') || 'First Name'}</span>
+                      <Input 
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                      />
+                    </label>
+                    
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('lastName') || 'Last Name'}</span>
+                      <Input 
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                      />
+                    </label>
+                    
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('dateOfBirth') || 'Date of Birth'}</span>
+                      <Input 
+                        type="date"
+                        name="dateOfBirth"
+                        value={formData.dateOfBirth}
+                        onChange={handleChange}
+                        required
+                      />
+                    </label>
+                    
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('gender') || 'Gender'}</span>
+                      <select 
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border rounded-md"
+                      >
+                        <option value="">{t('selectGender') || 'Select Gender'}</option>
+                        <option value="male">{t('male') || 'Male'}</option>
+                        <option value="female">{t('female') || 'Female'}</option>
+                        <option value="other">{t('other') || 'Other'}</option>
+                        <option value="prefer_not_to_say">{t('preferNotToSay') || 'Prefer not to say'}</option>
+                      </select>
+                    </label>
+                    
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('mrn') || 'Medical Record Number'}</span>
+                      <Input 
+                        name="mrn"
+                        value={formData.mrn}
+                        onChange={handleChange}
+                        required
+                      />
+                    </label>
+                  </div>
                   
-                  <form id="patient-form" onSubmit={handleSubmit}>
-                    <TabsContent value="personal" className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">
-                            {language === 'pt' ? 'Nome' : 'First Name'}
-                          </Label>
-                          <Input 
-                            id="firstName" 
-                            value={firstName} 
-                            onChange={(e) => setFirstName(e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">
-                            {language === 'pt' ? 'Sobrenome' : 'Last Name'}
-                          </Label>
-                          <Input 
-                            id="lastName" 
-                            value={lastName} 
-                            onChange={(e) => setLastName(e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="dob">
-                            {language === 'pt' ? 'Data de nascimento' : 'Date of Birth'}
-                          </Label>
-                          <Input 
-                            id="dob" 
-                            type="date" 
-                            value={dob} 
-                            onChange={(e) => setDob(e.target.value)}
-                            required
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="gender">
-                            {language === 'pt' ? 'Gênero' : 'Gender'}
-                          </Label>
-                          <Select value={gender} onValueChange={setGender}>
-                            <SelectTrigger id="gender">
-                              <SelectValue placeholder={language === 'pt' ? 'Selecione o gênero' : 'Select gender'} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Male">
-                                {language === 'pt' ? 'Masculino' : 'Male'}
-                              </SelectItem>
-                              <SelectItem value="Female">
-                                {language === 'pt' ? 'Feminino' : 'Female'}
-                              </SelectItem>
-                              <SelectItem value="Other">
-                                {language === 'pt' ? 'Outro' : 'Other'}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="mrn">
-                            {language === 'pt' ? 'MRN' : 'MRN (Medical Record Number)'}
-                          </Label>
-                          <Input 
-                            id="mrn" 
-                            value={mrn} 
-                            onChange={(e) => setMrn(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
+                  <div className="space-y-4">
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('address') || 'Address'}</span>
+                      <Textarea 
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                      />
+                    </label>
                     
-                    <TabsContent value="contact" className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="address">
-                            {language === 'pt' ? 'Endereço' : 'Address'}
-                          </Label>
-                          <Input 
-                            id="address" 
-                            value={address} 
-                            onChange={(e) => setAddress(e.target.value)} 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="city">
-                            {language === 'pt' ? 'Cidade' : 'City'}
-                          </Label>
-                          <Input 
-                            id="city" 
-                            value={city} 
-                            onChange={(e) => setCity(e.target.value)} 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="state">
-                            {language === 'pt' ? 'Estado' : 'State'}
-                          </Label>
-                          <Input 
-                            id="state" 
-                            value={state} 
-                            onChange={(e) => setState(e.target.value)} 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="zipCode">
-                            {language === 'pt' ? 'CEP' : 'Zip Code'}
-                          </Label>
-                          <Input 
-                            id="zipCode" 
-                            value={zipCode} 
-                            onChange={(e) => setZipCode(e.target.value)} 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="phone">
-                            {language === 'pt' ? 'Telefone' : 'Phone'}
-                          </Label>
-                          <Input 
-                            id="phone" 
-                            value={phone} 
-                            onChange={(e) => setPhone(e.target.value)} 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="email">
-                            {language === 'pt' ? 'E-mail' : 'Email'}
-                          </Label>
-                          <Input 
-                            id="email" 
-                            type="email" 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)} 
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      <label className="block">
+                        <span className="text-sm font-medium">{t('city') || 'City'}</span>
+                        <Input 
+                          name="city"
+                          value={formData.city}
+                          onChange={handleChange}
+                        />
+                      </label>
+                      
+                      <label className="block">
+                        <span className="text-sm font-medium">{t('state') || 'State'}</span>
+                        <Input 
+                          name="state"
+                          value={formData.state}
+                          onChange={handleChange}
+                        />
+                      </label>
+                    </div>
                     
-                    <TabsContent value="medical" className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="roomNumber">
-                            {language === 'pt' ? 'Número do quarto' : 'Room Number'}
-                          </Label>
-                          <Input 
-                            id="roomNumber" 
-                            value={roomNumber} 
-                            onChange={(e) => setRoomNumber(e.target.value)} 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="status">
-                            {language === 'pt' ? 'Status' : 'Status'}
-                          </Label>
-                          <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger id="status">
-                              <SelectValue placeholder={language === 'pt' ? 'Selecione o status' : 'Select status'} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="stable">
-                                {language === 'pt' ? 'Estável' : 'Stable'}
-                              </SelectItem>
-                              <SelectItem value="improving">
-                                {language === 'pt' ? 'Melhorando' : 'Improving'}
-                              </SelectItem>
-                              <SelectItem value="critical">
-                                {language === 'pt' ? 'Crítico' : 'Critical'}
-                              </SelectItem>
-                              <SelectItem value="hospital">
-                                {language === 'pt' ? 'Hospitalizado' : 'Hospitalized'}
-                              </SelectItem>
-                              <SelectItem value="home">
-                                {language === 'pt' ? 'Em Casa' : 'At Home'}
-                              </SelectItem>
-                              <SelectItem value="discharged">
-                                {language === 'pt' ? 'Alta' : 'Discharged'}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </TabsContent>
-                  </form>
-                </Tabs>
-              </CardContent>
-            </Card>
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('zipCode') || 'Zip Code'}</span>
+                      <Input 
+                        name="zipCode"
+                        value={formData.zipCode}
+                        onChange={handleChange}
+                      />
+                    </label>
+                    
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('phone') || 'Phone'}</span>
+                      <Input 
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                      />
+                    </label>
+                    
+                    <label className="block">
+                      <span className="text-sm font-medium">{t('email') || 'Email'}</span>
+                      <Input 
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end space-x-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate(`/patients/${id}`)}
+                  >
+                    {t('cancel') || 'Cancel'}
+                  </Button>
+                  
+                  <Button type="submit">
+                    {t('saveChanges') || 'Save Changes'}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
         </main>
       </div>

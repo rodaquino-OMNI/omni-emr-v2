@@ -43,6 +43,7 @@ export interface User {
   avatar?: string;
   approvalStatus?: ApprovalStatus;
   status?: string;
+  mfaEnabled?: boolean;
 }
 
 // Auth context state
@@ -83,15 +84,26 @@ export interface AuthError {
 // Auth context type
 export interface AuthContextType {
   user: User | null;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => Promise<void>;
-  register: (data: RegistrationData) => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  setError: (error: string | null) => void;
-  resetPassword: (email: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{success: boolean, pendingApproval?: boolean, error?: any}>;
+  logout: () => Promise<void>;
+  register: (data: RegistrationData) => Promise<{success: boolean, error?: any}>;
+  resetPassword: (email: string) => Promise<{success: boolean, error?: any}>;
   updateProfile: (profile: Partial<User>) => Promise<void>;
+  setError: (error: string | null) => void;
+  hasPermission: (permission: string) => boolean;
+  canAccessPatientData: (patientId: string) => boolean;
+  language: Languages;
+  setLanguage: (language: Languages) => void;
+  loginWithSocial: (provider: string) => Promise<{success: boolean, error?: any}>;
+  session: any;
+  lastActivity: Date;
+  updateLastActivity: () => void;
+  sessionTimeoutMinutes: number;
+  setSessionTimeoutMinutes: (minutes: number) => void;
+  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{success: boolean, error?: any, user?: User | null, session?: any}>;
 }
 
 // Approval status for user accounts
@@ -103,4 +115,6 @@ export interface UseSessionTimeoutProps {
   onTimeout: () => void;
   onWarning?: () => void;
   warningThresholdMinutes?: number;
+  isAuthenticated: boolean;
+  language: Languages;
 }

@@ -1,109 +1,93 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { toast } from 'sonner';
-import { Languages } from '@/types/auth';
-import { secureStorage } from '@/utils/secureStorage';
-
-interface UseSessionTimeoutProps {
-  isAuthenticated: boolean;
-  language: Languages;
-  onTimeout: () => Promise<void>;
-}
+import { useState, useEffect, useCallback } from 'react';
+import { UseSessionTimeoutProps } from '@/types/auth';
 
 export const useSessionTimeoutHook = ({
-  isAuthenticated,
-  language,
+  defaultTimeoutMinutes = 30,
   onTimeout,
-  defaultTimeoutMinutes = 30
+  onWarning,
+  warningThresholdMinutes = 5,
+  isAuthenticated,
+  language
 }: UseSessionTimeoutProps) => {
+  // State for tracking last activity time and timeout configuration
   const [lastActivity, setLastActivity] = useState<Date>(new Date());
   const [sessionTimeoutMinutes, setSessionTimeoutMinutes] = useState<number>(
-    // Try to get from localStorage first, then use default
-    (() => {
-      try {
-        const saved = localStorage.getItem('session_timeout_minutes');
-        return saved ? parseInt(saved, 10) : defaultTimeoutMinutes;
-      } catch (e) {
-        return defaultTimeoutMinutes;
-      }
-    })()
+    defaultTimeoutMinutes
   );
-  
-  // Update the last activity timestamp
+
+  // Update last activity timestamp
   const updateLastActivity = useCallback(() => {
     setLastActivity(new Date());
   }, []);
-  
-  // Effect to set up the session timeout monitoring
+
+  // Set up event listeners for user activity
   useEffect(() => {
-    // Skip if not authenticated
-    if (!isAuthenticated) {
-      return;
-    }
+    if (!isAuthenticated) return;
+
+    const activityEvents = ['mousedown', 'keypress', 'scroll', 'touchstart'];
     
-    // Save timeout preference to localStorage
-    try {
-      localStorage.setItem('session_timeout_minutes', sessionTimeoutMinutes.toString());
-    } catch (e) {
-      console.error('Error saving session timeout to localStorage:', e);
-    }
-    
-    // Set up interval to check session timeout
-    const interval = setInterval(() => {
-      const now = new Date();
-      const inactiveTime = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
-      
-      // If user has been inactive for longer than the timeout, log them out
-      if (inactiveTime >= sessionTimeoutMinutes) {
-        toast.info(
-          language === 'pt' ? 'Sessão expirada' : 'Session expired',
-          {
-            description: language === 'pt'
-              ? 'Sua sessão expirou devido à inatividade.'
-              : 'Your session has expired due to inactivity.',
-            duration: 5000
-          }
-        );
-        
-        // Log the user out
-        onTimeout();
-      }
-      
-      // If timeout is approaching, warn the user
-      if (inactiveTime >= sessionTimeoutMinutes - 2 && inactiveTime < sessionTimeoutMinutes) {
-        toast.warning(
-          language === 'pt' ? 'Alerta de sessão' : 'Session alert',
-          {
-            description: language === 'pt'
-              ? 'Sua sessão expirará em breve por inatividade.'
-              : 'Your session will expire soon due to inactivity.',
-            duration: 5000
-          }
-        );
-      }
-    }, 30000); // Check every 30 seconds
-    
-    // Set up event listeners to update last activity
-    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
-    
+    // Update last activity on user interaction
     const handleUserActivity = () => {
       updateLastActivity();
     };
-    
-    // Add all the event listeners
+
+    // Add event listeners
     activityEvents.forEach(event => {
       window.addEventListener(event, handleUserActivity);
     });
-    
-    // Cleanup function
+
+    // Cleanup event listeners
     return () => {
-      clearInterval(interval);
       activityEvents.forEach(event => {
         window.removeEventListener(event, handleUserActivity);
       });
     };
-  }, [isAuthenticated, sessionTimeoutMinutes, lastActivity, language, onTimeout, updateLastActivity]);
-  
+  }, [isAuthenticated, updateLastActivity]);
+
+  // Set up timeout monitoring
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const warningTimeoutMs = (sessionTimeoutMinutes - warningThresholdMinutes) * 60 * 1000;
+    const timeoutMs = sessionTimeoutMinutes * 60 * 1000;
+
+    // Check for approaching timeout (to show warning)
+    const warningInterval = setInterval(() => {
+      const now = new Date();
+      const timeSinceLastActivity = now.getTime() - lastActivity.getTime();
+
+      if (timeSinceLastActivity >= warningTimeoutMs && timeSinceLastActivity < timeoutMs) {
+        // Show warning if callback provided
+        if (onWarning) {
+          onWarning();
+        }
+      }
+    }, 30000); // Check every 30 seconds
+
+    // Check for actual timeout
+    const timeoutInterval = setInterval(() => {
+      const now = new Date();
+      const timeSinceLastActivity = now.getTime() - lastActivity.getTime();
+
+      if (timeSinceLastActivity >= timeoutMs) {
+        onTimeout();
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => {
+      clearInterval(warningInterval);
+      clearInterval(timeoutInterval);
+    };
+  }, [
+    isAuthenticated,
+    lastActivity,
+    sessionTimeoutMinutes,
+    warningThresholdMinutes,
+    onWarning,
+    onTimeout
+  ]);
+
   return {
     lastActivity,
     sessionTimeoutMinutes,

@@ -24,21 +24,19 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
     // Construct the complete user object
     const user: User = {
       id: supabaseUser.id,
-      email: supabaseUser.email || undefined,
-      phone: supabaseUser.phone || undefined,
+      email: supabaseUser.email || '',
       name: profile?.name || metadata.name || 'User',
       role: userRole,
       status: profile?.status || 'active',
       permissions: profile?.permissions || [],
       mfaEnabled: profile?.mfa_enabled || false,
-      createdAt: supabaseUser.created_at,
+      createdAt: new Date(supabaseUser.created_at),
       organization: profile?.organization || metadata.organization,
-      lastLogin: supabaseUser.last_sign_in_at || new Date().toISOString(),
-      preferredLanguage: profile?.preferred_language || metadata.preferredLanguage || 'en',
+      lastLogin: new Date(supabaseUser.last_sign_in_at || Date.now()),
+      profileImageUrl: profile?.avatar_url || metadata.avatar_url,
+      phoneNumber: profile?.phone || metadata.phone,
       approvalStatus: profile?.approval_status || 'approved',
       avatar: profile?.avatar_url || metadata.avatar_url,
-      department: profile?.department || metadata.department,
-      specialties: profile?.specialties || metadata.specialties || []
     };
     
     return user;
@@ -48,7 +46,7 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
     return {
       id: supabaseUser.id,
       name: supabaseUser.user_metadata?.name || 'User',
-      email: supabaseUser.email || undefined,
+      email: supabaseUser.email || '',
       role: (supabaseUser.user_metadata?.role || 'patient') as UserRole,
       status: 'active'
     };
