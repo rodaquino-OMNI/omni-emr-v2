@@ -9,6 +9,7 @@ import { usePatientPrescriptions } from '@/components/patients/hooks/usePatientP
 import PatientDetailHeader from '@/components/patients/detail/PatientDetailHeader';
 import PatientDetailContent from '@/components/patients/detail/PatientDetailContent';
 import PatientDetailLoader from '@/components/patients/detail/PatientDetailLoader';
+import { mapToPatientStatus } from '@/types/patientTypes';
 
 const PatientDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +46,12 @@ const PatientDetail = () => {
   // Check for critical insights (for the hasCriticalInsights prop)
   const hasCriticalInsights = false; // Default value, would be computed from insights data
   
+  // Ensure patient has the correct status type
+  const patientWithValidStatus = {
+    ...patient,
+    status: mapToPatientStatus(patient.status?.toString() || 'stable')
+  };
+  
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
@@ -54,7 +61,7 @@ const PatientDetail = () => {
           <div className="space-y-4">
             {/* Patient header with back button */}
             <PatientDetailHeader
-              patient={patient}
+              patient={patientWithValidStatus}
               hasCriticalInsights={hasCriticalInsights}
             />
             

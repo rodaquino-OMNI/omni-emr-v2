@@ -1,8 +1,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Patient } from '@/types/patientTypes';
-import { mapToPatientStatus, calculatePatientAge } from '@/utils/patientUtils';
+import { Patient, PatientStatus, mapToPatientStatus } from '@/types/patientTypes';
+import { calculatePatientAge } from '@/utils/patientUtils';
 
 // Mock data for fallback
 const mockPatients = [
@@ -64,7 +64,10 @@ export const usePatientData = (patientId: string) => {
         console.error('Database connection error:', connError);
         // Return mock data as fallback
         const mockPatient = mockPatients.find(p => p.id === patientId);
-        return mockPatient || null;
+        return mockPatient ? {
+          ...mockPatient,
+          status: mapToPatientStatus(mockPatient.status)
+        } : null;
       }
       
       // Try to get from the new patient_status_view first
@@ -76,7 +79,7 @@ export const usePatientData = (patientId: string) => {
       
       if (!viewError && viewData) {
         // Convert to Patient type with proper status mapping
-        return {
+        const patientData: Patient = {
           id: viewData.id,
           first_name: viewData.first_name,
           last_name: viewData.last_name,
@@ -92,6 +95,7 @@ export const usePatientData = (patientId: string) => {
           age: calculatePatientAge(viewData.date_of_birth),
           diagnosis: "Primary diagnosis information would be fetched separately"
         };
+        return patientData;
       }
       
       // Fallback to patients table if view doesn't exist
@@ -105,11 +109,14 @@ export const usePatientData = (patientId: string) => {
         console.error('Error fetching patient:', error);
         // Return mock data as fallback
         const mockPatient = mockPatients.find(p => p.id === patientId);
-        return mockPatient || null;
+        return mockPatient ? {
+          ...mockPatient,
+          status: mapToPatientStatus(mockPatient.status)
+        } : null;
       }
       
       // Convert to Patient type
-      return {
+      const patientData: Patient = {
         id: data.id,
         first_name: data.first_name,
         last_name: data.last_name,
@@ -125,6 +132,7 @@ export const usePatientData = (patientId: string) => {
         age: calculatePatientAge(data.date_of_birth),
         diagnosis: "Primary diagnosis information would be fetched separately"
       };
+      return patientData;
     },
     enabled: !!patientId
   });

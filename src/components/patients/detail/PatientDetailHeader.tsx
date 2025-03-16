@@ -12,6 +12,16 @@ interface PatientDetailHeaderProps {
 
 const PatientDetailHeader = ({ patient, hasCriticalInsights }: PatientDetailHeaderProps) => {
   const navigate = useNavigate();
+  
+  // Create a compatible patient object that matches what PatientHeader expects
+  const patientHeaderProps = {
+    ...patient,
+    name: patient.name || `${patient.first_name} ${patient.last_name}`, // Ensure name is always defined
+    age: patient.age || 0,
+    roomNumber: patient.room_number,
+    diagnosis: patient.diagnosis || 'No diagnosis',
+    gender: patient.gender || 'Unknown'
+  };
 
   return (
     <div className="space-y-4">
@@ -20,7 +30,7 @@ const PatientDetailHeader = ({ patient, hasCriticalInsights }: PatientDetailHead
       </Button>
       
       <PatientHeader 
-        patient={patient} 
+        patient={patientHeaderProps} 
         hasCriticalInsights={hasCriticalInsights} 
       />
     </div>
