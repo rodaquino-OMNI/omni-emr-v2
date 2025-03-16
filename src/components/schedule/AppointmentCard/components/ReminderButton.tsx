@@ -4,7 +4,7 @@ import { Bell } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Appointment } from '@/services/appointments';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 interface ReminderButtonProps {
   appointment: Appointment;
@@ -20,7 +20,10 @@ const ReminderButton = ({ appointment, isLoading, onSendReminder }: ReminderButt
       await onSendReminder();
     } catch (error) {
       console.error('Error sending reminder:', error);
-      toast.error('Failed to send reminder');
+      toast({
+        title: 'Failed to send reminder',
+        variant: "destructive"
+      });
     }
   };
   
