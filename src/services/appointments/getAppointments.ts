@@ -48,10 +48,16 @@ const getAppointmentsBase = async (
     });
     
     // Handle the error and return the mock data if in dev mode
-    return handleAppointmentError(error, {
-      operation: 'fetch',
-      entityType: 'appointment'
-    }, () => mockData) as Appointment[];
+    const result = await handleAppointmentError(
+      error, 
+      {
+        operation: 'fetch',
+        entityType: 'appointment'
+      }, 
+      () => mockData
+    );
+    
+    return result as Appointment[];
   }
 };
 

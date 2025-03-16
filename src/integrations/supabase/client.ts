@@ -167,16 +167,14 @@ export const logSlowQuery = async (
     if (executionTime < thresholdMs) return;
     
     // Check if the table exists first
-    const { data: tableExists, error: tableError } = await supabase.query(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM pg_tables
-        WHERE schemaname = 'public'
-        AND tablename = 'query_performance_logs'
-      ) as exists
-    `);
+    const { data: tableExists, error: tableError } = await supabase
+      .from('pg_tables')
+      .select('*')
+      .eq('schemaname', 'public')
+      .eq('tablename', 'query_performance_logs')
+      .single();
     
-    if (tableError || !tableExists || !tableExists[0]?.exists) {
+    if (tableError || !tableExists) {
       console.log('Performance logs table does not exist - skipping logging');
       return;
     }

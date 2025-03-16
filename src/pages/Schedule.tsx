@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import { Calendar } from 'lucide-react';
-import { Calendar as CalendarIcon } from "@/components/ui/calendar"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { format } from 'date-fns'
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -109,12 +110,12 @@ const SchedulePage = () => {
                         !date && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <Calendar className="mr-2 h-4 w-4" />
                       {date ? format(date, "PPP") : <span>{language === 'pt' ? 'Selecionar data' : 'Select date'}</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarIcon
+                    <CalendarComponent
                       mode="single"
                       selected={date}
                       onSelect={handleDateSelect}

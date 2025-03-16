@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { useAppointmentsQuery } from './hooks/useAppointmentsQuery';
-import AppointmentsListContent from './AppointmentsListContent';
+import { useAppointmentsQuery } from '@/components/schedule/AppointmentsList/hooks/useAppointmentsQuery';
+import AppointmentsListContent from '@/components/schedule/AppointmentsList/AppointmentsListContent';
 
 type AppointmentsListProps = {
   className?: string;

@@ -59,19 +59,20 @@ type AppointmentInsert = {
  */
 export const mapAppointmentToDbFormat = (
   appointment: Partial<Appointment>
-): AppointmentInsert => {
-  const dbAppointment: AppointmentInsert = {
-    date: appointment.date || new Date().toISOString().split('T')[0],
-    duration: appointment.duration || 30,
-    patient_id: appointment.patientId || '',
-    patient_name: appointment.patientName || '',
-    provider_id: appointment.providerId || '',
-    provider_name: appointment.providerName || '',
-    title: appointment.title || '',
-    time: appointment.time || '',
-    type: appointment.type || 'in-person',
-    status: appointment.status || 'scheduled',
-  };
+): Partial<AppointmentInsert> => {
+  const dbAppointment: Partial<AppointmentInsert> = {};
+
+  // Only add fields that are present in the appointment object
+  if (appointment.date !== undefined) dbAppointment.date = appointment.date;
+  if (appointment.duration !== undefined) dbAppointment.duration = appointment.duration;
+  if (appointment.patientId !== undefined) dbAppointment.patient_id = appointment.patientId;
+  if (appointment.patientName !== undefined) dbAppointment.patient_name = appointment.patientName;
+  if (appointment.providerId !== undefined) dbAppointment.provider_id = appointment.providerId;
+  if (appointment.providerName !== undefined) dbAppointment.provider_name = appointment.providerName;
+  if (appointment.title !== undefined) dbAppointment.title = appointment.title;
+  if (appointment.time !== undefined) dbAppointment.time = appointment.time;
+  if (appointment.type !== undefined) dbAppointment.type = appointment.type;
+  if (appointment.status !== undefined) dbAppointment.status = appointment.status;
   
   // Optional fields
   if (appointment.notes !== undefined) {
