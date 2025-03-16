@@ -1,6 +1,6 @@
 
 import { Appointment } from './types';
-import { updateAppointment } from './crudOperations';
+import { updateAppointment } from './updateAppointment';
 import { handleServiceError, handleServiceSuccess } from './utils/standardErrorHandler';
 
 // Cancel an appointment with standardized error handling
