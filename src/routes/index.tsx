@@ -1,124 +1,138 @@
 
 import React from 'react';
-import { RouteObject } from 'react-router-dom';
+import { Navigate, RouteObject } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/protected-route';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import Patients from '@/pages/Patients';
 import Dashboard from '@/pages/Dashboard';
-import MedicationList from '@/pages/Medications';
-import PatientList from '@/pages/Patients';
+import MedicationsPage from '@/pages/Medications';
+import Admin from '@/pages/Admin';
+import Settings from '@/pages/Settings';
 import PatientDetail from '@/pages/PatientDetail';
 import PatientProfile from '@/pages/PatientProfile';
-import Login from '@/pages/Login';
-import Prescriptions from '@/pages/Prescriptions';
 import ClinicalDocumentation from '@/pages/ClinicalDocumentation';
+import Prescriptions from '@/pages/Prescriptions';
 import Records from '@/pages/Records';
-import Admin from '@/pages/Admin';
-import Layout from '@/components/layout/Layout';
+import PrescribeMedication from '@/pages/PrescribeMedication';
+import RxNormManagement from '@/pages/RxNormManagement';
 import { UserRole } from '@/types/auth';
 
-// Create a dummy placeholder for pages that don't exist yet
-const PlaceholderPage = () => (
-  <div className="flex items-center justify-center h-screen">
-    <h1 className="text-2xl">This page is under construction</h1>
-  </div>
-);
+// Define route types
+export interface AppRoute {
+  path: string;
+  element: React.ReactNode;
+  title?: string;
+  children?: AppRoute[];
+  index?: boolean;
+  errorElement?: React.ReactNode;
+}
 
-// Define routes
+// Define base routes
 export const routes: RouteObject[] = [
   {
     path: '/login',
     element: <Login />,
   },
   {
+    path: '/register',
+    element: <Register />,
+  },
+  {
     path: '/',
-    element: <ProtectedRoute><Layout /></ProtectedRoute>,
-    children: [
-      {
-        path: '/',
-        element: <Dashboard />,
-      },
-      {
-        path: '/patients',
-        element: <PatientList />,
-      },
-      {
-        path: '/patients/:id',
-        element: <PatientDetail />,
-      },
-      {
-        path: '/patient-profile/:id',
-        element: <PatientProfile />,
-      },
-      {
-        path: '/medications',
-        element: <MedicationList />,
-      },
-      {
-        path: '/medications/:id',
-        element: <PlaceholderPage />,
-      },
-      {
-        path: '/prescriptions',
-        element: <Prescriptions />,
-      },
-      {
-        path: '/prescriptions/:id',
-        element: <PlaceholderPage />,
-      },
-      {
-        path: '/clinical-documentation',
-        element: <ClinicalDocumentation />,
-      },
-      {
-        path: '/records',
-        element: <Records />,
-      },
-      {
-        path: '/records/:id',
-        element: <PlaceholderPage />,
-      },
-      {
-        path: '/admin',
-        element: <Admin />,
-      },
-      {
-        path: '/about',
-        element: <PlaceholderPage />,
-      },
-      {
-        path: '*',
-        element: <PlaceholderPage />,
-      }
-    ]
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
+  },
+  {
+    path: '/patients',
+    element: <ProtectedRoute><Patients /></ProtectedRoute>,
+  },
+  {
+    path: '/patients/:id',
+    element: <ProtectedRoute><PatientDetail /></ProtectedRoute>,
+  },
+  {
+    path: '/patient-profile/:id',
+    element: <ProtectedRoute><PatientProfile /></ProtectedRoute>,
+  },
+  {
+    path: '/medications',
+    element: <ProtectedRoute><MedicationsPage /></ProtectedRoute>,
+  },
+  {
+    path: '/admin',
+    element: <ProtectedRoute requiredRoles={['admin', 'system_administrator']}><Admin /></ProtectedRoute>,
+  },
+  {
+    path: '/settings',
+    element: <ProtectedRoute><Settings /></ProtectedRoute>,
+  },
+  {
+    path: '/documentation',
+    element: <ProtectedRoute><ClinicalDocumentation /></ProtectedRoute>,
+  },
+  {
+    path: '/prescriptions',
+    element: <ProtectedRoute><Prescriptions /></ProtectedRoute>,
+  },
+  {
+    path: '/records',
+    element: <ProtectedRoute><Records /></ProtectedRoute>,
+  },
+  {
+    path: '/prescribe/:patientId',
+    element: <ProtectedRoute requiredRoles={['doctor', 'physician', 'specialist']}><PrescribeMedication /></ProtectedRoute>,
+  },
+  {
+    path: '/rxnorm',
+    element: <ProtectedRoute><RxNormManagement /></ProtectedRoute>,
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
   }
 ];
 
-// Function to create dynamic routes based on user role and permissions
-export const createDynamicRoutes = (userRole?: UserRole, userPermissions: string[] = []): RouteObject[] => {
-  // Clone the basic routes
-  const dynamicRoutes = [...routes];
-  
+// Create dynamic routes based on user role and permissions
+export const createDynamicRoutes = (role?: UserRole, permissions?: string[]): RouteObject[] => {
+  let dynamicRoutes = [...routes];
+
   // Add role-specific routes
-  if (userRole === 'admin' || userRole === 'system_administrator') {
-    // Admin gets access to everything
-    return dynamicRoutes;
+  if (role === 'admin' || role === 'system_administrator') {
+    // Add admin-specific routes
+    dynamicRoutes.push({
+      path: '/admin-tools',
+      element: <ProtectedRoute><Admin /></ProtectedRoute>,
+    });
   }
-  
-  // For non-admin roles, we could filter routes based on permissions
-  // This is a simplified implementation
-  const permittedRoutes = dynamicRoutes.map(route => {
-    if (route.children) {
-      const filteredChildren = route.children.filter(childRoute => {
-        // Implement permission-based filtering logic here
-        // For example, if a route requires a specific permission
-        
-        // For now, we'll just return all routes for authenticated users
-        return true;
-      });
-      
-      return { ...route, children: filteredChildren };
-    }
-    return route;
-  });
-  
-  return permittedRoutes;
+
+  if (role === 'doctor' || role === 'physician' || role === 'specialist') {
+    // Add doctor-specific routes
+    dynamicRoutes.push({
+      path: '/my-patients',
+      element: <ProtectedRoute><Patients /></ProtectedRoute>,
+    });
+  }
+
+  if (role === 'pharmacist') {
+    // Add pharmacist-specific routes
+    dynamicRoutes.push({
+      path: '/pharmacy',
+      element: <ProtectedRoute><Navigate to="/medications" replace /></ProtectedRoute>,
+    });
+  }
+
+  // Add routes based on permissions
+  if (permissions?.includes('prescriptions:write') || 
+      role === 'doctor' || 
+      role === 'physician' || 
+      role === 'specialist') {
+    dynamicRoutes.push({
+      path: '/prescribe',
+      element: <ProtectedRoute><Navigate to="/prescriptions" replace /></ProtectedRoute>,
+    });
+  }
+
+  return dynamicRoutes;
 };
+
+export default routes;

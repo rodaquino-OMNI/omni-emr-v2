@@ -1,28 +1,18 @@
+
+// Define patient status enum
 export enum PatientStatus {
-  Active = 'active',
-  Discharged = 'discharged',
-  Inactive = 'inactive',
-  Scheduled = 'scheduled',
-  OnLeave = 'on_leave',
-  Critical = 'critical',
-  Stable = 'stable',
-  Unknown = 'unknown',
-  Hospital = 'hospital',
-  Home = 'home',
-  Improving = 'improving'
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  DISCHARGED = 'discharged',
+  CRITICAL = 'critical',
+  STABLE = 'stable',
+  HOSPITAL = 'hospital',
+  HOME = 'home',
+  IMPROVING = 'improving'
 }
 
-export enum BloodType {
-  APositive = 'A+',
-  ANegative = 'A-',
-  BPositive = 'B+',
-  BNegative = 'B-',
-  ABPositive = 'AB+',
-  ABNegative = 'AB-',
-  OPositive = 'O+',
-  ONegative = 'O-',
-  Unknown = 'Unknown'
-}
+// Define patient type
+export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | null;
 
 export interface Patient {
   id: string;
@@ -37,98 +27,79 @@ export interface Patient {
   city: string | null;
   state: string | null;
   zip_code: string | null;
+  country: string | null;
+  insurance: string | null;
+  allergies?: string[];
   status: PatientStatus;
-  room_number: string | null;
-  blood_type: BloodType | null;
-  emergency_contact_name?: string | null;
-  emergency_contact_phone?: string | null;
+  blood_type: BloodType;
   is_assigned?: boolean;
-  name?: string;
-  age?: number;
 }
 
-export interface PatientVitals {
+export interface PatientVital {
   id: string;
   patientId: string;
   timestamp: string;
   temperature?: number;
-  temperatureUnit?: string;
   heartRate?: number;
   respiratoryRate?: number;
   bloodPressureSystolic?: number;
   bloodPressureDiastolic?: number;
   oxygenSaturation?: number;
-  painLevel?: number;
-}
-
-export interface PatientInsight {
-  id: string;
-  type: 'alert' | 'insight' | 'recommendation';
-  title: string;
-  description: string;
-  source: string;
-  date: string;
-  urgency: 'low' | 'medium' | 'high';
-  status: 'new' | 'seen' | 'acknowledged' | 'resolved';
-  category: string;
-  relatedData?: any;
-  icon?: string;
-}
-
-export interface MedicalHistoryEntry {
-  id: string;
-  patientId: string;
-  title: string;
-  entryDate: string;
-  providerName: string;
-  providerId: string;
+  weight?: number;
+  height?: number;
+  bmi?: number;
   notes?: string;
 }
 
 export interface VitalSigns {
   id: string;
-  patientId: string;
-  date: string;
+  patient_id: string;
+  timestamp: string;
   temperature?: number;
-  heartRate?: number;
-  bloodPressure?: string;
-  respiratoryRate?: number;
-  oxygenSaturation?: number;
-}
-
-export interface Allergy {
-  id: string;
-  patientId: string;
-  allergen: string;
-  severity: 'mild' | 'moderate' | 'severe';
-  reaction: string;
-  onsetDate?: string;
+  heart_rate?: number;
+  respiratory_rate?: number;
+  blood_pressure_systolic?: number;
+  blood_pressure_diastolic?: number;
+  oxygen_saturation?: number;
+  weight?: number;
+  height?: number;
+  bmi?: number;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+  taken_by?: string;
+  // Alias properties for compatibility with different naming conventions
+  systolic_bp?: number;
+  diastolic_bp?: number;
+  o2_saturation?: number;
 }
 
 export interface Diagnosis {
   id: string;
-  patientId: string;
-  condition: string;
+  patient_id: string;
+  name: string;
+  code?: string;
+  icd_code?: string;
   date: string;
-  status: 'active' | 'resolved' | 'recurrence';
+  type: string;
+  status: string;
   notes?: string;
+  diagnosed_by?: string;
+  diagnosis?: string;
 }
 
-export interface Prescription {
+export interface PatientAllergy {
   id: string;
-  patientId: string;
-  medication: string;
-  dosage: string;
-  frequency: string;
-  startDate: string;
-  endDate?: string;
-  prescribedBy: string;
-  status: 'active' | 'completed' | 'cancelled';
+  patient_id: string;
+  allergen: string;
+  severity: 'Mild' | 'Moderate' | 'Severe' | string;
+  reaction: string;
+  is_active: boolean;
 }
 
-export const mapToPatientStatus = (status: string): PatientStatus => {
-  if (Object.values(PatientStatus).includes(status as PatientStatus)) {
-    return status as PatientStatus;
-  }
-  return PatientStatus.Unknown;
-};
+export interface InitialFilterOptions {
+  status?: string;
+  location?: string;
+  careTeam?: string;
+  searchTerm?: string;
+}

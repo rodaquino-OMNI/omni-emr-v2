@@ -1,36 +1,29 @@
 
-// Export all permission utility functions from a single file
-export { canAccessPatientData } from './patientAccess';
-export { canPerformAppointmentAction } from './appointmentManagement';
-export { canPerformMedicationAction } from './medicationManagement';
-export { 
+// Re-export all permission-related functions
+import { canAccessPatientData } from './patientDataAccess';
+import { canPerformAppointmentAction } from './appointmentManagement';
+import { canPerformMedicationAction } from './medicationManagement';
+import { 
   canPerformClinicalDocumentation,
-  canPerformClinicalAssessment,
-  canDocumentMedicalDecisionMaking
+  canPerformClinicalAssessment, 
+  canDocumentMedicalDecisionMaking 
 } from './clinicalDocumentation';
 
-// Re-export permissions types 
-export { permissionCategories, sharedPermissions, allPermissions } from './permissionTypes';
-export { rolePermissions } from './roleDefinitions';
-
-// Add missing functions
-import { User, UserRole } from '@/types/auth';
-
-export const canModifyPatient = (user: User | null, patientId: string): boolean => {
-  if (!user) return false;
-  
-  // Only certain roles can modify patient data
-  return ['admin', 'doctor', 'nurse'].includes(user.role as UserRole);
+// Export the functions
+export {
+  canAccessPatientData,
+  canPerformAppointmentAction,
+  canPerformMedicationAction,
+  canPerformClinicalDocumentation,
+  canPerformClinicalAssessment, 
+  canDocumentMedicalDecisionMaking
 };
 
-export const canAssignPatient = (user: User | null): boolean => {
-  if (!user) return false;
-  
-  // These roles can assign/unassign patients
-  return ['doctor', 'nurse', 'admin', 'team_lead'].includes(user.role as UserRole);
-};
+// This file is the central location for permission-related functions
+// New permissions should be added here as needed
 
-export const hasPermission = (user: User | null, permission: string): boolean => {
+// Example permission utility for checking if a user has a specific permission
+export const hasPermission = (user: any, permission: string): boolean => {
   if (!user || !user.permissions) return false;
   
   // Admin has all permissions
@@ -40,27 +33,32 @@ export const hasPermission = (user: User | null, permission: string): boolean =>
   return user.permissions.includes(permission) || user.permissions.includes('all');
 };
 
-export const getUserPermissions = (user: User | null): string[] => {
+// Get all permissions for a user
+export const getUserPermissions = (user: any): string[] => {
   if (!user) return [];
   return user.permissions || [];
 };
 
-export const canPerformEmergencyCare = (user: User | null): boolean => {
+// Emergency care permissions
+export const canPerformEmergencyCare = (user: any): boolean => {
   if (!user) return false;
-  return ['doctor', 'nurse', 'emergency_staff'].includes(user.role as UserRole);
+  return ['doctor', 'nurse', 'emergency_staff'].includes(user.role);
 };
 
-export const canPerformCareCoordination = (user: User | null): boolean => {
+// Care coordination permissions
+export const canPerformCareCoordination = (user: any): boolean => {
   if (!user) return false;
-  return ['doctor', 'nurse', 'care_coordinator'].includes(user.role as UserRole);
+  return ['doctor', 'nurse', 'care_coordinator'].includes(user.role);
 };
 
-export const canPerformTelemedicine = (user: User | null): boolean => {
+// Telemedicine permissions
+export const canPerformTelemedicine = (user: any): boolean => {
   if (!user) return false;
-  return ['doctor', 'nurse', 'specialist'].includes(user.role as UserRole);
+  return ['doctor', 'nurse', 'specialist'].includes(user.role);
 };
 
-export const canManageFluidBalance = (user: User | null): boolean => {
+// Fluid balance permissions
+export const canManageFluidBalance = (user: any): boolean => {
   if (!user) return false;
-  return ['doctor', 'nurse'].includes(user.role as UserRole);
+  return ['doctor', 'nurse'].includes(user.role);
 };
