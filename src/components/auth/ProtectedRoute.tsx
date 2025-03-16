@@ -11,12 +11,14 @@ interface ProtectedRouteProps {
   requiredPermission?: string;
   requiredRole?: string;
   patientId?: string;
+  children?: React.ReactNode; // Add children as an optional prop
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   requiredPermission,
   requiredRole,
-  patientId
+  patientId,
+  children
 }) => {
   const location = useLocation();
   const [isOfflineMode, setIsOfflineMode] = useState(false);
@@ -63,7 +65,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               Offline mode: Limited functionality available. Some features may not work correctly.
             </span>
           </div>
-          <Outlet />
+          {children || <Outlet />}
         </>
       );
     }
@@ -142,7 +144,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               : 'Offline mode: Limited functionality available. Some features may not work correctly.'}
           </span>
         </div>
-        <Outlet />
+        {children || <Outlet />}
       </>
     );
   }
@@ -251,7 +253,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           </span>
         </div>
       )}
-      <Outlet />
+      {children || <Outlet />}
     </>
   );
 };

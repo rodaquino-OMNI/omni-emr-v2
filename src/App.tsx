@@ -46,9 +46,7 @@ function App() {
                   <Route path="/settings" element={<Settings />} />
                   
                   {/* Role-specific routes with nested access control */}
-                  <Route path="/patients/:id" element={
-                    <PatientDetail />
-                  } />
+                  <Route path="/patients/:id" element={<PatientDetail />} />
                   
                   {/* Doctor-specific routes */}
                   <Route path="/medications" element={

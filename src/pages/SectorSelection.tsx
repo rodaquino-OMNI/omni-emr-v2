@@ -65,7 +65,7 @@ const SectorSelection = () => {
   // Generate sector statistics based on user role
   const getSectorStats = (sectorId: string) => {
     // Filter patients by sector
-    const sectorPatientsData = sectorPatients.filter(p => p.sector_id === sectorId);
+    const sectorPatientsData = sectorPatients.filter(p => p.id === sectorId);
     
     // Basic statistics
     const basicStats = {
