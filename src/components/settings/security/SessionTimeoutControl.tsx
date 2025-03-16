@@ -1,45 +1,57 @@
 
 import React from 'react';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock } from 'lucide-react';
-import { Slider } from '@/components/ui/slider';
 import { useTranslation } from '@/hooks/useTranslation';
 import SecurityControlItem from './SecurityControlItem';
+import { useAuth } from '@/context/AuthContext';
 
-export interface SessionTimeoutControlProps {
+interface SessionTimeoutControlProps {
   sessionTimeout: number;
   setSessionTimeout: (value: number) => void;
 }
 
-const SessionTimeoutControl: React.FC<SessionTimeoutControlProps> = ({
-  sessionTimeout,
-  setSessionTimeout
+const SessionTimeoutControl: React.FC<SessionTimeoutControlProps> = ({ 
+  sessionTimeout, 
+  setSessionTimeout 
 }) => {
-  const { t } = useTranslation();
+  const { language } = useTranslation();
+  const { setSessionTimeoutMinutes } = useAuth();
   
-  const handleChange = (value: number[]) => {
-    setSessionTimeout(value[0]);
+  const handleTimeoutChange = (value: string) => {
+    const timeout = parseInt(value, 10);
+    setSessionTimeout(timeout);
+    setSessionTimeoutMinutes(timeout);
   };
   
   return (
     <SecurityControlItem
       icon={Clock}
-      title={t('sessionTimeout')}
-      description={t('adjustSessionTimeout')}
+      title={language === 'pt' ? 'Tempo limite de sessão' : 'Session Timeout'}
+      description={language === 'pt' 
+        ? 'Defina o tempo de inatividade antes que a sessão expire' 
+        : 'Set inactivity time before session expires'}
       action={
-        <div className="flex flex-col items-end gap-2 w-40">
-          <div className="flex items-center justify-between w-full">
-            <span className="text-sm text-muted-foreground">5m</span>
-            <span className="text-sm font-medium">{sessionTimeout}m</span>
-            <span className="text-sm text-muted-foreground">60m</span>
-          </div>
-          <Slider
-            defaultValue={[sessionTimeout]}
-            min={5}
-            max={60}
-            step={5}
-            onValueChange={handleChange}
-            className="w-full"
-          />
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="session-timeout" className="sr-only">
+            {language === 'pt' ? 'Tempo limite de sessão' : 'Session Timeout'}
+          </Label>
+          <Select
+            value={sessionTimeout.toString()}
+            onValueChange={handleTimeoutChange}
+          >
+            <SelectTrigger id="session-timeout" className="w-[150px]">
+              <SelectValue placeholder="30 minutes" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5 {language === 'pt' ? 'minutos' : 'minutes'}</SelectItem>
+              <SelectItem value="15">15 {language === 'pt' ? 'minutos' : 'minutes'}</SelectItem>
+              <SelectItem value="30">30 {language === 'pt' ? 'minutos' : 'minutes'}</SelectItem>
+              <SelectItem value="60">1 {language === 'pt' ? 'hora' : 'hour'}</SelectItem>
+              <SelectItem value="120">2 {language === 'pt' ? 'horas' : 'hours'}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       }
     />

@@ -1,65 +1,33 @@
 
 import { useContext } from 'react';
 import { LanguageContext } from '../context/LanguageContext';
-import translations from '../i18n/translations';
+import { Languages } from '../types/auth';
+import { translations } from '../i18n/translations';
 
-interface TranslationHook {
+export interface TranslationHook {
+  language: Languages;
+  setLanguage: (lang: Languages) => void;
   t: (key: string) => string;
-  language: string;
-  changeLanguage: (lang: string) => void;
-  hasTranslation: (key: string) => boolean;
 }
 
 export const useTranslation = (): TranslationHook => {
   const { language, setLanguage } = useContext(LanguageContext);
 
   const t = (key: string): string => {
-    try {
-      // Split the key by dots to access nested properties
-      const keys = key.split('.');
-      let translation = translations[language];
-      
-      for (const k of keys) {
-        if (translation && typeof translation === 'object' && k in translation) {
-          translation = translation[k];
-        } else {
-          // Return the key if translation not found
-          return key;
-        }
+    // If the key doesn't exist in the current language, try to use the English version
+    if (!translations[language] || !translations[language][key]) {
+      if (translations.en && translations.en[key]) {
+        return translations.en[key];
       }
-      
-      return translation as string;
-    } catch (error) {
-      console.error(`Translation error for key "${key}":`, error);
-      return key;
+      return key; // Fallback to key if not found in any language
     }
+    
+    return translations[language][key];
   };
 
-  const hasTranslation = (key: string): boolean => {
-    try {
-      // Split the key by dots to access nested properties
-      const keys = key.split('.');
-      let translation = translations[language];
-      
-      for (const k of keys) {
-        if (translation && typeof translation === 'object' && k in translation) {
-          translation = translation[k];
-        } else {
-          return false;
-        }
-      }
-      
-      return typeof translation === 'string';
-    } catch (error) {
-      return false;
-    }
+  return {
+    language: language as Languages,
+    setLanguage: (lang: Languages) => setLanguage(lang),
+    t
   };
-
-  const changeLanguage = (lang: string) => {
-    setLanguage(lang);
-  };
-
-  return { t, language, changeLanguage, hasTranslation };
 };
-
-export default useTranslation;

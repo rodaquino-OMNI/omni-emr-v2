@@ -1,23 +1,24 @@
 
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ShieldAlert } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const HipaaComplianceBanner = () => {
+  const { language } = useTranslation();
+  
   return (
-    <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <Shield className="h-5 w-5 text-green-500" />
-        </div>
-        <div className="ml-3">
-          <h3 className="text-sm font-medium text-green-800">HIPAA Compliant Security</h3>
-          <div className="text-sm text-green-700">
-            This system implements security measures in accordance with HIPAA requirements, including
-            data encryption, access controls, and security audit logging.
-          </div>
-        </div>
-      </div>
-    </div>
+    <Alert variant="default" className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-900">
+      <ShieldAlert className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+      <AlertTitle className="text-blue-800 dark:text-blue-300">
+        {language === 'pt' ? 'Conformidade HIPAA' : 'HIPAA Compliance'}
+      </AlertTitle>
+      <AlertDescription className="text-blue-700 dark:text-blue-400">
+        {language === 'pt' 
+          ? 'Todas as informações médicas são protegidas pelas nossas políticas de segurança e por protocolos em conformidade com a HIPAA.'
+          : 'All medical information is protected by our security policies and HIPAA-compliant protocols.'}
+      </AlertDescription>
+    </Alert>
   );
 };
 

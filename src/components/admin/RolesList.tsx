@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Define role display names
 const roleDisplayNames: Record<UserRole, string> = {
   doctor: 'Physician',
+  physician: 'Physician',
   nurse: 'Nurse',
   admin: 'Administrator',
   patient: 'Patient',
@@ -24,12 +24,22 @@ const roleDisplayNames: Record<UserRole, string> = {
   system_administrator: 'System Administrator',
   specialist: 'Specialist',
   caregiver: 'Caregiver',
-  radiology_technician: 'Radiology Technician'
+  radiology_technician: 'Radiology Technician',
+  radiologist: 'Radiologist',
+  therapist: 'Therapist',
+  receptionist: 'Receptionist',
+  medical_assistant: 'Medical Assistant',
+  insurance_staff: 'Insurance Staff',
+  researcher: 'Researcher',
+  coordinator: 'Care Coordinator',
+  student: 'Medical Student',
+  guest: 'Guest User'
 };
 
 // Role descriptions for better understanding
 const roleDescriptions: Record<UserRole, string> = {
   doctor: 'Medical practitioners who diagnose and treat patients',
+  physician: 'Medical practitioners who diagnose and treat patients',
   nurse: 'Healthcare professionals who provide patient care',
   admin: 'System administrators with full access',
   patient: 'Healthcare recipients',
@@ -39,7 +49,16 @@ const roleDescriptions: Record<UserRole, string> = {
   system_administrator: 'Technical administrators with full system access',
   specialist: 'Specialized medical practitioners',
   caregiver: 'Non-medical staff providing patient assistance',
-  radiology_technician: 'Imaging specialists'
+  radiology_technician: 'Imaging specialists',
+  radiologist: 'Medical specialists in diagnosing images',
+  therapist: 'Professionals providing therapy services',
+  receptionist: 'Front desk administrative staff',
+  medical_assistant: 'Clinical support personnel',
+  insurance_staff: 'Insurance and billing specialists',
+  researcher: 'Medical research personnel',
+  coordinator: 'Staff who coordinate patient care',
+  student: 'Medical students in training',
+  guest: 'Limited access temporary users'
 };
 
 const RolesList = () => {

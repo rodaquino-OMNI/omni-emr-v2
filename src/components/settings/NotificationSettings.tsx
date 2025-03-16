@@ -1,194 +1,131 @@
 
 import React, { useState } from 'react';
-import { Save } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 const NotificationSettings = () => {
-  const [emailNotifications, setEmailNotifications] = useState({
-    appointments: true,
-    records: true,
-    medications: true,
-    system: false
-  });
-  
-  const [pushNotifications, setPushNotifications] = useState({
-    appointments: true,
-    records: false,
-    medications: true,
-    system: true
-  });
-  
-  const [smsNotifications, setSmsNotifications] = useState({
-    appointments: true,
-    records: false,
-    medications: false,
-    system: false
-  });
-  
-  const handleEmailChange = (key: keyof typeof emailNotifications) => {
-    setEmailNotifications({
-      ...emailNotifications,
-      [key]: !emailNotifications[key]
-    });
-  };
-  
-  const handlePushChange = (key: keyof typeof pushNotifications) => {
-    setPushNotifications({
-      ...pushNotifications,
-      [key]: !pushNotifications[key]
-    });
-  };
-  
-  const handleSmsChange = (key: keyof typeof smsNotifications) => {
-    setSmsNotifications({
-      ...smsNotifications,
-      [key]: !smsNotifications[key]
-    });
-  };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle notification settings update logic
-    console.log('Notification settings updated');
+  const { language } = useTranslation();
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
+  const [appNotifications, setAppNotifications] = useState(true);
+  const [criticalAlerts, setCriticalAlerts] = useState(true);
+  const [appointmentReminders, setAppointmentReminders] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveSettings = () => {
+    setIsSaving(true);
+    // Simulate saving settings
+    setTimeout(() => {
+      setIsSaving(false);
+      toast.success(language === 'pt' ? 'Configurações de notificação salvas' : 'Notification settings saved');
+    }, 1000);
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-medium mb-4">Notification Preferences</h2>
-        <p className="text-muted-foreground mb-6">
-          Customize how you receive notifications and updates.
-        </p>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-md font-medium mb-3">Email Notifications</h3>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between py-2 border-b border-border">
-                  <div>
-                    <h4 className="font-medium">Appointment Reminders</h4>
-                    <p className="text-sm text-muted-foreground">Get notified about upcoming appointments.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={emailNotifications.appointments}
-                      onChange={() => handleEmailChange('appointments')}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  </label>
-                </div>
-                
-                <div className="flex items-center justify-between py-2 border-b border-border">
-                  <div>
-                    <h4 className="font-medium">Medical Records Updates</h4>
-                    <p className="text-sm text-muted-foreground">Get notified when new records are added.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={emailNotifications.records}
-                      onChange={() => handleEmailChange('records')}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  </label>
-                </div>
-                
-                <div className="flex items-center justify-between py-2 border-b border-border">
-                  <div>
-                    <h4 className="font-medium">Medication Alerts</h4>
-                    <p className="text-sm text-muted-foreground">Get notified about medication changes or refills.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={emailNotifications.medications}
-                      onChange={() => handleEmailChange('medications')}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  </label>
-                </div>
-                
-                <div className="flex items-center justify-between py-2">
-                  <div>
-                    <h4 className="font-medium">System Updates</h4>
-                    <p className="text-sm text-muted-foreground">Get notified about system changes or maintenance.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={emailNotifications.system}
-                      onChange={() => handleEmailChange('system')}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  </label>
-                </div>
-              </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{language === 'pt' ? 'Configurações de Notificação' : 'Notification Settings'}</CardTitle>
+        <CardDescription>
+          {language === 'pt' 
+            ? 'Gerencie como você recebe as notificações' 
+            : 'Manage how you receive notifications'}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="email-notifications">{language === 'pt' ? 'Notificações por Email' : 'Email Notifications'}</Label>
+              <p className="text-sm text-muted-foreground">
+                {language === 'pt' ? 'Receber notificações por email' : 'Receive notifications via email'}
+              </p>
             </div>
-            
-            <div>
-              <h3 className="text-md font-medium mb-3">Push Notifications</h3>
-              <div className="space-y-2">
-                {/* Similar structure as email notifications, for push notifications */}
-                <div className="flex items-center justify-between py-2 border-b border-border">
-                  <div>
-                    <h4 className="font-medium">Appointment Reminders</h4>
-                    <p className="text-sm text-muted-foreground">Get push notifications about upcoming appointments.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={pushNotifications.appointments}
-                      onChange={() => handlePushChange('appointments')}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  </label>
-                </div>
-                
-                {/* Add more push notification options similar to above */}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-md font-medium mb-3">SMS Notifications</h3>
-              <div className="space-y-2">
-                {/* Similar structure as email notifications, for SMS */}
-                <div className="flex items-center justify-between py-2 border-b border-border">
-                  <div>
-                    <h4 className="font-medium">Appointment Reminders</h4>
-                    <p className="text-sm text-muted-foreground">Get SMS notifications about upcoming appointments.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={smsNotifications.appointments}
-                      onChange={() => handleSmsChange('appointments')}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                  </label>
-                </div>
-                
-                {/* Add more SMS notification options similar to above */}
-              </div>
-            </div>
-            
-            <button
-              type="submit"
-              className="h-10 bg-primary text-white rounded-md px-4 text-sm font-medium flex items-center gap-1 mt-6"
-            >
-              <Save className="h-4 w-4" />
-              Save Notification Settings
-            </button>
+            <Switch 
+              id="email-notifications"
+              checked={emailNotifications} 
+              onCheckedChange={setEmailNotifications} 
+            />
           </div>
-        </form>
-      </div>
-    </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="sms-notifications">{language === 'pt' ? 'Notificações por SMS' : 'SMS Notifications'}</Label>
+              <p className="text-sm text-muted-foreground">
+                {language === 'pt' ? 'Receber notificações por SMS' : 'Receive notifications via SMS'}
+              </p>
+            </div>
+            <Switch 
+              id="sms-notifications"
+              checked={smsNotifications} 
+              onCheckedChange={setSmsNotifications} 
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="app-notifications">{language === 'pt' ? 'Notificações no Aplicativo' : 'In-App Notifications'}</Label>
+              <p className="text-sm text-muted-foreground">
+                {language === 'pt' ? 'Receber notificações dentro do aplicativo' : 'Receive in-app notifications'}
+              </p>
+            </div>
+            <Switch 
+              id="app-notifications"
+              checked={appNotifications} 
+              onCheckedChange={setAppNotifications} 
+            />
+          </div>
+          
+          <div className="pt-4 border-t">
+            <h3 className="text-md font-medium mb-3">
+              {language === 'pt' ? 'Tipos de Notificação' : 'Notification Types'}
+            </h3>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="critical-alerts">{language === 'pt' ? 'Alertas Críticos' : 'Critical Alerts'}</Label>
+              <p className="text-sm text-muted-foreground">
+                {language === 'pt' ? 'Alertas para resultados críticos e emergências' : 'Critical results and emergency alerts'}
+              </p>
+            </div>
+            <Switch 
+              id="critical-alerts"
+              checked={criticalAlerts} 
+              onCheckedChange={setCriticalAlerts} 
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="appointment-reminders">{language === 'pt' ? 'Lembretes de Consulta' : 'Appointment Reminders'}</Label>
+              <p className="text-sm text-muted-foreground">
+                {language === 'pt' ? 'Lembretes para consultas agendadas' : 'Reminders for scheduled appointments'}
+              </p>
+            </div>
+            <Switch 
+              id="appointment-reminders"
+              checked={appointmentReminders} 
+              onCheckedChange={setAppointmentReminders} 
+            />
+          </div>
+        </div>
+        
+        <div className="pt-4 flex justify-end">
+          <Button
+            onClick={handleSaveSettings}
+            disabled={isSaving}
+          >
+            {isSaving 
+              ? (language === 'pt' ? 'Salvando...' : 'Saving...') 
+              : (language === 'pt' ? 'Salvar Configurações' : 'Save Settings')}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

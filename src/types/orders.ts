@@ -15,6 +15,7 @@ export interface Order {
   details: any;  // This varies based on order type
   priority: OrderPriority;
   notes?: string;
+  alerts?: any[]; // Added alerts field for order alerts
 }
 
 export interface MedicationOrderDetails {
@@ -58,4 +59,25 @@ export interface NewOrderFormData {
   priority: OrderPriority;
   details: any;
   notes?: string;
+}
+
+// Added these interfaces to fix component errors
+export interface MedicationOrder extends Order {
+  details: MedicationOrderDetails;
+}
+
+export interface LaboratoryOrder extends Order {
+  details: LaboratoryOrderDetails;
+}
+
+export interface RadiologyOrder extends Order {
+  details: RadiologyOrderDetails;
+}
+
+export interface ProcedureOrder extends Order {
+  details: ProcedureOrderDetails;
+}
+
+export interface ConsultationOrder extends Order {
+  details: ConsultationOrderDetails;
 }

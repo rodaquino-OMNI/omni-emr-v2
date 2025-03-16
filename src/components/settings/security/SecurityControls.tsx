@@ -19,7 +19,7 @@ const SecurityControls: React.FC<SecurityControlsProps> = ({
   onShowMFASetup
 }) => {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   
   // Default session timeout values
   const [sessionTimeout, setSessionTimeout] = React.useState(30); // 30 minutes default
@@ -30,32 +30,32 @@ const SecurityControls: React.FC<SecurityControlsProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center">
             <Shield className="h-5 w-5 mr-2 text-primary" />
-            {t('accountSecurity')}
+            {language === 'pt' ? 'Segurança da Conta' : 'Account Security'}
           </CardTitle>
           <CardDescription>
-            {t('manageAccountSecuritySettings')}
+            {language === 'pt' ? 'Gerencie as configurações de segurança da sua conta' : 'Manage your account security settings'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <SecurityControlItem
             icon={Lock}
-            title={t('password')}
-            description={t('updateYourPassword')}
+            title={language === 'pt' ? 'Senha' : 'Password'}
+            description={language === 'pt' ? 'Atualize sua senha' : 'Update your password'}
             action={
               <Button variant="outline" onClick={onShowPasswordUpdate}>
-                {t('update')}
+                {language === 'pt' ? 'Atualizar' : 'Update'}
               </Button>
             }
           />
           
           <SecurityControlItem
             icon={SmartphoneNfc}
-            title={t('twoFactorAuthentication')}
-            description={t('addExtraLayerSecurity')}
+            title={language === 'pt' ? 'Autenticação de Dois Fatores' : 'Two-Factor Authentication'}
+            description={language === 'pt' ? 'Adicione uma camada extra de segurança' : 'Add an extra layer of security'}
             action={
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
-                  {user?.mfaEnabled ? t('enabled') : t('disabled')}
+                  {user?.mfaEnabled ? (language === 'pt' ? 'Ativado' : 'Enabled') : (language === 'pt' ? 'Desativado' : 'Disabled')}
                 </span>
                 <Switch 
                   checked={user?.mfaEnabled || false}
@@ -72,8 +72,8 @@ const SecurityControls: React.FC<SecurityControlsProps> = ({
           
           <SecurityControlItem
             icon={AlertTriangle}
-            title={t('suspiciousActivityAlerts')}
-            description={t('receiveAlertsAboutSuspiciousActivity')}
+            title={language === 'pt' ? 'Alertas de Atividade Suspeita' : 'Suspicious Activity Alerts'}
+            description={language === 'pt' ? 'Receba alertas sobre atividades suspeitas' : 'Receive alerts about suspicious activity'}
             action={
               <Switch defaultChecked />
             }

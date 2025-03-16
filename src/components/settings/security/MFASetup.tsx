@@ -2,120 +2,133 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Shield, X, QrCode, Smartphone } from 'lucide-react';
+import { toast } from 'sonner';
+import { QrCode, Smartphone } from 'lucide-react';
 
-export interface MFASetupProps {
+interface MFASetupProps {
   onClose: () => void;
 }
 
 const MFASetup: React.FC<MFASetupProps> = ({ onClose }) => {
-  const { t } = useTranslation();
-  const [step, setStep] = useState<'scan' | 'verify'>('scan');
-  const [otpValue, setOtpValue] = useState('');
+  const { language } = useTranslation();
+  const [activeTab, setActiveTab] = useState<string>('app');
+  const [verificationCode, setVerificationCode] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle MFA setup verification
-    if (step === 'verify') {
-      // Verify the OTP
-      console.log('Verifying OTP:', otpValue);
-      // On success
-      onClose();
+  const handleEnableMFA = () => {
+    if (!verificationCode || verificationCode.length < 6) {
+      toast.error(
+        language === 'pt' 
+          ? 'Por favor, insira um código de verificação válido' 
+          : 'Please enter a valid verification code'
+      );
+      return;
     }
+    
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.success(
+        language === 'pt' 
+          ? 'Autenticação de dois fatores ativada com sucesso' 
+          : 'Two-factor authentication successfully enabled'
+      );
+      onClose();
+    }, 1500);
   };
   
   return (
-    <Card className="w-full max-w-md mx-auto mb-6">
-      <form onSubmit={handleSubmit}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              {t('setupTwoFactorAuthentication')}
-            </CardTitle>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <CardDescription>
-            {step === 'scan'
-              ? t('scanQRCodeWithAuthenticator')
-              : t('enterVerificationCodeFromAuthenticator')}
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent>
-          {step === 'scan' ? (
-            <div className="flex flex-col items-center gap-6">
-              <div className="bg-gray-100 rounded-lg p-4 mx-auto">
-                <QrCode className="h-40 w-40 mx-auto text-primary" />
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>
+          {language === 'pt' ? 'Configurar Autenticação de Dois Fatores' : 'Set Up Two-Factor Authentication'}
+        </CardTitle>
+        <CardDescription>
+          {language === 'pt' 
+            ? 'Adicione uma camada extra de segurança à sua conta' 
+            : 'Add an extra layer of security to your account'}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="app">
+              {language === 'pt' ? 'Aplicativo' : 'App'}
+            </TabsTrigger>
+            <TabsTrigger value="sms">SMS</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="app" className="space-y-4">
+            <div className="rounded-lg border p-4 flex flex-col items-center space-y-3 mt-4">
+              <QrCode className="w-12 h-12 text-primary mb-2" />
+              <div className="h-48 w-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <span className="text-sm text-muted-foreground">QR Code Example</span>
               </div>
-              
-              <div className="text-sm text-muted-foreground">
-                <p className="mb-2 font-medium">{t('cantScanCode')}</p>
-                <div className="bg-muted p-3 rounded text-center">
-                  <code className="text-xs">OMNICARE-SEC-123456789</code>
-                </div>
-              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                {language === 'pt' 
+                  ? 'Escaneie este código QR com o seu aplicativo de autenticação' 
+                  : 'Scan this QR code with your authenticator app'}
+              </p>
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-6">
-              <Smartphone className="h-16 w-16 text-primary opacity-80" />
-              
+          </TabsContent>
+          
+          <TabsContent value="sms" className="space-y-4">
+            <div className="rounded-lg border p-4 flex flex-col items-center space-y-3 mt-4">
+              <Smartphone className="w-12 h-12 text-primary mb-2" />
+              <p className="text-sm text-muted-foreground text-center">
+                {language === 'pt' 
+                  ? 'Enviaremos um código de verificação para o seu telefone cada vez que você fizer login' 
+                  : 'We will send a verification code to your phone each time you log in'}
+              </p>
               <div className="w-full">
-                <label className="block text-sm font-medium mb-2">
-                  {t('verificationCode')}
-                </label>
-                <InputOTP
-                  maxLength={6}
-                  value={otpValue}
-                  onChange={setOtpValue}
-                  render={({ slots }) => (
-                    <InputOTPGroup>
-                      {slots.map((slot, index) => (
-                        <InputOTPSlot key={index} {...slot} index={index} />
-                      ))}
-                    </InputOTPGroup>
-                  )}
+                <Label htmlFor="phone" className="text-left">
+                  {language === 'pt' ? 'Número de telefone' : 'Phone number'}
+                </Label>
+                <Input 
+                  id="phone" 
+                  placeholder="+55 (11) 98765-4321" 
+                  className="mt-1"
                 />
               </div>
             </div>
-          )}
-        </CardContent>
+          </TabsContent>
+        </Tabs>
         
-        <CardFooter className="flex justify-between">
-          {step === 'scan' ? (
-            <Button
-              type="button"
-              onClick={() => setStep('verify')}
-              className="ml-auto"
-            >
-              {t('next')}
-            </Button>
-          ) : (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep('scan')}
-              >
-                {t('back')}
-              </Button>
-              <Button type="submit">
-                {t('verify')}
-              </Button>
-            </>
-          )}
-        </CardFooter>
-      </form>
+        <div className="mt-6 space-y-4">
+          <div>
+            <Label htmlFor="verification-code">
+              {language === 'pt' ? 'Código de verificação' : 'Verification code'}
+            </Label>
+            <Input 
+              id="verification-code" 
+              placeholder="123456" 
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              className="mt-1"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {language === 'pt' 
+                ? 'Insira o código gerado pelo seu aplicativo de autenticação' 
+                : 'Enter the code generated by your authenticator app'}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+      
+      <CardFooter className="flex justify-between border-t pt-6">
+        <Button variant="outline" onClick={onClose}>
+          {language === 'pt' ? 'Cancelar' : 'Cancel'}
+        </Button>
+        <Button onClick={handleEnableMFA} disabled={isLoading}>
+          {isLoading 
+            ? (language === 'pt' ? 'Ativando...' : 'Enabling...') 
+            : (language === 'pt' ? 'Ativar 2FA' : 'Enable 2FA')}
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

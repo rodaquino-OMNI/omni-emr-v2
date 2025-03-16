@@ -1,9 +1,7 @@
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Session } from '@supabase/supabase-js';
+import React, { createContext, useContext } from 'react';
 import { useAuthProvider } from '../hooks/useAuthProvider';
 import { User, Languages, UserRole, ApprovalStatus, AuthContextType } from '../types/auth';
-import { supabase } from '../integrations/supabase/client';
 
 // Create the auth context with default values
 const AuthContext = createContext<AuthContextType>({
@@ -35,7 +33,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const auth = useAuthProvider();
   
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={{
+      user: auth.user,
+      isAuthenticated: auth.isAuthenticated,
+      isLoading: auth.isLoading,
+      error: null,
+      login: auth.login,
+      logout: auth.logout,
+      register: async (data) => ({ success: false }),
+      resetPassword: auth.resetPassword,
+      updateProfile: async () => {},
+      setError: () => {},
+      hasPermission: auth.hasPermission,
+      canAccessPatientData: auth.canAccessPatientData,
+      language: auth.language,
+      setLanguage: auth.setLanguage,
+      loginWithSocial: auth.loginWithSocial,
+      session: auth.session,
+      lastActivity: auth.lastActivity,
+      updateLastActivity: auth.updateLastActivity,
+      sessionTimeoutMinutes: auth.sessionTimeoutMinutes,
+      setSessionTimeoutMinutes: auth.setSessionTimeoutMinutes,
+      signUp: auth.signUp
+    }}>
       {children}
     </AuthContext.Provider>
   );
