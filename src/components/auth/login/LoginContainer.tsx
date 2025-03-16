@@ -12,10 +12,12 @@ import LanguageToggle from '@/components/auth/LanguageToggle';
 import { useTranslation } from '@/hooks/useTranslation';
 import SupabaseConnectionStatus from '@/components/ui/SupabaseConnectionStatus';
 import { checkDatabaseSchema } from '@/utils/supabaseSchemaCheck';
+import { Language } from '@/types/auth';
+import { useAuthLogin } from '@/hooks/useAuthLogin';
 
 interface LoginContainerProps {
-  t: ReturnType<typeof useTranslation>['t'];
-  language: ReturnType<typeof useTranslation>['language'];
+  t: (key: string, ...params: any[]) => string;
+  language: Language;
   isSupabaseConnected: boolean | null;
   setIsSupabaseConnected: React.Dispatch<React.SetStateAction<boolean | null>>;
 }
@@ -28,6 +30,17 @@ const LoginContainer = ({
 }: LoginContainerProps) => {
   const [activeView, setActiveView] = useState<'email' | 'phone'>('email');
   const [showSchemaWarning, setShowSchemaWarning] = useState<boolean>(false);
+  
+  // Authentication state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [showVerification, setShowVerification] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const { loginWithEmail, loginWithPhone, loginWithSocial, sendPhoneCode } = useAuthLogin();
   
   // Check database schema on mount
   useEffect(() => {
@@ -50,8 +63,6 @@ const LoginContainer = ({
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <LoginCard 
-        t={t} 
-        language={language} 
         isSupabaseConnected={isSupabaseConnected}
       >
         <LoginHeader 
@@ -94,13 +105,58 @@ const LoginContainer = ({
         )}
         
         {activeView === 'email' ? (
-          <EmailLoginForm t={t} language={language} />
+          <EmailLoginForm 
+            t={t} 
+            language={language}
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            loading={loading}
+            error={error}
+            onLogin={() => {
+              setLoading(true);
+              setError(null);
+              loginWithEmail(email, password)
+                .catch(err => setError(err.message))
+                .finally(() => setLoading(false));
+            }}
+          />
         ) : (
-          <PhoneLoginForm t={t} language={language} />
+          <PhoneLoginForm 
+            t={t} 
+            language={language}
+            phone={phone}
+            setPhone={setPhone}
+            verificationCode={verificationCode}
+            setVerificationCode={setVerificationCode}
+            showVerification={showVerification}
+            setShowVerification={setShowVerification}
+            loading={loading}
+            error={error}
+            onSendCode={() => {
+              setLoading(true);
+              setError(null);
+              sendPhoneCode(phone)
+                .then(() => setShowVerification(true))
+                .catch(err => setError(err.message))
+                .finally(() => setLoading(false));
+            }}
+            onLogin={() => {
+              setLoading(true);
+              setError(null);
+              loginWithPhone(phone, verificationCode)
+                .catch(err => setError(err.message))
+                .finally(() => setLoading(false));
+            }}
+          />
         )}
         
         <div className="mt-6">
-          <SocialLoginButtons t={t} language={language} />
+          <SocialLoginButtons 
+            onGoogleLogin={() => loginWithSocial('google')}
+            onMicrosoftLogin={() => loginWithSocial('azure')}
+          />
         </div>
         
         <div className="mt-4 text-center">
