@@ -3,6 +3,7 @@ import React from 'react';
 import { useRoleBasedDashboard } from '@/hooks/useRoleBasedDashboard';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Building, AlertCircle } from 'lucide-react';
@@ -11,11 +12,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const RoleDashboardContainer: React.FC = () => {
   const { selectedSector, isLoading, sectors } = useSectorContext();
-  const { DashboardComponent, userRole } = useRoleBasedDashboard();
+  const { DashboardComponent } = useRoleBasedDashboard();
   const { t } = useTranslation();
+  const { user } = useAuth();
   
   // Check if user needs a sector
-  const isClinicalRole = ['doctor', 'nurse', 'medical_staff'].includes(userRole);
+  const isClinicalRole = user?.role && ['doctor', 'nurse', 'medical_staff'].includes(user.role);
   const needsSector = isClinicalRole && !selectedSector && sectors.length > 0;
   
   // Handle loading state

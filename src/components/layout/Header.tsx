@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ModeToggle } from '../theme/ModeToggle';
-import { LanguageToggle } from '../i18n/LanguageToggle';
 import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/ModeToggle';
+import LanguageToggle from '@/components/auth/LanguageToggle';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,7 +24,6 @@ const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { userRole } = useAuth();
   
   // Check if user is a clinical role
   const isClinicalRole = user?.role && ['doctor', 'nurse', 'medical_staff'].includes(user.role);
@@ -79,7 +78,7 @@ const Header = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatarUrl} alt={user?.name || ''} />
+                  <AvatarImage src={user?.avatar_url} alt={user?.name || ''} />
                   <AvatarFallback>{getUserInitials()}</AvatarFallback>
                 </Avatar>
               </Button>

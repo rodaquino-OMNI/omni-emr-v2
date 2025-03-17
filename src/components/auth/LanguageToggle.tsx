@@ -2,12 +2,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Languages } from '@/types/auth';
-
-export interface LanguageToggleProps {
-  language: Languages;
-  setLanguage: (language: Languages) => void;
-}
 
 const LanguageToggle: React.FC = () => {
   const { language, setLanguage } = useTranslation();

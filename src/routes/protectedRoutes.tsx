@@ -36,7 +36,7 @@ export const protectedRoutes: RouteObject[] = [
           <ProtectedRoute 
             requiredPermission="patients:view"
             requiredRole={['doctor', 'nurse', 'administrative']}
-            requireSector={true} // Require sector for patients
+            requireSector={true} // Require sector for patients (warning only)
           >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>
@@ -59,7 +59,7 @@ export const protectedRoutes: RouteObject[] = [
           <ProtectedRoute 
             requiredPermission="patients:view"
             requiredRole={['doctor', 'nurse', 'administrative']}
-            requireSector={true} // Require sector for patient details
+            requireSector={true} // Require sector for patient details (warning only)
           >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>
@@ -81,7 +81,7 @@ export const protectedRoutes: RouteObject[] = [
         element: (
           <ProtectedRoute 
             requiredPermission="notes:view"
-            requireSector={true} // Require sector for clinical documentation
+            requireSector={true} // Require sector for clinical documentation (warning only)
           >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>
@@ -103,7 +103,7 @@ export const protectedRoutes: RouteObject[] = [
         element: (
           <ProtectedRoute 
             requiredPermission="medications:view"
-            requireSector={true} // Require sector for medications
+            requireSector={true} // Require sector for medications (warning only)
           >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>

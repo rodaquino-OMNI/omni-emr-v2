@@ -1,164 +1,69 @@
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useRoleBasedDashboard } from '@/hooks/useRoleBasedDashboard';
-import { usePermissions } from '@/hooks/usePermissions';
+import { NavLink } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
+import SidebarItem from './SidebarItem';
+import SidebarUserProfile from './SidebarUserProfile';
+import SidebarLogo from './SidebarLogo';
 import SidebarSectorSelector from './SidebarSectorSelector';
-import {
-  Home,
-  Users,
-  FileText,
-  Settings,
-  PanelLeft,
-  LogOut,
-  Book,
-  CalendarDays,
-  Pill,
-} from 'lucide-react';
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarContent as SidebarContentBase,
-  SidebarHeader,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarFooter,
-} from '@/components/ui/sidebar';
+import { config } from '@/config/sidebarConfig';
 
-interface SidebarContentProps {
-  onItemClick?: () => void;
-}
-
-const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
-  const { user, logout } = useAuth();
+const SidebarContent: React.FC = () => {
+  const { user } = useAuth();
   const { t } = useTranslation();
-  const { hasPermission } = useRoleBasedDashboard();
-  const isClinicalRole = user?.role && ['doctor', 'nurse', 'medical_staff'].includes(user.role);
+  
+  const role = user?.role || 'unauthenticated';
+  
+  // Get navigation items for the user's role
+  const navItems = config.roles[role] || config.roles.default;
+  
+  // Check if user is a clinical role that needs sector selection
+  const isClinicalRole = ['doctor', 'nurse', 'medical_staff'].includes(role);
   
   return (
-    <>
-      <SidebarHeader className="flex items-center p-4">
-        <div className="flex items-center gap-2">
-          <PanelLeft className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold tracking-tight">OmniCare</span>
+    <div className="flex h-full flex-col">
+      <div className="px-3 py-2">
+        <SidebarLogo />
+      </div>
+      
+      {/* Profile information */}
+      <div className="px-3 py-2">
+        <SidebarUserProfile />
+      </div>
+      
+      {/* Sector Selector for clinical roles */}
+      {isClinicalRole && <SidebarSectorSelector />}
+      
+      {/* Navigation Items */}
+      <div className="flex-1 overflow-auto py-2">
+        <nav className="grid items-start px-2 text-sm font-medium">
+          {navItems.map((item, index) => (
+            <SidebarItem 
+              key={index}
+              title={t(item.i18nKey, item.title)}
+              icon={item.icon}
+              path={item.path}
+              badge={item.badge}
+            />
+          ))}
+        </nav>
+      </div>
+      
+      {/* Footer Items */}
+      <div className="mt-auto border-t bg-muted/40">
+        <div className="grid items-start px-2 py-2 text-sm font-medium">
+          {config.footer.map((item, index) => (
+            <SidebarItem 
+              key={index} 
+              title={t(item.i18nKey, item.title)} 
+              icon={item.icon} 
+              path={item.path}
+            />
+          ))}
         </div>
-      </SidebarHeader>
-      
-      <SidebarContentBase>
-        {/* Show sector selector only for clinical roles */}
-        {isClinicalRole && (
-          <SidebarSectorSelector />
-        )}
-        
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('navigation', 'Navigation')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={window.location.pathname === '/dashboard'}>
-                  <NavLink to="/dashboard" onClick={onItemClick}>
-                    <Home className="h-4 w-4" />
-                    <span>{t('dashboard', 'Dashboard')}</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              {hasPermission('patients:view') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={window.location.pathname.startsWith('/patients')}>
-                    <NavLink to="/patients" onClick={onItemClick}>
-                      <Users className="h-4 w-4" />
-                      <span>{t('patients', 'Patients')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              
-              {hasPermission('medications:view') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={window.location.pathname.startsWith('/medications')}>
-                    <NavLink to="/medications" onClick={onItemClick}>
-                      <Pill className="h-4 w-4" />
-                      <span>{t('medications', 'Medications')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              
-              {hasPermission('notes:view') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={window.location.pathname.startsWith('/clinical-documentation')}>
-                    <NavLink to="/clinical-documentation" onClick={onItemClick}>
-                      <FileText className="h-4 w-4" />
-                      <span>{t('clinicalDocumentation', 'Documentation')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              
-              {hasPermission('appointments:view') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={window.location.pathname.startsWith('/appointments')}>
-                    <NavLink to="/appointments" onClick={onItemClick}>
-                      <CalendarDays className="h-4 w-4" />
-                      <span>{t('appointments', 'Appointments')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('medical', 'Medical')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {hasPermission('protocols:view') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={window.location.pathname.startsWith('/protocols')}>
-                    <NavLink to="/protocols" onClick={onItemClick}>
-                      <Book className="h-4 w-4" />
-                      <span>{t('protocols', 'Protocols')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContentBase>
-      
-      <SidebarFooter>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {hasPermission('settings:view') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={window.location.pathname.startsWith('/settings')}>
-                    <NavLink to="/settings" onClick={onItemClick}>
-                      <Settings className="h-4 w-4" />
-                      <span>{t('settings', 'Settings')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => { logout(); onItemClick?.(); }}>
-                  <LogOut className="h-4 w-4" />
-                  <span>{t('logout', 'Logout')}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarFooter>
-    </>
+      </div>
+    </div>
   );
 };
 

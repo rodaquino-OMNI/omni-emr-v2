@@ -79,12 +79,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={redirectTo} state={{ returnUrl: location.pathname }} replace />;
   }
   
-  // Check if the route requires a sector and the user is a clinical role
-  const isClinicalRole = user && ['doctor', 'nurse', 'medical_staff'].includes(user.role);
-  const needsSector = requireSector && isClinicalRole && !sectorContext.selectedSector;
-  
-  // We no longer redirect to sector page, instead we'll show the route with a warning banner
-  // The banner is displayed in the RoleDashboardContainer component
+  // No longer redirect to sector selection page
+  // Instead we'll show UI warnings in the dashboard and other components
   
   // If user doesn't have required permission or role, redirect to unauthorized
   if (!hasRequired) {
