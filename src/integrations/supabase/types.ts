@@ -3504,6 +3504,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      check_database_connection: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       check_fhir_resource_exists: {
         Args: {
           resource_type: string
@@ -3524,6 +3528,27 @@ export type Database = {
         Returns: {
           table_name: string
           rows_deleted: number
+        }[]
+      }
+      detect_duplicate_indexes: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_schema: string
+          table_name: string
+          duplicate_indexes: Json
+          recommendation: string
+        }[]
+      }
+      detect_duplicate_rls_policies: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_schema: string
+          table_name: string
+          operation: string
+          role_name: string
+          policy_count: number
+          policy_names: string[]
+          recommendation: string
         }[]
       }
       get_auth_uid: {
@@ -3767,6 +3792,10 @@ export type Database = {
           view_name: string
         }
         Returns: undefined
+      }
+      run_database_health_check: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       safe_cast_uuid: {
         Args: {

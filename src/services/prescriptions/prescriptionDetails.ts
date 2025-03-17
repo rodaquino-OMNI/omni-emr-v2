@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Prescription } from '@/types/patientTypes';
 import { handleDatabaseError } from '@/utils/errorHandling';
+import { mapPrescriptionFromDatabase } from './prescriptionMappers';
 
 /**
  * Get a specific prescription by ID
@@ -45,31 +46,11 @@ export const getPrescriptionById = async (prescriptionId: string): Promise<Presc
     
     if (!data) return null;
     
-    // Map to Prescription type
-    const prescription: Prescription = {
-      id: data.id,
-      patient_id: data.patient_id,
-      patientName: data.patients ? `${data.patients.first_name} ${data.patients.last_name}` : 'Unknown Patient',
-      provider_id: data.provider_id,
-      doctorName: data.providers ? data.providers.name : 'Unknown Provider',
-      status: data.status,
-      created_at: data.created_at,
-      updated_at: data.updated_at,
-      notes: data.notes,
-      items: data.prescription_items.map((item: any) => ({
-        id: item.id,
-        prescription_id: data.id,
-        name: item.name,
-        type: item.type,
-        dosage: item.dosage,
-        frequency: item.frequency,
-        duration: item.duration,
-        start_date: item.start_date,
-        end_date: item.end_date,
-        status: item.status,
-        instructions: item.instructions
-      }))
-    };
+    // Create a complete prescription with both patient and doctor information
+    const prescription = mapPrescriptionFromDatabase(data, 'patient');
+    
+    // Add patient name as well (since we have the data)
+    prescription.patientName = data.patients ? `${data.patients.first_name} ${data.patients.last_name}` : 'Unknown Patient';
     
     return prescription;
   } catch (error) {
