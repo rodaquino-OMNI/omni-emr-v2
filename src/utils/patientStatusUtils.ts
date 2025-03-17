@@ -96,3 +96,18 @@ export const getStatusIcon = (status: PatientStatus): string => {
       return 'help-circle';
   }
 };
+
+// Map string status to PatientStatus type
+export const mapToPatientStatus = (status: string): PatientStatus => {
+  switch (status.toLowerCase()) {
+    case 'active': return 'active';
+    case 'discharged': return 'discharged';
+    case 'inactive': return 'inactive';
+    case 'critical': return 'critical';
+    case 'stable': return 'stable';
+    case 'hospital': return 'hospital';
+    case 'home': return 'home';
+    case 'improving': return 'improving';
+    default: return 'stable';
+  }
+};

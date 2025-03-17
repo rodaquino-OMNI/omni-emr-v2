@@ -1,62 +1,51 @@
 
 import CryptoJS from 'crypto-js';
 
-// A secure key derived from window properties (for demo purposes)
-// In production, this should be more sophisticated or environment-based
-const getSecureKey = (): string => {
-  const baseKey = window.location.host + navigator.userAgent.substring(0, 10);
-  return CryptoJS.SHA256(baseKey).toString();
-};
+// A simple encryption key - in a real app, this should be more secure
+// Ideally fetched from environment variables
+const SECRET_KEY = process.env.REACT_APP_STORAGE_KEY || 'healthcare-emr-storage-key';
 
+/**
+ * Secure storage utility to safely store data in localStorage with encryption
+ */
 export const secureStorage = {
   /**
-   * Securely store an item in localStorage with encryption
-   * @param key The key to store the value under
-   * @param value The value to store
+   * Set an item in localStorage with encryption
    */
-  setItem(key: string, value: any): void {
+  setItem<T>(key: string, value: T): void {
     try {
-      const secureKey = getSecureKey();
-      const valueToStore = JSON.stringify(value);
-      const encrypted = CryptoJS.AES.encrypt(valueToStore, secureKey).toString();
+      const valueStr = JSON.stringify(value);
+      const encrypted = CryptoJS.AES.encrypt(valueStr, SECRET_KEY).toString();
       localStorage.setItem(key, encrypted);
     } catch (error) {
-      console.error('Error securely storing data:', error);
+      console.error('Error setting secure storage item:', error);
     }
   },
 
   /**
-   * Retrieve and decrypt an item from localStorage
-   * @param key The key to retrieve
-   * @param defaultValue The default value to return if key not found
-   * @returns The decrypted value or defaultValue if not found
+   * Get an item from localStorage with decryption
    */
-  getItem<T>(key: string, defaultValue: T): T {
+  getItem<T>(key: string, defaultValue: T | null = null): T | null {
     try {
-      const secureKey = getSecureKey();
       const encrypted = localStorage.getItem(key);
+      if (!encrypted) return defaultValue;
       
-      if (!encrypted) {
-        return defaultValue;
-      }
-      
-      const decrypted = CryptoJS.AES.decrypt(encrypted, secureKey).toString(CryptoJS.enc.Utf8);
-      return JSON.parse(decrypted) as T;
+      const decrypted = CryptoJS.AES.decrypt(encrypted, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+      return decrypted ? JSON.parse(decrypted) : defaultValue;
     } catch (error) {
-      console.error('Error retrieving secure data:', error);
+      console.error('Error getting secure storage item:', error);
       return defaultValue;
     }
   },
 
   /**
    * Remove an item from localStorage
-   * @param key The key to remove
    */
   removeItem(key: string): void {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing secure data:', error);
+      console.error('Error removing secure storage item:', error);
     }
   },
 
@@ -71,5 +60,3 @@ export const secureStorage = {
     }
   }
 };
-
-export default secureStorage;

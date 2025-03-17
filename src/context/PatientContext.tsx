@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Patient } from '@/types/patientTypes';
+import { Patient, PatientStatus } from '@/types/patientTypes';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useSectorContext } from '@/hooks/useSectorContext';
@@ -9,6 +9,7 @@ import { usePatientData } from '@/hooks/usePatientData';
 import { usePatientInsights } from '@/hooks/usePatientInsights';
 import { usePatientPrescriptions } from '@/components/patients/hooks/usePatientPrescriptions';
 import { toast } from 'sonner';
+import { mapToPatientStatus } from '@/types/patientTypes';
 
 interface PatientContextType {
   patient: (Patient & { insights?: any[]; prescriptions?: any[] }) | null;
@@ -118,6 +119,7 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
   const combinedPatientData = patient ? {
     ...patient,
     // Add missing required fields to satisfy the Patient interface
+    status: mapToPatientStatus(patient.status?.toString() || 'stable'),
     country: patient.country || null,
     insurance: patient.insurance || null,
     insights: insights || [],

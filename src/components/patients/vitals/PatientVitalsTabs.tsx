@@ -8,7 +8,7 @@ import InsightsTab from './tabs/InsightsTab';
 
 interface PatientVitalsTabsProps {
   patientId: string;
-  insights: any[];
+  insights?: any[];
   insightsLoading?: boolean;
 }
 
