@@ -2,19 +2,16 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { usePatient } from '@/hooks/usePatient';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { usePatientData } from '@/hooks/usePatientData';
+import { PatientViewProps } from '@/types/patient';
 import PatientHeader from '../detail/PatientDetailHeader';
 import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
 import PatientAllergiesTab from '../tabs/PatientAllergiesTab';
 import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
 
-interface DefaultPatientViewProps {
-  patientId: string;
-}
-
-const DefaultPatientView: React.FC<DefaultPatientViewProps> = ({ patientId }) => {
-  const { patient, isLoading, error } = usePatient(patientId);
+const DefaultPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
+  const { data: patient, isLoading, error } = usePatientData(patientId);
   
   if (isLoading) {
     return <LoadingSpinner />;
@@ -65,7 +62,7 @@ const DefaultPatientView: React.FC<DefaultPatientViewProps> = ({ patientId }) =>
                 <div>
                   <h3 className="font-medium mb-2">Contact Information</h3>
                   <div className="space-y-1">
-                    <p><span className="text-muted-foreground mr-2">Phone:</span> {patient.phone_number}</p>
+                    <p><span className="text-muted-foreground mr-2">Phone:</span> {patient.phone_number || patient.phone}</p>
                     <p><span className="text-muted-foreground mr-2">Email:</span> {patient.email}</p>
                     <p><span className="text-muted-foreground mr-2">Address:</span> {patient.address}</p>
                   </div>

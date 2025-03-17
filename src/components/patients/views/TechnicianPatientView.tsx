@@ -2,23 +2,20 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { usePatient } from '@/hooks/usePatient';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate } from 'react-router-dom';
 import { FilePlus2, Flask, ImagePlus } from 'lucide-react';
+import { usePatientData } from '@/hooks/usePatientData';
+import { PatientViewProps } from '@/types/patient';
+import { useAuth } from '@/context/AuthContext';
 import PatientHeader from '../detail/PatientDetailHeader';
 import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
 import PatientLabResultsTab from '../tabs/PatientLabResultsTab';
 import PatientImagingTab from '../tabs/PatientImagingTab';
 import PatientOrdersTab from '../tabs/PatientOrdersTab';
-import { useAuth } from '@/context/AuthContext';
 
-interface TechnicianPatientViewProps {
-  patientId: string;
-}
-
-const TechnicianPatientView: React.FC<TechnicianPatientViewProps> = ({ patientId }) => {
-  const { patient, isLoading, error } = usePatient(patientId);
+const TechnicianPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
+  const { data: patient, isLoading, error } = usePatientData(patientId);
   const navigate = useNavigate();
   const { user } = useAuth();
   const isTechnicianType = user?.role.includes('technician');
