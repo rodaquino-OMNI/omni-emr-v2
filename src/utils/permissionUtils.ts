@@ -5,7 +5,7 @@ import {
   canPerformAppointmentAction,
   canPerformMedicationAction,
   canPerformClinicalDocumentation,
-  canPerformClinicalAssessment as importedClinicalAssessment, 
+  canPerformClinicalAssessment as importedCanPerformClinicalAssessment, 
   canDocumentMedicalDecisionMaking,
   hasPermission as permissionCheck,
   getUserPermissions as getPermissions
@@ -47,5 +47,14 @@ export const canManageFluidBalance = (user: User | null): boolean => {
   return ['doctor', 'nurse'].includes(user.role as string);
 };
 
-// Re-export renamed imported function to avoid conflict
-export { importedClinicalAssessment as canPerformClinicalAssessment };
+// Re-export renamed imported function to avoid conflict with importedCanPerformClinicalAssessment
+export const canPerformClinicalAssessment = importedCanPerformClinicalAssessment;
+
+// Re-export other functions to maintain API
+export { 
+  canAccessPatientData,
+  canPerformAppointmentAction,
+  canPerformMedicationAction,
+  canPerformClinicalDocumentation,
+  canDocumentMedicalDecisionMaking
+};

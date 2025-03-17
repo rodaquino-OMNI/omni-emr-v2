@@ -4,12 +4,8 @@ import { VitalSigns } from '@/types/patientTypes';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
-import { Heart, Thermometer, Lungs, Activity, Weight, ArrowUpRight } from 'lucide-react';
-
-interface VitalSignsDisplayProps {
-  vitals: VitalSigns;
-  showTime?: boolean;
-}
+import { Heart, Thermometer, Activity, Weight, ArrowUpRight, Wind } from 'lucide-react';
+import { VitalSignsDisplayProps } from './types';
 
 const VitalSignsDisplay: React.FC<VitalSignsDisplayProps> = ({ vitals, showTime = true }) => {
   const timestamp = vitals.timestamp ? new Date(vitals.timestamp) : new Date();
@@ -55,7 +51,7 @@ const VitalSignsDisplay: React.FC<VitalSignsDisplayProps> = ({ vitals, showTime 
           {vitals.respiratory_rate && (
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center dark:bg-blue-900/30">
-                <Lungs className="h-4 w-4 text-blue-500" />
+                <Wind className="h-4 w-4 text-blue-500" />
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Respiratory Rate</div>

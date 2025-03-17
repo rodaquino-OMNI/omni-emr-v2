@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useAuth } from '@/context/AuthContext';
@@ -67,7 +68,13 @@ const LoginCard: React.FC = () => {
     }
     
     try {
-      await login(email, password);
+      const result = await login(email, password);
+      if (!result.success && result.error) {
+        setError(result.error.message || "Failed to sign in");
+      }
+      if (result.pendingApproval) {
+        setPendingApproval(true);
+      }
     } catch (err: any) {
       console.error("Error signing in:", err);
       setError(err.message || "Failed to sign in");
@@ -129,7 +136,10 @@ const LoginCard: React.FC = () => {
     setIsSocialSubmitting(true);
     clearError();
     try {
-      await loginWithSocial(provider);
+      const result = await loginWithSocial(provider);
+      if (!result.success && result.error) {
+        setError(result.error.message || `Failed to sign in with ${provider}`);
+      }
     } catch (err: any) {
       console.error(`Error signing in with ${provider}:`, err);
       setError(err.message || `Failed to sign in with ${provider}`);

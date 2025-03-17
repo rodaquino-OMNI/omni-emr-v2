@@ -53,8 +53,8 @@ export interface User {
   createdAt?: Date;
   lastLogin?: Date;
   profileImageUrl?: string;
-  country?: string;
-  insurance?: string;
+  country?: string | null;
+  insurance?: string | null;
 }
 
 export interface AuthState {
@@ -105,7 +105,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (credentials: SignInCredentials) => Promise<{ success: boolean }>;
+  login: (email: string, password: string) => Promise<{ success: boolean, pendingApproval?: boolean, error?: any }>;
   logout: () => Promise<void>;
   signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{ success: boolean, user?: User, session?: any, error?: any }>;
   resetPassword: (email: string) => Promise<{ success: boolean, error?: any }>;
@@ -115,7 +115,7 @@ export interface AuthContextType {
   canAccessPatientData: (patientId: string) => boolean;
   language: Languages;
   setLanguage: (language: Languages) => void;
-  loginWithSocial: (provider: string) => Promise<{ success: boolean }>;
+  loginWithSocial: (provider: string) => Promise<{ success: boolean, error?: any }>;
   session: any;
   lastActivity: Date;
   updateLastActivity: () => void;

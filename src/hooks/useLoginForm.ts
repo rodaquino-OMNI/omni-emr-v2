@@ -23,7 +23,7 @@ export const useLoginForm = () => {
       const result = await loginWithSocial(providerValue);
       
       if (!result.success && result.error) {
-        throw result.error;
+        throw new Error(result.error.message || `Could not sign in with ${provider}`);
       }
       
       // No need to navigate here since the auth callback will handle the redirect

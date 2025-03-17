@@ -2,12 +2,14 @@
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { PatientAllergy } from '@/hooks/medication-safety/constants';
+import { Shield, AlertTriangle } from 'lucide-react';
 
 interface AllergySectionProps {
   isAllergyReviewed: boolean;
   hasAllergyWarning: boolean;
-  allergyWarningDetails?: string[];
+  allergyWarningDetails: PatientAllergy[];
   onReviewAllergies: () => void;
 }
 
@@ -20,46 +22,50 @@ export function AllergySection({
   const { t } = useTranslation();
   
   return (
-    <div className="border rounded-lg p-4">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="font-medium">{t('verifyAllergies')}</h3>
-        {isAllergyReviewed ? (
-          <span className="text-green-600 flex items-center text-sm">
-            <CheckCircle className="mr-1 h-4 w-4" />
-            {t('allergiesReviewed')}
-          </span>
-        ) : (
-          <span className="text-amber-600 flex items-center text-sm">
-            <Clock className="mr-1 h-4 w-4" />
-            {t('allergiesNotReviewed')}
-          </span>
-        )}
-      </div>
+    <div className="space-y-3">
+      <h3 className="font-medium">{t('allergyCheck')}</h3>
       
-      {hasAllergyWarning && (
-        <div className="bg-red-50 border border-red-200 rounded p-3 mb-3">
-          <div className="flex items-start">
-            <AlertCircle className="h-5 w-5 text-red-600 mr-2 mt-0.5" />
-            <div>
-              <p className="font-medium text-red-800">{t('allergyWarning')}</p>
-              <p className="text-sm text-red-700 mt-1">{t('allergyWarningDescription')}</p>
-              <ul className="list-disc pl-5 mt-2 text-sm text-red-700">
-                {allergyWarningDetails?.map((warning, i) => (
-                  <li key={i}>{warning}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+      {!isAllergyReviewed ? (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>{t('allergiesNotReviewed')}</AlertTitle>
+          <AlertDescription>
+            {t('pleaseReviewPatientAllergies')}
+          </AlertDescription>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="mt-2" 
+            onClick={onReviewAllergies}
+          >
+            {t('reviewAllergies')}
+          </Button>
+        </Alert>
+      ) : hasAllergyWarning ? (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>{t('allergyWarning')}</AlertTitle>
+          <AlertDescription>
+            <ul className="list-disc pl-5 mt-2 space-y-1">
+              {allergyWarningDetails.map((allergy) => (
+                <li key={allergy.id} className="text-sm">
+                  <span className="font-medium">{allergy.allergen}</span>
+                  {allergy.severity && <span> ({allergy.severity})</span>}
+                  {allergy.reaction && <span>: {allergy.reaction}</span>}
+                </li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert variant="default" className="border-green-500 bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+          <Shield className="h-4 w-4" />
+          <AlertTitle>{t('noAllergyWarnings')}</AlertTitle>
+          <AlertDescription>
+            {t('patientAllergiesReviewed')}
+          </AlertDescription>
+        </Alert>
       )}
-      
-      <Button
-        variant={isAllergyReviewed ? "outline" : "default"}
-        onClick={onReviewAllergies}
-        className="w-full"
-      >
-        {isAllergyReviewed ? t('reviewComplete') : t('reviewAllergies')}
-      </Button>
     </div>
   );
 }

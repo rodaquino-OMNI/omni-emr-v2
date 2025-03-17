@@ -1,19 +1,23 @@
 
 export type OrderType = 'medication' | 'laboratory' | 'radiology' | 'consultation' | 'procedure';
 export type OrderPriority = 'routine' | 'urgent' | 'stat';
-export type OrderStatus = 'pending' | 'in-progress' | 'completed' | 'cancelled' | 'on-hold';
+export type OrderStatus = 'pending' | 'in-progress' | 'completed' | 'cancelled' | 'on-hold' | 'approved';
 
 export interface Order {
   id: string;
   patientId: string;
   doctorId: string;
+  providerName?: string;
   orderType: OrderType;
+  type?: OrderType; // For backward compatibility
   priority: OrderPriority;
   status: OrderStatus;
   orderDate: string;
   notes?: string;
   createdAt: string;
   updatedAt?: string;
+  details?: any; // For storing order-specific details
+  alerts?: any[];
 }
 
 export interface MedicationOrder extends Order {

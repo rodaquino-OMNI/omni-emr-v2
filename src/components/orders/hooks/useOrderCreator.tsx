@@ -51,18 +51,20 @@ export const useOrderCreator = (
     if (!user) return;
     
     try {
+      // Format dates as ISO strings for compatibility
+      const currentDate = new Date().toISOString();
+      
       const newOrder: Order = {
         id: `order-${Date.now()}`,
         patientId,
-        providerId: user.id,
-        providerName: user.name,
-        type: activeTab,
-        status: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        details: orderData[activeTab] || {},
+        doctorId: user.id,
+        orderType: activeTab,
         priority: orderData[activeTab]?.priority || 'routine',
-        alerts: alerts.length > 0 ? alerts : undefined
+        status: 'pending',
+        orderDate: currentDate,
+        notes: orderData[activeTab]?.notes,
+        createdAt: currentDate,
+        updatedAt: currentDate
       };
       
       // This would be an API call in a real app
