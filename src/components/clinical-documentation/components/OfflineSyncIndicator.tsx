@@ -1,83 +1,57 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Cloud, CloudOff, RefreshCw } from 'lucide-react';
+import { Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useSyncManager } from '../hooks/useSyncManager';
 
-const OfflineSyncIndicator = () => {
-  const { 
-    isOnline, 
-    syncQueue, 
-    isSyncing, 
-    lastSyncTime, 
-    syncNotes 
-  } = useSyncManager();
-  const { language } = useTranslation();
+// Define proper props interface for the component
+interface OfflineSyncIndicatorProps {
+  isOnline: boolean;
+  isSyncing: boolean;
+  syncQueue: any[];
+  lastSyncTime: Date;
+}
+
+export const OfflineSyncIndicator: React.FC<OfflineSyncIndicatorProps> = ({ 
+  isOnline, 
+  isSyncing, 
+  syncQueue, 
+  lastSyncTime 
+}) => {
+  const { t, language } = useTranslation();
   
-  const pendingCount = syncQueue.length;
-  
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const handleSyncClick = () => {
+    // Show toast notification about sync attempt
+    toast(language === 'pt' ? 'Sincronizando notas...' : 'Syncing notes...');
   };
-
-  if (isOnline && pendingCount === 0) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-green-600">
-        <Cloud className="h-4 w-4" />
-        <span>
-          {language === 'pt' 
-            ? 'Conectado' 
-            : 'Connected'}
-          {lastSyncTime && (
-            <span className="text-muted-foreground ml-1">
-              {language === 'pt'
-                ? `(Última sincronização: ${formatTime(lastSyncTime)})`
-                : `(Last sync: ${formatTime(lastSyncTime)})`}
-            </span>
-          )}
-        </span>
-      </div>
-    );
-  }
-
-  if (!isOnline) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-amber-600">
-        <CloudOff className="h-4 w-4" />
-        <span>
-          {language === 'pt' 
-            ? 'Offline - As alterações serão sincronizadas quando a conexão for restaurada' 
-            : 'Offline - Changes will be synced when connection is restored'}
-        </span>
-      </div>
-    );
-  }
-
+  
   return (
-    <div className="flex items-center gap-2">
-      <div className="text-sm text-amber-600 flex items-center gap-2">
-        <Cloud className="h-4 w-4" />
-        <span>
-          {language === 'pt'
-            ? `${pendingCount} nota(s) pendente(s) de sincronização`
-            : `${pendingCount} note(s) pending synchronization`}
+    <div className="flex items-center space-x-2 text-xs">
+      {isOnline ? (
+        <Wifi className="h-4 w-4 text-green-500" />
+      ) : (
+        <WifiOff className="h-4 w-4 text-amber-500" />
+      )}
+      
+      <span className={isOnline ? "text-green-600" : "text-amber-600"}>
+        {isOnline ? t('online') : t('offline')}
+      </span>
+      
+      {!isOnline && syncQueue.length > 0 && (
+        <span className="text-muted-foreground">
+          ({syncQueue.length} {syncQueue.length === 1 ? t('notePending') : t('notesPending')})
         </span>
-      </div>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="h-7 px-2 text-xs" 
-        onClick={() => syncNotes()}
-        disabled={isSyncing}
-      >
-        <RefreshCw className={`h-3 w-3 mr-1 ${isSyncing ? 'animate-spin' : ''}`} />
-        {isSyncing 
-          ? (language === 'pt' ? 'Sincronizando...' : 'Syncing...') 
-          : (language === 'pt' ? 'Sincronizar' : 'Sync')}
-      </Button>
+      )}
+      
+      {isSyncing && (
+        <RefreshCw className="h-3 w-3 animate-spin text-blue-500" />
+      )}
+      
+      {lastSyncTime && (
+        <span className="text-muted-foreground">
+          {t('lastSync')}: {new Date(lastSyncTime).toLocaleTimeString()}
+        </span>
+      )}
     </div>
   );
 };
-
-export default OfflineSyncIndicator;

@@ -54,9 +54,12 @@ export const useRxNormStats = () => {
     fetchStats();
     
     // Refresh data every 5 minutes
-    const intervalId = setInterval(fetchStats, 5 * 60 * 1000);
+    const intervalId = setInterval(() => {
+      fetchStats();
+    }, 5 * 60 * 1000);
+    
     return () => clearInterval(intervalId);
-  }, [fetchStats]);  // Added fetchStats as dependency
+  }, [fetchStats]);
 
   return {
     dbStats,

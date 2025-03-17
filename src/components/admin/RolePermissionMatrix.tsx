@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import {
@@ -106,8 +107,7 @@ const RolePermissionMatrix: React.FC = () => {
       } catch (err: any) {
         console.error('Error fetching data:', err);
         setError(err?.message || 'Failed to fetch data');
-        toast({
-          description: "Failed to load security roles and permissions. Please try again.",
+        toast("Failed to load security roles and permissions. Please try again.", {
           variant: "destructive"
         });
       } finally {
@@ -116,7 +116,7 @@ const RolePermissionMatrix: React.FC = () => {
     };
 
     fetchData();
-  }, [roleTypes, roles]); // Add roles as a dependency
+  }, [fetchRoles, fetchPermissions, fetchRolePermissions, roles]);
 
   const isPermissionAssigned = (roleId: string, permissionId: string): boolean => {
     return rolePermissions.some(
@@ -158,17 +158,15 @@ const RolePermissionMatrix: React.FC = () => {
     } catch (err: any) {
       console.error('Error toggling permission:', err);
       setError(err?.message || 'Failed to toggle permission');
-      toast({
-        description: "Failed to update security permission. Please try again.",
+      toast("Failed to update security permission. Please try again.", {
         variant: "destructive"
       });
     }
   };
 
   const showSuccess = () => {
-    toast({
-      variant: "success",
-      description: "Permissions saved successfully"
+    toast("Permissions saved successfully", {
+      variant: "success"
     });
   };
 

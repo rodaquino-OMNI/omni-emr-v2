@@ -118,8 +118,9 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     debouncedAutocomplete(searchTerm);
   }, [searchTerm, debouncedAutocomplete]);
 
-  const handleSearch = async (searchQuery: string) => {
-    if (!searchQuery.trim().length >= 3) return;
+  const handleSearch = async (searchQuery?: string) => {
+    const query = searchQuery || searchTerm;
+    if (!query || query.trim().length < 3) return;
 
     setIsSearching(true);
     setSearchResults([]);
@@ -133,11 +134,11 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       
       // Use different search strategies based on mode
       if (searchMode === 'both') {
-        results = await searchMedicationsByBilingualName(searchQuery);
+        results = await searchMedicationsByBilingualName(query);
       } else if (searchMode === 'english') {
-        results = await searchMedicationsByName(searchQuery);
+        results = await searchMedicationsByName(query);
       } else if (searchMode === 'portuguese') {
-        results = await searchMedicationsByBilingualName(searchQuery);
+        results = await searchMedicationsByBilingualName(query);
         // Filter to just show those with Portuguese names
         results = results.filter(med => 'portugueseName' in med);
       }
@@ -147,7 +148,7 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       if (results.length === 0) {
         // Get suggestions in both languages
         const { englishSuggestions, portugueseSuggestions } = 
-          await getBilingualMedicationSuggestions(searchQuery);
+          await getBilingualMedicationSuggestions(query);
         
         setSpellingSuggestions(englishSuggestions);
         setPortugueseSuggestions(portugueseSuggestions);
@@ -232,15 +233,20 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
   
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
-    setTimeout(() => handleSearch(), 100);
+    setTimeout(() => handleSearch(suggestion), 100);
   };
 
   const toggleSearchMode = (mode: 'both' | 'english' | 'portuguese') => {
     setSearchMode(mode);
     // Re-trigger search if there's a search term
     if (searchTerm.length >= 3) {
-      setTimeout(() => handleSearch(), 100);
+      setTimeout(() => handleSearch(searchTerm), 100);
     }
+  };
+
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    handleSearch();
   };
 
   return (
@@ -393,7 +399,7 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
             )}
           </div>
           <Button 
-            onClick={handleSearch}
+            onClick={handleButtonClick}
             disabled={isSearching || searchTerm.length < 3}
             size="sm"
           >

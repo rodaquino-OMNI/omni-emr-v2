@@ -51,7 +51,7 @@ export const useSyncManager = (options: SyncManagerOptions) => {
         options.onSyncError(error as Error);
       }
       
-      toast.error(
+      toast(
         language === 'pt' ? 'Erro ao sincronizar notas' : 'Error syncing notes',
         {
           description: language === 'pt' 
@@ -86,9 +86,9 @@ export const useSyncManager = (options: SyncManagerOptions) => {
     syncNotes,
     // Add more functions as needed for manual sync operations
     forceSyncNotes: syncNotes,
-    isOnline: true, // Added to fix TypeScript errors in OfflineSyncIndicator
-    syncQueue: [], // Added to fix TypeScript errors in OfflineSyncIndicator
-    isSyncing: false, // Added to fix TypeScript errors in OfflineSyncIndicator
-    lastSyncTime: new Date() // Added to fix TypeScript errors in OfflineSyncIndicator
+    isOnline: true, // For OfflineSyncIndicator
+    syncQueue: [], // For OfflineSyncIndicator
+    isSyncing: false, // For OfflineSyncIndicator
+    lastSyncTime: new Date() // For OfflineSyncIndicator
   };
 };

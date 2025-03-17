@@ -16,7 +16,7 @@ const Sidebar = () => {
     if (isMobile && isOpen) {
       setIsOpen(false);
     }
-  }, [location.pathname, isMobile, isOpen]); // Added isOpen dependency
+  }, [location.pathname, isMobile, isOpen]);
   
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
