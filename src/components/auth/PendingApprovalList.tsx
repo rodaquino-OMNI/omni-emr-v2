@@ -18,6 +18,13 @@ interface PendingUser {
   created_at: string;
 }
 
+interface SupabaseError {
+  message: string;
+  details?: string;
+  hint?: string;
+  code?: string;
+}
+
 const PendingApprovalList = () => {
   const { language } = useTranslation();
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
@@ -47,11 +54,12 @@ const PendingApprovalList = () => {
       })) || [];
       
       setPendingUsers(typedData);
-    } catch (error: any) {
+    } catch (error: SupabaseError | unknown) {
       console.error('Error fetching pending users:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast.error(
         language === 'pt' ? 'Erro ao carregar usuários' : 'Error loading users',
-        { description: error.message }
+        { description: errorMessage }
       );
     } finally {
       setLoading(false);
@@ -81,11 +89,12 @@ const PendingApprovalList = () => {
         language === 'pt' ? 'Usuário aprovado' : 'User approved',
         { description: language === 'pt' ? 'O usuário agora pode fazer login' : 'The user can now log in' }
       );
-    } catch (error: any) {
+    } catch (error: SupabaseError | unknown) {
       console.error('Error approving user:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast.error(
         language === 'pt' ? 'Erro ao aprovar usuário' : 'Error approving user',
-        { description: error.message }
+        { description: errorMessage }
       );
     } finally {
       setProcessingUser(null);
@@ -111,11 +120,12 @@ const PendingApprovalList = () => {
         language === 'pt' ? 'Usuário rejeitado' : 'User rejected',
         { description: language === 'pt' ? 'A conta foi rejeitada' : 'The account has been rejected' }
       );
-    } catch (error: any) {
+    } catch (error: SupabaseError | unknown) {
       console.error('Error rejecting user:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast.error(
         language === 'pt' ? 'Erro ao rejeitar usuário' : 'Error rejecting user',
-        { description: error.message }
+        { description: errorMessage }
       );
     } finally {
       setProcessingUser(null);

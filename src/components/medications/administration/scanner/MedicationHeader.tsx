@@ -1,11 +1,16 @@
-
 import React from 'react';
 import { MedicationData } from './types';
 import AllergyWarning from './AllergyWarning';
 
+interface Patient {
+  id: string;
+  allergies?: string[];
+  // other patient fields as needed
+}
+
 interface MedicationHeaderProps {
   medication: MedicationData | null;
-  patient: any;
+  patient: Patient;
 }
 
 const MedicationHeader: React.FC<MedicationHeaderProps> = ({ medication, patient }) => {

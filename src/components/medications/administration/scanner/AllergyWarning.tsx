@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AlertCircle, Shield, Check, AlertTriangle } from 'lucide-react';
@@ -6,8 +5,14 @@ import { MedicationData } from './types';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 
+interface Patient {
+  id: string;
+  allergies?: string[];
+  // other patient fields can be added as needed
+}
+
 interface AllergyWarningProps {
-  patient: any;
+  patient: Patient;
   medication: MedicationData;
 }
 

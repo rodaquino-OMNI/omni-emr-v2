@@ -1,120 +1,116 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export interface SectorPatientListPaginationProps {
+interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  pageSize?: number;
-  totalItems?: number;
-  onPageSizeChange?: (pageSize: number) => void;
+  disabled?: boolean;
 }
 
-const SectorPatientListPagination: React.FC<SectorPatientListPaginationProps> = ({
+const SectorPatientListPagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
-  pageSize,
-  totalItems,
-  onPageSizeChange
+  disabled = false
 }) => {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   
-  // Generate array of page numbers to display
-  const getPageNumbers = () => {
-    const pages = [];
-    
-    // Always include first page
-    pages.push(1);
-    
-    // Calculate range of pages around current page
-    let startPage = Math.max(2, currentPage - 1);
-    let endPage = Math.min(totalPages - 1, currentPage + 1);
-    
-    // Add ellipsis after first page if needed
-    if (startPage > 2) {
-      pages.push('ellipsis-start');
-    }
-    
-    // Add pages around current page
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    // Add ellipsis before last page if needed
-    if (endPage < totalPages - 1) {
-      pages.push('ellipsis-end');
-    }
-    
-    // Always include last page if there is more than one page
-    if (totalPages > 1) {
-      pages.push(totalPages);
-    }
-    
-    return pages;
-  };
-  
-  // Handle page click
-  const handlePageClick = (page: number) => {
-    if (page !== currentPage) {
-      onPageChange(page);
-    }
-  };
-  
-  // If there's only one page, don't render pagination
+  // Don't show pagination if there's only one page
   if (totalPages <= 1) {
     return null;
   }
   
+  // Calculate page numbers to display
+  // Show up to 5 page numbers centered around the current page
+  const getPageNumbers = () => {
+    const maxPagesToShow = 5;
+    
+    // If we have fewer than maxPagesToShow pages, show all of them
+    if (totalPages <= maxPagesToShow) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    
+    // Calculate the range to display
+    const halfMaxPages = Math.floor(maxPagesToShow / 2);
+    const startPage = Math.max(1, currentPage - halfMaxPages);
+    const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    
+    // Adjust startPage if we're near the end
+    const adjustedStartPage = Math.max(1, endPage - maxPagesToShow + 1);
+    
+    return Array.from(
+      { length: endPage - adjustedStartPage + 1 },
+      (_, i) => adjustedStartPage + i
+    );
+  };
+
+  const pageNumbers = getPageNumbers();
+
   return (
-    <div className="flex items-center justify-center space-x-1">
-      {/* Previous page button */}
+    <div className="flex items-center justify-center space-x-2 py-4">
       <Button
         variant="outline"
         size="icon"
-        onClick={() => handlePageClick(currentPage - 1)}
-        disabled={currentPage === 1}
-        aria-label={language === 'pt' ? 'Página anterior' : 'Previous page'}
+        onClick={() => onPageChange(1)}
+        disabled={currentPage === 1 || disabled}
+        className="h-8 w-8"
+        aria-label={t('firstPage')}
+      >
+        <ChevronsLeft className="h-4 w-4" />
+      </Button>
+      
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1 || disabled}
+        className="h-8 w-8"
+        aria-label={t('previousPage')}
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
       
-      {/* Page number buttons */}
-      {getPageNumbers().map((page, index) => {
-        if (page === 'ellipsis-start' || page === 'ellipsis-end') {
-          return (
-            <Button key={`ellipsis-${index}`} variant="ghost" size="icon" disabled>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          );
-        }
-        
-        return (
+      <div className="flex items-center">
+        {pageNumbers.map(page => (
           <Button
-            key={`page-${page}`}
-            variant={currentPage === page ? 'default' : 'outline'}
-            size="icon"
-            onClick={() => handlePageClick(Number(page))}
-            aria-label={`${language === 'pt' ? 'Página' : 'Page'} ${page}`}
-            aria-current={currentPage === page ? 'page' : undefined}
+            key={page}
+            variant={page === currentPage ? "default" : "outline"}
+            size="sm"
+            onClick={() => onPageChange(page)}
+            disabled={disabled}
+            className="h-8 w-8 mx-0.5 font-medium"
+            aria-label={`${t('page')} ${page}`}
+            aria-current={page === currentPage ? "page" : undefined}
           >
             {page}
           </Button>
-        );
-      })}
+        ))}
+      </div>
       
-      {/* Next page button */}
       <Button
         variant="outline"
         size="icon"
-        onClick={() => handlePageClick(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        aria-label={language === 'pt' ? 'Próxima página' : 'Next page'}
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages || disabled}
+        className="h-8 w-8"
+        aria-label={t('nextPage')}
       >
         <ChevronRight className="h-4 w-4" />
+      </Button>
+      
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => onPageChange(totalPages)}
+        disabled={currentPage === totalPages || disabled}
+        className="h-8 w-8"
+        aria-label={t('lastPage')}
+      >
+        <ChevronsRight className="h-4 w-4" />
       </Button>
     </div>
   );

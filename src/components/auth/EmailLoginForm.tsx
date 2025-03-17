@@ -6,6 +6,10 @@ import { Input } from "@/components/ui/input";
 import { UserCheck, Loader2, KeyRound, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { Languages } from '@/types/auth';
 
+interface ValidationErrors {
+  [key: string]: string;
+}
+
 interface EmailLoginFormProps {
   email: string;
   setEmail: (email: string) => void;
@@ -13,8 +17,8 @@ interface EmailLoginFormProps {
   setPassword: (password: string) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   isSubmitting: boolean;
-  validationErrors: { [key: string]: string };
-  setValidationErrors: (errors: { [key: string]: string } | ((prev: any) => any)) => void;
+  validationErrors: ValidationErrors;
+  setValidationErrors: (errors: ValidationErrors | ((prev: ValidationErrors) => ValidationErrors)) => void;
   language: Languages;
   t: (key: string) => string;
   forgotPassword?: boolean;

@@ -25,63 +25,46 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children
 }) => {
   const location = useLocation();
+  const auth = useAuth();
+  const { user, isAuthenticated, isLoading, language } = auth || { 
+    user: null, 
+    isAuthenticated: false, 
+    isLoading: true, 
+    language: 'en' 
+  };
   
-  // Try to get auth context, handle gracefully if missing
-  let auth;
-  try {
-    auth = useAuth();
-  } catch (error) {
-    console.error("Auth context error in ProtectedRoute:", error);
-    
-    // Use offline mode hook to handle connectivity check
-    const { isOfflineMode, checkingConnectivity } = useOfflineMode(false, 'en');
-    
-    if (checkingConnectivity) {
-      return <LoadingState message="Checking connectivity..." />;
-    }
-    
-    // If connectivity check is done and we're offline, allow navigation
-    if (isOfflineMode) {
-      return (
-        <>
-          <OfflineModeBanner language="en" />
-          {children || <Outlet />}
-        </>
-      );
-    }
-    
-    // If auth context fails and we're not offline, redirect to login
-    return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
-  }
+  // Access sector context
+  const sectorContext = useSectorContext();
   
-  // If auth context is not available, show a loading state
-  if (!auth) {
-    return <LoadingState message="Loading authentication..." />;
-  }
+  // Use offline mode hook for connectivity checks
+  const { isOfflineMode, checkingConnectivity } = useOfflineMode(
+    isAuthenticated || false, 
+    language || 'en'
+  );
   
-  const { user, isAuthenticated, isLoading, language } = auth;
-  
-  // Access sector context to check if user has a selected sector
-  let sectorContext;
-  try {
-    sectorContext = useSectorContext();
-  } catch (error) {
-    console.error("Sector context error in ProtectedRoute:", error);
-  }
+  // Use route permissions hook to check permissions
+  const { isRootOrDashboard, hasRequired } = useRoutePermissions({
+    user,
+    requiredPermission,
+    requiredRole
+  });
   
   // Handle loading state
   if (isLoading) {
     return <LoadingState message="Loading..." />;
   }
   
-  // Use offline mode hook for connectivity checks
-  const { isOfflineMode } = useOfflineMode(isAuthenticated, language);
+  // If connectivity check is ongoing and we're not authenticated,
+  // show a loading state
+  if (!isAuthenticated && checkingConnectivity) {
+    return <LoadingState message="Checking connectivity..." />;
+  }
   
   // Allow navigation in offline mode
   if (isOfflineMode) {
     return (
       <>
-        <OfflineModeBanner language={language} />
+        <OfflineModeBanner language={language || 'en'} />
         {children || <Outlet />}
       </>
     );
@@ -91,13 +74,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
   }
-  
-  // Use route permissions hook to check permissions
-  const { isRootOrDashboard, hasRequired } = useRoutePermissions({
-    user,
-    requiredPermission,
-    requiredRole
-  });
   
   // Check if the current route is the root or dashboard and user has no selected sector
   // Redirect to sector selection if so
@@ -119,7 +95,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   return (
     <>
-      {displayHipaaBanner && <HipaaBanner language={language} />}
+      {displayHipaaBanner && <HipaaBanner language={language || 'en'} />}
       {children || <Outlet />}
     </>
   );

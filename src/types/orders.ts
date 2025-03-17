@@ -12,10 +12,10 @@ export interface Order {
   type?: OrderType; // For backward compatibility
   priority: OrderPriority;
   status: OrderStatus;
-  orderDate: string;
+  orderDate: string | Date;
   notes?: string;
-  createdAt: string;
-  updatedAt?: string;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
   details?: any; // For storing order-specific details
   alerts?: any[];
 }
@@ -62,7 +62,7 @@ export interface ProcedureOrder extends Order {
   orderType: 'procedure';
   procedureName: string;
   location: string;
-  scheduledTime?: string;
+  scheduledTime?: string | Date;
   preInstructions?: string;
   postInstructions?: string;
   equipmentNeeded?: string[];

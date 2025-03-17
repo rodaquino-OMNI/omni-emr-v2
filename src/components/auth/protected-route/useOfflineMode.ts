@@ -1,41 +1,61 @@
 
 import { useState, useEffect } from 'react';
-import { checkConnectivity } from '@/utils/supabaseConnectivity';
-import { toast } from 'sonner';
 import { Languages } from '@/types/auth';
 
 export const useOfflineMode = (isAuthenticated: boolean, language: Languages) => {
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [checkingConnectivity, setCheckingConnectivity] = useState(true);
-
-  // Check if we need to enable offline mode
+  
   useEffect(() => {
-    const checkConnection = async () => {
+    // Check if we're offline
+    const checkConnectivity = async () => {
       setCheckingConnectivity(true);
-      const isConnected = await checkConnectivity();
       
-      if (!isConnected) {
-        setIsOfflineMode(true);
-        console.log("Enabling offline mode due to connection issues");
+      try {
+        // Try to fetch a small file to check connectivity
+        const response = await fetch('/api/health-check', {
+          method: 'HEAD',
+          cache: 'no-store',
+          headers: {
+            'pragma': 'no-cache',
+            'cache-control': 'no-cache'
+          }
+        });
         
-        if (isAuthenticated) {
-          toast.warning(
-            language === 'pt' ? 'Modo offline ativado' : 'Offline mode enabled',
-            {
-              description: language === 'pt'
-                ? 'Funcionando com funcionalidades limitadas devido a problemas de conexão.'
-                : 'Working with limited functionality due to connection issues.',
-              duration: 5000
-            }
-          );
-        }
+        // If we get a response, we're online
+        setIsOfflineMode(false);
+      } catch (error) {
+        // If we get an error, we're offline
+        console.log('Network check failed, switching to offline mode');
+        setIsOfflineMode(true);
+      } finally {
+        setCheckingConnectivity(false);
       }
-      
-      setCheckingConnectivity(false);
     };
     
-    checkConnection();
-  }, [isAuthenticated, language]);
-
-  return { isOfflineMode, checkingConnectivity, setIsOfflineMode };
+    // Only check connectivity if the user is not authenticated
+    // For authenticated users, we'll rely on the AuthContext's connectivity check
+    if (!isAuthenticated) {
+      checkConnectivity();
+    } else {
+      setCheckingConnectivity(false);
+    }
+    
+    // Set up event listeners for online/offline status
+    const handleOnline = () => setIsOfflineMode(false);
+    const handleOffline = () => setIsOfflineMode(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [isAuthenticated]);
+  
+  return {
+    isOfflineMode,
+    checkingConnectivity
+  };
 };

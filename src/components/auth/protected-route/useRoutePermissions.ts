@@ -1,43 +1,41 @@
 
 import { useLocation } from 'react-router-dom';
 import { User } from '@/types/auth';
+import { hasPermission } from '@/utils/permissionUtils';
 
-interface UseRoutePermissionsProps {
+interface RoutePermissionsProps {
   user: User | null;
   requiredPermission?: string;
   requiredRole?: string;
 }
 
-export const useRoutePermissions = ({
-  user,
+export const useRoutePermissions = ({ 
+  user, 
   requiredPermission,
-  requiredRole
-}: UseRoutePermissionsProps) => {
+  requiredRole 
+}: RoutePermissionsProps) => {
   const location = useLocation();
+  const pathname = location.pathname;
   
-  // Check if current route is dashboard or root
-  const isRootOrDashboard = location.pathname === '/' || location.pathname === '/dashboard';
+  // Check if the current route is the root or dashboard
+  const isRootOrDashboard = 
+    pathname === '/' || 
+    pathname === '/dashboard' || 
+    pathname === '/home';
   
-  // Check if user has the required permission
-  const hasPermission = () => {
-    if (!requiredPermission || !user) return true;
-    
-    // Admin has all permissions
-    if (user.role === 'admin' || user.role === 'system_administrator') return true;
-    
-    // Check user permissions
-    return user.permissions?.includes(requiredPermission) || user.permissions?.includes('all') || false;
-  };
+  // Determine if the user meets the permission requirements
+  let hasRequired = true;
   
-  // Check if user has the required role
-  const hasRole = () => {
-    if (!requiredRole || !user) return true;
-    return user.role === requiredRole;
-  };
+  // If a specific permission is required, check if the user has it
+  if (requiredPermission) {
+    hasRequired = hasPermission(user, requiredPermission);
+  }
   
-  // User must have both the required permission and role if specified
-  const hasRequired = hasPermission() && hasRole();
-
+  // If a specific role is required, check if the user has it
+  if (requiredRole && hasRequired) {
+    hasRequired = user?.role === requiredRole;
+  }
+  
   return {
     isRootOrDashboard,
     hasRequired

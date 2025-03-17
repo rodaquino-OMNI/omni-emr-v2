@@ -1,8 +1,19 @@
-
 /**
  * Mock EHR verification functions - in a real app these would connect to the EHR API
  */
-export const verifyPatientWithEHR = async (patientId: string, actualPatient: any): Promise<boolean> => {
+
+interface Patient {
+  id: string;
+  mrn?: string;
+  // other patient properties
+}
+
+interface Medication {
+  id: string;
+  // other medication properties
+}
+
+export const verifyPatientWithEHR = async (patientId: string, actualPatient: Patient): Promise<boolean> => {
   // Simulate API call to EHR system
   return new Promise(resolve => {
     setTimeout(() => {
@@ -12,7 +23,7 @@ export const verifyPatientWithEHR = async (patientId: string, actualPatient: any
   });
 };
 
-export const verifyMedicationWithEHR = async (medicationCode: string, actualMedication: any): Promise<boolean> => {
+export const verifyMedicationWithEHR = async (medicationCode: string, actualMedication: Medication): Promise<boolean> => {
   // Simulate API call to EHR system
   return new Promise(resolve => {
     setTimeout(() => {
