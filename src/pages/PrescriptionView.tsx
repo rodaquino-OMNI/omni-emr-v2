@@ -1,56 +1,69 @@
+import React, { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { usePrescriptionDetails } from '@/hooks/prescriptions/usePrescriptionDetails';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ErrorMessage } from '@/components/ui/error-message';
+import { useTranslation } from '@/hooks/useTranslation';
 
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
-import { usePrescriptionDetails } from '../hooks/prescriptions/usePrescriptionDetails';
-import { 
-  PrescriptionHeader, 
-  PrescriptionItems, 
-  LoadingState 
-} from '../components/prescriptions/view';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-const PrescriptionViewPage = () => {
+const PrescriptionView = () => {
   const { id } = useParams<{ id: string }>();
-  const { prescription, loading, error, formatDate } = usePrescriptionDetails(id);
+  const { t } = useTranslation();
+
+  const { prescription, loading, error } = usePrescriptionDetails(id);
+
+  const adaptedPrescription = useMemo(() => {
+    if (!prescription) return null;
   
+    return {
+      ...prescription,
+      patientId: prescription.patient_id,
+      doctorId: prescription.provider_id,
+      date: prescription.created_at,
+    };
+  }, [prescription]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <ErrorMessage message={error} />;
+  }
+
+  if (!adaptedPrescription) {
+    return <ErrorMessage message={t('prescriptionNotFound')} />;
+  }
+
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
-          <div className="max-w-6xl mx-auto w-full">
-            <div className="mb-6">
-              <Link to="/prescriptions">
-                <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to prescriptions
-                </Button>
-              </Link>
+    <div className="container mx-auto py-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('prescriptionDetails')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            <div>
+              <h4 className="text-sm font-medium">{t('patientId')}</h4>
+              <p>{adaptedPrescription.patientId}</p>
             </div>
-            
-            {loading ? (
-              <LoadingState error={null} />
-            ) : error || !prescription ? (
-              <LoadingState error={error || 'Prescription not found'} />
-            ) : (
-              <div className="space-y-6">
-                <PrescriptionHeader 
-                  prescription={prescription} 
-                  formatDate={formatDate} 
-                />
-                
-                <PrescriptionItems prescription={prescription} />
-              </div>
-            )}
+            <div>
+              <h4 className="text-sm font-medium">{t('doctorId')}</h4>
+              <p>{adaptedPrescription.doctorId}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium">{t('date')}</h4>
+              <p>{adaptedPrescription.date}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium">{t('status')}</h4>
+              <p>{adaptedPrescription.status}</p>
+            </div>
           </div>
-        </main>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default PrescriptionViewPage;
+export default PrescriptionView;

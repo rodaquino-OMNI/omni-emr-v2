@@ -16,6 +16,7 @@ export const adaptAIInsight = (insight: ComponentAIInsight): PatientAIInsight =>
     created_at: insight.timestamp?.toISOString() || new Date().toISOString(),
     source: insight.source,
     action_required: false,
+    action_description: '',
   };
 };
 

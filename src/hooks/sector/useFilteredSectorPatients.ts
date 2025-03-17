@@ -30,7 +30,7 @@ export const useFilteredSectorPatients = (
   initialOptions: InitialFilterOptions = {}
 ) => {
   const { t } = useTranslation();
-  const { selectedSector, patientsInSector, isLoading: sectorLoading } = useSectorContext();
+  const { selectedSector, sectorPatients, isLoading: sectorLoading } = useSectorContext();
   
   // Setup state for filters and pagination
   const [statusFilter, setStatusFilter] = useState(initialOptions.status || 'all');
@@ -49,7 +49,7 @@ export const useFilteredSectorPatients = (
   // Get filtered and sorted patients
   const filteredPatients = useMemo(() => {
     // Start with all patients in sector
-    let result = [...(patientsInSector || [])];
+    let result = [...(sectorPatients || [])];
     
     // Filter by status
     if (statusFilter && statusFilter !== 'all') {
@@ -101,7 +101,7 @@ export const useFilteredSectorPatients = (
     });
     
     return result;
-  }, [patientsInSector, statusFilter, assignmentFilter, searchQuery, sortBy, sortDirection]);
+  }, [sectorPatients, statusFilter, assignmentFilter, searchQuery, sortBy, sortDirection]);
   
   // Paginate the results
   const paginatedPatients = useMemo(() => {
@@ -169,8 +169,11 @@ export const useFilteredSectorPatients = (
     nextPage,
     prevPage,
     goToPage,
+    setCurrentPage,
     isLoading: sectorLoading,
     filterOptions,
-    setPageSize
+    setPageSize,
+    currentPage,
+    pageSize
   };
 };

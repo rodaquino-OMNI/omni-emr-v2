@@ -59,7 +59,7 @@ export const PatientAIInsightsTab: React.FC<PatientAIInsightsTabProps> = ({
             <CardTitle>{category}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {categoryInsights.map(insight => (
+            {categoryInsights.map((insight) => (
               <InsightCard key={insight.id} insight={insight} />
             ))}
           </CardContent>

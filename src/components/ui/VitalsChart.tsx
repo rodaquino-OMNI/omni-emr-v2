@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -89,7 +88,10 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
     normalRange: [60, 100],
     normalSystolic: [90, 120],
     normalDiastolic: [60, 80],
-    domain: [0, 'auto'] as [number, 'auto'] // Fixed type by explicit casting
+    domain: [
+      (dataMin: number) => Math.floor(dataMin * 0.95),
+      (dataMax: number) => Math.ceil(dataMax * 1.05)
+    ] as any
   };
   
   const formatYAxis = (value: number) => {

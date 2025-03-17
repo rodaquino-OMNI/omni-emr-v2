@@ -1,279 +1,247 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/hooks/useTranslation';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  FileText, 
-  Calendar, 
-  User, 
-  Tag, 
-  AlertCircle, 
-  Edit, 
-  Trash2, 
-  ArrowLeft,
-  PlusCircle,
-  Activity,
-  Pill,
-  Clipboard
-} from 'lucide-react';
-import VitalSignsForm from '../vital-signs/VitalSignsForm';
-import { VitalSignsDisplay } from '../vital-signs/VitalSignsDisplay';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Printer, Edit, FileText, Clock, User } from 'lucide-react';
+import { format } from 'date-fns';
+import { useTranslation } from '@/hooks/useTranslation';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useVisitNote } from '@/hooks/useVisitNote';
+import { VitalSignsDisplay } from '@/components/vitals/VitalSignsDisplay';
+import { VisitNote, VitalSigns } from '@/types/clinicalNotes';
+import { useAuth } from '@/context/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 
-interface VisitNoteDetailProps {
-  id?: string;
-}
-
-const VisitNoteDetail: React.FC<VisitNoteDetailProps> = ({ id: propId }) => {
-  const { id: paramId } = useParams<{ id: string }>();
-  const visitNoteId = propId || paramId;
-  const { t } = useTranslation();
+const VisitNoteDetail = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [visitNote, setVisitNote] = useState<any | null>(null);
-  const [patient, setPatient] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState('details');
-  const [showVitalsForm, setShowVitalsForm] = useState(false);
-
+  const { t, language } = useTranslation();
+  const { user } = useAuth();
+  const { hasPermission } = usePermissions(user);
+  const [vitalSigns, setVitalSigns] = useState<VitalSigns | null>(null);
+  
+  const { note, loading, error } = useVisitNote(id);
+  
   useEffect(() => {
-    const fetchVisitNote = async () => {
-      if (!visitNoteId) return;
-
-      try {
-        setLoading(true);
-        
-        const { data, error } = await supabase
-          .from('visit_notes')
-          .select(`
-            *,
-            patients:patient_id (id, first_name, last_name, mrn),
-            vital_signs:id (*)
-          `)
-          .eq('id', visitNoteId)
-          .single();
-          
-        if (error) throw error;
-        
-        if (!data) {
-          setError('Visit note not found');
-          return;
-        }
-
-        setVisitNote(data);
-        
-        if (data.patients) {
-          setPatient(data.patients);
-        }
-      } catch (err: any) {
-        console.error('Error fetching visit note:', err);
-        setError(err.message || 'Failed to load visit note');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVisitNote();
-  }, [visitNoteId]);
-
-  const handleBack = () => {
-    navigate(-1);
+    // In a real app, we would fetch vital signs from an API
+    // This is mock data for demonstration
+    if (note) {
+      setVitalSigns({
+        temperature: 37.2,
+        heartRate: 72,
+        bloodPressure: '120/80',
+        respiratoryRate: 16,
+        oxygenSaturation: 98,
+        pain: 2,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [note]);
+  
+  const handlePrint = () => {
+    window.print();
   };
-
-  const handleVitalsAdded = () => {
-    setShowVitalsForm(false);
-    window.location.reload();
+  
+  const handleEdit = () => {
+    if (id) {
+      navigate(`/visit-notes/edit/${id}`);
+    }
   };
-
+  
+  const formatNoteDate = (date?: string) => {
+    if (!date) return '';
+    return format(new Date(date), language === 'pt' ? 'dd/MM/yyyy HH:mm' : 'MMM dd, yyyy h:mm a');
+  };
+  
+  const getStatusColor = (status: VisitNote['status']) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+    }
+  };
+  
   if (loading) {
+    return <LoadingSpinner />;
+  }
+  
+  if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-red-600">
+            {error}
+          </div>
+          <Button 
+            variant="outline" 
+            className="mt-4"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t('goBack')}
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
-
-  if (error || !visitNote) {
+  
+  if (!note) {
     return (
-      <div className="container max-w-4xl mx-auto py-8 px-4">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {error || 'Visit note could not be loaded'}
-          </AlertDescription>
-        </Alert>
-        <Button onClick={handleBack} variant="outline" className="mt-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Go Back
-        </Button>
-      </div>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-muted-foreground">
+            {t('noteNotFound')}
+          </div>
+          <Button 
+            variant="outline" 
+            className="mt-4"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t('goBack')}
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
-
-  const formattedDate = new Date(visitNote.visit_date).toLocaleDateString();
-  const patientName = patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown Patient';
-
+  
   return (
-    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6">
-      <div className="flex items-center">
-        <Button variant="ghost" size="sm" onClick={handleBack} className="mr-4">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back
+    <div className="space-y-6 print:space-y-4">
+      <div className="flex items-center justify-between print:hidden">
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t('goBack')}
         </Button>
         
-        <div>
-          <h1 className="text-2xl font-bold flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-primary" />
-            {visitNote.title || 'Visit Note'}
-          </h1>
-          <p className="text-muted-foreground flex items-center text-sm mt-1">
-            <Calendar className="h-4 w-4 mr-1" />
-            {formattedDate}
-            <Separator orientation="vertical" className="mx-2 h-4" />
-            <User className="h-4 w-4 mr-1" />
-            {patientName}
-            <Separator orientation="vertical" className="mx-2 h-4" />
-            <Tag className="h-4 w-4 mr-1" />
-            <Badge variant="outline">{visitNote.visit_type}</Badge>
-          </p>
+        <div className="flex gap-2">
+          {hasPermission('edit_clinical_notes') && (
+            <Button variant="outline" onClick={handleEdit}>
+              <Edit className="mr-2 h-4 w-4" />
+              {t('edit')}
+            </Button>
+          )}
+          <Button variant="outline" onClick={handlePrint}>
+            <Printer className="mr-2 h-4 w-4" />
+            {t('print')}
+          </Button>
         </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="details">
-            <FileText className="h-4 w-4 mr-2" />
-            Details
-          </TabsTrigger>
-          <TabsTrigger value="vitals">
-            <Activity className="h-4 w-4 mr-2" />
-            Vitals
-          </TabsTrigger>
-          <TabsTrigger value="medications">
-            <Pill className="h-4 w-4 mr-2" />
-            Medications
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="details" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center text-lg">
-                <Clipboard className="h-5 w-5 mr-2 text-primary" />
-                Visit Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-medium mb-2">Chief Complaint</h3>
-                <p className="text-muted-foreground bg-muted/50 p-3 rounded-md">
-                  {visitNote.chief_complaint || 'No chief complaint recorded'}
-                </p>
-              </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-xl">{note.title}</CardTitle>
+            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              {formatNoteDate(note.created_at)}
               
-              <div>
-                <h3 className="font-medium mb-2">Subjective</h3>
-                <div className="text-muted-foreground bg-muted/50 p-3 rounded-md whitespace-pre-line">
-                  {visitNote.subjective || 'No subjective notes recorded'}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-2">Objective</h3>
-                <div className="text-muted-foreground bg-muted/50 p-3 rounded-md whitespace-pre-line">
-                  {visitNote.objective || 'No objective notes recorded'}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-2">Assessment</h3>
-                <div className="text-muted-foreground bg-muted/50 p-3 rounded-md whitespace-pre-line">
-                  {visitNote.assessment || 'No assessment recorded'}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-2">Plan</h3>
-                <div className="text-muted-foreground bg-muted/50 p-3 rounded-md whitespace-pre-line">
-                  {visitNote.plan || 'No plan recorded'}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="vitals" className="space-y-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium flex items-center">
-              <Activity className="h-5 w-5 mr-2 text-primary" />
-              Vital Signs
-            </h2>
-            
-            <Button onClick={() => setShowVitalsForm(true)} size="sm">
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Add Vitals
-            </Button>
+              {note.provider && (
+                <>
+                  <span className="mx-1">•</span>
+                  <User className="h-4 w-4" />
+                  {note.provider.name || note.provider.id}
+                </>
+              )}
+            </div>
           </div>
           
-          <Sheet open={showVitalsForm} onOpenChange={setShowVitalsForm}>
-            <SheetContent className="sm:max-w-xl">
-              <SheetHeader>
-                <SheetTitle>Add Vital Signs</SheetTitle>
-              </SheetHeader>
-              <div className="mt-4">
-                <VitalSignsForm 
-                  patientId={visitNote.patient_id}
-                  patientName={patientName}
-                  visitNoteId={visitNote.id}
-                  onClose={() => setShowVitalsForm(false)}
-                  onSuccess={handleVitalsAdded}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
-          
-          {visitNote.vital_signs && Array.isArray(visitNote.vital_signs) && visitNote.vital_signs.length > 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <VitalSignsDisplay vitals={visitNote.vital_signs[0]} />
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="py-6 text-center">
-                <p className="text-muted-foreground mb-3">No vital signs recorded for this visit</p>
-                <Button onClick={() => setShowVitalsForm(true)} variant="outline" size="sm">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Add Vital Signs
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+          <Badge className={getStatusColor(note.status)}>
+            {note.status === 'in_progress' ? t('inProgress') : t(note.status)}
+          </Badge>
+        </CardHeader>
         
-        <TabsContent value="medications" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center text-lg">
-                <Pill className="h-5 w-5 mr-2 text-primary" />
-                Medications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-center py-4">
-                No medications have been recorded for this visit.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">{t('patientInformation')}</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">{t('patientName')}</p>
+                <p>{note.patient?.name || 'Unknown'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{t('patientId')}</p>
+                <p>{note.patient?.id || 'Unknown'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{t('dateOfBirth')}</p>
+                <p>{note.patient?.date_of_birth ? format(new Date(note.patient.date_of_birth), 'PP') : 'Unknown'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{t('gender')}</p>
+                <p>{note.patient?.gender || 'Unknown'}</p>
+              </div>
+            </div>
+          </div>
+          
+          <Separator />
+          
+          {vitalSigns && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2">Vital Signs</h3>
+              <VitalSignsDisplay data={vitalSigns} />
+            </div>
+          )}
+          
+          <Separator />
+          
+          <div>
+            <h3 className="text-lg font-semibold mb-2">{t('visitNoteContent')}</h3>
+            <div className="prose prose-sm max-w-none dark:prose-invert">
+              {note.content ? (
+                <div dangerouslySetInnerHTML={{ __html: note.content }} />
+              ) : (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <FileText className="h-4 w-4" />
+                  {t('noContentAvailable')}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {note.diagnosis && note.diagnosis.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">{t('diagnosis')}</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  {note.diagnosis.map((diagnosis, index) => (
+                    <li key={index}>{diagnosis.code}: {diagnosis.description}</li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
+          
+          {note.treatment_plan && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">{t('treatmentPlan')}</h3>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <div dangerouslySetInnerHTML={{ __html: note.treatment_plan }} />
+                </div>
+              </div>
+            </>
+          )}
+          
+          {note.follow_up && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">{t('followUp')}</h3>
+                <p>{note.follow_up}</p>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
