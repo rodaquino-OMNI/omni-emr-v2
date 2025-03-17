@@ -9,6 +9,7 @@ import {
 } from '@/types/sectorTypes';
 import { useSectorData } from './sector';
 import { useSectorPatients } from './sector/useSectorPatients';
+import { secureStorage } from '@/utils/secureStorage';
 
 const SectorContext = createContext<SectorContextType>({
   sectors: [],
@@ -44,22 +45,29 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
   // Select a sector and load its patients
   const selectSector = (sector: SectorType) => {
     setSelectedSector(sector);
-    localStorage.setItem('selectedSector', JSON.stringify(sector));
+    
+    // Use secureStorage instead of regular localStorage for better security
+    secureStorage.setItem('selectedSector', sector);
+    
+    // Fetch patients for the selected sector
     fetchPatients(sector.id);
+    
+    // Log sector selection for auditing (this could be expanded with more details)
+    console.log(`Sector selected: ${sector.name} (${sector.id})`);
   };
 
   // Initialize: fetch sectors and load previously selected sector
   useEffect(() => {
-    // Load previously selected sector from localStorage
-    const savedSector = localStorage.getItem('selectedSector');
+    // Load previously selected sector from secureStorage
+    const savedSector = secureStorage.getItem<SectorType | null>('selectedSector', null);
+    
     if (savedSector) {
       try {
-        const parsedSector = JSON.parse(savedSector);
-        setSelectedSector(parsedSector);
-        fetchPatients(parsedSector.id);
+        setSelectedSector(savedSector);
+        fetchPatients(savedSector.id);
       } catch (e) {
         console.error('Error loading saved sector:', e);
-        localStorage.removeItem('selectedSector');
+        secureStorage.removeItem('selectedSector');
       }
     }
   }, [fetchPatients]);
