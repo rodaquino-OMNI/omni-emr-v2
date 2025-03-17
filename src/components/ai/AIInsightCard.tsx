@@ -3,8 +3,17 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
-import { ComponentAIInsight } from '@/utils/typeAdapters';
-import { formatRelativeTime } from '@/utils/dateUtils';
+import { format, formatDistanceToNow } from 'date-fns';
+
+interface ComponentAIInsight {
+  id: string;
+  title: string;
+  content: string;
+  description?: string;
+  type: 'critical' | 'warning' | 'success' | 'info';
+  timestamp?: string | Date;
+  source?: string;
+}
 
 interface AIInsightCardProps {
   insight: ComponentAIInsight;
@@ -59,6 +68,15 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
     }
   };
 
+  const formatRelativeTime = (date: Date | string): string => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      return formatDistanceToNow(dateObj, { addSuffix: true });
+    } catch (error) {
+      return 'Unknown time';
+    }
+  };
+
   return (
     <Card className={cardClassName()}>
       <CardHeader className="pb-2 flex flex-row items-start justify-between">
@@ -92,7 +110,7 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
           </div>
           {insight.timestamp && (
             <span className="text-xs text-muted-foreground">
-              {formatRelativeTime(new Date(insight.timestamp))}
+              {formatRelativeTime(insight.timestamp)}
             </span>
           )}
         </div>

@@ -3,7 +3,7 @@ import { supabase, logAuditEvent } from "@/integrations/supabase/client";
 import { User } from '@/context/AuthContext';
 import { Prescription } from './types';
 import { transformPrescription } from './transformUtils';
-import { handleDatabaseError, handleTransactionError } from '@/utils/errorHandling';
+import { handleDatabaseError } from '@/utils/errorHandling';
 import { mockPrescriptions } from './mockData';
 
 /**
@@ -27,7 +27,7 @@ export const updatePrescription = async (
       .single();
 
     if (error) {
-      throw handleDatabaseError(error, 'update', 'prescription');
+      throw handleDatabaseError(error);
     }
 
     // Update prescription items if provided
@@ -64,7 +64,7 @@ const updatePrescriptionItems = async (prescriptionId: string, items: any[]) => 
     .eq('prescription_id', prescriptionId);
     
   if (deleteError) {
-    throw handleDatabaseError(deleteError, 'delete', 'prescription items');
+    throw handleDatabaseError(deleteError);
   }
 
   // Then insert new items
@@ -76,8 +76,8 @@ const updatePrescriptionItems = async (prescriptionId: string, items: any[]) => 
     dosage: item.dosage,
     frequency: item.frequency,
     duration: item.duration,
-    start_date: item.startDate,
-    end_date: item.endDate,
+    start_date: item.start_date,
+    end_date: item.end_date,
     status: item.status,
     instructions: item.instructions
   }));
@@ -87,7 +87,7 @@ const updatePrescriptionItems = async (prescriptionId: string, items: any[]) => 
     .insert(prescriptionItems);
     
   if (insertError) {
-    throw handleDatabaseError(insertError, 'insert', 'prescription items');
+    throw handleDatabaseError(insertError);
   }
 };
 
@@ -105,4 +105,3 @@ const updateMockPrescription = (id: string, data: Partial<Prescription>): Prescr
   
   return updatedPrescription;
 };
-

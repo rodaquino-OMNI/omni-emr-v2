@@ -3,7 +3,7 @@ import { supabase, logAuditEvent } from "@/integrations/supabase/client";
 import { User } from '@/context/AuthContext';
 import { Prescription } from './types';
 import { transformPrescription } from './transformUtils';
-import { handleDatabaseError, handleTransactionError } from '@/utils/errorHandling';
+import { handleDatabaseError } from '@/utils/errorHandling';
 
 /**
  * Creates a new prescription in the database
@@ -27,7 +27,7 @@ export const createPrescription = async (
       .single();
 
     if (error) {
-      throw handleDatabaseError(error, 'create', 'prescription');
+      throw handleDatabaseError(error);
     }
 
     // Insert prescription items if present
@@ -77,7 +77,7 @@ const insertPrescriptionItems = async (prescriptionId: string, items: any[]) => 
     .insert(prescriptionItems);
 
   if (error) {
-    throw handleDatabaseError(error, 'create', 'prescription items');
+    throw handleDatabaseError(error);
   }
 };
 

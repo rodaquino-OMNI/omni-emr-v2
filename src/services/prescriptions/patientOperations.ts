@@ -36,7 +36,7 @@ export const getPatientPrescriptions = async (patientId: string): Promise<Prescr
       .eq('patient_id', patientId)
       .order('created_at', { ascending: false });
       
-    if (error) throw handleDatabaseError(error, 'fetch', 'prescriptions');
+    if (error) throw handleDatabaseError(error);
     
     // Map to Prescription type using the shared mapper
     return data.map((prescription: any) => 

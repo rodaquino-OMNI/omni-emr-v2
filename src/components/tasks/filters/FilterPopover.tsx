@@ -12,27 +12,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { TaskFilter } from '@/services/tasks';
 
 interface FilterPopoverProps {
-  filters: {
+  filter: TaskFilter;
+  onFilterChange: (key: keyof TaskFilter, value: any) => void;
+  filters?: {
     status: string;
     priority: string;
     type: string;
     searchQuery: string;
   };
-  onFilterChange: (filterName: string, value: string) => void;
-  onReset: () => void;
-  activeFiltersCount: number;
+  onReset?: () => void;
+  activeFiltersCount?: number;
 }
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({
-  filters,
+  filter,
   onFilterChange,
+  filters,
   onReset,
-  activeFiltersCount,
+  activeFiltersCount = 0,
 }) => {
   const handleTextSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onFilterChange('searchQuery', e.target.value);
+    if (filters) {
+      onFilterChange('searchQuery', e.target.value);
+    }
+  };
+
+  // Default handler for backward compatibility
+  const handleReset = () => {
+    if (onReset) {
+      onReset();
+    } else {
+      // Clear all filters if no reset handler provided
+      onFilterChange('status', undefined);
+      onFilterChange('priority', undefined);
+      onFilterChange('type', undefined);
+      onFilterChange('searchQuery', '');
+    }
   };
 
   return (
@@ -56,7 +74,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               variant="ghost"
               size="sm"
               className="h-8 px-2 text-xs"
-              onClick={onReset}
+              onClick={handleReset}
             >
               Reset filters
               <X className="ml-1 h-3 w-3" />
@@ -66,8 +84,8 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select
-              value={filters.status}
-              onValueChange={(value) => onFilterChange('status', value)}
+              value={filters?.status || filter.status?.toString() || ''}
+              onValueChange={(value) => onFilterChange('status', value === 'all' ? undefined : value)}
             >
               <SelectTrigger id="status">
                 <SelectValue placeholder="Select status" />
@@ -85,8 +103,8 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           <div className="space-y-2">
             <Label htmlFor="priority">Priority</Label>
             <Select
-              value={filters.priority}
-              onValueChange={(value) => onFilterChange('priority', value)}
+              value={filters?.priority || filter.priority?.toString() || ''}
+              onValueChange={(value) => onFilterChange('priority', value === 'all' ? undefined : value)}
             >
               <SelectTrigger id="priority">
                 <SelectValue placeholder="Select priority" />
@@ -103,8 +121,8 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           <div className="space-y-2">
             <Label htmlFor="type">Task Type</Label>
             <Select
-              value={filters.type}
-              onValueChange={(value) => onFilterChange('type', value)}
+              value={filters?.type || filter.type?.toString() || ''}
+              onValueChange={(value) => onFilterChange('type', value === 'all' ? undefined : value)}
             >
               <SelectTrigger id="type">
                 <SelectValue placeholder="Select task type" />
@@ -125,7 +143,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               <Input
                 id="search"
                 placeholder="Search by name or description"
-                value={filters.searchQuery}
+                value={filters?.searchQuery || filter.searchTerm || ''}
                 onChange={handleTextSearch}
               />
             </div>

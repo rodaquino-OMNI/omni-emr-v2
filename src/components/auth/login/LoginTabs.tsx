@@ -13,7 +13,7 @@ interface ValidationErrors {
 
 interface LoginTabsProps {
   activeView: 'email' | 'phone' | 'social';
-  setActiveView: (view: 'email' | 'phone' | 'social') => void;
+  setActiveView?: (view: 'email' | 'phone' | 'social') => void;
   email: string;
   setEmail: (email: string) => void;
   password: string;
@@ -82,18 +82,27 @@ const LoginTabs: React.FC<LoginTabsProps> = ({
   resetLockout,
   remainingLockoutTime = 0
 }) => {
+  const handleTabChange = (value: string) => {
+    if (setActiveView) {
+      setActiveView(value as 'email' | 'phone' | 'social');
+    }
+    if (clearEmailError) {
+      clearEmailError();
+    }
+  };
+
   return (
-    <Tabs value={activeView} onValueChange={(value) => setActiveView(value as 'email' | 'phone' | 'social')} className="w-full">
+    <Tabs value={activeView} onValueChange={handleTabChange} className="w-full">
       <TabsList className="grid grid-cols-3 mb-6 bg-background/10 p-1 rounded-lg">
-        <TabsTrigger value="email" onClick={clearEmailError} className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
+        <TabsTrigger value="email" className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
           <Mail className="h-4 w-4" />
           {language === 'pt' ? 'Email' : 'Email'}
         </TabsTrigger>
-        <TabsTrigger value="phone" onClick={clearEmailError} className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
+        <TabsTrigger value="phone" className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
           <Phone className="h-4 w-4" />
           {language === 'pt' ? 'Telefone' : 'Phone'}
         </TabsTrigger>
-        <TabsTrigger value="social" onClick={clearEmailError} className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
+        <TabsTrigger value="social" className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
           <Users className="h-4 w-4" />
           {language === 'pt' ? 'Social' : 'Social'}
         </TabsTrigger>

@@ -3,7 +3,6 @@ import React, { ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { formatErrorMessage } from '@/utils/errorHandling';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -60,7 +59,7 @@ class ErrorBoundaryWrapper extends React.Component<ErrorBoundaryProps, ErrorBoun
             </p>
             {this.state.error && (
               <div className="bg-muted/50 p-3 rounded-md text-sm font-mono">
-                {formatErrorMessage(this.state.error)}
+                {this.state.error.message || 'Unknown error'}
               </div>
             )}
           </CardContent>

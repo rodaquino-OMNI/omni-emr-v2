@@ -1,5 +1,5 @@
 
-import { format, isValid, parseISO } from 'date-fns';
+import { format, isValid, parseISO, formatDistanceToNow } from 'date-fns';
 
 /**
  * Format a date string or Date object to a readable format
@@ -38,3 +38,22 @@ export const formatShortDate = (dateString?: string | Date | null): string => {
 export const formatTime = (dateString?: string | Date | null): string => {
   return formatDate(dateString, 'HH:mm');
 };
+
+/**
+ * Format a date as a relative time (e.g. "5 minutes ago")
+ */
+export const formatRelativeTime = (date: Date | string): string => {
+  try {
+    const dateObj = typeof date === 'string' ? parseISO(date) : date;
+    
+    if (!isValid(dateObj)) {
+      return 'Invalid date';
+    }
+    
+    return formatDistanceToNow(dateObj, { addSuffix: true });
+  } catch (error) {
+    console.error('Error formatting relative time:', error);
+    return 'Unknown time';
+  }
+};
+

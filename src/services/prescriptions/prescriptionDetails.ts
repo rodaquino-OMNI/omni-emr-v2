@@ -41,7 +41,7 @@ export const getPrescriptionById = async (prescriptionId: string): Promise<Presc
       if (error.code === 'PGRST116') {
         return null; // Not found
       }
-      throw handleDatabaseError(error, 'fetch', 'prescription');
+      throw handleDatabaseError(error);
     }
     
     if (!data) return null;

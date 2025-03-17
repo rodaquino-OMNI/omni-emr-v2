@@ -60,6 +60,65 @@ export const handleDatabaseError = (error: PostgrestError | null | unknown): voi
 };
 
 /**
+ * Format an error message for display
+ */
+export const formatErrorMessage = (error: Error | unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  
+  if (typeof error === 'string') {
+    return error;
+  }
+  
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String(error.message);
+  }
+  
+  return 'An unknown error occurred';
+};
+
+/**
+ * Handle API errors and return formatted Error object
+ */
+export const handleApiError = (error: unknown, defaultMessage: string = 'API operation failed'): Error => {
+  console.error('API Error:', error);
+  
+  if (error instanceof Error) {
+    return error;
+  }
+  
+  if (typeof error === 'string') {
+    return new Error(error);
+  }
+  
+  if (error && typeof error === 'object' && 'message' in error) {
+    return new Error(String(error.message));
+  }
+  
+  return new Error(defaultMessage);
+};
+
+/**
+ * Handle transaction errors
+ */
+export const handleTransactionError = (error: unknown, transactionName: string): Error => {
+  console.error(`Transaction error in ${transactionName}:`, error);
+  
+  const baseMessage = `Transaction "${transactionName}" failed: `;
+  
+  if (error instanceof Error) {
+    return new Error(`${baseMessage}${error.message}`);
+  }
+  
+  if (typeof error === 'string') {
+    return new Error(`${baseMessage}${error}`);
+  }
+  
+  return new Error(`${baseMessage}Unknown error`);
+};
+
+/**
  * Handle form validation errors
  */
 export const handleValidationErrors = (
@@ -78,3 +137,4 @@ export const handleValidationErrors = (
     }
   }
 };
+

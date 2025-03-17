@@ -50,6 +50,10 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
     );
   };
 
+  // Count active filters
+  const activeFiltersCount = Object.values(filter).filter(val => val !== undefined).length + 
+    (searchTerm.trim() !== '' ? 1 : 0);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
@@ -57,7 +61,9 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
         
         <FilterPopover 
           filter={filter} 
-          onFilterChange={handleFilterChange} 
+          onFilterChange={handleFilterChange}
+          activeFiltersCount={activeFiltersCount}
+          onReset={clearFilters}
         />
         
         {isFilterActive() && (
