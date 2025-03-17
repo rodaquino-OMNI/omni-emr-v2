@@ -24,7 +24,7 @@ const LoginHeader: React.FC<LoginHeaderProps> = ({
     <div className="space-y-4">
       <div className="text-center mb-6">
         <CardTitle className="text-2xl font-bold">
-          {t('loginToMedCare', language === 'pt' ? 'Entrar no MedCare' : 'Login to MedCare')}
+          {t('loginToMedCare', language === 'pt' ? 'Entrar no OmniCare' : 'Login to OmniCare')}
         </CardTitle>
         <CardDescription className="mt-1">
           {language === 'pt' 
