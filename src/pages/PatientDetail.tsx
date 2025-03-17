@@ -32,7 +32,7 @@ const PatientDetail = () => {
   const { patient, isLoading: patientLoading } = usePatientData(patientId);
   
   // Fetch insights data
-  const { data: insights, isLoading: insightsLoading } = usePatientInsights(patientId);
+  const { insights, isLoading: insightsLoading } = usePatientInsights(patientId);
   
   // Fetch prescriptions data
   const { prescriptions, loading: prescriptionsLoading } = usePatientPrescriptions(patientId);
