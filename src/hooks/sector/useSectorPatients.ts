@@ -95,6 +95,8 @@ export const useSectorPatients = (
       setSectorPatients(prev => 
         prev.map(p => p.id === patientId ? { ...p, is_assigned: true } : p)
       );
+      
+      toast.success('Patient assigned successfully');
     } catch (err) {
       console.error('Failed to assign patient:', err);
       toast.error('Failed to assign patient');
@@ -127,6 +129,8 @@ export const useSectorPatients = (
       setSectorPatients(prev => 
         prev.map(p => p.id === patientId ? { ...p, is_assigned: false } : p)
       );
+      
+      toast.success('Patient unassigned successfully');
     } catch (err) {
       console.error('Failed to unassign patient:', err);
       toast.error('Failed to unassign patient');

@@ -40,6 +40,9 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
   const { user } = useAuth();
   const permissions = usePermissions(user);
   
+  // Use sector context to check if patient is in selected sector
+  const { selectedSector } = useSectorContext();
+  
   // Use patientId from props or route params
   const patientId = propPatientId || params.id;
   
@@ -90,6 +93,20 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
       setError(patientError);
     }
   }, [patientError]);
+  
+  // Check if the patient belongs to the currently selected sector (for clinical staff)
+  useEffect(() => {
+    if (!isLoading && patient && selectedSector && 
+        user && ['doctor', 'nurse', 'medical_staff'].includes(user.role)) {
+      const patientInSector = patient.sectors?.some(s => s.id === selectedSector.id);
+      
+      if (!patientInSector) {
+        toast.warning('Patient is not in your current sector', {
+          description: 'You may need to change your selected sector to view this patient'
+        });
+      }
+    }
+  }, [isLoading, patient, selectedSector, user]);
   
   // Refresh patient data
   const refreshPatient = async () => {

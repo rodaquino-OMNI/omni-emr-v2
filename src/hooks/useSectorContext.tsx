@@ -10,6 +10,7 @@ import {
 import { useSectorData } from './sector';
 import { useSectorPatients } from './sector/useSectorPatients';
 import { secureStorage } from '@/utils/secureStorage';
+import { toast } from 'sonner';
 
 const SectorContext = createContext<SectorContextType>({
   sectors: [],
@@ -51,6 +52,11 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
     
     // Fetch patients for the selected sector
     fetchPatients(sector.id);
+    
+    toast.success(
+      `Sector selected: ${sector.name}`,
+      { description: `You are now viewing patients in the ${sector.name} sector` }
+    );
     
     // Log sector selection for auditing (this could be expanded with more details)
     console.log(`Sector selected: ${sector.name} (${sector.id})`);

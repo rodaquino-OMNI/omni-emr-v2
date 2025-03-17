@@ -52,11 +52,11 @@ const SectorPatientList = ({
   const {
     displayedPatients,
     pagination,
-    setStatusFilter: updateStatusFilter,
-    setSearchTerm: updateSearchTerm,
-    setAssignmentFilter: updateAssignmentFilter,
-    setSortBy: updateSortBy,
-    setSortDirection: updateSortDirection,
+    setStatusFilter,
+    setSearchTerm,
+    setAssignmentFilter,
+    setSortBy,
+    setSortDirection,
     setPage,
     goToPage
   } = useFilteredSectorPatients(sectorPatients, {
@@ -127,7 +127,7 @@ const SectorPatientList = ({
             ? `Não encontramos resultados para "${searchTerm}"` 
             : `No results found for "${searchTerm}"`,
           actionLabel: language === 'pt' ? 'Limpar busca' : 'Clear search',
-          onAction: () => updateSearchTerm('')
+          onAction: () => setSearchTerm('')
         }
       : statusFilter !== 'all' || assignmentFilter !== 'all'
         ? {
@@ -138,8 +138,8 @@ const SectorPatientList = ({
               : 'Try adjusting the filters to see more results',
             actionLabel: language === 'pt' ? 'Limpar filtros' : 'Clear filters',
             onAction: () => {
-              updateStatusFilter('all');
-              updateAssignmentFilter('all');
+              setStatusFilter('all');
+              setAssignmentFilter('all');
             }
           }
         : {
