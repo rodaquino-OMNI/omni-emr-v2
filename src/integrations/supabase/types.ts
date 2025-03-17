@@ -3823,13 +3823,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
-      user_has_permission: {
-        Args: {
-          permission: string
-          resource_type?: string
-        }
-        Returns: boolean
-      }
+      user_has_permission:
+        | {
+            Args: {
+              p_user_id: string
+              p_permission_code: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              permission: string
+              resource_type?: string
+            }
+            Returns: boolean
+          }
       user_has_role: {
         Args: {
           requested_role: string
