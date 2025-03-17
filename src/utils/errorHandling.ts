@@ -5,8 +5,8 @@ import { PostgrestError } from '@supabase/supabase-js';
 /**
  * Handle Supabase PostgrestError and display appropriate toast message
  */
-export const handleDatabaseError = (error: PostgrestError | null | unknown): void => {
-  if (!error) return;
+export const handleDatabaseError = (error: PostgrestError | null | unknown): Error => {
+  if (!error) return new Error('Unknown database error');
   
   // For PostgrestError from Supabase
   if (typeof error === 'object' && error !== null && 'code' in error && 'message' in error) {
@@ -47,6 +47,8 @@ export const handleDatabaseError = (error: PostgrestError | null | unknown): voi
           description: pgError.message || 'An unknown database error occurred.'
         });
     }
+    
+    return new Error(pgError.message || 'Database error');
   } else {
     // Generic error handling
     console.error('Application error:', error);
@@ -56,6 +58,8 @@ export const handleDatabaseError = (error: PostgrestError | null | unknown): voi
     toast.error('Error', {
       description: errorMessage
     });
+    
+    return new Error(errorMessage);
   }
 };
 
@@ -117,24 +121,3 @@ export const handleTransactionError = (error: unknown, transactionName: string):
   
   return new Error(`${baseMessage}Unknown error`);
 };
-
-/**
- * Handle form validation errors
- */
-export const handleValidationErrors = (
-  errors: Record<string, string> | null | undefined, 
-  setValidationErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>
-): void => {
-  if (errors && Object.keys(errors).length > 0) {
-    setValidationErrors(errors);
-    
-    // Show toast with first error
-    const firstError = Object.values(errors)[0];
-    if (firstError) {
-      toast.error('Validation Error', {
-        description: firstError
-      });
-    }
-  }
-};
-

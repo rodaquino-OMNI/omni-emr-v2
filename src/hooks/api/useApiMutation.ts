@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { formatErrorMessage, handleApiError } from '@/utils/errorHandling';
 
 interface MutationOptions<T, V> {
   onSuccess?: (data: T) => void;
@@ -44,7 +43,8 @@ export function useApiMutation<T, V = any>(
       
       return result;
     } catch (err) {
-      const errorObj = handleApiError(err, 'Operation failed');
+      // Create a standardized error object
+      const errorObj = new Error(err instanceof Error ? err.message : 'Operation failed');
       setError(errorObj);
       
       if (onError) {
@@ -68,7 +68,7 @@ export function useApiMutation<T, V = any>(
     isLoading,
     error,
     data,
-    errorMessage: error ? formatErrorMessage(error) : null,
+    errorMessage: error ? error.message : null,
     reset
   };
 }

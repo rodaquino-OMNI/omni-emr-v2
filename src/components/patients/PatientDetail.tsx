@@ -17,9 +17,9 @@ interface PatientDetailProps {}
 const PatientDetail: React.FC<PatientDetailProps> = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const { patient, loading, error } = usePatientContext();
+  const { patient, isLoading, error } = usePatientContext();
 
-  if (loading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 

@@ -77,7 +77,7 @@ export function useSupabaseTable<T>(
       const { data, error } = await query;
       
       if (error) {
-        throw handleDatabaseError(error, 'fetch', table);
+        throw handleDatabaseError(error);
       }
       
       return data as T[];

@@ -56,4 +56,3 @@ export const formatRelativeTime = (date: Date | string): string => {
     return 'Unknown time';
   }
 };
-
