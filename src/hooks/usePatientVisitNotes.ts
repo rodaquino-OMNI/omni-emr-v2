@@ -16,6 +16,7 @@ export interface VisitNote {
   plan?: string;
   created_at: string;
   updated_at: string;
+  vitals?: any; // For storing related vital signs
 }
 
 /**
@@ -42,7 +43,9 @@ export function usePatientVisitNotes(patientId?: string) {
       return data as unknown as VisitNote[];
     },
     {
-      enabled: !!patientId
+      enabled: !!patientId,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000 // 10 minutes
     }
   );
 }
@@ -69,10 +72,20 @@ export function useVisitNoteDetails(noteId?: string) {
 
       if (error) throw error;
       
+      // Include vital signs directly in the note object for easier access
+      if (data && data.vital_signs) {
+        return {
+          ...data,
+          vitals: data.vital_signs
+        } as unknown as VisitNote;
+      }
+      
       return data as unknown as VisitNote;
     },
     {
-      enabled: !!noteId
+      enabled: !!noteId,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000 // 10 minutes
     }
   );
 }

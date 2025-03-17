@@ -34,7 +34,16 @@ export function usePatientData(patientId?: string) {
         .maybeSingle();
         
       if (error) throw error;
-      return data as Patient;
+      
+      // Ensure phone is always defined to match PatientTypes.Patient interface
+      if (data) {
+        return {
+          ...data,
+          phone: data.phone || data.phone_number || null
+        } as Patient;
+      }
+      
+      return null;
     },
     {
       enabled: !!patientId,

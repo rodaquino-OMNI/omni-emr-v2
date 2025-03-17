@@ -23,7 +23,8 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
 
       try {
         const data = await getPrescriptionById(prescriptionId);
-        setPrescription(data);
+        // Use functional update to ensure type compatibility
+        setPrescription(prev => data);
       } catch (err: any) {
         console.error('Error fetching prescription details:', err);
         setError(err?.message || 'Failed to fetch prescription details');

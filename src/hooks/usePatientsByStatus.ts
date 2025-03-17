@@ -1,7 +1,7 @@
 
 import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { Patient, PatientStatus } from '@/types/patientTypes';
+import { Patient, PatientStatus } from '@/types/patient';
 
 /**
  * Hook for fetching patients filtered by status

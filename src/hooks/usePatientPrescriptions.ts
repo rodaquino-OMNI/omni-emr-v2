@@ -1,7 +1,7 @@
 
 import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { Prescription } from '@/types/patientTypes';
+import { Prescription } from '@/types/patient';
 
 /**
  * Hook for fetching patient prescriptions with caching

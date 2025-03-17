@@ -1,7 +1,7 @@
 
 import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { PatientAllergy } from '@/types/patientTypes';
+import { PatientAllergy } from '@/types/patient';
 
 /**
  * Hook for fetching patient allergies with caching
