@@ -1,34 +1,35 @@
 
 import React from 'react';
-import { Pill, FileText, Stethoscope, UserRound } from 'lucide-react';
-import { TaskType } from './TaskCardTypes';
+import { cn } from '@/lib/utils';
+import { Pill, Stethoscope, Calendar, Scissors, ArrowRight } from 'lucide-react';
 
 interface TaskIconProps {
-  type: TaskType;
+  type: string;
   className?: string;
 }
 
 const TaskIcon: React.FC<TaskIconProps> = ({ type, className }) => {
-  const getTaskIcon = () => {
+  // Select icon based on task type
+  const renderIcon = () => {
     switch (type) {
       case 'medication':
         return <Pill className="h-5 w-5" />;
       case 'examination':
-        return <FileText className="h-5 w-5" />;
+        return <Stethoscope className="h-5 w-5" />;
       case 'consultation':
-        return <Stethoscope className="h-5 w-5" />;
+        return <Calendar className="h-5 w-5" />;
       case 'procedure':
-        return <Stethoscope className="h-5 w-5" />;
+        return <Scissors className="h-5 w-5" />;
       case 'followup':
-        return <UserRound className="h-5 w-5" />;
+        return <ArrowRight className="h-5 w-5" />;
       default:
-        return <FileText className="h-5 w-5" />;
+        return <Calendar className="h-5 w-5" />;
     }
   };
 
   return (
-    <div className={className}>
-      {getTaskIcon()}
+    <div className={cn("flex-shrink-0 flex items-center justify-center", className)}>
+      {renderIcon()}
     </div>
   );
 };

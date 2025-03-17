@@ -1,72 +1,93 @@
 
-import { Task, TaskPriority, TaskStatus, TaskType } from "@/components/tasks/card/TaskCardTypes";
+import { Task } from "@/components/tasks/card/TaskCardTypes";
 
-// Generate a set of mock tasks
-export const generateMockTasks = (): Task[] => {
-  const sectors = ["Cardiology", "Neurology", "Oncology", "Pediatrics", "Emergency", "ICU"];
-  const taskTypes: TaskType[] = ["medication", "examination", "consultation", "procedure", "followup"];
-  const priorities: TaskPriority[] = ["low", "medium", "high", "urgent"];
-  const statuses: TaskStatus[] = ["pending", "completed", "cancelled"];
-  
-  const mockTasks: Task[] = [];
-
-  // Current date and time
-  const now = new Date();
-  
-  // Generate 30 tasks
-  for (let i = 1; i <= 30; i++) {
-    // Random date within +/- 3 days from now
-    const dueDate = new Date(now);
-    dueDate.setDate(dueDate.getDate() + Math.floor(Math.random() * 7) - 3);
-    
-    // For some tasks, set them in the past to simulate delayed tasks
-    if (i % 4 === 0) {
-      dueDate.setDate(dueDate.getDate() - 2);
-    }
-    
-    const taskType = taskTypes[Math.floor(Math.random() * taskTypes.length)];
-    const priority = priorities[Math.floor(Math.random() * priorities.length)];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const sector = sectors[Math.floor(Math.random() * sectors.length)];
-    const patientId = Math.floor(Math.random() * 10 + 1).toString();
-    const patientName = `Patient ${patientId}`;
-    
-    let title = "";
-    switch (taskType) {
-      case "medication":
-        title = `Administer ${["Amoxicillin", "Ibuprofen", "Paracetamol", "Insulin", "Morphine"][Math.floor(Math.random() * 5)]}`;
-        break;
-      case "examination":
-        title = `Perform ${["Blood Test", "MRI Scan", "X-Ray", "ECG", "Ultrasound"][Math.floor(Math.random() * 5)]}`;
-        break;
-      case "consultation":
-        title = `Doctor visit for ${["checkup", "symptoms", "follow-up", "evaluation", "assessment"][Math.floor(Math.random() * 5)]}`;
-        break;
-      case "procedure":
-        title = `Perform ${["IV Insertion", "Wound Dressing", "Blood Pressure Check", "Vaccination", "Temperature Measurement"][Math.floor(Math.random() * 5)]}`;
-        break;
-      case "followup":
-        title = `Follow up on ${["medication effects", "treatment progress", "symptom changes", "test results", "recovery"][Math.floor(Math.random() * 5)]}`;
-        break;
-    }
-    
-    mockTasks.push({
-      id: `task-${i}`,
-      title,
-      type: taskType,
-      dueDate: dueDate.toISOString(),
-      patientId,
-      patientName,
-      sector,
-      priority,
-      status,
-      createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 days ago
-      updatedAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 1).toISOString(), // 1 day ago
-    });
+// Sample mock tasks for development
+export const mockTasks: Task[] = [
+  {
+    id: "1",
+    title: "Record vital signs",
+    description: "Regular vital signs check - temperature, blood pressure, heart rate, respiratory rate",
+    type: "examination",
+    dueDate: new Date(new Date().getTime() + 1 * 60 * 60 * 1000).toISOString(), // 1 hour from now
+    patientId: "1",
+    patientName: "Ana Silva",
+    sector: "general_ward",
+    priority: "medium",
+    status: "pending",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "2",
+    title: "Administer Lisinopril 10mg",
+    description: "Oral medication for hypertension",
+    type: "medication",
+    dueDate: new Date(new Date().getTime() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
+    patientId: "1",
+    patientName: "Ana Silva",
+    sector: "general_ward",
+    priority: "high",
+    status: "pending",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "3",
+    title: "Change wound dressing",
+    description: "Clean wound and apply new sterile dressing",
+    type: "procedure",
+    dueDate: new Date(new Date().getTime() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours from now
+    patientId: "1",
+    patientName: "Ana Silva",
+    sector: "general_ward",
+    priority: "medium",
+    status: "pending",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "4",
+    title: "Coordinate physical therapy session",
+    description: "Arrange room and equipment for PT session",
+    type: "consultation",
+    dueDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(), // tomorrow
+    patientId: "1",
+    patientName: "Ana Silva",
+    sector: "general_ward",
+    priority: "low",
+    status: "pending",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "5",
+    title: "Administer insulin",
+    description: "Check blood glucose level first",
+    type: "medication",
+    dueDate: new Date(new Date().getTime() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago (delayed)
+    patientId: "1",
+    patientName: "Ana Silva",
+    sector: "general_ward",
+    priority: "urgent",
+    status: "pending",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "6",
+    title: "Patient education - diabetes management",
+    description: "Review diet and medication routine with patient",
+    type: "consultation",
+    dueDate: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString(), // 3 hours from now
+    patientId: "1",
+    patientName: "Ana Silva",
+    sector: "general_ward",
+    priority: "medium",
+    status: "completed",
+    createdAt: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), // yesterday
+    updatedAt: new Date().toISOString(),
+    completedAt: new Date().toISOString(),
+    completedBy: "nurse-id-1",
+    completedByName: "Nurse Maria"
   }
-  
-  return mockTasks;
-};
-
-// Initialize mock data
-export const mockTasks = generateMockTasks();
+];

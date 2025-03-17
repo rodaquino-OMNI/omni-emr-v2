@@ -2,8 +2,6 @@
 import React from 'react';
 import { Task } from './TaskCardTypes';
 import { Badge } from '@/components/ui/badge';
-import { AlarmClock, CheckCircle2 } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
 
 interface TaskHeaderProps {
   task: Task;
@@ -11,22 +9,45 @@ interface TaskHeaderProps {
 }
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({ task, isDelayed }) => {
-  const { t } = useTranslation();
+  // Determine priority badge color
+  const getPriorityBadge = () => {
+    switch (task.priority) {
+      case 'urgent':
+        return <Badge variant="destructive">Urgent</Badge>;
+      case 'high':
+        return <Badge variant="destructive" className="bg-orange-500">High</Badge>;
+      case 'medium':
+        return <Badge variant="secondary" className="bg-yellow-500 text-black">Medium</Badge>;
+      case 'low':
+        return <Badge variant="outline">Low</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  // Determine status badge
+  const getStatusBadge = () => {
+    switch (task.status) {
+      case 'completed':
+        return <Badge variant="outline" className="border-green-500 text-green-500">Completed</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline" className="border-gray-500 text-gray-500">Cancelled</Badge>;
+      case 'pending':
+        return isDelayed 
+          ? <Badge variant="destructive">Delayed</Badge>
+          : null;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="flex items-center justify-between mb-1">
+    <div className="flex justify-between items-start">
       <h3 className="font-medium">{task.title}</h3>
-      {task.status === 'completed' ? (
-        <Badge variant="success" className="gap-1">
-          <CheckCircle2 className="h-3 w-3" />
-          {t('completed')}
-        </Badge>
-      ) : (
-        <Badge variant={isDelayed ? "destructive" : "outline"} className="gap-1">
-          {isDelayed && <AlarmClock className="h-3 w-3" />}
-          {isDelayed ? t('delayed') : t('onTime')}
-        </Badge>
-      )}
+      <div className="flex gap-2">
+        {getStatusBadge()}
+        {getPriorityBadge()}
+      </div>
     </div>
   );
 };

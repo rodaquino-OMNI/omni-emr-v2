@@ -1,13 +1,15 @@
 
 import React from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { ClipboardCheck } from 'lucide-react';
 
 const EmptyTaskState: React.FC = () => {
-  const { t } = useTranslation();
-  
   return (
-    <div className="text-center p-8">
-      <p className="text-muted-foreground">{t('noTasksFound')}</p>
+    <div className="flex flex-col items-center justify-center p-8 text-center">
+      <ClipboardCheck className="h-12 w-12 text-muted-foreground mb-4" />
+      <h3 className="text-lg font-medium">No tasks found</h3>
+      <p className="text-sm text-muted-foreground mt-1">
+        There are no tasks matching your current filters.
+      </p>
     </div>
   );
 };

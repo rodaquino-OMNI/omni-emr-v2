@@ -1,11 +1,15 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Update the import statement in DefaultPatientView to use correct types
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePatientData } from '@/hooks/usePatientData';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useSearchParams } from 'react-router-dom';
+import PatientHeader from '../detail/PatientDetailHeader';
 import PatientOverviewTab from '../tabs/PatientOverviewTab';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import PatientNotesTab from '../tabs/PatientNotesTab';
+import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
+import { PatientInsight } from '@/types/patient';
 
 interface DefaultPatientViewProps {
   patientId: string;
@@ -13,6 +17,15 @@ interface DefaultPatientViewProps {
 
 const DefaultPatientView: React.FC<DefaultPatientViewProps> = ({ patientId }) => {
   const { patient, isLoading, error } = usePatientData(patientId);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    setSearchParams({ ...currentParams, tab: activeTab });
+  }, [activeTab, setSearchParams]);
   
   if (isLoading) {
     return <LoadingSpinner />;
@@ -22,42 +35,34 @@ const DefaultPatientView: React.FC<DefaultPatientViewProps> = ({ patientId }) =>
     return <div className="p-4 text-red-500">Error loading patient: {error?.toString()}</div>;
   }
   
+  // Check for critical insights
+  const hasCriticalInsights = (patient.insights as PatientInsight[] || []).some(
+    insight => insight.severity === 'critical'
+  );
+  
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{patient.first_name} {patient.last_name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Date of Birth</p>
-              <p>{patient.date_of_birth}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Gender</p>
-              <p>{patient.gender}</p>
-            </div>
-            {patient.mrn && (
-              <div>
-                <p className="text-sm text-muted-foreground">MRN</p>
-                <p>{patient.mrn}</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <PatientHeader patient={patient} hasCriticalInsights={hasCriticalInsights} />
       
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertTitle>Limited View</AlertTitle>
-        <AlertDescription>
-          This is a read-only view of basic patient information. 
-          For more detailed access, please contact an administrator to update your role permissions.
-        </AlertDescription>
-      </Alert>
-      
-      <PatientOverviewTab patientId={patientId} patient={patient} />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="flex overflow-x-auto pb-px">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="medications">Medications</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview">
+          <PatientOverviewTab patientId={patientId} patient={patient} />
+        </TabsContent>
+        
+        <TabsContent value="medications">
+          <PatientMedicationsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="notes">
+          <PatientNotesTab patientId={patientId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

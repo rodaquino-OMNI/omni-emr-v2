@@ -1,11 +1,8 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Task, TaskPriority } from './TaskCardTypes';
-import { useTranslation } from '@/hooks/useTranslation';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Clock, User } from 'lucide-react';
+import { Task } from './TaskCardTypes';
 
 interface TaskDetailsProps {
   task: Task;
@@ -13,56 +10,22 @@ interface TaskDetailsProps {
 }
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({ task, isDelayed }) => {
-  const { t } = useTranslation();
-
-  // Format date
-  const formatTaskDate = (date: Date | string) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return format(dateObj, 'MMM dd, yyyy HH:mm');
-  };
-
-  // Get priority color
-  const getPriorityColor = (priority: TaskPriority) => {
-    switch (priority) {
-      case 'low':
-        return 'bg-blue-100 text-blue-800';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'high':
-        return 'bg-orange-100 text-orange-800';
-      case 'urgent':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-blue-100 text-blue-800';
-    }
-  };
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 text-sm">
-      <div className="flex items-center gap-1 text-muted-foreground">
-        <span className="font-medium">{t('patient')}:</span>
-        <Link to={`/patients/${task.patientId}`} className="hover:underline text-primary">
-          {task.patientName}
-        </Link>
-      </div>
+    <div className="mt-1 text-sm text-muted-foreground">
+      {task.description && (
+        <p className="mb-1">{task.description}</p>
+      )}
       
-      <div className="flex items-center gap-1 text-muted-foreground">
-        <span className="font-medium">{t('sector')}:</span>
-        <span>{task.sector}</span>
-      </div>
-      
-      <div className="flex items-center gap-1 text-muted-foreground">
-        <span className="font-medium">{t('dueDate')}:</span>
-        <span className={isDelayed ? "text-red-600 font-medium" : ""}>
-          {formatTaskDate(task.dueDate)}
+      <div className="flex items-center gap-1 text-xs">
+        <Clock className={`h-3.5 w-3.5 ${isDelayed ? 'text-red-500' : ''}`} />
+        <span className={isDelayed ? 'text-red-500 font-medium' : ''}>
+          {format(new Date(task.dueDate), 'MMM dd, yyyy HH:mm')}
         </span>
       </div>
       
-      <div className="flex items-center gap-1 text-muted-foreground">
-        <span className="font-medium">{t('priority')}:</span>
-        <Badge className={cn("capitalize", getPriorityColor(task.priority))}>
-          {task.priority}
-        </Badge>
+      <div className="flex items-center gap-1 text-xs mt-1">
+        <User className="h-3.5 w-3.5" />
+        <span>Patient: {task.patientName}</span>
       </div>
     </div>
   );

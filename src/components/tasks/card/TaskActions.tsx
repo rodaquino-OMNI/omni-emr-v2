@@ -1,16 +1,8 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Task } from './TaskCardTypes';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, ChevronRight } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { CheckCircle, AlarmClock, FileEdit } from 'lucide-react';
+import { Task } from './TaskCardTypes';
 
 interface TaskActionsProps {
   task: Task;
@@ -18,37 +10,44 @@ interface TaskActionsProps {
 }
 
 const TaskActions: React.FC<TaskActionsProps> = ({ task, onMarkComplete }) => {
-  const { t } = useTranslation();
-
+  // Only show actions for pending tasks
+  if (task.status !== 'pending') {
+    return null;
+  }
+  
   return (
-    <div className="flex items-center justify-between mt-3">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1" asChild>
-              <Link to={`/tasks/${task.id}`}>
-                {t('taskDetails')}
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{t('viewTaskDetails')}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      {task.status === 'pending' && onMarkComplete && (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {onMarkComplete && (
         <Button 
           variant="outline" 
           size="sm" 
-          className="gap-1"
+          className="h-8 gap-1"
           onClick={onMarkComplete}
         >
-          <CheckCircle2 className="h-4 w-4" />
-          {t('markAsComplete')}
+          <CheckCircle className="h-3.5 w-3.5" />
+          Complete
         </Button>
       )}
+      
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="h-8 gap-1"
+        onClick={() => console.log('Snooze task', task.id)}
+      >
+        <AlarmClock className="h-3.5 w-3.5" />
+        Snooze
+      </Button>
+      
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="h-8 gap-1"
+        onClick={() => console.log('Edit task', task.id)}
+      >
+        <FileEdit className="h-3.5 w-3.5" />
+        Edit
+      </Button>
     </div>
   );
 };
