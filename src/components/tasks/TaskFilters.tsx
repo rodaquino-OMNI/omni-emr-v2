@@ -32,6 +32,7 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
   // Remove a specific filter
   const handleRemoveFilter = (key: keyof TaskFilter) => {
     const newFilter = { ...filter };
+    // @ts-ignore - This is safe because we're removing a property
     delete newFilter[key];
     onFilterChange(newFilter);
   };
@@ -57,7 +58,11 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-        <SearchInput value={searchTerm} onChange={onSearchChange} />
+        <SearchInput 
+          value={searchTerm} 
+          onChange={onSearchChange} 
+          className="transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/30"
+        />
         
         <FilterPopover 
           filter={filter} 
@@ -71,7 +76,7 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
             variant="ghost" 
             onClick={clearFilters}
             size="sm"
-            className="gap-2"
+            className="gap-2 hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
           >
             <X className="h-4 w-4" />
             {t('clearFilters')}

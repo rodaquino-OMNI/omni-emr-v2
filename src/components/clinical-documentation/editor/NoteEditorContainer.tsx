@@ -35,10 +35,10 @@ const NoteEditorContainer = ({
   const { language } = useTranslation();
   
   return (
-    <Card>
-      <CardHeader className="pb-3">
+    <Card className="border-primary/10 shadow-md shadow-primary/5">
+      <CardHeader className="pb-3 border-b">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-md">
+          <CardTitle className="text-md font-medium">
             {language === 'pt' ? 'Editor de nota' : 'Note Editor'}
           </CardTitle>
           <NoteEditorTabs 
@@ -47,8 +47,8 @@ const NoteEditorContainer = ({
           />
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="mb-4">
+      <CardContent className="p-0">
+        <div className="p-4 bg-muted/30 border-b">
           <AIAssistButton 
             isRequestingAI={isRequestingAI}
             onClick={requestAIAssistance}
@@ -56,14 +56,16 @@ const NoteEditorContainer = ({
           />
         </div>
         
-        <NoteContent
-          activeTab={activeTab}
-          template={template}
-          sections={sections}
-          noteTitle={noteTitle}
-          handleSectionChange={handleSectionChange}
-          requiredFieldsError={requiredFieldsError}
-        />
+        <div className="p-4">
+          <NoteContent
+            activeTab={activeTab}
+            template={template}
+            sections={sections}
+            noteTitle={noteTitle}
+            handleSectionChange={handleSectionChange}
+            requiredFieldsError={requiredFieldsError}
+          />
+        </div>
       </CardContent>
     </Card>
   );

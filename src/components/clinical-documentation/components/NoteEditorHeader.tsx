@@ -41,7 +41,7 @@ const NoteEditorHeader = ({
   return (
     <div className="space-y-3">
       {isOfflineMode && (
-        <div className="p-2 bg-amber-50 text-amber-800 border border-amber-200 rounded-md flex items-center gap-2 text-sm">
+        <div className="p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-md flex items-center gap-2 text-sm animate-pulse-subtle">
           <FileQuestion className="h-4 w-4 text-amber-500" />
           {language === 'pt' 
             ? 'Você está trabalhando offline. Suas alterações serão sincronizadas quando a conexão for restaurada.' 
@@ -55,7 +55,7 @@ const NoteEditorHeader = ({
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder={language === 'pt' ? "Título da nota..." : "Note title..."}
-            className="font-medium text-lg h-10"
+            className="font-medium text-lg h-11 transition-all duration-200 border-primary/20 focus:border-primary"
           />
         </div>
         
@@ -64,6 +64,7 @@ const NoteEditorHeader = ({
             variant="outline" 
             onClick={() => onSave('draft')}
             disabled={isSaving}
+            className="transition-all duration-200 hover:border-primary/50"
           >
             <Save className="h-4 w-4 mr-1" />
             {language === 'pt' ? 'Salvar rascunho' : 'Save draft'}
@@ -72,7 +73,7 @@ const NoteEditorHeader = ({
           <Button 
             onClick={handleSignClick}
             disabled={isSaving}
-            className="gap-1"
+            className="gap-1 transition-all duration-200 bg-primary hover:bg-primary/90"
           >
             <FilePenLine className="h-4 w-4" />
             {language === 'pt' ? 'Assinar' : 'Sign'}
@@ -80,12 +81,12 @@ const NoteEditorHeader = ({
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="transition-all duration-200 hover:border-primary/50">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={onCancel}>
+              <DropdownMenuItem onClick={onCancel} className="cursor-pointer">
                 {language === 'pt' ? 'Cancelar' : 'Cancel'}
               </DropdownMenuItem>
               {/* More options can be added here */}

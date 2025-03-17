@@ -26,18 +26,24 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       onClick={onClick}
       className={({ isActive }) => 
         cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-          "hover:bg-primary/10 hover:text-primary",
+          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200",
+          "hover:bg-primary/10 hover:text-primary hover:translate-x-1",
           isActive 
-            ? "bg-primary/10 text-primary" 
+            ? "bg-primary/10 text-primary font-medium" 
             : "text-foreground/70"
         )
       }
     >
-      {Icon && <Icon className="h-4 w-4" />}
-      <span className="flex-1">{label}</span>
+      {Icon && (
+        <div className="flex items-center justify-center w-5 h-5">
+          <Icon className="h-4 w-4 transition-transform group-hover:scale-110" />
+        </div>
+      )}
+      <span className="flex-1 truncate">{label}</span>
       {badge && (
-        <Badge variant="secondary" className="ml-auto">{badge}</Badge>
+        <Badge variant="secondary" className="ml-auto">
+          {badge}
+        </Badge>
       )}
     </NavLink>
   );

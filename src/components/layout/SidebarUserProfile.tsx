@@ -59,11 +59,11 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-primary/5 transition-colors rounded-md">
-          <div className="flex items-center space-x-2">
-            <Avatar className="h-8 w-8">
+        <div className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-primary/5 transition-all duration-200 rounded-md group">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-9 w-9 border-2 border-primary/10 transition-all duration-200 group-hover:border-primary/20">
               <AvatarImage src={user.avatar_url || ''} />
-              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                 {getInitials(user.name)}
               </AvatarFallback>
             </Avatar>
@@ -78,7 +78,7 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
               </div>
             </div>
           </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -86,16 +86,16 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
           {t('accountOptions')}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleProfilePageClick}>
+        <DropdownMenuItem onClick={handleProfilePageClick} className="cursor-pointer">
           <UserIcon className="mr-2 h-4 w-4" />
           <span>{t('viewProfile')}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleSettingsClick}>
+        <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer">
           <Settings className="mr-2 h-4 w-4" />
           <span>{t('settings')}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
           <LogOut className="mr-2 h-4 w-4" />
           <span>{t('logout')}</span>
         </DropdownMenuItem>
