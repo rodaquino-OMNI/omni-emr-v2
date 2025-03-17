@@ -1,29 +1,18 @@
 
-import { useState, useEffect } from 'react';
+import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { PatientAllergy, PatientDataState } from '@/types/patient';
+import { Allergy } from '@/types/patient';
 
 /**
- * Hook to fetch and manage patient allergies
- * Uses standardized data structures and loading states
+ * Hook for fetching patient allergies with caching
  */
-export function usePatientAllergies(patientId?: string): PatientDataState<PatientAllergy[]> & { 
-  refetch: () => Promise<void> 
-} {
-  const [state, setState] = useState<PatientDataState<PatientAllergy[]>>({
-    data: null,
-    isLoading: false,
-    error: null
-  });
+export function usePatientAllergies(patientId?: string) {
+  return useSupabaseQuery<Allergy[]>(
+    ['patientAllergies', patientId || ''],
+    async () => {
+      if (!patientId) return [];
 
-  const fetchAllergies = async () => {
-    if (!patientId) {
-      setState(prev => ({ ...prev, isLoading: false }));
-      return;
-    }
-
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      // Fetch allergies for patient
       const { data, error } = await supabase
         .from('allergies')
         .select('*')
@@ -31,28 +20,13 @@ export function usePatientAllergies(patientId?: string): PatientDataState<Patien
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      setState({
-        data: data as PatientAllergy[],
-        isLoading: false,
-        error: null
-      });
-    } catch (err: any) {
-      console.error('Error fetching allergies:', err);
-      setState({
-        data: null,
-        isLoading: false,
-        error: err.message || 'Failed to fetch allergy data'
-      });
+      
+      return data as Allergy[];
+    },
+    {
+      enabled: !!patientId,
+      staleTime: 10 * 60 * 1000, // 10 minutes (allergies don't change frequently)
+      gcTime: 30 * 60 * 1000 // 30 minutes
     }
-  };
-
-  useEffect(() => {
-    fetchAllergies();
-  }, [patientId]);
-
-  return {
-    ...state,
-    refetch: fetchAllergies
-  };
+  );
 }

@@ -1,0 +1,127 @@
+
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { handleApiError } from '@/utils/errorHandling';
+
+/**
+ * Generic hook for Supabase data fetching with react-query caching
+ */
+export function useSupabaseQuery<T>(
+  queryKey: string[],
+  queryFn: () => Promise<T>,
+  options?: UseQueryOptions<T, Error>
+) {
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      try {
+        return await queryFn();
+      } catch (error) {
+        throw handleApiError(error, 'Failed to fetch data');
+      }
+    },
+    ...options,
+  });
+}
+
+/**
+ * Get records from a Supabase table with caching
+ */
+export function useSupabaseTable<T>(
+  table: string,
+  options: {
+    queryKey?: string[];
+    select?: string;
+    filters?: Record<string, any>;
+    order?: { column: string; ascending: boolean };
+    limit?: number;
+    enabled?: boolean;
+    staleTime?: number;
+    cacheTime?: number;
+  } = {}
+) {
+  const {
+    queryKey = [table],
+    select = '*',
+    filters = {},
+    order,
+    limit,
+    enabled = true,
+    staleTime = 5 * 60 * 1000, // 5 minutes
+    cacheTime = 10 * 60 * 1000, // 10 minutes
+  } = options;
+
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      let query = supabase.from(table).select(select);
+      
+      // Apply filters
+      Object.entries(filters).forEach(([column, value]) => {
+        if (value !== undefined) {
+          query = query.eq(column, value);
+        }
+      });
+      
+      // Apply ordering
+      if (order) {
+        query = query.order(order.column, { ascending: order.ascending });
+      }
+      
+      // Apply limit
+      if (limit) {
+        query = query.limit(limit);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+      
+      return data as T[];
+    },
+    enabled,
+    staleTime,
+    gcTime: cacheTime,
+  });
+}
+
+/**
+ * Generic mutation hook for Supabase operations
+ */
+export function useSupabaseMutation<T, V>(
+  mutationFn: (variables: V) => Promise<T>,
+  options: {
+    onSuccessMessage?: string;
+    invalidateQueries?: string[];
+  } = {}
+) {
+  const queryClient = useQueryClient();
+  const { onSuccessMessage, invalidateQueries = [] } = options;
+  
+  return useMutation({
+    mutationFn: async (variables: V) => {
+      try {
+        return await mutationFn(variables);
+      } catch (error) {
+        throw handleApiError(error, 'Operation failed');
+      }
+    },
+    onSuccess: () => {
+      // Invalidate relevant queries to refresh data
+      invalidateQueries.forEach(queryKey => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+      });
+      
+      // Show success message if provided
+      if (onSuccessMessage) {
+        toast({
+          title: 'Success',
+          description: onSuccessMessage,
+          variant: 'success'
+        });
+      }
+    },
+  });
+}

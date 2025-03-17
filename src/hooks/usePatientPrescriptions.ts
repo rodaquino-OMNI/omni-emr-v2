@@ -1,72 +1,43 @@
 
-import { useState, useEffect } from 'react';
+import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { Prescription, PatientDataState } from '@/types/patient';
-import { transformPrescription } from '@/services/prescriptions/transformUtils';
+import { Prescription } from '@/types/patient';
 
 /**
- * Hook to fetch and manage patient prescriptions
- * Uses standardized data structures and loading states
+ * Hook for fetching patient prescriptions with caching
  */
-export function usePatientPrescriptions(patientId?: string): PatientDataState<Prescription[]> & { refetch: () => Promise<void> } {
-  const [state, setState] = useState<PatientDataState<Prescription[]>>({
-    data: null,
-    isLoading: false,
-    error: null
-  });
+export function usePatientPrescriptions(patientId?: string) {
+  return useSupabaseQuery<Prescription[]>(
+    ['patientPrescriptions', patientId || ''],
+    async () => {
+      if (!patientId) return [];
 
-  const fetchPrescriptions = async () => {
-    if (!patientId) {
-      setState(prev => ({ ...prev, isLoading: false }));
-      return;
-    }
-
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      // Fetch prescriptions for patient
       const { data, error } = await supabase
         .from('prescriptions')
-        .select('*')
+        .select(`
+          *,
+          items:prescription_items(*)
+        `)
         .eq('patient_id', patientId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      // Transform prescriptions using the service utility
-      const transformedPrescriptions = await Promise.all(
-        data.map(async (prescription) => {
-          try {
-            return await transformPrescription(prescription);
-          } catch (err) {
-            console.error(`Error transforming prescription ${prescription.id}:`, err);
-            return null;
-          }
-        })
-      );
-
-      // Filter out null values (failed transformations)
-      const validPrescriptions = transformedPrescriptions.filter(p => p !== null) as Prescription[];
-
-      setState({
-        data: validPrescriptions,
-        isLoading: false,
-        error: null
-      });
-    } catch (err: any) {
-      console.error('Error fetching prescriptions:', err);
-      setState({
-        data: null,
-        isLoading: false,
-        error: err.message || 'Failed to fetch prescription data'
-      });
+      
+      // Transform data to match our Prescription type
+      return (data || []).map(prescription => ({
+        id: prescription.id,
+        patient_id: prescription.patient_id,
+        provider_id: prescription.provider_id,
+        status: prescription.status,
+        created_at: prescription.created_at,
+        items: prescription.items || []
+      })) as Prescription[];
+    },
+    {
+      enabled: !!patientId,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 15 * 60 * 1000 // 15 minutes
     }
-  };
-
-  useEffect(() => {
-    fetchPrescriptions();
-  }, [patientId]);
-
-  return {
-    ...state,
-    refetch: fetchPrescriptions
-  };
+  );
 }

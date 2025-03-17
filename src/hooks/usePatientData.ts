@@ -1,68 +1,65 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
+import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { Patient, PatientDataState } from '@/types/patient';
-import { mapToPatientStatus } from '@/types/patientTypes';
+import { Patient } from '@/types/patient';
+import { formatErrorMessage } from '@/utils/errorHandling';
+
+export interface PatientDataState<T = Patient> {
+  patient: T | null;
+  isLoading: boolean;
+  error: string | null;
+}
 
 /**
- * Hook to fetch and manage patient data
- * Provides standardized loading states and error handling
+ * Hook to fetch and manage patient data with proper caching
  */
-export function usePatientData(patientId?: string): PatientDataState<Patient> & { fetchPatient: () => Promise<void> } {
-  const [state, setState] = useState<PatientDataState<Patient>>({
-    data: null,
-    isLoading: false,
-    error: null
-  });
+export function usePatientData(patientId?: string) {
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchPatient = async () => {
-    if (!patientId) {
-      setState(prev => ({ ...prev, isLoading: false }));
-      return;
-    }
-
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+  // Use react-query for data fetching with caching
+  const { 
+    data: patient, 
+    isLoading,
+    refetch
+  } = useSupabaseQuery<Patient | null>(
+    ['patient', patientId || ''], 
+    async () => {
+      if (!patientId) return null;
+      
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .eq('id', patientId)
-        .single();
-
-      if (error) throw error;
-
-      if (data) {
-        // Ensure consistent data structure
-        const patientWithConsistentFields: Patient = {
-          ...data,
-          status: mapToPatientStatus(data.status as string),
-          name: `${data.first_name} ${data.last_name}`,
-          phone_number: data.phone || null,
-          phone: data.phone || null
-        };
+        .maybeSingle();
         
-        setState({
-          data: patientWithConsistentFields,
-          isLoading: false,
-          error: null
-        });
+      if (error) throw error;
+      return data as Patient;
+    },
+    {
+      enabled: !!patientId,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      onError: (err) => {
+        setError(formatErrorMessage(err));
       }
-    } catch (err: any) {
-      console.error('Error fetching patient:', err);
-      setState({
-        data: null,
-        isLoading: false,
-        error: err.message || 'Failed to fetch patient data'
-      });
     }
-  };
+  );
 
-  useEffect(() => {
-    fetchPatient();
-  }, [patientId]);
+  // Function to manually fetch patient data
+  const fetchPatient = useCallback(async () => {
+    try {
+      await refetch();
+      setError(null);
+    } catch (err) {
+      setError(formatErrorMessage(err));
+    }
+  }, [refetch]);
 
   return {
-    ...state,
+    patient,
+    isLoading,
+    error,
     fetchPatient
   };
 }

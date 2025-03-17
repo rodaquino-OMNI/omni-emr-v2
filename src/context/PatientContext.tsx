@@ -1,18 +1,17 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Patient, PatientStatus } from '@/types/patientTypes';
+import { Patient } from '@/types/patient';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import { usePatientData } from '@/hooks/usePatientData';
 import { usePatientInsights } from '@/hooks/usePatientInsights';
-import { usePatientPrescriptions } from '@/components/patients/hooks/usePatientPrescriptions';
+import { usePatientPrescriptions } from '@/hooks/usePatientPrescriptions';
 import { toast } from 'sonner';
-import { mapToPatientStatus } from '@/types/patientTypes';
 
 interface PatientContextType {
-  patient: (Patient & { insights?: any[]; prescriptions?: any[] }) | null;
+  patient: Patient | null;
   isLoading: boolean;
   error: string | null;
   refreshPatient: () => Promise<void>;
@@ -44,7 +43,7 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
   // Use patientId from props or route params
   const patientId = propPatientId || params.id;
   
-  // Fetch patient data
+  // Fetch patient data using our optimized hook
   const { 
     patient, 
     isLoading: patientLoading, 
@@ -52,7 +51,7 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
     fetchPatient
   } = usePatientData(patientId);
   
-  // Fetch insights data
+  // Fetch insights data with caching
   const { 
     insights, 
     isLoading: insightsLoading, 
@@ -60,11 +59,11 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
     refetchInsights
   } = usePatientInsights(patientId);
   
-  // Fetch prescriptions data
+  // Fetch prescriptions data with caching
   const { 
-    prescriptions, 
-    loading: prescriptionsLoading,
-    refetchPrescriptions
+    data: prescriptions, 
+    isLoading: prescriptionsLoading,
+    refetch: refetchPrescriptions
   } = usePatientPrescriptions(patientId);
   
   // Combined loading state
@@ -103,7 +102,11 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
       setError(null);
     } catch (err) {
       console.error('Error refreshing patient data:', err);
-      setError('Failed to refresh patient data');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to refresh patient data');
+      }
     }
   };
   
@@ -118,10 +121,6 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
   // Combine patient data with insights and prescriptions
   const combinedPatientData = patient ? {
     ...patient,
-    // Add missing required fields to satisfy the Patient interface
-    status: mapToPatientStatus(patient.status?.toString() || 'stable'),
-    country: patient.country || null,
-    insurance: patient.insurance || null,
     insights: insights || [],
     prescriptions: prescriptions || []
   } : null;

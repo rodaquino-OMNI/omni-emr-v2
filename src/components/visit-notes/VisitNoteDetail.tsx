@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -25,7 +24,7 @@ import {
   Clipboard
 } from 'lucide-react';
 import VitalSignsForm from '../vital-signs/VitalSignsForm';
-import VitalSignsDisplay from '../vital-signs/VitalSignsDisplay';
+import { VitalSignsDisplay } from '../vital-signs/VitalSignsDisplay';
 
 interface VisitNoteDetailProps {
   id?: string;
@@ -50,7 +49,6 @@ const VisitNoteDetail: React.FC<VisitNoteDetailProps> = ({ id: propId }) => {
       try {
         setLoading(true);
         
-        // Fetch the visit note
         const { data, error } = await supabase
           .from('visit_notes')
           .select(`
@@ -70,7 +68,6 @@ const VisitNoteDetail: React.FC<VisitNoteDetailProps> = ({ id: propId }) => {
 
         setVisitNote(data);
         
-        // Get patient data
         if (data.patients) {
           setPatient(data.patients);
         }
@@ -91,9 +88,6 @@ const VisitNoteDetail: React.FC<VisitNoteDetailProps> = ({ id: propId }) => {
 
   const handleVitalsAdded = () => {
     setShowVitalsForm(false);
-    // Refetch visit note data to get updated vitals
-    // This is a simplified approach; in a real app, you might want to
-    // use React Query or similar for better data management
     window.location.reload();
   };
 
