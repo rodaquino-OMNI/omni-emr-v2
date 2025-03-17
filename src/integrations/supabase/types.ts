@@ -3558,6 +3558,23 @@ export type Database = {
           prescription_count: number
         }[]
       }
+      get_latest_vitals: {
+        Args: {
+          p_patient_id: string
+        }
+        Returns: {
+          id: string
+          patient_id: string
+          measurement_time: string
+          temperature: number
+          heart_rate: number
+          respiratory_rate: number
+          systolic_bp: number
+          diastolic_bp: number
+          oxygen_saturation: number
+          pain_level: number
+        }[]
+      }
       get_patient_medication_history: {
         Args: {
           patient_id_param: string
@@ -3617,6 +3634,27 @@ export type Database = {
           mrn: string
           status: string
           is_assigned: boolean
+        }[]
+      }
+      get_upcoming_appointments: {
+        Args: {
+          p_user_id: string
+          p_is_provider?: boolean
+          p_days_forward?: number
+        }
+        Returns: {
+          id: string
+          patient_id: string
+          patient_name: string
+          provider_id: string
+          provider_name: string
+          date: string
+          time: string
+          title: string
+          duration: number
+          status: string
+          type: string
+          location: string
         }[]
       }
       get_user_role: {
