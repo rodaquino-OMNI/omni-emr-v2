@@ -58,8 +58,9 @@ const PatientDetailContent = ({
       
       <TabsContent value="ai-insights" className="space-y-2">
         <PatientAIInsightsTab 
+          patientId={patientId}
           insights={insights || []} 
-          loading={insightsLoading} 
+          isLoading={insightsLoading} 
         />
       </TabsContent>
     </Tabs>

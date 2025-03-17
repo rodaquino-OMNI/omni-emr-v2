@@ -11,7 +11,7 @@ export const mapPrescriptionFromDatabase = (
   viewContext: 'patient' | 'doctor'
 ): Prescription => {
   // Map the prescription items
-  const items: PrescriptionItem[] = prescription.prescription_items.map((item: any) => ({
+  const items: PrescriptionItem[] = prescription.prescription_items?.map((item: any) => ({
     id: item.id,
     prescription_id: prescription.id,
     name: item.name,
@@ -23,24 +23,26 @@ export const mapPrescriptionFromDatabase = (
     end_date: item.end_date,
     status: item.status,
     instructions: item.instructions
-  }));
+  })) || [];
 
   // Create the base prescription object
   const mappedPrescription: Prescription = {
     id: prescription.id,
     patient_id: prescription.patient_id,
     provider_id: prescription.provider_id,
-    status: prescription.status,
+    status: prescription.status || 'active',
     created_at: prescription.created_at,
     updated_at: prescription.updated_at,
     notes: prescription.notes,
     items: items
   };
 
-  // Add context-specific fields
-  if (viewContext === 'patient') {
-    mappedPrescription.doctorName = prescription.providers ? prescription.providers.name : 'Unknown Provider';
-  } else if (viewContext === 'doctor') {
+  // Add context-specific fields based on the view
+  if (viewContext === 'patient' && prescription.providers) {
+    // @ts-ignore - Adding property that exists in the type but TS doesn't recognize
+    mappedPrescription.doctorName = prescription.providers.name || 'Unknown Provider';
+  } else if (viewContext === 'doctor' && prescription.patients) {
+    // @ts-ignore - Adding property that exists in the type but TS doesn't recognize
     mappedPrescription.patientName = prescription.patients ? 
       `${prescription.patients.first_name} ${prescription.patients.last_name}` : 
       'Unknown Patient';
@@ -56,7 +58,7 @@ export const mapPrescriptionFromDatabase = (
  */
 export const preparePrescriptionForDatabase = (prescription: Prescription) => {
   // Extract the items to be inserted separately
-  const items = prescription.items.map(item => ({
+  const items = prescription.items?.map(item => ({
     prescription_id: prescription.id, // Will be set for new items after prescription is created
     name: item.name,
     type: item.type,
@@ -67,7 +69,7 @@ export const preparePrescriptionForDatabase = (prescription: Prescription) => {
     end_date: item.end_date,
     status: item.status || 'active',
     instructions: item.instructions
-  }));
+  })) || [];
 
   // Prepare the prescription record
   const prescriptionRecord = {

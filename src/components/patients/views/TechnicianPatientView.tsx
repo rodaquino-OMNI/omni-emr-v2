@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate } from 'react-router-dom';
-import { FilePlus2, Flask, ImagePlus } from 'lucide-react';
+import { FilePlus2, TestTube, ImagePlus } from 'lucide-react';
 import { usePatientData } from '@/hooks/usePatientData';
 import { PatientViewProps } from '@/types/patient';
 import { useAuth } from '@/context/AuthContext';
@@ -15,7 +15,7 @@ import PatientImagingTab from '../tabs/PatientImagingTab';
 import PatientOrdersTab from '../tabs/PatientOrdersTab';
 
 const TechnicianPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
-  const { data: patient, isLoading, error } = usePatientData(patientId);
+  const { patient, isLoading, error } = usePatientData(patientId);
   const navigate = useNavigate();
   const { user } = useAuth();
   const isTechnicianType = user?.role.includes('technician');
@@ -38,7 +38,7 @@ const TechnicianPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
             onClick={() => navigate(`/lab/results/new?patientId=${patientId}`)}
             className="flex items-center"
           >
-            <Flask className="h-4 w-4 mr-2" />
+            <TestTube className="h-4 w-4 mr-2" />
             Enter Lab Results
           </Button>
         )}

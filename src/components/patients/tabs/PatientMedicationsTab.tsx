@@ -32,7 +32,7 @@ const PatientMedicationsTab: React.FC<PatientMedicationsTabProps> = ({ patientId
   // Filter active medications from prescriptions
   const activeMedications = prescriptions?.flatMap(prescription => 
     prescription.items?.filter(item => 
-      item.type === 'medication' && item.status === 'active'
+      item.type === 'medication' && item.status !== 'cancelled' && item.status !== 'completed'
     ) || []
   ) || [];
   

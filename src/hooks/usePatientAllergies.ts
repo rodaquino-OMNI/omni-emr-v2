@@ -1,13 +1,13 @@
 
 import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { Allergy } from '@/types/patient';
+import { PatientAllergy } from '@/types/patientTypes';
 
 /**
  * Hook for fetching patient allergies with caching
  */
 export function usePatientAllergies(patientId?: string) {
-  return useSupabaseQuery<Allergy[]>(
+  return useSupabaseQuery<PatientAllergy[]>(
     ['patientAllergies', patientId || ''],
     async () => {
       if (!patientId) return [];
@@ -21,12 +21,10 @@ export function usePatientAllergies(patientId?: string) {
 
       if (error) throw error;
       
-      return data as Allergy[];
+      return data as PatientAllergy[];
     },
     {
-      enabled: !!patientId,
-      staleTime: 10 * 60 * 1000, // 10 minutes (allergies don't change frequently)
-      gcTime: 30 * 60 * 1000 // 30 minutes
+      enabled: !!patientId
     }
   );
 }

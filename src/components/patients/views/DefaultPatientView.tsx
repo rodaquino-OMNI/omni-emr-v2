@@ -11,7 +11,7 @@ import PatientAllergiesTab from '../tabs/PatientAllergiesTab';
 import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
 
 const DefaultPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
-  const { data: patient, isLoading, error } = usePatientData(patientId);
+  const { patient, isLoading, error } = usePatientData(patientId);
   
   if (isLoading) {
     return <LoadingSpinner />;

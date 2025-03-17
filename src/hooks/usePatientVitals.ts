@@ -24,9 +24,7 @@ export function usePatientVitals(patientId?: string) {
       return data as VitalSigns[];
     },
     {
-      enabled: !!patientId,
-      staleTime: 2 * 60 * 1000, // 2 minutes (vitals may update frequently)
-      gcTime: 10 * 60 * 1000 // 10 minutes
+      enabled: !!patientId
     }
   );
 }

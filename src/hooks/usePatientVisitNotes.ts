@@ -42,9 +42,7 @@ export function usePatientVisitNotes(patientId?: string) {
       return data as unknown as VisitNote[];
     },
     {
-      enabled: !!patientId,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 15 * 60 * 1000 // 15 minutes
+      enabled: !!patientId
     }
   );
 }
@@ -74,9 +72,7 @@ export function useVisitNoteDetails(noteId?: string) {
       return data as unknown as VisitNote;
     },
     {
-      enabled: !!noteId,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 15 * 60 * 1000 // 15 minutes
+      enabled: !!noteId
     }
   );
 }

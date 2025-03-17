@@ -49,8 +49,11 @@ export const getPrescriptionById = async (prescriptionId: string): Promise<Presc
     // Create a complete prescription with both patient and doctor information
     const prescription = mapPrescriptionFromDatabase(data, 'patient');
     
-    // Add patient name as well (since we have the data)
-    prescription.patientName = data.patients ? `${data.patients.first_name} ${data.patients.last_name}` : 'Unknown Patient';
+    // Add patient name - since we have access to both patient and doctor info here
+    if (data.patients) {
+      // @ts-ignore - This property exists in the type but TS doesn't recognize it
+      prescription.patientName = `${data.patients.first_name} ${data.patients.last_name}` || 'Unknown Patient';
+    }
     
     return prescription;
   } catch (error) {

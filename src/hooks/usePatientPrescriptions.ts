@@ -1,7 +1,7 @@
 
 import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { Prescription } from '@/types/patient';
+import { Prescription } from '@/types/patientTypes';
 
 /**
  * Hook for fetching patient prescriptions with caching
@@ -35,9 +35,7 @@ export function usePatientPrescriptions(patientId?: string) {
       })) as Prescription[];
     },
     {
-      enabled: !!patientId,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 15 * 60 * 1000 // 15 minutes
+      enabled: !!patientId
     }
   );
 }

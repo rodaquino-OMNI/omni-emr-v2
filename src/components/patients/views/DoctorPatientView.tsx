@@ -2,7 +2,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { usePatient } from '@/hooks/usePatient';
+import { usePatientData } from '@/hooks/usePatientData';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate } from 'react-router-dom';
 import { Plus, FilePlus2, Stethoscope, Pill } from 'lucide-react';
@@ -13,13 +13,14 @@ import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
 import PatientNotesTab from '../tabs/PatientNotesTab';
 import PatientLabResultsTab from '../tabs/PatientLabResultsTab';
 import PatientImagingTab from '../tabs/PatientImagingTab';
+import { PatientAIInsightsTab } from '../tabs';
 
 interface DoctorPatientViewProps {
   patientId: string;
 }
 
 const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
-  const { patient, isLoading, error } = usePatient(patientId);
+  const { patient, isLoading, error } = usePatientData(patientId);
   const navigate = useNavigate();
   
   if (isLoading) {
@@ -107,7 +108,6 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
         </TabsContent>
         
         <TabsContent value="insights">
-          {/* Pass the required props to PatientAIInsightsTab */}
           <PatientAIInsightsTab patientId={patientId} />
         </TabsContent>
       </Tabs>

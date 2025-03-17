@@ -2,7 +2,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { usePatient } from '@/hooks/usePatient';
+import { usePatientData } from '@/hooks/usePatientData';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate } from 'react-router-dom';
 import { FilePlus2, ActivitySquare, Pill, Droplets } from 'lucide-react';
@@ -18,7 +18,7 @@ interface NursePatientViewProps {
 }
 
 const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
-  const { patient, isLoading, error } = usePatient(patientId);
+  const { patient, isLoading, error } = usePatientData(patientId);
   const navigate = useNavigate();
   
   if (isLoading) {
