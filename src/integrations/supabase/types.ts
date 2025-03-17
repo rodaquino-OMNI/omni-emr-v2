@@ -3526,6 +3526,10 @@ export type Database = {
           rows_deleted: number
         }[]
       }
+      get_auth_uid: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_auth_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
