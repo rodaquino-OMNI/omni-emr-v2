@@ -3699,9 +3699,23 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      maintain_database_performance: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       migrate_to_fhir_model: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      monitor_index_usage: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          schema_name: string
+          table_name: string
+          index_name: string
+          index_size: string
+          index_scans: number
+        }[]
       }
       policy_exists: {
         Args: {
