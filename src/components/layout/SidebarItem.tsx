@@ -9,6 +9,7 @@ interface SidebarItemProps {
   item: SidebarItemType;
   onClick?: () => void;
   badge?: number;
+  disabled?: boolean; // Added disabled prop
 }
 
 // Helper function to determine if an item is active based on the current path
@@ -17,12 +18,13 @@ const isItemActive = (itemPath: string, currentPath: string): boolean => {
 };
 
 // Helper function to get the appropriate CSS classes for the item
-const getItemClasses = (isActive: boolean): string => {
+const getItemClasses = (isActive: boolean, disabled?: boolean): string => {
   return cn(
     "flex items-center gap-3 rounded-md px-3 py-2 transition-colors",
     isActive 
       ? "bg-primary/10 text-primary" 
-      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+    disabled && "opacity-50 cursor-not-allowed pointer-events-none"
   );
 };
 
@@ -37,19 +39,20 @@ const renderBadge = (badge?: number): React.ReactNode => {
   );
 };
 
-const SidebarItem = ({ item, onClick, badge }: SidebarItemProps) => {
+const SidebarItem = ({ item, onClick, badge, disabled }: SidebarItemProps) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const Icon = item.icon;
   
   const active = isItemActive(item.path, pathname);
-  const itemClasses = getItemClasses(active);
+  const itemClasses = getItemClasses(active, disabled);
 
   return (
     <Link 
       to={item.path}
       className={itemClasses}
       onClick={onClick}
+      aria-disabled={disabled}
     >
       <Icon className="h-5 w-5" />
       <span>{t(item.translationKey as any)}</span>

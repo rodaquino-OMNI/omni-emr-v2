@@ -6,7 +6,7 @@ import { hasPermission } from '@/utils/permissionUtils';
 interface RoutePermissionsProps {
   user: User | null;
   requiredPermission?: string;
-  requiredRole?: string;
+  requiredRole?: string | string[];
 }
 
 export const useRoutePermissions = ({ 
@@ -32,8 +32,12 @@ export const useRoutePermissions = ({
   }
   
   // If a specific role is required, check if the user has it
-  if (requiredRole && hasRequired) {
-    hasRequired = user?.role === requiredRole;
+  if (requiredRole && hasRequired && user) {
+    if (Array.isArray(requiredRole)) {
+      hasRequired = requiredRole.includes(user.role);
+    } else {
+      hasRequired = user.role === requiredRole;
+    }
   }
   
   return {

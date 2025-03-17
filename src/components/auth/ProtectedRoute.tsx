@@ -13,16 +13,18 @@ import {
 
 interface ProtectedRouteProps {
   requiredPermission?: string;
-  requiredRole?: string;
+  requiredRole?: string | string[];
   patientId?: string;
   children?: React.ReactNode;
+  redirectTo?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   requiredPermission,
   requiredRole,
   patientId,
-  children
+  children,
+  redirectTo = '/login'
 }) => {
   const location = useLocation();
   const auth = useAuth();
@@ -33,16 +35,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     language: 'en' 
   };
   
-  // Access sector context - moved before any conditional logic
+  // Access sector context
   const sectorContext = useSectorContext();
   
-  // Use offline mode hook for connectivity checks - moved before any conditional logic
+  // Use offline mode hook for connectivity checks
   const { isOfflineMode, checkingConnectivity } = useOfflineMode(
     isAuthenticated || false, 
     language || 'en'
   );
   
-  // Use route permissions hook to check permissions - moved before any conditional logic
+  // Use route permissions hook to check permissions
   const { isRootOrDashboard, hasRequired } = useRoutePermissions({
     user,
     requiredPermission,
@@ -72,14 +74,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
+    return <Navigate to={redirectTo} state={{ returnUrl: location.pathname }} replace />;
   }
   
   // Check if the current route is the root or dashboard and user has no selected sector
-  // Redirect to sector selection if so
+  // Only redirect clinical roles to sector selection
   const needsSectorSelection = isRootOrDashboard && 
     sectorContext && 
-    !sectorContext.selectedSector;
+    !sectorContext.selectedSector &&
+    user && ['doctor', 'nurse', 'medical_staff'].includes(user.role);
   
   if (needsSectorSelection) {
     return <Navigate to="/sectors" replace />;

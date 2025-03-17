@@ -54,7 +54,11 @@ function AppRoutes() {
   
   // Create dynamic routes based on user role and permissions
   const router = useMemo(() => {
-    return createBrowserRouter(user?.role ? createDynamicRoutes(user.role, userPermissions) : routes);
+    const routesToUse = user?.role 
+      ? createDynamicRoutes(user.role, userPermissions) 
+      : routes;
+    
+    return createBrowserRouter(routesToUse);
   }, [user, userPermissions]);
   
   return <RouterProvider router={router} />;
