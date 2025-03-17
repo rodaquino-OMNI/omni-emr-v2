@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import PatientOverviewTab from '@/components/patients/tabs/PatientOverviewTab';
-import PatientRecordsTab from '@/components/patients/tabs/PatientRecordsTab';
-import PatientPrescriptionsTab from '@/components/patients/tabs/PatientPrescriptionsTab';
-import PatientAIInsightsTab from '@/components/patients/tabs/PatientAIInsightsTab';
+import { PatientOverviewTab } from '@/components/patients/tabs/PatientOverviewTab';
+import { PatientRecordsTab } from '@/components/patients/tabs/PatientRecordsTab';
+import { PatientPrescriptionsTab } from '@/components/patients/tabs/PatientPrescriptionsTab';
+import { PatientAIInsightsTab } from '@/components/patients/tabs/PatientAIInsightsTab';
 
 interface PatientDetailContentProps {
   patientId: string;

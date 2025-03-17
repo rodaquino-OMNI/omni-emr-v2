@@ -17,7 +17,7 @@ export const createPrescription = async (
     const { data, error } = await supabase
       .from('prescriptions')
       .insert({
-        patient_id: prescription.patientId,
+        patient_id: prescription.patient_id,
         doctor_id: user.id,
         date: new Date().toISOString(),
         status: prescription.status,
@@ -31,7 +31,7 @@ export const createPrescription = async (
     }
 
     // Insert prescription items if present
-    if (prescription.items.length > 0) {
+    if (prescription.items && prescription.items.length > 0) {
       await insertPrescriptionItems(data.id, prescription.items);
     }
 
@@ -41,7 +41,7 @@ export const createPrescription = async (
       'create',
       'prescription',
       data.id,
-      { patient_id: prescription.patientId }
+      { patient_id: prescription.patient_id }
     );
 
     // Return the newly created prescription
@@ -66,8 +66,8 @@ const insertPrescriptionItems = async (prescriptionId: string, items: any[]) => 
     dosage: item.dosage,
     frequency: item.frequency,
     duration: item.duration,
-    start_date: item.startDate,
-    end_date: item.endDate,
+    start_date: item.start_date,
+    end_date: item.end_date,
     status: item.status,
     instructions: item.instructions
   }));
@@ -88,9 +88,7 @@ const createMockPrescription = (prescription: Omit<Prescription, 'id'>, user: Us
   return {
     ...prescription,
     id: crypto.randomUUID(),
-    doctorId: user.id,
-    doctorName: user.name,
-    date: new Date().toISOString()
+    provider_id: user.id,
+    created_at: new Date().toISOString()
   };
 };
-

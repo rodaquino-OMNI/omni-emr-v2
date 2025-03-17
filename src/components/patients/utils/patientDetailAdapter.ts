@@ -1,7 +1,7 @@
 
 import { Patient } from '@/types/patientTypes';
 import { Patient as UnifiedPatient } from '@/types/patient';
-import { AIInsight } from '@/components/ai/AIInsights';
+import { ComponentAIInsight } from '@/utils/typeAdapters';
 import { AIInsight as PatientAIInsight } from '@/types/patient';
 import { adaptAIInsight } from '@/utils/typeAdapters';
 
@@ -40,6 +40,37 @@ export const adaptPatientForDetail = (patient: Patient): UnifiedPatient => {
 /**
  * Converts component AIInsights to PatientAIInsight format for PatientDetail component
  */
-export const adaptInsightsForPatientDetail = (insights: AIInsight[]): PatientAIInsight[] => {
-  return insights.map(adaptAIInsight);
+export const adaptInsightsForPatientDetail = (insights: ComponentAIInsight[]): PatientAIInsight[] => {
+  // Convert ComponentAIInsight[] to PatientAIInsight[]
+  return insights.map(insight => {
+    // Map type to severity
+    let severity: 'low' | 'medium' | 'high' | 'critical';
+    switch (insight.type) {
+      case 'critical':
+        severity = 'critical';
+        break;
+      case 'warning':
+        severity = 'high';
+        break;
+      case 'info':
+        severity = 'low';
+        break;
+      case 'success':
+        severity = 'low';
+        break;
+      default:
+        severity = 'medium';
+    }
+
+    return {
+      id: insight.id,
+      patient_id: insight.patient_id || '',
+      title: insight.title,
+      description: insight.description,
+      severity,
+      created_at: insight.timestamp,
+      source: insight.source,
+      category: insight.type
+    };
+  });
 };

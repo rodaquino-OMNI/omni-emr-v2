@@ -46,7 +46,7 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ patientId: ext
   const patientId = externalPatientId || id || (location.state as any)?.patientId || '';
   
   // Fetch patient data
-  const { patient, isLoading, error, refreshPatient } = usePatientData(patientId);
+  const { patient, isLoading, error, fetchPatient, updatePatient } = usePatientData(patientId);
   
   // Check if user can edit or view this patient based on sector
   const [canEdit, setCanEdit] = useState<boolean>(false);
@@ -61,6 +61,11 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ patientId: ext
       setCanEdit(patient.is_assigned || false);
     }
   }, [patient, selectedSector]);
+  
+  // Define refreshPatient function to match the context type
+  const refreshPatient = async () => {
+    await fetchPatient();
+  };
   
   // If loading, just return the children
   if (isLoading) {
@@ -86,10 +91,13 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ patientId: ext
     );
   }
   
+  // We need to cast the patient to avoid the type error related to phone property
+  const patientToUse = patient as unknown as Patient;
+  
   return (
     <PatientContext.Provider 
       value={{ 
-        patient, 
+        patient: patientToUse, 
         isLoading, 
         error, 
         patientId, 

@@ -4,7 +4,8 @@
  * This is a wrapper around localStorage with added security features
  */
 
-type StorageKey = 'selectedSector' | 'authToken' | 'userPreferences';
+export type StorageKey = 'selectedSector' | 'authToken' | 'userPreferences' | 
+  'login_attempts' | 'login_lockout_until' | 'csrf_token' | 'language';
 
 export const secureStorage = {
   /**

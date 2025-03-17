@@ -41,7 +41,7 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
             duration: item.duration,
             start_date: item.start_date || item.startDate,
             end_date: item.end_date || item.endDate,
-            status: item.status as "active" | "completed" | "cancelled" | "pending",
+            status: item.status as "pending" | "completed" | "cancelled",
             instructions: item.instructions
           }))
         };

@@ -37,6 +37,7 @@ export const transformPrescription = async (prescription: any): Promise<Prescrip
   // Transform prescription items format with proper type casting
   const transformedItems: PrescriptionItem[] = items ? items.map(item => ({
     id: item.id,
+    prescription_id: prescription.id,
     name: item.name,
     // Ensure the type is one of the allowed values
     type: (item.type === 'medication' || item.type === 'procedure' || 
@@ -47,8 +48,8 @@ export const transformPrescription = async (prescription: any): Promise<Prescrip
     dosage: item.dosage,
     frequency: item.frequency,
     duration: item.duration,
-    startDate: item.start_date,
-    endDate: item.end_date,
+    start_date: item.start_date,
+    end_date: item.end_date,
     status: item.status as 'pending' | 'completed' | 'cancelled',
     instructions: item.instructions
   })) : [];
@@ -56,11 +57,11 @@ export const transformPrescription = async (prescription: any): Promise<Prescrip
   // Return transformed prescription
   return {
     id: prescription.id,
-    patientId: prescription.patient_id,
+    patient_id: prescription.patient_id,
     patientName: patientName,
-    doctorId: prescription.doctor_id,
+    provider_id: prescription.doctor_id,
     doctorName: doctorName,
-    date: prescription.date,
+    created_at: prescription.date || prescription.created_at,
     status: prescription.status as 'active' | 'completed' | 'cancelled',
     notes: prescription.notes,
     items: transformedItems

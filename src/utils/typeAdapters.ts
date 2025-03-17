@@ -1,7 +1,7 @@
 
 import { AIInsight as PatientInsight } from '@/types/patient';
 
-interface ComponentAIInsight {
+export interface ComponentAIInsight {
   id: string;
   title: string;
   description: string;
