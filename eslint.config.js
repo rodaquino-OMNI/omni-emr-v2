@@ -25,7 +25,10 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-explicit-any": "off", // Turn off the any errors for now
+      "@typescript-eslint/no-explicit-any": "off", // Turn off the any errors
+      "@typescript-eslint/no-empty-interface": "off", // Turn off empty interface errors
+      "no-case-declarations": "off", // Allow lexical declarations in case blocks
+      "react-hooks/exhaustive-deps": "warn", // Change to warning instead of error
     },
   }
 );

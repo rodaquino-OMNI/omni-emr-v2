@@ -1,147 +1,82 @@
+import { VitalSigns } from '@/types/patientTypes';
 
-import { VitalType, TimeRangeType, VitalDataPoint } from "../types/vitalsTypes";
+type VitalType = keyof Omit<VitalSigns, 'id' | 'patient_id' | 'timestamp' | 'taken_by'>;
 
-export const generateMockVitalsData = (type: VitalType, patientId: string, timeRange: TimeRangeType): VitalDataPoint[] => {
-  const today = new Date();
-  const data: VitalDataPoint[] = [];
-  
-  let dataPoints = 7;
-  let intervalHours = 24;
-  
-  switch(timeRange) {
-    case '24h':
-      dataPoints = 8;
-      intervalHours = 3;
-      break;
-    case '3d':
-      dataPoints = 9;
-      intervalHours = 8;
-      break;
-    case '7d':
-      dataPoints = 7;
-      intervalHours = 24;
-      break;
-    case '30d':
-      dataPoints = 10;
-      intervalHours = 72;
-      break;
+const vitalRanges: Record<VitalType, { min: number; max: number }> = {
+  temperature: { min: 36.5, max: 37.5 },
+  heart_rate: { min: 60, max: 100 },
+  systolic_blood_pressure: { min: 90, max: 140 },
+  diastolic_blood_pressure: { min: 60, max: 90 },
+  oxygen_saturation: { min: 95, max: 100 },
+  respiratory_rate: { min: 12, max: 20 },
+  pain_level: { min: 0, max: 10 },
+};
+
+const getBaseValue = (vitalType: VitalType): number => {
+  const range = vitalRanges[vitalType];
+  return (range.min + range.max) / 2;
+};
+
+const getVariance = (vitalType: VitalType): number => {
+  const range = vitalRanges[vitalType];
+  return (range.max - range.min) / 2;
+};
+
+const formatVitalValue = (vitalType: VitalType, value: number): number => {
+  if (vitalType === 'temperature') {
+    return parseFloat(value.toFixed(1));
+  } else if (vitalType === 'pain_level') {
+    return Math.round(value);
+  } else {
+    return Math.round(value);
   }
-  
-  for (let i = dataPoints - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setHours(date.getHours() - (i * intervalHours));
-    
-    let value;
-    let isAbnormal = false;
-    
-    const patientSeed = parseInt(patientId) || 1;
-    const timeSeed = i + 1;
-    const randomFactor = Math.sin(patientSeed * timeSeed) * 10;
-    
-    const abnormalProbability = Math.random() < 0.15;
-    
-    switch (type) {
-      case 'heartRate':
-        value = Math.floor(80 + randomFactor);
-        
-        if (abnormalProbability) {
-          value = Math.random() < 0.5 ? 
-            Math.floor(40 + Math.random() * 15) : 
-            Math.floor(110 + Math.random() * 40);
-          isAbnormal = true;
-        }
-        break;
-        
-      case 'bloodPressure':
-        const baselineSystolic = 120 + randomFactor;
-        const baselineDiastolic = 80 + (randomFactor * 0.5);
-        
-        let systolic = Math.floor(baselineSystolic);
-        let diastolic = Math.floor(baselineDiastolic);
-        
-        if (abnormalProbability) {
-          if (Math.random() < 0.5) {
-            systolic = Math.floor(80 + Math.random() * 10);
-            diastolic = Math.floor(50 + Math.random() * 10);
-          } else {
-            systolic = Math.floor(150 + Math.random() * 30);
-            diastolic = Math.floor(95 + Math.random() * 15);
-          }
-          isAbnormal = true;
-        }
-        
-        value = { systolic, diastolic, isAbnormal };
-        break;
-        
-      case 'temperature':
-        value = (37 + randomFactor * 0.05).toFixed(1);
-        
-        if (abnormalProbability) {
-          value = Math.random() < 0.5 ?
-            (35.5 + Math.random() * 0.5).toFixed(1) :
-            (38.5 + Math.random() * 1.5).toFixed(1);
-          isAbnormal = true;
-        }
-        break;
-        
-      case 'oxygenSaturation':
-        value = Math.min(100, Math.floor(97 + randomFactor * 0.3));
-        
-        if (abnormalProbability) {
-          value = Math.floor(85 + Math.random() * 7);
-          isAbnormal = true;
-        }
-        break;
-        
-      case 'respiratoryRate':
-        value = Math.floor(16 + randomFactor * 0.4);
-        
-        if (abnormalProbability) {
-          value = Math.random() < 0.5 ?
-            Math.floor(8 + Math.random() * 3) :
-            Math.floor(24 + Math.random() * 12);
-          isAbnormal = true;
-        }
-        break;
-        
-      case 'bloodGlucose':
-        value = Math.floor(85 + randomFactor * 1.5);
-        
-        if (abnormalProbability) {
-          value = Math.random() < 0.5 ?
-            Math.floor(40 + Math.random() * 25) :
-            Math.floor(180 + Math.random() * 120);
-          isAbnormal = true;
-        }
-        break;
-        
-      case 'pain':
-        value = Math.floor(2 + randomFactor * 0.3);
-        
-        if (abnormalProbability) {
-          value = Math.floor(7 + Math.random() * 3);
-          isAbnormal = true;
-        }
-        
-        value = Math.max(0, Math.min(10, value));
-        break;
-        
-      default:
-        value = 0;
-    }
-    
-    const formattedDate = timeRange === '24h' ? 
-      date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
-      date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + 
-      (timeRange === '3d' ? ' ' + date.toLocaleTimeString([], { hour: '2-digit' }) : '');
-      
-    data.push({
-      date: formattedDate,
-      timestamp: date.toISOString(),
-      value,
-      isAbnormal
-    });
+};
+
+export const generateMockVitalsData = () => {
+  const trendOptions = ['stable', 'improving', 'worsening', 'erratic'];
+  const vitalTypes: VitalType[] = [
+    'temperature',
+    'heart_rate',
+    'systolic_blood_pressure',
+    'diastolic_blood_pressure',
+    'oxygen_saturation',
+    'respiratory_rate',
+    'pain_level',
+  ];
+
+  const vitalType = vitalTypes[Math.floor(Math.random() * vitalTypes.length)];
+  const trend = trendOptions[Math.floor(Math.random() * trendOptions.length)];
+
+  switch (trend) {
+    case 'stable':
+      {
+        const baseValue = getBaseValue(vitalType);
+        const variance = getVariance(vitalType) * 0.2; // Lower variance for stable
+        const value = baseValue + (Math.random() * variance * 2 - variance);
+        return formatVitalValue(vitalType, value);
+      }
+    case 'improving':
+      {
+        const baseValue = getBaseValue(vitalType);
+        const variance = getVariance(vitalType) * 0.4;
+        const value = baseValue - Math.abs(Math.random() * variance);
+        return formatVitalValue(vitalType, value);
+      }
+    case 'worsening':
+      {
+        const baseValue = getBaseValue(vitalType);
+        const variance = getVariance(vitalType) * 0.7;
+        const value = baseValue + Math.abs(Math.random() * variance);
+        return formatVitalValue(vitalType, value);
+      }
+    case 'erratic':
+      {
+        const baseValue = getBaseValue(vitalType);
+        const variance = getVariance(vitalType);
+        const value = baseValue + (Math.random() * variance * 2 - variance);
+        return formatVitalValue(vitalType, value);
+      }
+    default:
+      return formatVitalValue(vitalType, getBaseValue(vitalType));
   }
-  
-  return data;
 };

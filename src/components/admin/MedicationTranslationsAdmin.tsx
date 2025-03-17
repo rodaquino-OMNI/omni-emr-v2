@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -54,7 +53,7 @@ const MedicationTranslationsAdmin: React.FC = () => {
   
   useEffect(() => {
     fetchTranslations();
-  }, []);
+  }, [fetchTranslations]);
   
   const fetchTranslations = async () => {
     setIsLoading(true);
@@ -95,7 +94,6 @@ const MedicationTranslationsAdmin: React.FC = () => {
       
       if (error) throw error;
       
-      // Update local state
       setTranslations(translations.map(t => 
         t.id === id ? { ...t, is_verified: true } : t
       ));
@@ -136,7 +134,6 @@ const MedicationTranslationsAdmin: React.FC = () => {
       
       if (error) throw error;
       
-      // Update local state
       setTranslations(translations.filter(t => t.id !== id));
       
       toast.success(
@@ -162,7 +159,6 @@ const MedicationTranslationsAdmin: React.FC = () => {
     setSearchTerm(e.target.value);
   };
   
-  // Filter translations based on search term
   const filteredTranslations = translations.filter(t => 
     t.english_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     t.portuguese_name.toLowerCase().includes(searchTerm.toLowerCase()) ||

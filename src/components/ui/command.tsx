@@ -1,4 +1,7 @@
-import * as React from "react"
+import * as React from "react";
+
+export type CommandProps = React.HTMLAttributes<HTMLDivElement>;
+
 import { type DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
 import { Search } from "lucide-react"

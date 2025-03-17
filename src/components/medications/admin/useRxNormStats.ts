@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { fetchDatabaseStats, DatabaseStats } from './utils/dbUtils';
@@ -52,7 +51,11 @@ export const useRxNormStats = () => {
 
   useEffect(() => {
     fetchStats();
-  }, []);
+    
+    // Refresh data every 5 minutes
+    const intervalId = setInterval(fetchStats, 5 * 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, [fetchStats]);
 
   return {
     dbStats,

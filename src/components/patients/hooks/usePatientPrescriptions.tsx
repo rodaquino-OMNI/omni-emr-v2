@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { extractTextFromCodeableConcept } from '@/utils/fhir/fhirExtractors';
@@ -15,7 +14,6 @@ export const usePatientPrescriptions = (patientId: string) => {
     hasDualSources: boolean
   } | null>(null);
   
-  // Use more focused hooks for data fetching and processing
   const { fetchFHIRData, fetchLegacyData } = useFetchPrescriptionData();
   const { transformFHIRData, transformLegacyData } = useProcessPrescriptionData();
   
@@ -25,11 +23,9 @@ export const usePatientPrescriptions = (patientId: string) => {
       
       setLoading(true);
       try {
-        // Fetch data from both sources
         const fhirData = await fetchFHIRData(patientId);
         const legacyData = await fetchLegacyData(patientId);
         
-        // Calculate statistics about our data sources
         const fhirCount = fhirData.length;
         const legacyCount = legacyData.length;
         const totalCount = fhirCount + legacyCount;
@@ -42,7 +38,6 @@ export const usePatientPrescriptions = (patientId: string) => {
           hasDualSources
         });
         
-        // Process data based on availability
         let combinedData: any[] = [];
         
         if (fhirCount > 0) {
@@ -73,14 +68,12 @@ export const usePatientPrescriptions = (patientId: string) => {
   return { prescriptions, loading, dataStats };
 };
 
-// This is exported for compatibility with existing code,
-// but we should update the callers to use the hook directly
-export const getPatientPrescriptions = async (patientId: string) => {
+export const fetchPatientPrescriptions = async (patientId: string) => {
   try {
     const { prescriptions } = usePatientPrescriptions(patientId);
     return prescriptions;
   } catch (error) {
-    console.error('Error in getPatientPrescriptions:', error);
+    console.error('Error in fetchPatientPrescriptions:', error);
     return [];
   }
 };

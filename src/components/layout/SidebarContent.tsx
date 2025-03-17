@@ -25,7 +25,8 @@ const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
         <MainNavigation onItemClick={onItemClick} />
       </div>
       
-      <SidebarUserProfile user={user} onClick={onItemClick} />
+      {/* Pass both user and onItemClick properly */}
+      <SidebarUserProfile user={user} onItemClick={onItemClick} />
     </>
   );
 };

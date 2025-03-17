@@ -14,15 +14,16 @@ export interface OrderAlert {
   overriddenBy?: string;
 }
 
+// Fix duplicate enum values by using string values instead of direct assignments
 export enum AlertType {
   DRUG_INTERACTION = 'warning',
   ALLERGY = 'critical',
   DUPLICATE_ORDER = 'info',
-  INAPPROPRIATE_DOSE = 'warning',
-  CONTRAINDICATION = 'critical',
-  GUIDELINE_DEVIATION = 'warning',
-  AGE_INAPPROPRIATE = 'warning',
-  WORKFLOW = 'info'
+  INAPPROPRIATE_DOSE = 'warning_dose',
+  CONTRAINDICATION = 'critical_contra',
+  GUIDELINE_DEVIATION = 'warning_guideline',
+  AGE_INAPPROPRIATE = 'warning_age',
+  WORKFLOW = 'info_workflow'
 }
 
 export enum AlertSeverity {

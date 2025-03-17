@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -28,16 +27,20 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
   
   useEffect(() => {
     if (videoRef.current && scanning) {
-      const tracks = (videoRef.current.srcObject as MediaStream)?.getTracks();
+      const videoElement = videoRef.current;
+      const tracks = (videoElement.srcObject as MediaStream)?.getTracks();
       if (!tracks || tracks.length === 0) {
         initCamera();
       }
     }
     
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach(track => track.stop());
+      if (videoRef.current) {
+        const videoElement = videoRef.current;
+        if (videoElement.srcObject) {
+          const tracks = (videoElement.srcObject as MediaStream).getTracks();
+          tracks.forEach(track => track.stop());
+        }
       }
     };
   }, [scanning]);
@@ -76,7 +79,6 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // In a real app, you would process the image to detect barcodes
         onCapture();
       }
     }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Check, AlertCircle, RefreshCw, Database, X, Globe } from 'lucide-react';
 import { toast } from 'sonner';
@@ -61,7 +60,7 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
 
   useEffect(() => {
     if (initialSearchTerm) {
-      handleSearch();
+      handleSearch(initialSearchTerm);
     }
     
     const handleClickOutside = (event: MouseEvent) => {
@@ -119,8 +118,8 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
     debouncedAutocomplete(searchTerm);
   }, [searchTerm, debouncedAutocomplete]);
 
-  const handleSearch = async () => {
-    if (!searchTerm || searchTerm.length < 3) return;
+  const handleSearch = async (searchQuery: string) => {
+    if (!searchQuery.trim().length >= 3) return;
 
     setIsSearching(true);
     setSearchResults([]);
@@ -134,11 +133,11 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       
       // Use different search strategies based on mode
       if (searchMode === 'both') {
-        results = await searchMedicationsByBilingualName(searchTerm);
+        results = await searchMedicationsByBilingualName(searchQuery);
       } else if (searchMode === 'english') {
-        results = await searchMedicationsByName(searchTerm);
+        results = await searchMedicationsByName(searchQuery);
       } else if (searchMode === 'portuguese') {
-        results = await searchMedicationsByBilingualName(searchTerm);
+        results = await searchMedicationsByBilingualName(searchQuery);
         // Filter to just show those with Portuguese names
         results = results.filter(med => 'portugueseName' in med);
       }
@@ -148,7 +147,7 @@ const RxNormMedicationSelector: React.FC<RxNormMedicationSelectorProps> = ({
       if (results.length === 0) {
         // Get suggestions in both languages
         const { englishSuggestions, portugueseSuggestions } = 
-          await getBilingualMedicationSuggestions(searchTerm);
+          await getBilingualMedicationSuggestions(searchQuery);
         
         setSpellingSuggestions(englishSuggestions);
         setPortugueseSuggestions(portugueseSuggestions);
