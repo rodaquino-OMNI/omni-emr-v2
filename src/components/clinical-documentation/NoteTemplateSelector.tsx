@@ -4,6 +4,8 @@ import { NoteTemplate, NoteType } from '@/types/clinicalNotes';
 import { useTemplates } from './hooks/useTemplates';
 import NoteTypeFilters from './template/NoteTypeFilters';
 import TemplateGrid from './template/TemplateGrid';
+import { useAuth } from '@/context/AuthContext';
+import { useRoleBasedDashboard } from '@/hooks/useRoleBasedDashboard';
 
 interface NoteTemplateSelectorProps {
   onSelectTemplate: (template: NoteTemplate) => void;
@@ -16,7 +18,44 @@ const NoteTemplateSelector = ({
   selectedType, 
   onTypeChange 
 }: NoteTemplateSelectorProps) => {
-  const { templates, loading } = useTemplates(selectedType);
+  const { user } = useAuth();
+  const { getClinicalTemplates } = useRoleBasedDashboard();
+  const { templates: fetchedTemplates, loading } = useTemplates(selectedType);
+  const [templates, setTemplates] = React.useState<NoteTemplate[]>(fetchedTemplates);
+  
+  // Merge fetched templates with role-based templates
+  React.useEffect(() => {
+    const roleBasedTemplates = getClinicalTemplates();
+    
+    // Convert role-based templates to the NoteTemplate format
+    const convertedTemplates: NoteTemplate[] = roleBasedTemplates.map(template => ({
+      id: template.id,
+      type: (template.id === 'soap' || template.id === 'progress') ? 'progress' :
+            template.id === 'discharge' ? 'discharge' :
+            template.id === 'consultation' ? 'consultation' :
+            template.id === 'procedure' ? 'procedure' : 'progress',
+      name: template.name,
+      isDefault: template.isDefault || false,
+      template: "",
+      sections: template.sections.map(section => ({
+        title: typeof section === 'string' ? section : section.title,
+        content: "",
+        required: typeof section === 'string' ? false : section.required || false
+      }))
+    }));
+    
+    // Combine fetched templates with role-based templates, prioritizing fetched ones
+    const combinedTemplates = [...fetchedTemplates];
+    
+    // Only add role-based templates that don't already exist
+    convertedTemplates.forEach(roleTemplate => {
+      if (!combinedTemplates.some(t => t.id === roleTemplate.id)) {
+        combinedTemplates.push(roleTemplate);
+      }
+    });
+    
+    setTemplates(combinedTemplates);
+  }, [fetchedTemplates, getClinicalTemplates]);
   
   return (
     <div className="space-y-6">

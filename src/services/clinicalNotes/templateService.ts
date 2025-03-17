@@ -1,5 +1,7 @@
 
 import { NoteTemplate, NoteType } from "@/types/clinicalNotes";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 // Default templates for different note types
 const defaultTemplates: Record<NoteType, NoteTemplate> = {
@@ -84,35 +86,198 @@ const defaultTemplates: Record<NoteType, NoteTemplate> = {
 // Template service to manage clinical note templates
 export const templateService = {
   /**
-   * Get all templates available by type
+   * Get all templates available by type and user role
    */
-  getTemplatesByType: (type?: NoteType): Promise<NoteTemplate[]> => {
-    return new Promise((resolve) => {
-      // Simulate API delay
-      setTimeout(() => {
+  getTemplatesByType: async (type?: NoteType, userRole?: string): Promise<NoteTemplate[]> => {
+    try {
+      // Try to fetch templates from Supabase if available
+      const { data, error } = await supabase
+        .from('clinical_note_templates')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching templates:", error);
+        throw error;
+      }
+
+      // If we have templates in the database, filter and return them
+      if (data && data.length > 0) {
+        let templates = data.map(item => ({
+          id: item.id,
+          type: item.note_type as NoteType,
+          name: item.template_name,
+          isDefault: item.is_default,
+          template: item.template_content || "",
+          sections: item.sections || []
+        }));
+
+        // Filter by type if provided
         if (type) {
-          // Return only templates of the specified type
-          resolve([defaultTemplates[type]]);
-        } else {
-          // Return all templates
-          resolve(Object.values(defaultTemplates));
+          templates = templates.filter(t => t.type === type);
         }
-      }, 300);
-    });
+
+        // Filter by role if provided
+        if (userRole) {
+          templates = templates.filter(t => 
+            !t.roles || t.roles.includes(userRole)
+          );
+        }
+
+        return templates;
+      }
+
+      // Fallback to default templates if no database templates found
+      if (type) {
+        // Return only templates of the specified type
+        return [defaultTemplates[type]];
+      } else {
+        // Return all templates
+        return Object.values(defaultTemplates);
+      }
+    } catch (error) {
+      console.error("Error in getTemplatesByType:", error);
+      
+      // Fallback to default templates on error
+      if (type) {
+        return [defaultTemplates[type]];
+      } else {
+        return Object.values(defaultTemplates);
+      }
+    }
   },
 
   /**
    * Get a specific template by ID
    */
-  getTemplateById: (id: string): Promise<NoteTemplate | null> => {
-    return new Promise((resolve) => {
-      // Simulate API delay
-      setTimeout(() => {
-        const allTemplates = Object.values(defaultTemplates);
-        const template = allTemplates.find(t => t.id === id);
-        resolve(template || null);
-      }, 200);
-    });
+  getTemplateById: async (id: string): Promise<NoteTemplate | null> => {
+    try {
+      // Try to fetch template from Supabase
+      const { data, error } = await supabase
+        .from('clinical_note_templates')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching template by ID:", error);
+        throw error;
+      }
+
+      // If found in the database, return it
+      if (data) {
+        return {
+          id: data.id,
+          type: data.note_type as NoteType,
+          name: data.template_name,
+          isDefault: data.is_default,
+          template: data.template_content || "",
+          sections: data.sections || []
+        };
+      }
+
+      // Fallback to checking default templates
+      const allTemplates = Object.values(defaultTemplates);
+      const template = allTemplates.find(t => t.id === id);
+      return template || null;
+    } catch (error) {
+      console.error("Error in getTemplateById:", error);
+      
+      // Fallback to check in default templates
+      const allTemplates = Object.values(defaultTemplates);
+      const template = allTemplates.find(t => t.id === id);
+      return template || null;
+    }
+  },
+
+  /**
+   * Save a new template or update an existing one
+   */
+  saveTemplate: async (template: NoteTemplate): Promise<NoteTemplate | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('clinical_note_templates')
+        .upsert({
+          id: template.id,
+          note_type: template.type,
+          template_name: template.name,
+          template_content: template.template,
+          is_default: template.isDefault,
+          sections: template.sections
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error saving template:", error);
+        throw error;
+      }
+
+      return {
+        id: data.id,
+        type: data.note_type as NoteType,
+        name: data.template_name,
+        isDefault: data.is_default,
+        template: data.template_content || "",
+        sections: data.sections || []
+      };
+    } catch (error) {
+      console.error("Error in saveTemplate:", error);
+      return null;
+    }
+  },
+
+  /**
+   * Get templates appropriate for a user's role
+   */
+  getRoleSpecificTemplates: async (userRole: string): Promise<NoteTemplate[]> => {
+    try {
+      // Try to fetch role-specific templates from Supabase
+      const { data, error } = await supabase
+        .from('clinical_note_templates')
+        .select('*')
+        .eq('is_active', true)
+        .contains('allowed_roles', [userRole])
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching role-specific templates:", error);
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        return data.map(item => ({
+          id: item.id,
+          type: item.note_type as NoteType,
+          name: item.template_name,
+          isDefault: item.is_default,
+          template: item.template_content || "",
+          sections: item.sections || []
+        }));
+      }
+
+      // Fallback to default templates based on role
+      switch (userRole) {
+        case 'doctor':
+        case 'physician':
+          return [
+            defaultTemplates.progress,
+            defaultTemplates.admission,
+            defaultTemplates.discharge,
+            defaultTemplates.procedure
+          ];
+        case 'nurse':
+          return [
+            defaultTemplates.progress
+          ];
+        default:
+          return Object.values(defaultTemplates);
+      }
+    } catch (error) {
+      console.error("Error in getRoleSpecificTemplates:", error);
+      return Object.values(defaultTemplates);
+    }
   },
 
   /**

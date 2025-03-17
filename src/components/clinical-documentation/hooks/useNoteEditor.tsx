@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { ClinicalNote, NoteTemplate, NoteStatus } from '@/types/clinicalNotes';
 import { useAuth } from '@/context/AuthContext';
