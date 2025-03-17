@@ -15,7 +15,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className, size = 'de
   const { language } = useTranslation();
   
   const getStatusLabel = (status: PatientStatus, lang: string): string => {
-    const labels: Record<string, Record<string, string>> = {
+    const labels: Record<PatientStatus, Record<string, string>> = {
       'active': { en: 'Active', pt: 'Ativo' },
       'inactive': { en: 'Inactive', pt: 'Inativo' },
       'discharged': { en: 'Discharged', pt: 'Alta' },
