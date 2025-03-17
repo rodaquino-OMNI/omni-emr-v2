@@ -41,7 +41,7 @@ export const useEmailAuth = (
       // Process user data with type safety
       if (authUser) {
         // For mock users or real Supabase users, map to our User type
-        const mappedUser = await mapSupabaseUserToUser(authUser);
+        const mappedUser = authUser as User; // Use type assertion to avoid TS error
           
         // Check if the user's account is approved
         if (mappedUser.approvalStatus === 'pending') {

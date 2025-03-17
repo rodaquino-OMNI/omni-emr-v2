@@ -11,11 +11,11 @@ interface SocialLoginButtonsProps {
   isSupabaseConnected?: boolean | null;
 }
 
-const SocialLoginButtons = ({ 
+const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ 
   isSubmitting, 
   handleSocialLogin,
   isSupabaseConnected = true
-}: SocialLoginButtonsProps) => {
+}) => {
   // Determine whether social login should be disabled
   const isSocialDisabled = isSubmitting || isSupabaseConnected === false;
   

@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Languages } from '@/types/auth';
 
 interface LoginErrorAlertProps {
@@ -9,18 +9,16 @@ interface LoginErrorAlertProps {
   language: Languages;
 }
 
-const LoginErrorAlert = ({ error, language }: LoginErrorAlertProps) => {
+const LoginErrorAlert: React.FC<LoginErrorAlertProps> = ({ error, language }) => {
   if (!error) return null;
   
   return (
-    <Alert variant="destructive" className="mb-6">
-      <AlertCircle className="h-4 w-4" />
+    <Alert variant="destructive" className="mb-4">
+      <AlertTriangle className="h-4 w-4 mr-2" />
       <AlertTitle>
-        {language === 'pt' ? 'Erro de Autenticação' : 'Authentication Error'}
+        {language === 'pt' ? 'Erro de autenticação' : 'Authentication Error'}
       </AlertTitle>
-      <AlertDescription>
-        {error}
-      </AlertDescription>
+      <p className="text-sm mt-1">{error}</p>
     </Alert>
   );
 };

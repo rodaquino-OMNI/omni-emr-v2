@@ -22,7 +22,7 @@ interface PhoneLoginFormProps {
   resetForm: () => void;
 }
 
-const PhoneLoginForm = ({
+const PhoneLoginForm: React.FC<PhoneLoginFormProps> = ({
   phone,
   setPhone,
   verificationCode,
@@ -37,7 +37,7 @@ const PhoneLoginForm = ({
   language,
   t,
   resetForm
-}: PhoneLoginFormProps) => {
+}) => {
   // Validation function for the phone form
   const validatePhoneForm = (): boolean => {
     const errors: { [key: string]: string } = {};

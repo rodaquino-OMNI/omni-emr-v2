@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Clock } from 'lucide-react';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Languages } from '@/types/auth';
 
 interface ApprovalPendingAlertProps {
@@ -9,20 +9,20 @@ interface ApprovalPendingAlertProps {
   language: Languages;
 }
 
-const ApprovalPendingAlert = ({ pendingApproval, language }: ApprovalPendingAlertProps) => {
+const ApprovalPendingAlert: React.FC<ApprovalPendingAlertProps> = ({ pendingApproval, language }) => {
   if (!pendingApproval) return null;
   
   return (
-    <Alert className="mb-6 bg-amber-50 text-amber-900 border-amber-200">
-      <AlertCircle className="h-4 w-4" />
+    <Alert variant="warning" className="mb-4">
+      <Clock className="h-4 w-4 mr-2" />
       <AlertTitle>
         {language === 'pt' ? 'Aprovação Pendente' : 'Approval Pending'}
       </AlertTitle>
-      <AlertDescription>
+      <p className="text-sm mt-1">
         {language === 'pt' 
-          ? 'Sua conta está aguardando aprovação. Você será notificado assim que for aprovada.'
-          : 'Your account is pending approval. You will be notified once it is approved.'}
-      </AlertDescription>
+          ? 'Sua conta está aguardando aprovação administrativa. Você receberá um email quando sua conta for aprovada.'
+          : 'Your account is pending administrative approval. You will receive an email when your account is approved.'}
+      </p>
     </Alert>
   );
 };

@@ -20,7 +20,7 @@ interface LoginContainerProps {
   isSupabaseConnected?: boolean;
 }
 
-const LoginContainer = ({ isSupabaseConnected = true }: LoginContainerProps) => {
+const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = true }) => {
   const { t, language } = useTranslation();
   const [activeView, setActiveView] = useState<LoginView>('email');
   

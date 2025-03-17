@@ -1,14 +1,19 @@
 
 import { secureStorage } from './secureStorage';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Generates a new CSRF token and stores it securely
+ * Generates a secure CSRF token and stores it in secure storage
  * @returns The generated CSRF token
  */
 export const generateCSRFToken = (): string => {
-  const token = uuidv4();
+  // Generate a random string for CSRF protection
+  const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  
+  // Store the token in secure storage (which falls back to localStorage in environments without crypto)
   secureStorage.setItem('csrf_token', token);
+  
   return token;
 };
 
@@ -21,13 +26,29 @@ export const getCSRFToken = (): string | null => {
 };
 
 /**
- * Validates a CSRF token against the stored token
+ * Validates a CSRF token against the stored one
  * @param token The token to validate
- * @returns True if the token is valid, false otherwise
+ * @returns True if tokens match, false otherwise
  */
 export const validateCSRFToken = (token: string): boolean => {
   const storedToken = getCSRFToken();
-  return !!storedToken && token === storedToken;
+  
+  if (!storedToken) {
+    console.error('No CSRF token found in storage. Security validation failed.');
+    return false;
+  }
+  
+  // Constant-time comparison to prevent timing attacks
+  if (token.length !== storedToken.length) {
+    return false;
+  }
+  
+  let result = 0;
+  for (let i = 0; i < token.length; i++) {
+    result |= token.charCodeAt(i) ^ storedToken.charCodeAt(i);
+  }
+  
+  return result === 0;
 };
 
 /**

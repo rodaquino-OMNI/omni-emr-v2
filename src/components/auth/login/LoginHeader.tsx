@@ -1,54 +1,58 @@
 
 import React from 'react';
+import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Languages } from '@/types/auth';
+import { Mail, Phone, Users } from 'lucide-react';
 
 export type LoginView = 'email' | 'phone' | 'social';
 
-export interface LoginHeaderProps {
-  activeView?: LoginView;
-  setActiveView?: (view: LoginView) => void;
-  t: (key: string) => string;
+interface LoginHeaderProps {
+  t: (key: string, fallback?: string) => string;
   language: Languages;
+  activeView: LoginView;
+  setActiveView: (view: LoginView) => void;
 }
 
-const LoginHeader = ({
-  activeView = 'email',
-  setActiveView,
-  t,
-  language
-}: LoginHeaderProps) => {
+const LoginHeader: React.FC<LoginHeaderProps> = ({ 
+  t, 
+  language,
+  activeView,
+  setActiveView
+}) => {
   return (
-    <div className="text-center space-y-2 mb-6">
-      <h1 className="text-2xl font-bold">
-        {t('signIn')}
-      </h1>
-      <p className="text-sm text-muted-foreground">
-        {language === 'pt'
-          ? 'Acesse sua conta para continuar'
-          : 'Sign in to your account to continue'}
-      </p>
+    <div className="space-y-4">
+      <div className="text-center mb-6">
+        <CardTitle className="text-2xl font-bold">
+          {t('loginToMedCare', language === 'pt' ? 'Entrar no MedCare' : 'Login to MedCare')}
+        </CardTitle>
+        <CardDescription className="mt-1">
+          {language === 'pt' 
+            ? 'Entre para acessar os recursos do sistema' 
+            : 'Sign in to access system resources'}
+        </CardDescription>
+      </div>
       
-      {setActiveView && (
-        <Tabs 
-          defaultValue={activeView} 
-          value={activeView}
-          className="w-full mt-4" 
-          onValueChange={(value) => setActiveView(value as LoginView)}
-        >
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="email">
-              {language === 'pt' ? 'Email' : 'Email'}
-            </TabsTrigger>
-            <TabsTrigger value="phone">
-              {language === 'pt' ? 'Telefone' : 'Phone'}
-            </TabsTrigger>
-            <TabsTrigger value="social">
-              {language === 'pt' ? 'Social' : 'Social'}
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      )}
+      <Tabs
+        value={activeView}
+        onValueChange={(value) => setActiveView(value as LoginView)}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="email" className="flex items-center gap-1">
+            <Mail className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t('email', 'Email')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="phone" className="flex items-center gap-1">
+            <Phone className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t('phone', 'Phone')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="social" className="flex items-center gap-1">
+            <Users className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t('socialLogin', 'Social')}</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   );
 };

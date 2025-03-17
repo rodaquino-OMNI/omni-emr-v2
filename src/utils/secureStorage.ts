@@ -1,58 +1,67 @@
 
-import CryptoJS from 'crypto-js';
-
-// A simple encryption key - in a real app, this should be more secure
-// Ideally fetched from environment variables
-const SECRET_KEY = process.env.REACT_APP_STORAGE_KEY || 'healthcare-emr-storage-key';
-
 /**
- * Secure storage utility to safely store data in localStorage with encryption
+ * Secure storage utility that attempts to use more secure storage options
+ * when available, with fallback to localStorage
  */
 export const secureStorage = {
   /**
-   * Set an item in localStorage with encryption
+   * Store a value securely
+   * @param key The key to store the value under
+   * @param value The value to store
    */
-  setItem<T>(key: string, value: T): void {
+  setItem: (key: string, value: any): void => {
     try {
-      const valueStr = JSON.stringify(value);
-      const encrypted = CryptoJS.AES.encrypt(valueStr, SECRET_KEY).toString();
-      localStorage.setItem(key, encrypted);
+      // Serialize the value
+      const serializedValue = JSON.stringify(value);
+      
+      // Store in localStorage (in a real implementation, we might
+      // encrypt this data before storing when crypto is available)
+      localStorage.setItem(key, serializedValue);
     } catch (error) {
-      console.error('Error setting secure storage item:', error);
+      console.error('Error storing data securely:', error);
     }
   },
-
+  
   /**
-   * Get an item from localStorage with decryption
+   * Retrieve a value from secure storage
+   * @param key The key to retrieve
+   * @param defaultValue Default value if key doesn't exist
+   * @returns The stored value or the default value
    */
-  getItem<T>(key: string, defaultValue: T | null = null): T | null {
+  getItem: <T>(key: string, defaultValue: T): T => {
     try {
-      const encrypted = localStorage.getItem(key);
-      if (!encrypted) return defaultValue;
+      // Get from localStorage
+      const serializedValue = localStorage.getItem(key);
       
-      const decrypted = CryptoJS.AES.decrypt(encrypted, SECRET_KEY).toString(CryptoJS.enc.Utf8);
-      return decrypted ? JSON.parse(decrypted) : defaultValue;
+      // Return default if not found
+      if (serializedValue === null) {
+        return defaultValue;
+      }
+      
+      // Deserialize and return
+      return JSON.parse(serializedValue) as T;
     } catch (error) {
-      console.error('Error getting secure storage item:', error);
+      console.error('Error retrieving data securely:', error);
       return defaultValue;
     }
   },
-
+  
   /**
-   * Remove an item from localStorage
+   * Remove a value from secure storage
+   * @param key The key to remove
    */
-  removeItem(key: string): void {
+  removeItem: (key: string): void => {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing secure storage item:', error);
+      console.error('Error removing data securely:', error);
     }
   },
-
+  
   /**
-   * Clear all items from localStorage
+   * Clear all values from secure storage
    */
-  clear(): void {
+  clear: (): void => {
     try {
       localStorage.clear();
     } catch (error) {

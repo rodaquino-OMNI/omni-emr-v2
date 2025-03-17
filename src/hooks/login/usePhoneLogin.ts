@@ -1,7 +1,8 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { signInWithPhone, verifyPhoneOTP } from '@/utils/authUtils';
+import { signInWithPhone, verifyPhoneOTP } from '@/utils/auth/phoneAuth';
 import { Languages } from '@/types/auth';
 
 export const usePhoneLogin = (language: Languages) => {

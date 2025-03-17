@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Languages } from '@/types/auth';
@@ -37,7 +38,7 @@ interface LoginTabsProps {
   isSupabaseConnected: boolean;
 }
 
-const LoginTabs = ({
+const LoginTabs: React.FC<LoginTabsProps> = ({
   activeView,
   email,
   setEmail,
@@ -66,7 +67,7 @@ const LoginTabs = ({
   handleSocialLogin,
   isSocialSubmitting,
   isSupabaseConnected
-}: LoginTabsProps) => {
+}) => {
   return (
     <Tabs value={activeView} className="w-full">
       <TabsContent value="email" className="mt-0">
