@@ -1,4 +1,3 @@
-
 // Define patient status enum
 export enum PatientStatus {
   ACTIVE = 'active',
@@ -38,6 +37,7 @@ export interface Patient {
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
   age?: number;
+  identifiers?: any;
 }
 
 export interface PatientVital {

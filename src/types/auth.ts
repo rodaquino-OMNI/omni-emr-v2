@@ -48,6 +48,13 @@ export interface User {
   organization?: string;
   approvalStatus?: ApprovalStatus;
   status?: string;
+  phoneNumber?: string;
+  mfaEnabled?: boolean;
+  createdAt?: Date;
+  lastLogin?: Date;
+  profileImageUrl?: string;
+  country?: string;
+  insurance?: string;
 }
 
 export interface AuthState {
@@ -98,12 +105,22 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  signIn: (credentials: SignInCredentials) => Promise<void>;
-  signOut: () => Promise<void>;
-  signUp: (credentials: SignUpCredentials) => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  updateUserProfile: (data: Partial<User>) => Promise<void>;
-  refreshSession: () => Promise<void>;
+  login: (credentials: SignInCredentials) => Promise<{ success: boolean }>;
+  logout: () => Promise<void>;
+  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{ success: boolean, user?: User, session?: any, error?: any }>;
+  resetPassword: (email: string) => Promise<{ success: boolean, error?: any }>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
+  setError: () => void;
+  hasPermission: (permission: string) => boolean;
+  canAccessPatientData: (patientId: string) => boolean;
+  language: Languages;
+  setLanguage: (language: Languages) => void;
+  loginWithSocial: (provider: string) => Promise<{ success: boolean }>;
+  session: any;
+  lastActivity: Date;
+  updateLastActivity: () => void;
+  sessionTimeoutMinutes: number;
+  setSessionTimeoutMinutes: (minutes: number) => void;
 }
 
 export interface UseSessionTimeoutProps {
@@ -112,4 +129,8 @@ export interface UseSessionTimeoutProps {
   onWarning?: () => void;
   warningMinutesBefore?: number;
   isEnabled?: boolean;
+  defaultTimeoutMinutes?: number;
+  warningThresholdMinutes?: number;
+  isAuthenticated?: boolean;
+  language?: Languages;
 }

@@ -5,7 +5,7 @@ import {
   canPerformAppointmentAction,
   canPerformMedicationAction,
   canPerformClinicalDocumentation,
-  canPerformClinicalAssessment,
+  canPerformClinicalAssessment as importedClinicalAssessment, 
   canDocumentMedicalDecisionMaking,
   hasPermission as permissionCheck,
   getUserPermissions as getPermissions
@@ -47,8 +47,5 @@ export const canManageFluidBalance = (user: User | null): boolean => {
   return ['doctor', 'nurse'].includes(user.role as string);
 };
 
-// Rename to match the correct function name
-export const canPerformClinicalAssessment = (user: User | null): boolean => {
-  if (!user) return false;
-  return ['doctor', 'nurse', 'physician', 'specialist'].includes(user.role as string);
-};
+// Re-export renamed imported function to avoid conflict
+export { importedClinicalAssessment as canPerformClinicalAssessment };

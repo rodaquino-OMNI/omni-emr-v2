@@ -1,3 +1,4 @@
+
 import { Session, Provider } from '@supabase/supabase-js';
 import { User, UserRole, Languages } from '../types/auth';
 import { useLanguageSettings } from './useLanguageSettings';
@@ -70,8 +71,11 @@ export const useAuthProvider = () => {
     setSessionTimeoutMinutes,
     updateLastActivity 
   } = useSessionTimeoutHook({
-    isAuthenticated,
-    language,
+    timeoutMinutes: 30,
+    defaultTimeoutMinutes: 30,
+    warningThresholdMinutes: 5,
+    isAuthenticated: isAuthenticated,
+    language: language,
     onTimeout: logout
   });
 

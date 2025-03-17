@@ -19,3 +19,29 @@ export interface MedicationSafetyCheck {
   weightLastUpdated: Date | null;
   hasPassed: boolean;
 }
+
+// Add the missing exports
+export const HIGH_RISK_MEDICATIONS = [
+  'warfarin',
+  'heparin',
+  'insulin',
+  'digoxin',
+  'morphine',
+  'fentanyl',
+  'hydromorphone',
+  'methotrexate',
+  'potassium chloride',
+  'chemotherapy agents'
+];
+
+export const WEIGHT_BASED_MEDICATIONS = [
+  'acyclovir',
+  'amikacin',
+  'amphotericin B',
+  'cefepime',
+  'gentamicin',
+  'vancomycin',
+  'enoxaparin',
+  'heparin',
+  'insulin'
+];

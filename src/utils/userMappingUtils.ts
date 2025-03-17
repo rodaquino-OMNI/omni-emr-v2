@@ -37,6 +37,8 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
       phoneNumber: profile?.phone || metadata.phone,
       approvalStatus: profile?.approval_status || 'approved',
       avatar: profile?.avatar_url || metadata.avatar_url,
+      country: null,
+      insurance: null
     };
     
     return user;
@@ -48,7 +50,10 @@ export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise
       name: supabaseUser.user_metadata?.name || 'User',
       email: supabaseUser.email || '',
       role: (supabaseUser.user_metadata?.role || 'patient') as UserRole,
-      status: 'active'
+      status: 'active',
+      permissions: [], // Add required permissions field
+      country: null,
+      insurance: null
     };
   }
 };

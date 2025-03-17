@@ -37,8 +37,9 @@ export const useSignUpAuth = (
           email: result.user.email ?? '',
           name: name, // Use the name passed to the function
           role: role, // Use the role passed to the function
+          permissions: [],
           status: 'active', // Default status for new users
-          mfaEnabled: false,
+          mfaEnabled: false, // Safe to include as we added it to the User type
           createdAt: new Date(result.user.created_at),
           lastLogin: new Date(Date.now())
         };

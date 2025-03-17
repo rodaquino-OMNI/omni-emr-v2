@@ -3,17 +3,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { UseSessionTimeoutProps } from '@/types/auth';
 
 export const useSessionTimeoutHook = ({
-  defaultTimeoutMinutes = 30,
+  timeoutMinutes,
   onTimeout,
   onWarning,
-  warningThresholdMinutes = 5,
+  warningMinutesBefore = 5,
   isAuthenticated,
-  language
+  language,
+  defaultTimeoutMinutes = 30
 }: UseSessionTimeoutProps) => {
   // State for tracking last activity time and timeout configuration
   const [lastActivity, setLastActivity] = useState<Date>(new Date());
   const [sessionTimeoutMinutes, setSessionTimeoutMinutes] = useState<number>(
-    defaultTimeoutMinutes
+    timeoutMinutes || defaultTimeoutMinutes
   );
 
   // Update last activity timestamp
@@ -49,7 +50,7 @@ export const useSessionTimeoutHook = ({
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const warningTimeoutMs = (sessionTimeoutMinutes - warningThresholdMinutes) * 60 * 1000;
+    const warningTimeoutMs = (sessionTimeoutMinutes - warningMinutesBefore) * 60 * 1000;
     const timeoutMs = sessionTimeoutMinutes * 60 * 1000;
 
     // Check for approaching timeout (to show warning)
@@ -70,7 +71,7 @@ export const useSessionTimeoutHook = ({
       const now = new Date();
       const timeSinceLastActivity = now.getTime() - lastActivity.getTime();
 
-      if (timeSinceLastActivity >= timeoutMs) {
+      if (timeSinceLastActivity >= timeoutMs && onTimeout) {
         onTimeout();
       }
     }, 30000); // Check every 30 seconds
@@ -83,7 +84,7 @@ export const useSessionTimeoutHook = ({
     isAuthenticated,
     lastActivity,
     sessionTimeoutMinutes,
-    warningThresholdMinutes,
+    warningMinutesBefore,
     onWarning,
     onTimeout
   ]);
