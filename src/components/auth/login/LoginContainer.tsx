@@ -10,7 +10,7 @@ import { useSocialLogin } from '@/hooks/login/useSocialLogin';
 import { usePhoneLogin } from '@/hooks/login/usePhoneLogin';
 
 // Import components
-import LoginHeader, { LoginView } from './LoginHeader';
+import LoginHeader from './LoginHeader';
 import LoginErrorAlert from './LoginErrorAlert';
 import ApprovalPendingAlert from './ApprovalPendingAlert';
 import ConnectionAlert from './ConnectionAlert';
@@ -22,7 +22,7 @@ interface LoginContainerProps {
 
 const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = true }) => {
   const { t, language } = useTranslation();
-  const [activeView, setActiveView] = useState<LoginView>('email');
+  const [activeView, setActiveView] = useState<'email' | 'phone' | 'social'>('email');
   
   // Form validation errors
   const { 
@@ -110,7 +110,7 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
   
   return (
     <div className="container mx-auto flex items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-background/5 backdrop-blur-xl border-muted">
         <CardContent className="pt-6">
           <LoginHeader 
             t={t} 

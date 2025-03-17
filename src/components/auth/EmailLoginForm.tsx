@@ -95,7 +95,7 @@ const EmailLoginForm = ({
         <Input
           id="email"
           type="email"
-          className={`w-full h-10 px-3 rounded-md ${
+          className={`w-full h-11 px-3 rounded-md ${
             validationErrors.email ? 'border-destructive' : 'border-input'
           }`}
           value={email}
@@ -137,7 +137,7 @@ const EmailLoginForm = ({
           <Input
             id="password"
             type="password"
-            className={`w-full h-10 px-3 rounded-md ${
+            className={`w-full h-11 px-3 rounded-md ${
               validationErrors.password ? 'border-destructive' : 'border-input'
             }`}
             value={password}
@@ -162,7 +162,7 @@ const EmailLoginForm = ({
       
       <Button 
         type="submit" 
-        className="w-full mt-6" 
+        className="w-full h-11 bg-primary hover:bg-primary/90 flex items-center justify-center" 
         disabled={isSubmitting || isLockedOut}
       >
         {isSubmitting ? (

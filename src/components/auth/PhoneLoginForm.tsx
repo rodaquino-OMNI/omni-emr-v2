@@ -109,7 +109,7 @@ const PhoneLoginForm: React.FC<PhoneLoginFormProps> = ({
           
           <Button 
             type="submit" 
-            className="w-full mt-6" 
+            className="w-full mt-6 bg-primary hover:bg-primary/90 flex items-center justify-center h-11" 
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -163,7 +163,7 @@ const PhoneLoginForm: React.FC<PhoneLoginFormProps> = ({
           
           <Button 
             type="submit" 
-            className="w-full mt-6" 
+            className="w-full mt-6 bg-primary hover:bg-primary/90 flex items-center justify-center h-11" 
             disabled={isSubmitting}
           >
             {isSubmitting ? (

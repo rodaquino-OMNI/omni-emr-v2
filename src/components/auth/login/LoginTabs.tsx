@@ -5,6 +5,7 @@ import EmailLoginForm from '../EmailLoginForm';
 import PhoneLoginForm from '../PhoneLoginForm';
 import SocialLoginButtons from '../SocialLoginButtons';
 import { Languages } from '@/types/auth';
+import { Mail, Phone, Users } from 'lucide-react';
 
 interface ValidationErrors {
   [key: string]: string;
@@ -81,14 +82,17 @@ const LoginTabs: React.FC<LoginTabsProps> = ({
 }) => {
   return (
     <Tabs defaultValue={activeView} className="w-full">
-      <TabsList className="grid grid-cols-3 mb-4">
-        <TabsTrigger value="email" onClick={clearEmailError}>
+      <TabsList className="grid grid-cols-3 mb-6 bg-background/10 p-1 rounded-lg">
+        <TabsTrigger value="email" onClick={clearEmailError} className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
+          <Mail className="h-4 w-4" />
           {language === 'pt' ? 'Email' : 'Email'}
         </TabsTrigger>
-        <TabsTrigger value="phone" onClick={clearEmailError}>
+        <TabsTrigger value="phone" onClick={clearEmailError} className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
+          <Phone className="h-4 w-4" />
           {language === 'pt' ? 'Telefone' : 'Phone'}
         </TabsTrigger>
-        <TabsTrigger value="social" onClick={clearEmailError}>
+        <TabsTrigger value="social" onClick={clearEmailError} className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
+          <Users className="h-4 w-4" />
           {language === 'pt' ? 'Social' : 'Social'}
         </TabsTrigger>
       </TabsList>
@@ -119,20 +123,22 @@ const LoginTabs: React.FC<LoginTabsProps> = ({
           setPhone={setPhone}
           verificationCode={verificationCode}
           setVerificationCode={setVerificationCode}
-          handlePhoneFormSubmit={handlePhoneFormSubmit}
-          handleVerifyFormSubmit={handleVerifyFormSubmit}
+          handlePhoneSubmit={handlePhoneFormSubmit}
+          handleVerifySubmit={handleVerifyFormSubmit}
+          handleClearError={clearEmailError}
           isSubmitting={isPhoneSubmitting}
           verificationSent={verificationSent}
-          resetForm={resetPhoneForm}
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
           language={language}
+          t={t}
+          resetForm={resetPhoneForm}
         />
       </TabsContent>
       
       <TabsContent value="social">
         <SocialLoginButtons
-          onLogin={handleSocialLogin}
+          handleSocialLogin={handleSocialLogin}
           isLoading={isSocialSubmitting}
           language={language}
           isSupabaseConnected={isSupabaseConnected}

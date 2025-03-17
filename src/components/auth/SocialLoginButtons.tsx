@@ -1,92 +1,99 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Provider } from '@supabase/supabase-js';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Languages } from '@/types/auth';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
+// Update props to match with LoginTabs component
 interface SocialLoginButtonsProps {
-  isSubmitting: boolean;
-  handleSocialLogin: (provider: Provider) => Promise<void>;
-  isSupabaseConnected?: boolean | null;
+  handleSocialLogin: (provider: 'google' | 'facebook' | 'twitter' | 'azure') => void;
+  isLoading: boolean;
+  language: Languages;
+  isSupabaseConnected: boolean;
 }
 
-const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ 
-  isSubmitting, 
+const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
   handleSocialLogin,
-  isSupabaseConnected = true
+  isLoading,
+  language,
+  isSupabaseConnected
 }) => {
-  // Determine whether social login should be disabled
-  const isSocialDisabled = isSubmitting || isSupabaseConnected === false;
-  
-  // Define available SSO providers
-  const providers: {id: Provider; name: string; icon: React.ReactNode}[] = [
-    {
-      id: 'google',
-      name: 'Google',
-      icon: (
-        <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-          <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
-        </svg>
-      )
-    },
-    {
-      id: 'facebook',
-      name: 'Facebook',
-      icon: (
-        <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="facebook" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-          <path fill="currentColor" d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"></path>
-        </svg>
-      )
-    },
-    {
-      id: 'twitter',
-      name: 'X',
-      icon: (
-        <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-          <path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path>
-        </svg>
-      )
-    },
-    {
-      id: 'azure',
-      name: 'Microsoft',
-      icon: (
-        <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23">
-          <path fill="currentColor" d="M1 1h10v10H1V1zm11 0h10v10H12V1zM1 12h10v10H1V12zm11 0h10v10H12V12z"/>
-        </svg>
-      )
-    }
-  ];
-  
   return (
-    <div className="space-y-4 mb-6">
-      {providers.map((provider) => (
-        <TooltipProvider key={provider.id}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => handleSocialLogin(provider.id)}
-                  disabled={isSocialDisabled}
-                >
-                  {provider.icon}
-                  {isSupabaseConnected === false && <AlertCircle className="h-4 w-4 ml-2 text-yellow-500" />}
-                  Continue with {provider.name}
-                </Button>
-              </div>
-            </TooltipTrigger>
-            {isSupabaseConnected === false && (
-              <TooltipContent>
-                <p>Server connection issue. Social login may not work properly.</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
-      ))}
+    <div className="space-y-4">
+      {!isSupabaseConnected && (
+        <div className="bg-destructive/10 text-destructive p-3 rounded-md mb-4 text-sm flex items-start">
+          <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+          <div>
+            {language === 'pt' 
+              ? 'Conexão com servidor indisponível. Autenticação social temporariamente desativada.' 
+              : 'Server connection unavailable. Social authentication temporarily disabled.'}
+          </div>
+        </div>
+      )}
+
+      <Button
+        onClick={() => handleSocialLogin('google')}
+        disabled={isLoading || !isSupabaseConnected}
+        className="w-full h-11 bg-white text-black hover:bg-gray-100 border border-gray-300 flex items-center justify-center"
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+        ) : (
+          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4"
+            />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853"
+            />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335"
+            />
+          </svg>
+        )}
+        {language === 'pt' ? 'Continuar com Google' : 'Continue with Google'}
+      </Button>
+
+      <Button
+        onClick={() => handleSocialLogin('facebook')}
+        disabled={isLoading || !isSupabaseConnected}
+        className="w-full h-11 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white flex items-center justify-center"
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+        ) : (
+          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              fill="#fff"
+            />
+          </svg>
+        )}
+        {language === 'pt' ? 'Continuar com Facebook' : 'Continue with Facebook'}
+      </Button>
+
+      <Button
+        onClick={() => handleSocialLogin('azure')}
+        disabled={isLoading || !isSupabaseConnected}
+        className="w-full h-11 bg-[#0078D4] hover:bg-[#0078D4]/90 text-white flex items-center justify-center"
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+        ) : (
+          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+            <rect width="24" height="24" fill="#0078D4" />
+            <path d="M12 6l-8 2v8l8 2 8-2V8l-8-2z" fill="#fff" />
+          </svg>
+        )}
+        {language === 'pt' ? 'Continuar com Microsoft' : 'Continue with Microsoft'}
+      </Button>
     </div>
   );
 };
