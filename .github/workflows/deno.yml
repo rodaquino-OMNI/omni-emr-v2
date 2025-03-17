@@ -26,10 +26,9 @@ jobs:
 
       # First update the lock file to ensure it's in sync with package.json
       - name: Install dependencies
-        run: |
-          npm install
+        run: npm install
           
-      # Then run lint and test commands separately
+      # Then run lint and test commands separately  
       - name: Run linter
         run: npm run lint
         
