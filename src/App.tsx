@@ -29,7 +29,7 @@ const queryClient = new QueryClient({
 
 function AppRoutes() {
   const { user, isAuthenticated } = useAuth();
-  const { hasPermission } = usePermissions(user);
+  const permissions = usePermissions(user);
   
   // Get all user permissions
   const userPermissions = useMemo(() => {

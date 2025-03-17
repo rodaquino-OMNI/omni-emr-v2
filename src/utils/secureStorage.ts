@@ -1,60 +1,57 @@
 
+// Define allowed storage keys for type safety
+export type StorageKey = 
+  | 'login_attempts' 
+  | 'login_lockout_until' 
+  | 'csrf_token' 
+  | 'language' 
+  | 'theme' 
+  | 'selected_sector'
+  | 'last_activity'
+  | 'user_preferences';
+
 /**
- * Secure storage utility for sensitive data
- * This is a wrapper around localStorage with added security features
+ * Get an item from secure storage
  */
+export const getSecureItem = <T>(key: StorageKey): T | null => {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : null;
+  } catch (error) {
+    console.error(`Error getting item from storage: ${key}`, error);
+    return null;
+  }
+};
 
-export type StorageKey = 'selectedSector' | 'authToken' | 'userPreferences' | 
-  'login_attempts' | 'login_lockout_until' | 'csrf_token' | 'language';
+/**
+ * Set an item in secure storage
+ */
+export const setSecureItem = <T>(key: StorageKey, value: T): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error(`Error setting item in storage: ${key}`, error);
+  }
+};
 
-export const secureStorage = {
-  /**
-   * Store a value securely
-   */
-  setItem: <T>(key: StorageKey, value: T): void => {
-    try {
-      const serializedValue = JSON.stringify(value);
-      localStorage.setItem(key, serializedValue);
-    } catch (error) {
-      console.error(`Error storing ${key}:`, error);
-    }
-  },
+/**
+ * Remove an item from secure storage
+ */
+export const removeSecureItem = (key: StorageKey): void => {
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.error(`Error removing item from storage: ${key}`, error);
+  }
+};
 
-  /**
-   * Retrieve a value securely
-   */
-  getItem: <T>(key: StorageKey, defaultValue: T | null = null): T | null => {
-    try {
-      const serializedValue = localStorage.getItem(key);
-      if (serializedValue === null) {
-        return defaultValue;
-      }
-      return JSON.parse(serializedValue) as T;
-    } catch (error) {
-      console.error(`Error retrieving ${key}:`, error);
-      return defaultValue;
-    }
-  },
-
-  /**
-   * Remove a stored value
-   */
-  removeItem: (key: StorageKey): void => {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.error(`Error removing ${key}:`, error);
-    }
-  },
-
-  /**
-   * Clear all stored values
-   */
-  clear: (): void => {
-    try {
-      localStorage.clear();
-    } catch (error) {
-      console.error('Error clearing storage:', error);
-    }
+/**
+ * Clear all secure storage
+ */
+export const clearSecureStorage = (): void => {
+  try {
+    localStorage.clear();
+  } catch (error) {
+    console.error(`Error clearing storage`, error);
   }
 };

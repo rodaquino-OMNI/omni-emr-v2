@@ -1,86 +1,94 @@
 
-import { AIInsight as PatientInsight } from '@/types/patient';
+import { AIInsight, PatientInsight } from '@/types/patient';
 
 export interface ComponentAIInsight {
   id: string;
   title: string;
-  description: string;
-  type: 'info' | 'warning' | 'critical' | 'success';
+  content: string;
+  type: "info" | "warning" | "critical" | "success";
   source?: string;
-  timestamp: string;
-  patient_id?: string;
+  timestamp?: string;
 }
 
 /**
- * Adapts a PatientInsight to the format expected by the AI Insights component
+ * Adapts an AIInsight from the API to the format expected by the AIInsights component
  */
-export const adaptToComponentAIInsight = (insight: PatientInsight): ComponentAIInsight => {
-  // Map severity to type
-  let type: 'info' | 'warning' | 'critical' | 'success';
-  switch (insight.severity) {
-    case 'critical':
-      type = 'critical';
-      break;
-    case 'high':
-      type = 'warning';
-      break;
-    case 'medium':
-      type = 'warning';
-      break;
-    case 'low':
-      type = 'info';
-      break;
-    default:
-      type = 'info';
+export const adaptToComponentAIInsight = (insight: AIInsight | PatientInsight): ComponentAIInsight => {
+  // Map the insight type to one of the allowed component types
+  let mappedType: "info" | "warning" | "critical" | "success" = "info";
+  
+  if ('severity' in insight) {
+    // AIInsight type with severity property
+    switch (insight.severity) {
+      case 'high':
+        mappedType = "critical";
+        break;
+      case 'medium':
+        mappedType = "warning";
+        break;
+      case 'low':
+        mappedType = "info";
+        break;
+      default:
+        mappedType = "info";
+    }
+  } else if ('type' in insight) {
+    // PatientInsight type with type property
+    switch (insight.type) {
+      case 'warning':
+        mappedType = "warning";
+        break;
+      case 'critical':
+        mappedType = "critical";
+        break;
+      case 'positive':
+        mappedType = "success";
+        break;
+      case 'neutral':
+      default:
+        mappedType = "info";
+    }
   }
-
+  
   return {
     id: insight.id,
     title: insight.title,
-    description: insight.description,
-    type,
-    source: insight.source || 'AI Analysis',
-    timestamp: insight.created_at,
-    patient_id: insight.patient_id
+    content: insight.content,
+    type: mappedType,
+    source: 'source' in insight ? insight.source : undefined,
+    timestamp: 'created_at' in insight ? insight.created_at : 
+              ('timestamp' in insight ? insight.timestamp : new Date().toISOString())
   };
 };
 
 /**
- * Adapts a component AIInsight to the PatientInsight format
+ * Adapts Component AI Insight format back to API AIInsight format
  */
-export const adaptToPatientInsight = (insight: ComponentAIInsight): PatientInsight => {
-  // Map type to severity
-  let severity: 'low' | 'medium' | 'high' | 'critical';
-  switch (insight.type) {
+export const adaptFromComponentAIInsight = (componentInsight: ComponentAIInsight): AIInsight => {
+  // Map component type to API severity
+  let severity: 'high' | 'medium' | 'low' = 'low';
+  
+  switch (componentInsight.type) {
     case 'critical':
-      severity = 'critical';
-      break;
-    case 'warning':
       severity = 'high';
       break;
-    case 'info':
-      severity = 'low';
-      break;
-    case 'success':
-      severity = 'low';
-      break;
-    default:
+    case 'warning':
       severity = 'medium';
+      break;
+    case 'info':
+    case 'success':
+    default:
+      severity = 'low';
+      break;
   }
-
+  
   return {
-    id: insight.id,
-    title: insight.title,
-    description: insight.description,
+    id: componentInsight.id,
+    patient_id: '', // This should be filled in by the caller
+    title: componentInsight.title,
+    content: componentInsight.content,
+    category: 'general',
     severity,
-    created_at: insight.timestamp,
-    patient_id: insight.patient_id || '',
-    source: insight.source,
-    category: insight.type
+    created_at: componentInsight.timestamp || new Date().toISOString()
   };
 };
-
-/**
- * Alias function for adaptToComponentAIInsight to maintain compatibility
- */
-export const adaptAIInsight = adaptToComponentAIInsight;

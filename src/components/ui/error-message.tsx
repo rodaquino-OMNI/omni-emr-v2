@@ -12,7 +12,7 @@ interface ErrorMessageProps {
 }
 
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
-  title,
+  title = 'Error',  // Provide a default title
   message,
   className,
   variant = 'destructive'

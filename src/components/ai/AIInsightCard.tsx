@@ -1,78 +1,97 @@
 
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Info, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
-
-export interface ComponentAIInsight {
-  id: string;
-  title: string;
-  description: string;
-  type: 'info' | 'warning' | 'critical' | 'success';
-  source?: string;
-  timestamp: string;
-  patient_id?: string;
-}
+import { useTranslation } from '@/hooks/useTranslation';
+import { AlertCircle, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ComponentAIInsight } from '@/utils/typeAdapters';
 
 interface AIInsightCardProps {
   insight: ComponentAIInsight;
   className?: string;
-  onClick?: () => void;
 }
 
-export const AIInsightCard: React.FC<AIInsightCardProps> = ({
-  insight,
-  className,
-  onClick
-}) => {
-  // Get appropriate icon and color based on insight type
-  const { icon, cardClassName } = React.useMemo(() => {
+const AIInsightCard: React.FC<AIInsightCardProps> = ({ insight, className }) => {
+  const { t } = useTranslation();
+  
+  // Determine styles based on insight type
+  const getTypeStyles = () => {
     switch (insight.type) {
       case 'critical':
-        return { 
-          icon: <AlertCircle className="h-5 w-5 text-destructive" />, 
-          cardClassName: 'border-destructive/40 animate-pulse-subtle'
+        return {
+          bgColor: 'bg-red-50 dark:bg-red-950',
+          borderColor: 'border-red-200 dark:border-red-800',
+          textColor: 'text-red-700 dark:text-red-400',
+          icon: <AlertCircle className="h-5 w-5 text-red-600" />
         };
       case 'warning':
-        return { 
-          icon: <AlertTriangle className="h-5 w-5 text-warning" />, 
-          cardClassName: 'border-warning/40'
+        return {
+          bgColor: 'bg-amber-50 dark:bg-amber-950',
+          borderColor: 'border-amber-200 dark:border-amber-800',
+          textColor: 'text-amber-700 dark:text-amber-400',
+          icon: <AlertTriangle className="h-5 w-5 text-amber-600" />
         };
       case 'success':
-        return { 
-          icon: <CheckCircle className="h-5 w-5 text-success" />, 
-          cardClassName: 'border-success/40'
+        return {
+          bgColor: 'bg-green-50 dark:bg-green-950',
+          borderColor: 'border-green-200 dark:border-green-800',
+          textColor: 'text-green-700 dark:text-green-400',
+          icon: <CheckCircle className="h-5 w-5 text-green-600" />
         };
       case 'info':
       default:
-        return { 
-          icon: <Info className="h-5 w-5 text-primary" />, 
-          cardClassName: 'border-primary/40'
+        return {
+          bgColor: 'bg-blue-50 dark:bg-blue-950',
+          borderColor: 'border-blue-200 dark:border-blue-800',
+          textColor: 'text-blue-700 dark:text-blue-400',
+          icon: <Info className="h-5 w-5 text-blue-600" />
         };
     }
-  }, [insight.type]);
-
-  // Format timestamp
-  const formattedTime = new Date(insight.timestamp).toLocaleString();
-
+  };
+  
+  const styles = getTypeStyles();
+  
+  // Format the timestamp
+  const formatTimestamp = (timestamp?: string) => {
+    if (!timestamp) return '';
+    
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    } catch (e) {
+      return timestamp;
+    }
+  };
+  
   return (
     <Card 
-      className={cn("transition-all hover:shadow-md cursor-pointer", cardClassName, className)}
-      onClick={onClick}
+      className={cn(
+        styles.bgColor, 
+        styles.borderColor,
+        'transition-all hover:shadow-md',
+        className
+      )}
     >
-      <CardHeader className="flex flex-row items-start justify-between pb-2">
-        <div className="flex items-center space-x-2">
-          {icon}
-          <CardTitle className="text-base font-semibold">{insight.title}</CardTitle>
-        </div>
+      <CardHeader className="pb-2">
+        <CardTitle className={cn("flex items-center text-lg", styles.textColor)}>
+          {styles.icon}
+          <span className="ml-2">{insight.title}</span>
+        </CardTitle>
       </CardHeader>
-      <CardContent className="pb-2">
-        <p className="text-sm mb-2">{insight.description}</p>
-        <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
-          <span>{insight.source || 'AI Analysis'}</span>
-          <span>{formattedTime}</span>
+      <CardContent>
+        <p className="text-muted-foreground mb-2">{insight.content}</p>
+        
+        <div className="flex justify-between text-xs text-muted-foreground mt-4">
+          {insight.source && (
+            <span>{t('source')}: {insight.source}</span>
+          )}
+          {insight.timestamp && (
+            <span>{formatTimestamp(insight.timestamp)}</span>
+          )}
         </div>
       </CardContent>
     </Card>
   );
 };
+
+export default AIInsightCard;

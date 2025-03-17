@@ -45,31 +45,40 @@ export const createDynamicRoutes = (role: string, permissions: string[]): RouteO
       
       // If the user doesn't have access, provide a redirect to the unauthorized page
       if (!hasPermissionAccess || !hasRoleAccess) {
-        return {
-          ...route,
-          // Override the element with a redirect
-          element: {
-            ...route.element,
+        // Clone the route to avoid mutating the original
+        const modifiedRoute = {...route};
+        
+        // If route.element is a React element with props
+        if (modifiedRoute.element && typeof modifiedRoute.element === 'object' && 'props' in modifiedRoute.element) {
+          // Add redirectTo prop
+          const elementWithRedirect = {
+            ...modifiedRoute.element,
             props: {
-              ...((route.element as any)?.props || {}),
+              ...(modifiedRoute.element.props || {}),
               redirectTo: '/unauthorized'
             }
-          }
-        };
+          };
+          
+          modifiedRoute.element = elementWithRedirect;
+        }
+        
+        return modifiedRoute;
       }
     }
     
     // Check if the route has children that need to be filtered
     if (route.children) {
+      const filteredChildren = route.children.filter(childRoute => {
+        if (childRoute.handle && (childRoute.handle as any).requiredPermission) {
+          const childRequiredPermission = (childRoute.handle as any).requiredPermission;
+          return hasPermission(mockUser, childRequiredPermission);
+        }
+        return true;
+      });
+      
       return {
         ...route,
-        children: route.children.filter(childRoute => {
-          if (childRoute.handle && (childRoute.handle as any).requiredPermission) {
-            const childRequiredPermission = (childRoute.handle as any).requiredPermission;
-            return hasPermission(mockUser, childRequiredPermission);
-          }
-          return true;
-        })
+        children: filteredChildren
       };
     }
     

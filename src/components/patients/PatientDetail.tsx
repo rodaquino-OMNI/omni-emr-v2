@@ -1,115 +1,87 @@
 
-import React, { useState } from 'react';
-import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AIInsights from '../ai/AIInsights';
-import { useAIInsights } from '@/hooks/useAIInsights';
-import { samplePatients } from '../../data/samplePatients';
-import PatientHeader from './PatientHeader';
-import { PatientOverviewTab } from './tabs/PatientOverviewTab';
-import { PatientRecordsTab } from './tabs/PatientRecordsTab';
-import { PatientPrescriptionsTab } from './tabs/PatientPrescriptionsTab';
-import { PatientAIInsightsTab } from './tabs/PatientAIInsightsTab';
-import { usePatientPrescriptions } from './hooks/usePatientPrescriptions';
-import { usePermissions } from '@/hooks/usePermissions';
-import { useAuth } from '@/context/AuthContext';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { usePatient } from '@/hooks/usePatient';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
-import { adaptInsightsForPatientDetail } from './utils/patientDetailAdapter';
+import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
+import { 
+  PatientOverviewTab,
+  PatientRecordsTab,
+  PatientPrescriptionsTab,
+  PatientAIInsightsTab
+} from './tabs';
 
-type PatientDetailProps = {
-  patientId: string;
-  className?: string;
-};
+interface PatientDetailProps {}
 
-const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
+const PatientDetail: React.FC<PatientDetailProps> = () => {
+  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const permissions = usePermissions(user);
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  
-  const patient = samplePatients.find(p => p.id === patientId);
-  
-  const { insights: componentInsights, isLoading } = useAIInsights(
-    patientId, 
-    ['vitals', 'labs', 'medications', 'tasks', 'general']
-  );
-  
-  // Convert component insights to PatientAIInsight format
-  const insights = adaptInsightsForPatientDetail(componentInsights);
-  
-  const { prescriptions, loading: prescriptionsLoading } = usePatientPrescriptions(patientId);
-  
-  // Check permissions for each tab
-  const canViewRecords = permissions.hasPermission('view_records');
-  const canViewPrescriptions = permissions.hasPermission('view_medications');
-  const canViewAIInsights = permissions.hasPermission('view_analytics');
-  
-  if (!patient) {
-    return (
-      <div className="text-center py-8">
-        <h2 className="text-xl font-medium text-muted-foreground">{t('patientNotFound')}</h2>
-      </div>
-    );
+  const { patient, isLoading, error } = usePatient(id || '');
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  const criticalInsights = componentInsights.filter(insight => insight.type === 'critical');
-  const hasCriticalInsights = criticalInsights.length > 0;
+  if (error || !patient) {
+    return <div>Error: {error || 'Patient not found'}</div>;
+  }
+
+  // Convert patient insights to the format expected by PatientAIInsightsTab
+  const adaptedInsights = patient.insights ? 
+    patient.insights.map(insight => adaptToComponentAIInsight(insight)) : 
+    [];
 
   return (
-    <div className={cn("space-y-6", className)}>
-      <PatientHeader 
-        patient={patient} 
-        hasCriticalInsights={hasCriticalInsights} 
-      />
-      
-      {hasCriticalInsights && (
-        <AIInsights 
-          insights={criticalInsights}
-          className="animate-pulse-subtle"
-        />
-      )}
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 mb-4">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">
+            {patient.first_name} {patient.last_name}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {t('patientId')}
+              </p>
+              <p>{patient.id}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {t('dateOfBirth')}
+              </p>
+              <p>{patient.date_of_birth}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Tabs defaultValue="overview">
+        <TabsList className="mb-4">
           <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
-          {canViewRecords && <TabsTrigger value="records">{t('records')}</TabsTrigger>}
-          {canViewPrescriptions && <TabsTrigger value="prescriptions">{t('prescriptions')}</TabsTrigger>}
-          {canViewAIInsights && <TabsTrigger value="ai-insights">{t('aiInsights')}</TabsTrigger>}
+          <TabsTrigger value="records">{t('records')}</TabsTrigger>
+          <TabsTrigger value="prescriptions">{t('prescriptions')}</TabsTrigger>
+          <TabsTrigger value="ai_insights">{t('aiInsights')}</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="overview" className="space-y-6">
-          <PatientOverviewTab 
-            patientId={patientId} 
-            insights={insights} 
-            prescriptions={prescriptions} 
+        <TabsContent value="overview">
+          <PatientOverviewTab patientId={id || ''} patient={patient} />
+        </TabsContent>
+        <TabsContent value="records">
+          <PatientRecordsTab patientId={id || ''} />
+        </TabsContent>
+        <TabsContent value="prescriptions">
+          <PatientPrescriptionsTab patientId={id || ''} />
+        </TabsContent>
+        <TabsContent value="ai_insights">
+          <PatientAIInsightsTab 
+            patientId={id || ''} 
+            insights={patient.insights || []}
+            isLoading={false}
           />
         </TabsContent>
-        
-        {canViewRecords && (
-          <TabsContent value="records" className="space-y-6">
-            <PatientRecordsTab patientId={patientId} />
-          </TabsContent>
-        )}
-        
-        {canViewPrescriptions && (
-          <TabsContent value="prescriptions" className="space-y-6">
-            <PatientPrescriptionsTab 
-              patientId={patientId} 
-              prescriptions={prescriptions} 
-              loading={prescriptionsLoading} 
-            />
-          </TabsContent>
-        )}
-        
-        {canViewAIInsights && (
-          <TabsContent value="ai-insights" className="space-y-6">
-            <PatientAIInsightsTab 
-              patientId={patientId}
-              insights={insights} 
-              isLoading={isLoading} 
-            />
-          </TabsContent>
-        )}
       </Tabs>
     </div>
   );
