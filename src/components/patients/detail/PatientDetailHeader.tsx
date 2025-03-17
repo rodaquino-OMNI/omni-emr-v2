@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -18,22 +19,21 @@ type PatientDetailHeaderProps = {
   patient: Patient | string;
   hasCriticalInsights?: boolean;
   className?: string;
+  onAssignmentToggle?: () => Promise<void>;
 };
 
-const PatientDetailHeader = ({ patient, hasCriticalInsights = false, className }: PatientDetailHeaderProps) => {
+const PatientDetailHeader = ({ patient, hasCriticalInsights = false, className, onAssignmentToggle }: PatientDetailHeaderProps) => {
   const navigate = useNavigate();
 
-  // Update the problematic function call or use a type assertion
-  // Find the line with the error and update to:
-  const patientObj = typeof patient === 'string' ? { id: patient } as any : patient;
+  // Create a type-safe way to handle either a string ID or a Patient object
+  const patientId = typeof patient === 'string' ? patient : patient.id;
+  const patientName = typeof patient === 'string' ? 'Loading...' : patient.name || `${patient.first_name} ${patient.last_name}`;
+  const patientMRN = typeof patient === 'string' ? 'Loading...' : patient.mrn;
 
-  // Or adapt the function to accept either a string or a Patient object:
-  const handleNavigateToProfile = (patientData: string | Patient) => {
-    const patientId = typeof patientData === 'string' ? patientData : patientData.id;
+  // Handle navigation to profile safely
+  const handleNavigateToProfile = () => {
     navigate(`/patients/${patientId}/profile`);
   };
-
-  const patientName = typeof patient === 'string' ? 'Loading...' : patient.name;
 
   return (
     <div className={cn("flex items-center justify-between", className)}>
@@ -45,7 +45,7 @@ const PatientDetailHeader = ({ patient, hasCriticalInsights = false, className }
         <div>
           <h1 className="text-2xl font-bold">{patientName}</h1>
           <p className="text-muted-foreground">
-            MRN: {typeof patient === 'string' ? 'Loading...' : patient.mrn}
+            MRN: {patientMRN}
           </p>
         </div>
       </div>
@@ -58,10 +58,15 @@ const PatientDetailHeader = ({ patient, hasCriticalInsights = false, className }
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleNavigateToProfile(patient)}>
+          <DropdownMenuItem onClick={handleNavigateToProfile}>
             <Pencil className="mr-2 h-4 w-4" />
             <span>Edit Profile</span>
           </DropdownMenuItem>
+          {onAssignmentToggle && (
+            <DropdownMenuItem onClick={onAssignmentToggle}>
+              <span>{typeof patient !== 'string' && patient.is_assigned ? 'Unassign Patient' : 'Assign Patient'}</span>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             {hasCriticalInsights ? 'Resolve Insights' : 'View Insights'}

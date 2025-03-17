@@ -8,7 +8,7 @@ import { AIInsight as ComponentAIInsight } from '@/components/ai/AIInsights';
 export const adaptAIInsight = (insight: ComponentAIInsight): PatientAIInsight => {
   return {
     id: insight.id,
-    patient_id: 'auto-generated', // Default value
+    patient_id: insight.patient_id || 'auto-generated', // Default value
     category: insight.source || 'general',
     title: insight.title,
     description: insight.description,
@@ -44,6 +44,7 @@ export const adaptToComponentAIInsight = (insight: PatientAIInsight): ComponentA
     title: insight.title,
     description: insight.description,
     timestamp: new Date(insight.created_at),
+    patient_id: insight.patient_id
   };
 };
 
