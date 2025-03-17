@@ -14,6 +14,7 @@ import PatientNotesTab from '../tabs/PatientNotesTab';
 import PatientLabResultsTab from '../tabs/PatientLabResultsTab';
 import PatientImagingTab from '../tabs/PatientImagingTab';
 import { PatientAIInsightsTab } from '../tabs';
+import { usePatientInsights } from '@/hooks/usePatientInsights';
 
 interface DoctorPatientViewProps {
   patientId: string;
@@ -21,6 +22,7 @@ interface DoctorPatientViewProps {
 
 const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
   const { patient, isLoading, error } = usePatientData(patientId);
+  const { insights, isLoading: insightsLoading } = usePatientInsights(patientId);
   const navigate = useNavigate();
   
   if (isLoading) {
@@ -108,7 +110,11 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
         </TabsContent>
         
         <TabsContent value="insights">
-          <PatientAIInsightsTab patientId={patientId} />
+          <PatientAIInsightsTab 
+            patientId={patientId} 
+            insights={insights} 
+            isLoading={insightsLoading} 
+          />
         </TabsContent>
       </Tabs>
     </div>

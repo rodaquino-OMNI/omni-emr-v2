@@ -1,10 +1,10 @@
 
 // Barrel exports for patient tab components
-export { PatientOverviewTab } from './PatientOverviewTab';
-export { PatientRecordsTab } from './PatientRecordsTab';
-export { PatientPrescriptionsTab } from './PatientPrescriptionsTab';
-export { PatientAIInsightsTab } from './PatientAIInsightsTab';
-export { PatientVitalSignsTab } from './PatientVitalSignsTab';
-export { PatientAllergiesTab } from './PatientAllergiesTab';
-export { PatientMedicationsTab } from './PatientMedicationsTab';
+export { default as PatientOverviewTab } from './PatientOverviewTab';
+export { default as PatientRecordsTab } from './PatientRecordsTab';
+export { default as PatientPrescriptionsTab } from './PatientPrescriptionsTab';
+export { default as PatientAIInsightsTab } from './PatientAIInsightsTab';
+export { default as PatientVitalSignsTab } from './PatientVitalSignsTab';
+export { default as PatientAllergiesTab } from './PatientAllergiesTab';
+export { default as PatientMedicationsTab } from './PatientMedicationsTab';
 // Export any other patient tab components here

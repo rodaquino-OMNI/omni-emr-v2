@@ -1,24 +1,43 @@
 
 import React from 'react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface ErrorMessageProps {
-  message: string;
-  title?: string;
+  title: string;
+  message: string | null;
   className?: string;
+  variant?: 'default' | 'destructive';
 }
 
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
+  title,
   message,
-  title = 'Error',
-  className
+  className,
+  variant = 'destructive'
 }) => {
+  const variantStyles = variant === 'destructive' 
+    ? 'border-red-200 dark:border-red-800' 
+    : 'border-orange-200 dark:border-orange-800';
+
+  const titleStyles = variant === 'destructive'
+    ? 'text-red-600 dark:text-red-400'
+    : 'text-orange-600 dark:text-orange-400';
+
   return (
-    <Alert variant="destructive" className={className}>
-      <AlertCircle className="h-4 w-4" />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription>{message}</AlertDescription>
-    </Alert>
+    <Card className={cn(variantStyles, className)}>
+      <CardHeader className="pb-2">
+        <CardTitle className={cn("flex items-center text-lg", titleStyles)}>
+          <AlertCircle className="h-5 w-5 mr-2" />
+          {title}
+        </CardTitle>
+      </CardHeader>
+      {message && (
+        <CardContent>
+          <p className="text-muted-foreground">{message}</p>
+        </CardContent>
+      )}
+    </Card>
   );
 };

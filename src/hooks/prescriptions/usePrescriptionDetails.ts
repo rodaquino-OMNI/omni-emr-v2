@@ -26,11 +26,11 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
         // Convert to proper type before setting
         const typedData: Prescription = {
           id: data.id,
-          patient_id: data.patient_id || data.patientId,
-          provider_id: data.provider_id || data.doctorId,
+          patient_id: data.patient_id || data.patientId || '',
+          provider_id: data.provider_id || data.doctorId || '',
           status: data.status as 'active' | 'completed' | 'cancelled',
           notes: data.notes,
-          created_at: data.created_at || data.date,
+          created_at: data.created_at || data.date || '',
           items: data.items.map(item => ({
             id: item.id,
             prescription_id: data.id,
@@ -39,9 +39,9 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
             dosage: item.dosage,
             frequency: item.frequency,
             duration: item.duration,
-            start_date: item.start_date || item.startDate,
-            end_date: item.end_date || item.endDate,
-            status: item.status as "pending" | "completed" | "cancelled",
+            start_date: item.start_date || item.startDate || '',
+            end_date: item.end_date || item.endDate || '',
+            status: item.status as "pending" | "completed" | "cancelled" | "active",
             instructions: item.instructions
           }))
         };
