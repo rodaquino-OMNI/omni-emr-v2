@@ -17,76 +17,15 @@ const SectorSelection: React.FC = () => {
   const { t, language } = useTranslation();
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const { sectors, selectSector, isLoading, error, fetchSectors, isCacheStale } = useSectorContext();
+  const [refreshing, setRefreshing] = useState(false);
   
   // Fetch sectors on component mount
   useEffect(() => {
     fetchSectors();
   }, [fetchSectors]);
   
-  // Define specialized sectors for healthcare
-  const specializedSectors = [
-    {
-      id: 'emergency',
-      name: language === 'pt' ? 'Emergência' : 'Emergency',
-      description: language === 'pt' ? 'Departamento de emergência para atendimento urgente' : 'Emergency department for urgent care',
-      code: 'EMG',
-      is_active: true
-    },
-    {
-      id: 'icu',
-      name: language === 'pt' ? 'UTI' : 'ICU',
-      description: language === 'pt' ? 'Unidade de Terapia Intensiva para pacientes críticos' : 'Intensive Care Unit for critical patients',
-      code: 'ICU',
-      is_active: true
-    },
-    {
-      id: 'cardiology',
-      name: language === 'pt' ? 'Cardiologia' : 'Cardiology',
-      description: language === 'pt' ? 'Departamento de cardiologia para tratamento de doenças cardíacas' : 'Cardiology department for heart disease treatment',
-      code: 'CAR',
-      is_active: true
-    },
-    {
-      id: 'neurology',
-      name: language === 'pt' ? 'Neurologia' : 'Neurology',
-      description: language === 'pt' ? 'Departamento de neurologia para tratamento de doenças neurológicas' : 'Neurology department for neurological disorders',
-      code: 'NEU',
-      is_active: true
-    },
-    {
-      id: 'oncology',
-      name: language === 'pt' ? 'Oncologia' : 'Oncology',
-      description: language === 'pt' ? 'Departamento de oncologia para tratamento de câncer' : 'Oncology department for cancer treatment',
-      code: 'ONC',
-      is_active: true
-    },
-    {
-      id: 'pediatrics',
-      name: language === 'pt' ? 'Pediatria' : 'Pediatrics',
-      description: language === 'pt' ? 'Departamento de pediatria para atendimento infantil' : 'Pediatrics department for child care',
-      code: 'PED',
-      is_active: true
-    },
-    {
-      id: 'general',
-      name: language === 'pt' ? 'Enfermaria Geral' : 'General Ward',
-      description: language === 'pt' ? 'Enfermaria médica geral para internação padrão' : 'General medical ward for standard inpatient care',
-      code: 'GEN',
-      is_active: true
-    },
-    {
-      id: 'outpatient',
-      name: language === 'pt' ? 'Ambulatório' : 'Outpatient',
-      description: language === 'pt' ? 'Clínicas e serviços ambulatoriais' : 'Outpatient clinics and services',
-      code: 'OUT',
-      is_active: true
-    }
-  ];
-
-  // Use context sectors if available, otherwise use specialized sectors
-  const availableSectors = sectors.length > 0 
-    ? sectors 
-    : specializedSectors;
+  // Define available sectors
+  const availableSectors = sectors.length > 0 ? sectors : [];
 
   const handleContinue = () => {
     if (selectedSector) {
@@ -98,9 +37,17 @@ const SectorSelection: React.FC = () => {
     }
   };
 
-  // Handle refresh
+  // Handle refresh with debounce to prevent multiple toasts
   const handleRefresh = async () => {
+    if (refreshing) return;
+    
+    setRefreshing(true);
     await fetchSectors();
+    
+    // Reset refreshing state after a delay
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
   };
 
   // If loading, show skeleton loader
@@ -135,15 +82,16 @@ const SectorSelection: React.FC = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('selectSector')}</CardTitle>
+            <CardTitle>{t('selectSector', 'Select Sector')}</CardTitle>
             {isCacheStale && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleRefresh}
+                disabled={refreshing}
                 title={t('refreshSectors', 'Refresh Sectors')}
               >
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
             )}
           </div>

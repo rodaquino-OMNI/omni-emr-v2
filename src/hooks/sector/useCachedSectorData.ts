@@ -21,27 +21,6 @@ const specializedSectors: SectorType[] = [
     is_active: true
   },
   {
-    id: 'cardiology',
-    name: 'Cardiology',
-    code: 'CAR',
-    description: 'Cardiology department for heart disease treatment',
-    is_active: true
-  },
-  {
-    id: 'neurology',
-    name: 'Neurology',
-    code: 'NEU',
-    description: 'Neurology department for neurological disorders',
-    is_active: true
-  },
-  {
-    id: 'oncology',
-    name: 'Oncology',
-    code: 'ONC',
-    description: 'Oncology department for cancer treatment',
-    is_active: true
-  },
-  {
     id: 'pediatrics',
     name: 'Pediatrics',
     code: 'PED',
@@ -56,8 +35,15 @@ const specializedSectors: SectorType[] = [
     is_active: true
   },
   {
+    id: 'homecare',
+    name: 'Home Care',
+    code: 'HMC',
+    description: 'Home care services for patients receiving care at home',
+    is_active: true
+  },
+  {
     id: 'outpatient',
-    name: 'Outpatient',
+    name: 'Outpatient Clinic',
     code: 'OUT',
     description: 'Outpatient clinics and services',
     is_active: true
@@ -125,6 +111,7 @@ export const useCachedSectorData = () => {
       localStorage.setItem('lastSectorFetchTime', Date.now().toString());
       setIsCacheStale(false);
       
+      // Use toast only once here
       toast({
         title: "Sectors Updated",
         description: "The sector data has been refreshed.",

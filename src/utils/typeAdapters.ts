@@ -16,7 +16,8 @@ export const adaptToComponentAIInsight = (
     source: insight.source,
     // Ensure type is always one of the allowed values
     type: mapCategoryToType(insight.category),
-    content: insight.description, // Make sure content is always set
+    // Make sure content is always set
+    content: insight.description || "",
     timestamp: insight.timestamp || insight.created_at,
     patient_id: insight.patient_id
   };

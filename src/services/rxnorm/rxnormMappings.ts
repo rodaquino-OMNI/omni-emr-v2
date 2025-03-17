@@ -1,5 +1,17 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { handleDatabaseError } from '@/utils/errorHandling';
+
+/**
+ * RxNorm mapping interface
+ */
+interface RxNormMapping {
+  rxnorm_code: string;
+  anvisa_code: string;
+  medication_name: string;
+  mapping_date: string;
+  is_verified: boolean;
+}
 
 /**
  * Map RxNorm code to ANVISA code
@@ -75,7 +87,7 @@ export const getPatientMedicationHistory = async (
       .rpc('get_patient_medication_history', { patient_id_param: patientId });
     
     if (error) {
-      throw handleDatabaseError(error, 'fetch', 'medication history');
+      throw handleDatabaseError(error);
     }
     
     // Transform the data to match our frontend type expectations

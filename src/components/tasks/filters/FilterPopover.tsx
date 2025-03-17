@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TaskFilter } from '@/services/tasks';
+import { TaskFilter } from '@/types/TaskFilter';
 
 interface FilterPopoverProps {
   filter: TaskFilter;
