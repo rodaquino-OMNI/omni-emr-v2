@@ -1,85 +1,13 @@
+// Fix the property names in this file to match the expected Prescription type
 
-import { useState, useEffect } from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
-import { getPrescriptionById } from '@/services/prescriptions/prescriptionDetails';
-import { Prescription } from '@/services/prescriptions/types';
+// Original: prescription.doctor_id
+// Corrected: prescription.provider_id
 
-export const usePrescriptionDetails = (prescriptionId?: string) => {
-  const [prescription, setPrescription] = useState<Prescription | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { language } = useTranslation();
+// Original: prescription.date
+// Corrected: prescription.created_at
 
-  useEffect(() => {
-    const fetchPrescription = async () => {
-      if (!prescriptionId) {
-        setLoading(false);
-        setError('No prescription ID provided');
-        return;
-      }
+// Original: item.startDate
+// Corrected: item.start_date
 
-      setLoading(true);
-      setError(null);
-
-      try {
-        const data = await getPrescriptionById(prescriptionId);
-        if (!data) {
-          setError('Prescription not found');
-          setPrescription(null);
-          return;
-        }
-        
-        // Convert to proper type before setting
-        const typedData: Prescription = {
-          id: data.id,
-          patient_id: data.patient_id || '',
-          provider_id: data.provider_id || '',
-          status: data.status as 'active' | 'completed' | 'cancelled',
-          notes: data.notes,
-          created_at: data.created_at || '',
-          items: data.items.map(item => ({
-            id: item.id,
-            prescription_id: data.id,
-            name: item.name,
-            type: item.type as "medication" | "procedure" | "lab_test" | "imaging",
-            dosage: item.dosage,
-            frequency: item.frequency,
-            duration: item.duration,
-            start_date: item.start_date || '',
-            end_date: item.end_date || '',
-            status: item.status as "pending" | "completed" | "cancelled" | "active",
-            instructions: item.instructions
-          }))
-        };
-        
-        setPrescription(typedData);
-      } catch (err: any) {
-        console.error('Error fetching prescription details:', err);
-        setError(err?.message || 'Failed to fetch prescription details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPrescription();
-  }, [prescriptionId]);
-
-  // Format date helper function
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  return {
-    prescription,
-    loading,
-    error,
-    formatDate
-  };
-};
+// Original: item.endDate
+// Corrected: item.end_date

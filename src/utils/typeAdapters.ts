@@ -14,10 +14,11 @@ export const adaptToComponentAIInsight = (
     severity: insight.severity,
     created_at: insight.created_at,
     source: insight.source,
+    // Ensure type is always one of the allowed values
     type: mapCategoryToType(insight.category),
-    content: insight.description,
+    content: insight.description, // Make sure content is always set
     timestamp: insight.timestamp || insight.created_at,
-    patient_id: undefined // This is set when necessary by the component
+    patient_id: insight.patient_id
   };
 };
 
@@ -25,7 +26,7 @@ export const adaptToComponentAIInsight = (
  * Maps insight category to component type
  */
 const mapCategoryToType = (
-  category: "critical" | "warning" | "info" | "success"
+  category: string
 ): "critical" | "warning" | "info" | "success" => {
   switch (category) {
     case "critical":
@@ -37,7 +38,7 @@ const mapCategoryToType = (
     case "success":
       return "success";
     default:
-      return "info";
+      return "info"; // Default fallback
   }
 };
 

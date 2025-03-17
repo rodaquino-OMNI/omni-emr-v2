@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { handleDatabaseError } from '@/utils/errorHandling';
 
@@ -90,5 +89,23 @@ export const getPatientMedicationHistory = async (
   } catch (error) {
     console.error('Error getting patient medication history:', error);
     return [];
+  }
+};
+
+/**
+ * Create multiple mappings between RxNorm and ANVISA codes
+ */
+const createMappings = async (mappings: RxNormMapping[]): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from('rxnorm_anvisa_mappings').insert(mappings);
+    
+    if (error) {
+      throw handleDatabaseError(error);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error creating mappings:', error);
+    return false;
   }
 };

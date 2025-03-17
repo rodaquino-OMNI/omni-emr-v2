@@ -36,7 +36,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 }) => {
   const handleTextSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (filters) {
-      onFilterChange('searchQuery', e.target.value);
+      onFilterChange('searchTerm', e.target.value);
     }
   };
 
@@ -49,7 +49,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       onFilterChange('status', undefined);
       onFilterChange('priority', undefined);
       onFilterChange('type', undefined);
-      onFilterChange('searchQuery', '');
+      onFilterChange('searchTerm', '');
     }
   };
 
