@@ -1,83 +1,103 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePatientContext } from '@/context/PatientContext';
-import PatientOverviewTab from '@/components/patients/tabs/PatientOverviewTab';
-import PatientRecordsTab from '@/components/patients/tabs/PatientRecordsTab';
-import PatientVitalSignsTab from '@/components/patients/tabs/PatientVitalSignsTab';
-import AIInsights from '@/components/ai/AIInsights';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { usePatient } from '@/hooks/usePatient';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useNavigate } from 'react-router-dom';
+import { FilePlus2, ActivitySquare, Calendar } from 'lucide-react';
+import PatientHeader from '../detail/PatientDetailHeader';
+import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
+import PatientNotesTab from '../tabs/PatientNotesTab';
+import PatientAppointmentsTab from '../tabs/PatientAppointmentsTab';
+import PatientAllergiesTab from '../tabs/PatientAllergiesTab';
+import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
 
 interface MedicalStaffPatientViewProps {
   patientId: string;
 }
 
 const MedicalStaffPatientView: React.FC<MedicalStaffPatientViewProps> = ({ patientId }) => {
-  const { patient, isLoading, error } = usePatientContext();
-  const { t } = useTranslation();
+  const { patient, isLoading, error } = usePatient(patientId);
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  // Get the active tab from URL or default to overview
-  const activeTab = searchParams.get('tab') || 'overview';
-  
-  // Handle tab changes
-  const handleTabChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', value);
-    setSearchParams(newParams);
-  };
-  
-  // Filter relevant medical insights
-  const medicalInsights = patient?.insights?.filter(insight => 
-    insight.type === 'critical' || 
-    insight.severity === 'critical' || 
-    insight.category === 'medical' ||
-    insight.category === 'diagnosis'
-  ) || [];
-  
-  const hasMedicalInsights = medicalInsights.length > 0;
   
   if (isLoading) {
-    return <div>Loading patient data...</div>;
+    return <LoadingSpinner />;
   }
   
   if (error || !patient) {
-    return <div>Error loading patient: {error}</div>;
+    return <div className="p-4 text-red-500">Error loading patient: {error?.toString()}</div>;
   }
   
   return (
     <div className="space-y-6">
-      {/* Display medical insights if available */}
-      {hasMedicalInsights && (
-        <AIInsights 
-          insights={medicalInsights}
-          className="animate-pulse-subtle"
-        />
-      )}
+      <PatientHeader patient={patient} />
       
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
-          <TabsTrigger value="records">{t('records')}</TabsTrigger>
-          <TabsTrigger value="vitalsigns">{t('vitalSigns')}</TabsTrigger>
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button 
+          onClick={() => navigate(`/patients/${patientId}/vitals/new`)}
+          className="flex items-center"
+        >
+          <ActivitySquare className="h-4 w-4 mr-2" />
+          Record Vitals
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => navigate(`/clinical-documentation/new?patientId=${patientId}&type=progress_note`)}
+          className="flex items-center"
+        >
+          <FilePlus2 className="h-4 w-4 mr-2" />
+          Progress Note
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => navigate(`/appointments/new?patientId=${patientId}`)}
+          className="flex items-center"
+        >
+          <Calendar className="h-4 w-4 mr-2" />
+          Schedule Appointment
+        </Button>
+      </div>
+      
+      <Tabs defaultValue="summary" className="space-y-4">
+        <TabsList className="flex overflow-x-auto pb-px">
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
+          <TabsTrigger value="medications">Medications</TabsTrigger>
+          <TabsTrigger value="allergies">Allergies</TabsTrigger>
+          <TabsTrigger value="appointments">Appointments</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-6 mt-4">
-          <PatientOverviewTab 
-            patientId={patientId} 
-            insights={patient.insights || []} 
-            prescriptions={patient.prescriptions || []} 
-          />
+        <TabsContent value="summary">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <PatientVitalSignsTab patientId={patientId} compact />
+            <PatientAllergiesTab patientId={patientId} compact />
+            <PatientMedicationsTab patientId={patientId} compact />
+            <PatientAppointmentsTab patientId={patientId} compact />
+          </div>
         </TabsContent>
         
-        <TabsContent value="records" className="space-y-6 mt-4">
-          <PatientRecordsTab patientId={patientId} />
-        </TabsContent>
-        
-        <TabsContent value="vitalsigns" className="space-y-6 mt-4">
+        <TabsContent value="vitals">
           <PatientVitalSignsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="medications">
+          <PatientMedicationsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="allergies">
+          <PatientAllergiesTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="appointments">
+          <PatientAppointmentsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="notes">
+          <PatientNotesTab patientId={patientId} />
         </TabsContent>
       </Tabs>
     </div>

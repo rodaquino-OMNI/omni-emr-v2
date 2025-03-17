@@ -1,68 +1,56 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, FileText, Calendar, Activity, Pill, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { useTranslation } from '@/hooks/useTranslation';
-import SectorPatientList from '@/components/patients/SectorPatientList';
-import SectorPatientListSkeleton from '@/components/patients/SectorPatientListSkeleton';
+import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UserPlus, ClipboardList, Stethoscope, Activity } from 'lucide-react';
+import { usePatientsByStatus } from '@/hooks/usePatientsByStatus';
 import { useSectorContext } from '@/hooks/useSectorContext';
-import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 const DoctorDashboard: React.FC = () => {
-  const { t, language } = useTranslation();
-  const { patientsLoading } = useSectorContext();
-  const [activeTab, setActiveTab] = React.useState('orders');
+  const navigate = useNavigate();
+  const { selectedSector } = useSectorContext();
+  const { criticalPatients, stablePatients, loading } = usePatientsByStatus(selectedSector?.id);
   
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">
-        {language === 'pt' ? 'Painel do Médico' : 'Physician Dashboard'}
-      </h2>
+    <div className="space-y-6 p-4 md:p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Physician Dashboard</h1>
+        <div className="flex space-x-2">
+          <Button onClick={() => navigate('/patients')}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Patients
+          </Button>
+          <Button onClick={() => navigate('/clinical-documentation')} variant="outline">
+            <ClipboardList className="h-4 w-4 mr-2" />
+            Documentation
+          </Button>
+        </div>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-lg font-medium">
-              <User className="mr-2 h-5 w-5 text-primary" />
-              {t('myPatients', 'My Patients')}
+              <Stethoscope className="h-5 w-5 mr-2 text-primary" />
+              Clinical Workload
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <LoadingOverlay 
-              isLoading={patientsLoading} 
-              text={t('loadingPatients', 'Loading patients...')}
-              transparent
-            >
-              <SectorPatientList 
-                className="max-h-96 overflow-y-auto pr-2" 
-                limit={5} 
-                showViewAll={true} 
-              />
-            </LoadingOverlay>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center text-lg font-medium">
-              <FileText className="mr-2 h-5 w-5 text-primary" />
-              {t('pendingDocumentation', 'Pending Documentation')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <p className="text-muted-foreground text-sm">
-                {t('noDocumentation', 'No pending documentation')}
-              </p>
-              <Button asChild variant="outline" size="sm" className="mt-4">
-                <Link to="/clinical-notes/new">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  {t('newNote', 'New Note')}
-                </Link>
-              </Button>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Critical Patients</span>
+                <span className="font-semibold">{loading ? '...' : criticalPatients.length}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Stable Patients</span>
+                <span className="font-semibold">{loading ? '...' : stablePatients.length}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Pending Notes</span>
+                <span className="font-semibold">3</span>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -70,69 +58,118 @@ const DoctorDashboard: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-lg font-medium">
-              <Activity className="mr-2 h-5 w-5 text-primary" />
-              {t('criticalResults', 'Critical Results')}
+              <Activity className="h-5 w-5 mr-2 text-primary" />
+              Recent Activity
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <p className="text-muted-foreground text-sm">
-                {t('noCriticalResults', 'No pending critical results')}
-              </p>
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">Updated treatment plan</span>
+                <span className="text-xs text-muted-foreground">Patient: Maria Silva</span>
+                <span className="text-xs text-muted-foreground">10 minutes ago</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">Added lab results</span>
+                <span className="text-xs text-muted-foreground">Patient: João Santos</span>
+                <span className="text-xs text-muted-foreground">45 minutes ago</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-lg font-medium">
+              <ClipboardList className="h-5 w-5 mr-2 text-primary" />
+              Today's Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">09:30 - Patient Consult</span>
+                <span className="text-xs text-muted-foreground">Maria Silva</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">11:00 - Medical Team Meeting</span>
+                <span className="text-xs text-muted-foreground">Conference Room B</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">14:15 - Follow-up Visit</span>
+                <span className="text-xs text-muted-foreground">João Santos</span>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full max-w-md">
-          <TabsTrigger value="orders">{t('orders', 'Orders')}</TabsTrigger>
-          <TabsTrigger value="medications">{t('medications', 'Medications')}</TabsTrigger>
-          <TabsTrigger value="appointments">{t('appointments', 'Appointments')}</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="orders" className="bg-muted/30 rounded-md p-4 mt-4">
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm mb-4">
-              {t('noPendingOrders', 'No pending orders')}
-            </p>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/orders/new">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                {t('newOrder', 'New Order')}
-              </Link>
-            </Button>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="medications" className="bg-muted/30 rounded-md p-4 mt-4">
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm mb-4">
-              {t('noMedicationsToReview', 'No medications to review')}
-            </p>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/medications/new">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                {t('newPrescription', 'New Prescription')}
-              </Link>
-            </Button>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="appointments" className="bg-muted/30 rounded-md p-4 mt-4">
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm mb-4">
-              {t('noAppointmentsToday', 'No appointments today')}
-            </p>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/calendar">
-                <Calendar className="mr-2 h-4 w-4" />
-                {t('viewCalendar', 'View Calendar')}
-              </Link>
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
+      <Card className="mt-6">
+        <CardHeader className="pb-2">
+          <CardTitle>Patient Insights</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="critical">
+            <TabsList className="mb-4">
+              <TabsTrigger value="critical">Critical</TabsTrigger>
+              <TabsTrigger value="stable">Stable</TabsTrigger>
+              <TabsTrigger value="discharged">Recently Discharged</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="critical" className="space-y-4">
+              {loading ? (
+                <p>Loading critical patients...</p>
+              ) : criticalPatients.length > 0 ? (
+                criticalPatients.slice(0, 5).map((patient) => (
+                  <div key={patient.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
+                    <div>
+                      <h3 className="font-medium">{patient.first_name} {patient.last_name}</h3>
+                      <p className="text-sm text-muted-foreground">Last updated: 2 hours ago</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate(`/patients/${patient.id}`)}
+                    >
+                      View
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground">No critical patients assigned to you.</p>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="stable" className="space-y-4">
+              {loading ? (
+                <p>Loading stable patients...</p>
+              ) : stablePatients.length > 0 ? (
+                stablePatients.slice(0, 5).map((patient) => (
+                  <div key={patient.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
+                    <div>
+                      <h3 className="font-medium">{patient.first_name} {patient.last_name}</h3>
+                      <p className="text-sm text-muted-foreground">MRN: {patient.mrn}</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate(`/patients/${patient.id}`)}
+                    >
+                      View
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground">No stable patients assigned to you.</p>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="discharged" className="space-y-4">
+              <p className="text-muted-foreground">No patients have been discharged recently.</p>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -40,11 +40,12 @@ export const protectedRoutes: RouteObject[] = [
             requiredRole={['doctor', 'nurse', 'administrative']}
           >
             <RoleBasedRoute
+              element={<React.Suspense fallback={<div>Loading...</div>}>
+                {React.createElement(React.lazy(() => import('../pages/Patients')))}
+              </React.Suspense>}
               requiredRoles={['doctor', 'nurse', 'administrative']}
               requiredPermission="patients:view"
-            >
-              {React.lazy(() => import('../pages/Patients'))}
-            </RoleBasedRoute>
+            />
           </ProtectedRoute>
         ),
         handle: {
@@ -60,11 +61,12 @@ export const protectedRoutes: RouteObject[] = [
             requiredRole={['doctor', 'nurse', 'administrative']}
           >
             <RoleBasedRoute
+              element={<React.Suspense fallback={<div>Loading...</div>}>
+                {React.createElement(React.lazy(() => import('../pages/PatientDetail')))}
+              </React.Suspense>}
               requiredRoles={['doctor', 'nurse', 'administrative']}
               requiredPermission="patients:view"
-            >
-              {React.lazy(() => import('../pages/PatientDetail'))}
-            </RoleBasedRoute>
+            />
           </ProtectedRoute>
         ),
         handle: {
@@ -77,11 +79,12 @@ export const protectedRoutes: RouteObject[] = [
         element: (
           <ProtectedRoute requiredPermission="notes:view">
             <RoleBasedRoute
+              element={<React.Suspense fallback={<div>Loading...</div>}>
+                {React.createElement(React.lazy(() => import('../pages/ClinicalDocumentation')))}
+              </React.Suspense>}
               requiredRoles={['doctor', 'nurse', 'specialist']}
               requiredPermission="notes:view"
-            >
-              {React.lazy(() => import('../pages/ClinicalDocumentation'))}
-            </RoleBasedRoute>
+            />
           </ProtectedRoute>
         ),
         handle: {
@@ -94,11 +97,12 @@ export const protectedRoutes: RouteObject[] = [
         element: (
           <ProtectedRoute requiredPermission="medications:view">
             <RoleBasedRoute
+              element={<React.Suspense fallback={<div>Loading...</div>}>
+                {React.createElement(React.lazy(() => import('../pages/Medications')))}
+              </React.Suspense>}
               requiredRoles={['doctor', 'nurse', 'pharmacist']}
               requiredPermission="medications:view"
-            >
-              {React.lazy(() => import('../pages/Medications'))}
-            </RoleBasedRoute>
+            />
           </ProtectedRoute>
         ),
         handle: {

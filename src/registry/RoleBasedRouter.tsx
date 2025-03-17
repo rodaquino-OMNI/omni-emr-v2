@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -49,7 +50,7 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
 };
 
 // Define a type for route config items
-interface RouteConfig {
+export interface RouteConfig {
   path: string;
   roles: string[];
   permissions: string[];

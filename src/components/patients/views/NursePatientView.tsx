@@ -1,107 +1,102 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePatientContext } from '@/context/PatientContext';
-import PatientOverviewTab from '@/components/patients/tabs/PatientOverviewTab';
-import PatientRecordsTab from '@/components/patients/tabs/PatientRecordsTab';
-import PatientVitalSignsTab from '@/components/patients/tabs/PatientVitalSignsTab';
-import AIInsights from '@/components/ai/AIInsights';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { useState } from 'react';
-import NewVisitNoteForm from '@/components/visit-notes/NewVisitNoteForm';
+import { usePatient } from '@/hooks/usePatient';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useNavigate } from 'react-router-dom';
+import { FilePlus2, ActivitySquare, Pill, Droplets } from 'lucide-react';
+import PatientHeader from '../detail/PatientDetailHeader';
+import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
+import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
+import PatientNotesTab from '../tabs/PatientNotesTab';
+import PatientCareTasksTab from '../tabs/PatientCareTasksTab';
+import PatientFluidBalanceTab from '../tabs/PatientFluidBalanceTab';
 
 interface NursePatientViewProps {
   patientId: string;
 }
 
 const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
-  const { patient, isLoading, error, refreshPatient } = usePatientContext();
-  const { t } = useTranslation();
+  const { patient, isLoading, error } = usePatient(patientId);
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [isVisitNoteDialogOpen, setIsVisitNoteDialogOpen] = useState(false);
-  
-  // Get the active tab from URL or default to overview
-  const activeTab = searchParams.get('tab') || 'overview';
-  
-  // Handle tab changes
-  const handleTabChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', value);
-    setSearchParams(newParams);
-  };
-  
-  // Filter nurse-relevant insights
-  const nurseInsights = patient?.insights?.filter(insight => 
-    insight.type === 'critical' || 
-    insight.severity === 'critical' || 
-    insight.category === 'vitals' ||
-    insight.category === 'nurse'
-  ) || [];
-  
-  const hasNurseInsights = nurseInsights.length > 0;
   
   if (isLoading) {
-    return <div>Loading patient data...</div>;
+    return <LoadingSpinner />;
   }
   
   if (error || !patient) {
-    return <div>Error loading patient: {error}</div>;
+    return <div className="p-4 text-red-500">Error loading patient: {error?.toString()}</div>;
   }
   
   return (
     <div className="space-y-6">
-      {/* Nursing Actions */}
-      <div className="flex justify-end gap-2">
-        <Dialog open={isVisitNoteDialogOpen} onOpenChange={setIsVisitNoteDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="flex items-center gap-1">
-              <Plus className="h-4 w-4" />
-              {t('newVisitNote')}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[550px]">
-            <NewVisitNoteForm 
-              onClose={() => setIsVisitNoteDialogOpen(false)}
-              onSuccess={refreshPatient}
-            />
-          </DialogContent>
-        </Dialog>
+      <PatientHeader patient={patient} />
+      
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button 
+          onClick={() => navigate(`/patients/${patientId}/vitals/new`)}
+          className="flex items-center"
+        >
+          <ActivitySquare className="h-4 w-4 mr-2" />
+          Record Vitals
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => navigate(`/clinical-documentation/new?patientId=${patientId}&type=nursing_note`)}
+          className="flex items-center"
+        >
+          <FilePlus2 className="h-4 w-4 mr-2" />
+          Nursing Note
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => navigate(`/medications/administer?patientId=${patientId}`)}
+          className="flex items-center"
+        >
+          <Pill className="h-4 w-4 mr-2" />
+          Administer Medication
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => navigate(`/patients/${patientId}/fluid-balance`)}
+          className="flex items-center"
+        >
+          <Droplets className="h-4 w-4 mr-2" />
+          Fluid Balance
+        </Button>
       </div>
       
-      {/* Display nurse-relevant insights */}
-      {hasNurseInsights && (
-        <AIInsights 
-          insights={nurseInsights}
-          className="animate-pulse-subtle"
-        />
-      )}
-      
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
-          <TabsTrigger value="records">{t('records')}</TabsTrigger>
-          <TabsTrigger value="vitalsigns">{t('vitalSigns')}</TabsTrigger>
+      <Tabs defaultValue="vitals" className="space-y-4">
+        <TabsList className="flex overflow-x-auto pb-px">
+          <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
+          <TabsTrigger value="medications">Medications</TabsTrigger>
+          <TabsTrigger value="tasks">Care Tasks</TabsTrigger>
+          <TabsTrigger value="fluid-balance">Fluid Balance</TabsTrigger>
+          <TabsTrigger value="notes">Nursing Notes</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-6 mt-4">
-          <PatientOverviewTab 
-            patientId={patientId} 
-            insights={patient.insights || []} 
-            prescriptions={patient.prescriptions || []} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="records" className="space-y-6 mt-4">
-          <PatientRecordsTab patientId={patientId} />
-        </TabsContent>
-        
-        <TabsContent value="vitalsigns" className="space-y-6 mt-4">
+        <TabsContent value="vitals">
           <PatientVitalSignsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="medications">
+          <PatientMedicationsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="tasks">
+          <PatientCareTasksTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="fluid-balance">
+          <PatientFluidBalanceTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="notes">
+          <PatientNotesTab patientId={patientId} filter="nursing_note" />
         </TabsContent>
       </Tabs>
     </div>

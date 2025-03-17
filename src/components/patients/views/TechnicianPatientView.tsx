@@ -1,76 +1,93 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePatientContext } from '@/context/PatientContext';
-import PatientOverviewTab from '@/components/patients/tabs/PatientOverviewTab';
-import PatientRecordsTab from '@/components/patients/tabs/PatientRecordsTab';
-import AIInsights from '@/components/ai/AIInsights';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { usePatient } from '@/hooks/usePatient';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useNavigate } from 'react-router-dom';
+import { FilePlus2, Flask, ImagePlus } from 'lucide-react';
+import PatientHeader from '../detail/PatientDetailHeader';
+import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
+import PatientLabResultsTab from '../tabs/PatientLabResultsTab';
+import PatientImagingTab from '../tabs/PatientImagingTab';
+import PatientOrdersTab from '../tabs/PatientOrdersTab';
+import { useAuth } from '@/context/AuthContext';
 
 interface TechnicianPatientViewProps {
   patientId: string;
 }
 
 const TechnicianPatientView: React.FC<TechnicianPatientViewProps> = ({ patientId }) => {
-  const { patient, isLoading, error } = usePatientContext();
-  const { t } = useTranslation();
+  const { patient, isLoading, error } = usePatient(patientId);
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  // Get the active tab from URL or default to overview
-  const activeTab = searchParams.get('tab') || 'overview';
-  
-  // Handle tab changes
-  const handleTabChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', value);
-    setSearchParams(newParams);
-  };
-  
-  // Filter technician-relevant insights
-  const techInsights = patient?.insights?.filter(insight => 
-    insight.type === 'critical' || 
-    insight.category === 'lab' ||
-    insight.category === 'imaging'
-  ) || [];
-  
-  const hasTechInsights = techInsights.length > 0;
+  const { user } = useAuth();
+  const isTechnicianType = user?.role.includes('technician');
   
   if (isLoading) {
-    return <div>Loading patient data...</div>;
+    return <LoadingSpinner />;
   }
   
   if (error || !patient) {
-    return <div>Error loading patient: {error}</div>;
+    return <div className="p-4 text-red-500">Error loading patient: {error?.toString()}</div>;
   }
   
   return (
     <div className="space-y-6">
-      {/* Display technician-relevant insights */}
-      {hasTechInsights && (
-        <AIInsights 
-          insights={techInsights}
-          className="animate-pulse-subtle"
-        />
-      )}
+      <PatientHeader patient={patient} />
       
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
-          <TabsTrigger value="records">{t('records')}</TabsTrigger>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {user?.role === 'lab_technician' && (
+          <Button 
+            onClick={() => navigate(`/lab/results/new?patientId=${patientId}`)}
+            className="flex items-center"
+          >
+            <Flask className="h-4 w-4 mr-2" />
+            Enter Lab Results
+          </Button>
+        )}
+        
+        {user?.role === 'radiology_technician' && (
+          <Button 
+            onClick={() => navigate(`/imaging/new?patientId=${patientId}`)}
+            className="flex items-center"
+          >
+            <ImagePlus className="h-4 w-4 mr-2" />
+            Upload Imaging
+          </Button>
+        )}
+        
+        <Button 
+          variant="outline"
+          onClick={() => navigate(`/clinical-documentation/new?patientId=${patientId}&type=technical_note`)}
+          className="flex items-center"
+        >
+          <FilePlus2 className="h-4 w-4 mr-2" />
+          Technical Note
+        </Button>
+      </div>
+      
+      <Tabs defaultValue="orders" className="space-y-4">
+        <TabsList className="flex overflow-x-auto pb-px">
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
+          {user?.role === 'lab_technician' && <TabsTrigger value="labs">Lab Results</TabsTrigger>}
+          {user?.role === 'radiology_technician' && <TabsTrigger value="imaging">Imaging</TabsTrigger>}
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-6 mt-4">
-          <PatientOverviewTab 
-            patientId={patientId} 
-            insights={patient.insights || []} 
-            prescriptions={patient.prescriptions || []} 
-          />
+        <TabsContent value="orders">
+          <PatientOrdersTab patientId={patientId} />
         </TabsContent>
         
-        <TabsContent value="records" className="space-y-6 mt-4">
-          <PatientRecordsTab patientId={patientId} />
+        <TabsContent value="vitals">
+          <PatientVitalSignsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="labs">
+          <PatientLabResultsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="imaging">
+          <PatientImagingTab patientId={patientId} />
         </TabsContent>
       </Tabs>
     </div>

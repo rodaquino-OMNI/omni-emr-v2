@@ -1,73 +1,56 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Pill, HeartPulse, ClipboardCheck, PlusCircle, Droplet, Activity } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { useTranslation } from '@/hooks/useTranslation';
-import SectorPatientList from '@/components/patients/SectorPatientList';
-import LoadingOverlay from '@/components/ui/LoadingOverlay';
+import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UserPlus, ClipboardCheck, Activity, Pill } from 'lucide-react';
+import { usePatientsByStatus } from '@/hooks/usePatientsByStatus';
 import { useSectorContext } from '@/hooks/useSectorContext';
 
 const NurseDashboard: React.FC = () => {
-  const { t, language } = useTranslation();
-  const { patientsLoading } = useSectorContext();
-  const [activeTab, setActiveTab] = React.useState('tasks');
+  const navigate = useNavigate();
+  const { selectedSector } = useSectorContext();
+  const { criticalPatients, stablePatients, loading } = usePatientsByStatus(selectedSector?.id);
   
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">
-        {language === 'pt' ? 'Painel de Enfermagem' : 'Nursing Dashboard'}
-      </h2>
+    <div className="space-y-6 p-4 md:p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Nurse Dashboard</h1>
+        <div className="flex space-x-2">
+          <Button onClick={() => navigate('/patients')}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Patients
+          </Button>
+          <Button onClick={() => navigate('/medications')} variant="outline">
+            <Pill className="h-4 w-4 mr-2" />
+            Medications
+          </Button>
+        </div>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-lg font-medium">
-              <Users className="mr-2 h-5 w-5 text-primary" />
-              {t('assignedPatients', 'Assigned Patients')}
+              <ClipboardCheck className="h-5 w-5 mr-2 text-primary" />
+              Tasks Overview
             </CardTitle>
-            <CardDescription>
-              {t('yourCurrentPatients', 'Your current patients')}
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <LoadingOverlay 
-              isLoading={patientsLoading} 
-              text={t('loadingPatients', 'Loading patients...')}
-              transparent
-            >
-              <SectorPatientList 
-                className="max-h-96 overflow-y-auto pr-2" 
-                limit={5} 
-                showViewAll={true} 
-              />
-            </LoadingOverlay>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center text-lg font-medium">
-              <Pill className="mr-2 h-5 w-5 text-primary" />
-              {t('pendingMedications', 'Pending Medications')}
-            </CardTitle>
-            <CardDescription>
-              {t('medicationsToAdminister', 'Medications to administer')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <p className="text-muted-foreground text-sm">
-                {t('noPendingMedications', 'No pending medications')}
-              </p>
-              <Button asChild variant="outline" size="sm" className="mt-4">
-                <Link to="/medications/administration">
-                  <ClipboardCheck className="mr-2 h-4 w-4" />
-                  {t('viewMAR', 'View MAR')}
-                </Link>
-              </Button>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Vital Signs Due</span>
+                <span className="font-semibold">4</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Medications Due</span>
+                <span className="font-semibold">7</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Fluid Balance Checks</span>
+                <span className="font-semibold">2</span>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -75,69 +58,133 @@ const NurseDashboard: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-lg font-medium">
-              <HeartPulse className="mr-2 h-5 w-5 text-primary" />
-              {t('vitalSigns', 'Vital Signs')}
+              <Activity className="h-5 w-5 mr-2 text-primary" />
+              Recent Activities
             </CardTitle>
-            <CardDescription>
-              {t('vitalSignsToDocument', 'Vital signs to document')}
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <p className="text-muted-foreground text-sm">
-                {t('allVitalSignsDocumented', 'All vital signs documented')}
-              </p>
-              <Button asChild variant="outline" size="sm" className="mt-4">
-                <Link to="/vitals">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  {t('newEntry', 'New Entry')}
-                </Link>
-              </Button>
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">Administered medication</span>
+                <span className="text-xs text-muted-foreground">Patient: Ana Oliveira</span>
+                <span className="text-xs text-muted-foreground">15 minutes ago</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">Recorded vital signs</span>
+                <span className="text-xs text-muted-foreground">Patient: Pedro Costa</span>
+                <span className="text-xs text-muted-foreground">30 minutes ago</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-lg font-medium">
+              <Pill className="h-5 w-5 mr-2 text-primary" />
+              Medication Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">09:00 - Lisinopril 10mg</span>
+                <span className="text-xs text-muted-foreground">Ana Oliveira - Room 205</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">09:30 - Insulin Regular 5 units</span>
+                <span className="text-xs text-muted-foreground">Pedro Costa - Room 210</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">10:00 - Paracetamol 500mg</span>
+                <span className="text-xs text-muted-foreground">Maria Silva - Room 201</span>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full max-w-md">
-          <TabsTrigger value="tasks">{t('tasks', 'Tasks')}</TabsTrigger>
-          <TabsTrigger value="assessments">{t('assessments', 'Assessments')}</TabsTrigger>
-          <TabsTrigger value="fluid-balance">{t('fluidBalance', 'Fluid Balance')}</TabsTrigger>
-        </TabsList>
-        <TabsContent value="tasks" className="bg-muted/30 rounded-md p-4 mt-4">
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm mb-4">
-              {t('noPendingTasks', 'No pending tasks')}
-            </p>
-          </div>
-        </TabsContent>
-        <TabsContent value="assessments" className="bg-muted/30 rounded-md p-4 mt-4">
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm mb-4">
-              {t('noPendingAssessments', 'No pending assessments')}
-            </p>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/assessments/new">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                {t('newAssessment', 'New Assessment')}
-              </Link>
-            </Button>
-          </div>
-        </TabsContent>
-        <TabsContent value="fluid-balance" className="bg-muted/30 rounded-md p-4 mt-4">
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm mb-4">
-              {t('noPendingEntries', 'No pending entries')}
-            </p>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/fluid-balance">
-                <Droplet className="mr-2 h-4 w-4" />
-                {t('fluidBalance', 'Fluid Balance')}
-              </Link>
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
+      <Card className="mt-6">
+        <CardHeader className="pb-2">
+          <CardTitle>Patient Assignments</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="critical">
+            <TabsList className="mb-4">
+              <TabsTrigger value="critical">Critical Care</TabsTrigger>
+              <TabsTrigger value="stable">Routine Care</TabsTrigger>
+              <TabsTrigger value="pending">Pending Tasks</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="critical" className="space-y-4">
+              {loading ? (
+                <p>Loading critical patients...</p>
+              ) : criticalPatients.length > 0 ? (
+                criticalPatients.slice(0, 5).map((patient) => (
+                  <div key={patient.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
+                    <div>
+                      <h3 className="font-medium">{patient.first_name} {patient.last_name}</h3>
+                      <p className="text-sm text-muted-foreground">Room: {patient.mrn.substring(0, 3)}</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate(`/patients/${patient.id}`)}
+                    >
+                      View
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground">No critical patients assigned to you.</p>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="stable" className="space-y-4">
+              {loading ? (
+                <p>Loading stable patients...</p>
+              ) : stablePatients.length > 0 ? (
+                stablePatients.slice(0, 5).map((patient) => (
+                  <div key={patient.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
+                    <div>
+                      <h3 className="font-medium">{patient.first_name} {patient.last_name}</h3>
+                      <p className="text-sm text-muted-foreground">Room: {patient.mrn.substring(0, 3)}</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate(`/patients/${patient.id}`)}
+                    >
+                      View
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground">No stable patients assigned to you.</p>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="pending" className="space-y-4">
+              <div className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
+                <div>
+                  <h3 className="font-medium">Vital Signs Check</h3>
+                  <p className="text-sm text-muted-foreground">Ana Oliveira - Room 205</p>
+                  <p className="text-sm text-muted-foreground">Due in 15 minutes</p>
+                </div>
+                <Button variant="ghost" size="sm">Complete</Button>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
+                <div>
+                  <h3 className="font-medium">Medication Administration</h3>
+                  <p className="text-sm text-muted-foreground">Pedro Costa - Room 210</p>
+                  <p className="text-sm text-muted-foreground">Due in 30 minutes</p>
+                </div>
+                <Button variant="ghost" size="sm">Complete</Button>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

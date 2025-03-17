@@ -1,51 +1,33 @@
 
-import React from 'react';
+import { useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { usePermissions } from '@/hooks/usePermissions';
-import { 
-  DoctorDashboard, 
-  NurseDashboard, 
-  AdminDashboard, 
-  PharmacistDashboard, 
-  DefaultDashboard 
-} from '@/registry/entrypoints';
-import { componentRegistry } from '@/registry/RoleComponentRegistry';
 import { UserRole } from '@/types/auth';
+import { componentRegistry } from '@/registry/RoleComponentRegistry';
+import { DefaultDashboard } from '@/registry/entrypoints';
 
+/**
+ * Hook that returns the appropriate dashboard component based on user role
+ */
 export const useRoleBasedDashboard = () => {
   const { user } = useAuth();
-  const { getRoleDashboard } = usePermissions(user);
   
-  // Get dashboard type based on user role
-  const dashboardType = getRoleDashboard();
-  
-  // Get the component from registry if available
-  const getDashboardComponent = (): React.ComponentType => {
-    // Try to get from component registry first
-    if (user?.role) {
-      const registryComponent = componentRegistry.getComponent('dashboard', user.role as UserRole);
-      if (registryComponent) {
-        return registryComponent;
-      }
+  const DashboardComponent = useMemo(() => {
+    // If user is not authenticated or has no role, default dashboard
+    if (!user || !user.role) {
+      return DefaultDashboard;
     }
     
-    // Fall back to hardcoded mapping if registry doesn't have a component
-    switch (dashboardType) {
-      case 'physician':
-        return DoctorDashboard;
-      case 'nurse':
-        return NurseDashboard;
-      case 'administrative':
-        return AdminDashboard;
-      case 'pharmacist':
-        return PharmacistDashboard;
-      default:
-        return DefaultDashboard;
-    }
-  };
+    // Get component from registry based on role
+    const roleSpecificDashboard = componentRegistry.getComponent(
+      'dashboard', 
+      user.role as UserRole
+    );
+    
+    return roleSpecificDashboard || DefaultDashboard;
+  }, [user]);
   
   return {
-    dashboardType,
-    DashboardComponent: getDashboardComponent()
+    DashboardComponent,
+    userRole: user?.role || 'guest'
   };
 };
