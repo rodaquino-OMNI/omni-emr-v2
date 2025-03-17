@@ -5,6 +5,7 @@ export interface ComponentAIInsight {
   id: string;
   title: string;
   content: string;
+  description?: string;
   type: "info" | "warning" | "critical" | "success";
   source?: string;
   timestamp?: string;
@@ -54,6 +55,7 @@ export const adaptToComponentAIInsight = (insight: AIInsight | PatientInsight): 
     id: insight.id,
     title: insight.title,
     content: insight.content,
+    description: insight.description,
     type: mappedType,
     source: 'source' in insight ? insight.source : undefined,
     timestamp: 'created_at' in insight ? insight.created_at : 
@@ -87,8 +89,12 @@ export const adaptFromComponentAIInsight = (componentInsight: ComponentAIInsight
     patient_id: '', // This should be filled in by the caller
     title: componentInsight.title,
     content: componentInsight.content,
+    description: componentInsight.description,
     category: 'general',
     severity,
     created_at: componentInsight.timestamp || new Date().toISOString()
   };
 };
+
+// Add an alias for adaptToComponentAIInsight for backward compatibility
+export const adaptAIInsight = adaptToComponentAIInsight;

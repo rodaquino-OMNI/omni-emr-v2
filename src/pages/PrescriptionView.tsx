@@ -1,67 +1,41 @@
-
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { usePrescriptionDetails } from '@/hooks/prescriptions/usePrescriptionDetails';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Card } from '@/components/ui/card';
+import { usePrescriptionDetails } from '@/hooks/usePrescriptionDetails';
 import { ErrorMessage } from '@/components/ui/error-message';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Spinner } from '@/components/ui/spinner';
 
-const PrescriptionView = () => {
+const PrescriptionView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
-
   const { prescription, loading, error } = usePrescriptionDetails(id);
 
-  const adaptedPrescription = useMemo(() => {
-    if (!prescription) return null;
-  
-    return {
-      ...prescription,
-      patientId: prescription.patient_id,
-      doctorId: prescription.provider_id,
-      date: prescription.created_at,
-    };
-  }, [prescription]);
-
   if (loading) {
-    return <LoadingSpinner />;
+    return <div className="flex justify-center p-12"><Spinner /></div>;
   }
 
   if (error) {
-    return <ErrorMessage message={error} />;
+    return (
+      <ErrorMessage 
+        title="Error Loading Prescription" 
+        message={error}
+      />
+    );
   }
 
-  if (!adaptedPrescription) {
-    return <ErrorMessage message={t('prescriptionNotFound')} />;
+  if (!prescription) {
+    return (
+      <ErrorMessage 
+        title="Prescription Not Found" 
+        message="The requested prescription could not be found."
+      />
+    );
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto p-4">
       <Card>
-        <CardHeader>
-          <CardTitle>{t('prescriptionDetails')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            <div>
-              <h4 className="text-sm font-medium">{t('patientId')}</h4>
-              <p>{adaptedPrescription.patientId}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium">{t('doctorId')}</h4>
-              <p>{adaptedPrescription.doctorId}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium">{t('date')}</h4>
-              <p>{adaptedPrescription.date}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium">{t('status')}</h4>
-              <p>{adaptedPrescription.status}</p>
-            </div>
-          </div>
-        </CardContent>
+        {/* Prescription details would go here */}
+        <pre>{JSON.stringify(prescription, null, 2)}</pre>
       </Card>
     </div>
   );

@@ -6,21 +6,21 @@ import { usePatient } from '@/hooks/usePatient';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
-import { 
-  PatientOverviewTab,
-  PatientRecordsTab,
-  PatientPrescriptionsTab,
-  PatientAIInsightsTab
-} from './tabs';
+
+// Import the correct components as default exports
+import PatientOverviewTab from './tabs/PatientOverviewTab';
+import PatientRecordsTab from './tabs/PatientRecordsTab';
+import PatientPrescriptionsTab from './tabs/PatientPrescriptionsTab';
+import PatientAIInsightsTab from './tabs/PatientAIInsightsTab';
 
 interface PatientDetailProps {}
 
 const PatientDetail: React.FC<PatientDetailProps> = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const { patient, isLoading, error } = usePatient(id || '');
+  const { patient, loading, error } = usePatient(id || '');
 
-  if (isLoading) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
@@ -28,10 +28,8 @@ const PatientDetail: React.FC<PatientDetailProps> = () => {
     return <div>Error: {error || 'Patient not found'}</div>;
   }
 
-  // Convert patient insights to the format expected by PatientAIInsightsTab
-  const adaptedInsights = patient.insights ? 
-    patient.insights.map(insight => adaptToComponentAIInsight(insight)) : 
-    [];
+  // Ensure patient has insights array
+  const patientInsights = patient.insights || [];
 
   return (
     <div className="space-y-6">
@@ -78,7 +76,7 @@ const PatientDetail: React.FC<PatientDetailProps> = () => {
         <TabsContent value="ai_insights">
           <PatientAIInsightsTab 
             patientId={id || ''} 
-            insights={patient.insights || []}
+            insights={patientInsights}
             isLoading={false}
           />
         </TabsContent>

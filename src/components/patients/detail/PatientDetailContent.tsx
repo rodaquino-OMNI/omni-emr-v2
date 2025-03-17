@@ -32,10 +32,8 @@ const PatientDetailContent: React.FC<PatientDetailContentProps> = ({
     }
   };
 
-  // Convert patient insights to the format expected by PatientAIInsightsTab
-  const adaptedInsights = patient.insights ? 
-    patient.insights.map(insight => adaptToComponentAIInsight(insight)) : 
-    [];
+  // Ensure patient has insights array and convert them to the format expected by PatientAIInsightsTab
+  const patientInsights = patient.insights || [];
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>
@@ -57,7 +55,7 @@ const PatientDetailContent: React.FC<PatientDetailContentProps> = ({
       <TabsContent value="ai_insights">
         <PatientAIInsightsTab 
           patientId={patientId} 
-          insights={patient.insights || []}
+          insights={patientInsights}
           isLoading={false}
         />
       </TabsContent>

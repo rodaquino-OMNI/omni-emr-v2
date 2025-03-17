@@ -1,65 +1,95 @@
+import { User } from '@/types/auth';
 
-import { User, UserRole } from '../types/auth';
-import { v4 as uuidv4 } from 'uuid';
-
-// Helper to create mock users with consistent structure
-const createMockUser = (
-  role: UserRole, 
-  name: string, 
-  email: string, 
-  permissions: string[] = []
-): User => ({
-  id: uuidv4(),
-  name,
-  email,
-  role,
-  status: 'active',
-  permissions,
-  mfaEnabled: false,
-  createdAt: new Date().toISOString(),
-  lastLogin: new Date().toISOString(),
-  preferredLanguage: 'en',
-  approvalStatus: 'approved'
-});
-
-// Mock users for development and testing
-export const mockUsers: User[] = [
-  createMockUser(
-    'doctor', 
-    'Dr. Amanda Silva', 
-    'doctor@omnicare.com', 
-    ['read:patients', 'write:prescriptions', 'read:medical_records', 'write:medical_records']
-  ),
-  createMockUser(
-    'nurse', 
-    'Nurse João Costa', 
-    'nurse@omnicare.com', 
-    ['read:patients', 'read:prescriptions', 'write:vitals', 'read:medical_records']
-  ),
-  createMockUser(
-    'admin', 
-    'Admin Sarah Johnson', 
-    'admin@omnicare.com', 
-    ['admin:all', 'read:all', 'write:all']
-  ),
-  createMockUser(
-    'patient', 
-    'Patient Carlos Oliveira', 
-    'patient@omnicare.com', 
-    ['read:own_records', 'read:own_prescriptions']
-  ),
-  createMockUser(
-    'pharmacist', 
-    'Pharmacist Maria Santos', 
-    'pharmacist@omnicare.com', 
-    ['read:prescriptions', 'write:medications', 'read:patients']
-  ),
-  createMockUser(
-    'lab_technician', 
-    'Lab Tech David Chen', 
-    'lab@omnicare.com', 
-    ['read:lab_orders', 'write:lab_results', 'read:patients']
-  )
-];
-
-export default mockUsers;
+// Fix the date values to be proper Date objects
+export const mockUsers = [
+  {
+    id: '1',
+    email: 'doctor.smith@example.com',
+    name: 'Dr. John Smith',
+    role: 'doctor',
+    permissions: ['patients:read', 'patients:write', 'prescriptions:write'],
+    createdAt: new Date('2022-01-15'),
+    lastLogin: new Date('2023-05-10'),
+  },
+  {
+    id: '2',
+    email: 'nurse.jane@example.com',
+    name: 'Jane Doe',
+    role: 'nurse',
+    permissions: ['patients:read', 'vitals:write', 'medications:administer'],
+    createdAt: new Date('2022-03-20'),
+    lastLogin: new Date('2023-05-05'),
+  },
+  {
+    id: '3',
+    email: 'pharmacist.robert@example.com',
+    name: 'Robert Lee',
+    role: 'pharmacist',
+    permissions: ['medications:read', 'medications:write', 'prescriptions:process'],
+    createdAt: new Date('2022-05-01'),
+    lastLogin: new Date('2023-05-01'),
+  },
+  {
+    id: '4',
+    email: 'admin.susan@example.com',
+    name: 'Susan Green',
+    role: 'admin',
+    permissions: ['all'],
+    createdAt: new Date('2022-06-10'),
+    lastLogin: new Date('2023-04-25'),
+  },
+  {
+    id: '5',
+    email: 'patient.mark@example.com',
+    name: 'Mark Johnson',
+    role: 'patient',
+    permissions: ['self:read', 'appointments:read'],
+    createdAt: new Date('2022-07-01'),
+    lastLogin: new Date('2023-05-12'),
+  },
+  {
+    id: '6',
+    email: 'labtech.emily@example.com',
+    name: 'Emily White',
+    role: 'lab_technician',
+    permissions: ['patients:read', 'lab_results:read', 'lab_results:write'],
+    createdAt: new Date('2022-08-15'),
+    lastLogin: new Date('2023-04-20'),
+  },
+  {
+    id: '7',
+    email: 'radiologist.david@example.com',
+    name: 'David Brown',
+    role: 'radiologist',
+    permissions: ['patients:read', 'imaging:read', 'imaging:write'],
+    createdAt: new Date('2022-09-01'),
+    lastLogin: new Date('2023-03-15'),
+  },
+  {
+    id: '8',
+    email: 'therapist.linda@example.com',
+    name: 'Linda Perez',
+    role: 'therapist',
+    permissions: ['patients:read', 'treatment_plans:write', 'progress_notes:write'],
+    createdAt: new Date('2022-10-10'),
+    lastLogin: new Date('2023-02-28'),
+  },
+  {
+    id: '9',
+    email: 'receptionist.kevin@example.com',
+    name: 'Kevin Rodriguez',
+    role: 'receptionist',
+    permissions: ['patients:read', 'appointments:read', 'appointments:write'],
+    createdAt: new Date('2022-11-01'),
+    lastLogin: new Date('2023-01-05'),
+  },
+  {
+    id: '10',
+    email: 'medicalassistant.ashley@example.com',
+    name: 'Ashley Wilson',
+    role: 'medical_assistant',
+    permissions: ['patients:read', 'vitals:read', 'vitals:write'],
+    createdAt: new Date('2022-12-15'),
+    lastLogin: new Date('2023-05-01'),
+  },
+] as User[];

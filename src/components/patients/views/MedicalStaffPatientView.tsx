@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import { usePatientData } from '@/hooks/usePatientData';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate } from 'react-router-dom';
-import { FilePlus2, ActivitySquare, Calendar } from 'lucide-react';
+import { FileText, ClipboardList } from 'lucide-react';
 import PatientHeader from '../detail/PatientDetailHeader';
+import PatientOverviewTab from '../tabs/PatientOverviewTab';
 import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
-import PatientNotesTab from '../tabs/PatientNotesTab';
-import PatientAppointmentsTab from '../tabs/PatientAppointmentsTab';
-import PatientAllergiesTab from '../tabs/PatientAllergiesTab';
 import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
+import PatientCareTasksTab from '../tabs/PatientCareTasksTab';
 
 interface MedicalStaffPatientViewProps {
   patientId: string;
@@ -35,49 +34,34 @@ const MedicalStaffPatientView: React.FC<MedicalStaffPatientViewProps> = ({ patie
       
       <div className="flex flex-wrap gap-2 mb-4">
         <Button 
+          variant="outline"
+          onClick={() => navigate(`/clinical-documentation/new?patientId=${patientId}&type=clinical_note`)}
+          className="flex items-center"
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          Clinical Note
+        </Button>
+        
+        <Button 
+          variant="outline"
           onClick={() => navigate(`/patients/${patientId}/vitals/new`)}
           className="flex items-center"
         >
-          <ActivitySquare className="h-4 w-4 mr-2" />
+          <ClipboardList className="h-4 w-4 mr-2" />
           Record Vitals
-        </Button>
-        
-        <Button 
-          variant="outline"
-          onClick={() => navigate(`/clinical-documentation/new?patientId=${patientId}&type=progress_note`)}
-          className="flex items-center"
-        >
-          <FilePlus2 className="h-4 w-4 mr-2" />
-          Progress Note
-        </Button>
-        
-        <Button 
-          variant="outline"
-          onClick={() => navigate(`/appointments/new?patientId=${patientId}`)}
-          className="flex items-center"
-        >
-          <Calendar className="h-4 w-4 mr-2" />
-          Schedule Appointment
         </Button>
       </div>
       
-      <Tabs defaultValue="summary" className="space-y-4">
+      <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="flex overflow-x-auto pb-px">
-          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
           <TabsTrigger value="medications">Medications</TabsTrigger>
-          <TabsTrigger value="allergies">Allergies</TabsTrigger>
-          <TabsTrigger value="appointments">Appointments</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="tasks">Care Tasks</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="summary">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <PatientVitalSignsTab patientId={patientId} compact />
-            <PatientAllergiesTab patientId={patientId} compact />
-            <PatientMedicationsTab patientId={patientId} compact />
-            <PatientAppointmentsTab patientId={patientId} compact />
-          </div>
+        <TabsContent value="overview">
+          <PatientOverviewTab patientId={patientId} patient={patient} />
         </TabsContent>
         
         <TabsContent value="vitals">
@@ -85,19 +69,11 @@ const MedicalStaffPatientView: React.FC<MedicalStaffPatientViewProps> = ({ patie
         </TabsContent>
         
         <TabsContent value="medications">
-          <PatientMedicationsTab patientId={patientId} />
+          <PatientMedicationsTab patientId={patientId} readOnly={true} />
         </TabsContent>
         
-        <TabsContent value="allergies">
-          <PatientAllergiesTab patientId={patientId} />
-        </TabsContent>
-        
-        <TabsContent value="appointments">
-          <PatientAppointmentsTab patientId={patientId} />
-        </TabsContent>
-        
-        <TabsContent value="notes">
-          <PatientNotesTab patientId={patientId} />
+        <TabsContent value="tasks">
+          <PatientCareTasksTab patientId={patientId} />
         </TabsContent>
       </Tabs>
     </div>
