@@ -65,9 +65,9 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
         const formattedPrescription: FormattedPrescription = {
           id: prescriptionData.id,
           patientId: prescriptionData.patient_id,
-          doctorId: prescriptionData.doctor_id || "",
+          doctorId: prescriptionData.doctor_id || prescriptionData.provider_id || "",
           status: prescriptionData.status,
-          date: prescriptionData.created_at || new Date().toISOString(),
+          date: prescriptionData.date || prescriptionData.created_at || new Date().toISOString(),
           notes: prescriptionData.notes,
           items: itemsData.map((item: PrescriptionItem) => ({
             id: item.id,
@@ -76,8 +76,8 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
             dosage: item.dosage,
             frequency: item.frequency,
             duration: item.duration,
-            startDate: item.start_date,
-            endDate: item.end_date,
+            startDate: item.start_date || item.startDate,
+            endDate: item.end_date || item.endDate,
             instructions: item.instructions,
             status: item.status
           }))

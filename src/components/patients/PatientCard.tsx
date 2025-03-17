@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Link } from 'react-router-dom';
 import { UserCircle, UserPlus, UserMinus, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { PatientStatus } from '@/types/patientTypes';
 
 interface PatientCardProps {
   patient: {
@@ -16,7 +17,7 @@ interface PatientCardProps {
     age: number;
     gender: string;
     roomNumber?: string;
-    status: any;
+    status: PatientStatus | string;
     isAssigned?: boolean;
     isCritical?: boolean;
     mrn: string;

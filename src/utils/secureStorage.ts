@@ -11,7 +11,10 @@ export type StorageKey =
   | 'lastLogin'
   | 'deviceId'
   | 'csrfToken'
-  | 'lastActiveTime';
+  | 'lastActiveTime'
+  | 'login_attempts'
+  | 'login_lockout_until'
+  | 'csrf_token';
 
 // Simple encryption key - in a real app, this should be more secure
 const SECRET_KEY = 'healthcare-secure-storage-key';

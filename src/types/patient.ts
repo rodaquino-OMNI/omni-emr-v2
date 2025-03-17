@@ -14,6 +14,33 @@ export interface PatientViewProps {
   patientId: string;
 }
 
+// Define patient interface
+export interface Patient {
+  id: string;
+  first_name: string;
+  last_name: string;
+  name?: string;
+  date_of_birth: string;
+  gender?: string;
+  status: PatientStatus;
+  room_number?: string;
+  mrn: string;
+  phone?: string;
+  phone_number?: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  blood_type?: string;
+  is_assigned?: boolean;
+  age?: number;
+  insights?: PatientInsight[];
+  prescriptions?: Prescription[];
+}
+
 // Define AI Insight type for patient
 export interface PatientInsight {
   id: string;
@@ -49,10 +76,16 @@ export interface VitalSigns {
   blood_pressure_systolic?: number;
   blood_pressure_diastolic?: number;
   oxygen_saturation?: number;
+  systolic_bp?: number; // For backward compatibility
+  diastolic_bp?: number; // For backward compatibility
+  o2_saturation?: number; // For backward compatibility
   weight?: number;
   height?: number;
   bmi?: number;
+  pain_level?: number;
   notes?: string;
+  recorded_by?: string;
+  recorder_name?: string;
 }
 
 // Define prescription type
@@ -60,11 +93,13 @@ export interface Prescription {
   id: string;
   patient_id: string;
   provider_id: string;
+  doctor_id?: string; // For backward compatibility
   status: string;
   created_at: string;
   updated_at?: string;
   notes?: string;
   items?: PrescriptionItem[];
+  date?: string; // For backward compatibility
 }
 
 // Define prescription item type
@@ -77,7 +112,9 @@ export interface PrescriptionItem {
   frequency?: string;
   duration?: string;
   start_date?: string;
+  startDate?: string; // For backward compatibility
   end_date?: string;
+  endDate?: string; // For backward compatibility
   instructions?: string;
   status: string;
 }

@@ -10,7 +10,9 @@ import PatientAllergiesTab from './PatientAllergiesTab';
 import PatientMedicationsTab from './PatientMedicationsTab';
 
 // Define interface for each tab with PatientTabProps
-export interface PatientOverviewTabProps extends PatientTabProps {}
+export interface PatientOverviewTabProps extends PatientTabProps {
+  patient?: any;
+}
 export interface PatientRecordsTabProps extends PatientTabProps {}
 export interface PatientPrescriptionsTabProps extends PatientTabProps {}
 export interface PatientAIInsightsTabProps extends PatientTabProps {
