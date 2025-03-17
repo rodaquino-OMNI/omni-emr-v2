@@ -37,7 +37,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ patientId }) => {
   }
 
   // Map our PatientInsights to the AI Insights format with proper typing
-  const mappedInsights: AIInsight[] = insights.map(insight => ({
+  const mappedInsights = insights.map(insight => ({
     id: insight.id,
     type: mapSeverityToType(insight.severity),
     source: mapCategoryToSource(insight.category),
@@ -48,7 +48,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ patientId }) => {
       id: insight.metadata.id
     } : undefined,
     timestamp: new Date(insight.created_at)
-  }));
+  })) as AIInsight[];
 
   return (
     <>

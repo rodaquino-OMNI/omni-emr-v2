@@ -4,21 +4,21 @@ import { PatientStatus } from '@/types/patientTypes';
 // Get status text for display
 export const getStatusText = (status: PatientStatus): string => {
   switch (status) {
-    case PatientStatus.ACTIVE:
+    case 'active':
       return 'Active';
-    case PatientStatus.DISCHARGED:
+    case 'discharged':
       return 'Discharged';
-    case PatientStatus.INACTIVE:
+    case 'inactive':
       return 'Inactive';
-    case PatientStatus.CRITICAL:
+    case 'critical':
       return 'Critical';
-    case PatientStatus.STABLE:
+    case 'stable':
       return 'Stable';
-    case PatientStatus.HOSPITAL:
+    case 'hospital':
       return 'In Hospital';
-    case PatientStatus.HOME:
+    case 'home':
       return 'At Home';
-    case PatientStatus.IMPROVING:
+    case 'improving':
       return 'Improving';
     default:
       return 'Unknown';
@@ -28,21 +28,21 @@ export const getStatusText = (status: PatientStatus): string => {
 // Get status color for UI
 export const getStatusColor = (status: PatientStatus): string => {
   switch (status) {
-    case PatientStatus.ACTIVE:
+    case 'active':
       return 'green';
-    case PatientStatus.DISCHARGED:
+    case 'discharged':
       return 'blue';
-    case PatientStatus.INACTIVE:
+    case 'inactive':
       return 'gray';
-    case PatientStatus.CRITICAL:
+    case 'critical':
       return 'red';
-    case PatientStatus.STABLE:
+    case 'stable':
       return 'green';
-    case PatientStatus.HOSPITAL:
+    case 'hospital':
       return 'purple';
-    case PatientStatus.HOME:
+    case 'home':
       return 'blue';
-    case PatientStatus.IMPROVING:
+    case 'improving':
       return 'teal';
     default:
       return 'gray';
@@ -52,21 +52,21 @@ export const getStatusColor = (status: PatientStatus): string => {
 // Get status badge variant
 export const getStatusBadgeVariant = (status: PatientStatus): string => {
   switch (status) {
-    case PatientStatus.ACTIVE:
+    case 'active':
       return 'success';
-    case PatientStatus.DISCHARGED:
+    case 'discharged':
       return 'info';
-    case PatientStatus.INACTIVE:
+    case 'inactive':
       return 'secondary';
-    case PatientStatus.CRITICAL:
+    case 'critical':
       return 'destructive';
-    case PatientStatus.STABLE:
+    case 'stable':
       return 'success';
-    case PatientStatus.HOSPITAL:
+    case 'hospital':
       return 'purple';
-    case PatientStatus.HOME:
+    case 'home':
       return 'info';
-    case PatientStatus.IMPROVING:
+    case 'improving':
       return 'teal';
     default:
       return 'secondary';
@@ -76,21 +76,21 @@ export const getStatusBadgeVariant = (status: PatientStatus): string => {
 // Get status icon name
 export const getStatusIcon = (status: PatientStatus): string => {
   switch (status) {
-    case PatientStatus.ACTIVE:
+    case 'active':
       return 'check-circle';
-    case PatientStatus.DISCHARGED:
+    case 'discharged':
       return 'log-out';
-    case PatientStatus.INACTIVE:
+    case 'inactive':
       return 'x-circle';
-    case PatientStatus.CRITICAL:
+    case 'critical':
       return 'alert-circle';
-    case PatientStatus.STABLE:
+    case 'stable':
       return 'heart';
-    case PatientStatus.HOSPITAL:
+    case 'hospital':
       return 'building';
-    case PatientStatus.HOME:
+    case 'home':
       return 'home';
-    case PatientStatus.IMPROVING:
+    case 'improving':
       return 'trending-up';
     default:
       return 'help-circle';
