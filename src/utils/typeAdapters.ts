@@ -16,6 +16,7 @@ export const adaptToComponentAIInsight = (
     source: insight.source,
     type: mapCategoryToType(insight.category),
     content: insight.description,
+    timestamp: insight.timestamp || insight.created_at,
     patient_id: undefined // This is set when necessary by the component
   };
 };

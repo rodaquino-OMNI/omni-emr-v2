@@ -1,4 +1,3 @@
-
 import { PatientStatus as PatientTypeStatus } from './patientTypes';
 
 // Define patient status enum to match the PatientStatus in patientTypes
@@ -51,10 +50,11 @@ export interface PatientInsight {
   id: string;
   title: string;
   description: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'warning' | 'info' | 'success';
   created_at: string;
   source: string;
   category: 'critical' | 'warning' | 'info' | 'success';
+  timestamp?: string; // Add timestamp property for backward compatibility
 }
 
 // Define component AI insight type
@@ -62,12 +62,13 @@ export interface ComponentAIInsight {
   id: string;
   title: string;
   description: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'warning' | 'info' | 'success';
   created_at: string;
   source: string;
   type: 'info' | 'warning' | 'critical' | 'success';
   content?: string;
   patient_id?: string;
+  timestamp?: string; // Add timestamp property for backward compatibility
 }
 
 // Export AIInsight as an alias for PatientInsight for backward compatibility

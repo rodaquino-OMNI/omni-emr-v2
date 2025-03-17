@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { usePatientData } from '@/hooks/usePatientData';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FileText, ClipboardList } from 'lucide-react';
 import PatientHeader from '../detail/PatientDetailHeader';
 import PatientOverviewTab from '../tabs/PatientOverviewTab';
@@ -19,6 +19,15 @@ interface MedicalStaffPatientViewProps {
 const MedicalStaffPatientView: React.FC<MedicalStaffPatientViewProps> = ({ patientId }) => {
   const { patient, isLoading, error } = usePatientData(patientId);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    setSearchParams({ ...currentParams, tab: activeTab });
+  }, [activeTab, setSearchParams]);
   
   if (isLoading) {
     return <LoadingSpinner />;
@@ -52,7 +61,7 @@ const MedicalStaffPatientView: React.FC<MedicalStaffPatientViewProps> = ({ patie
         </Button>
       </div>
       
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="flex overflow-x-auto pb-px">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
@@ -69,7 +78,7 @@ const MedicalStaffPatientView: React.FC<MedicalStaffPatientViewProps> = ({ patie
         </TabsContent>
         
         <TabsContent value="medications">
-          <PatientMedicationsTab patientId={patientId} readOnly={true} />
+          <PatientMedicationsTab patientId={patientId} />
         </TabsContent>
         
         <TabsContent value="tasks">

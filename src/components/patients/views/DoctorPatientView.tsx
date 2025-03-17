@@ -1,19 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { usePatientData } from '@/hooks/usePatientData';
 import { usePatientInsights } from '@/hooks/usePatientInsights';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilePlus2, Pill, ClipboardList, FileText } from 'lucide-react';
 import PatientHeader from '../detail/PatientDetailHeader';
-import PatientOverviewTab from '../tabs/PatientOverviewTab';
-import PatientNotesTab from '../tabs/PatientNotesTab';
-import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
-import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
-import PatientAIInsightsTab from '../tabs/PatientAIInsightsTab';
+import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
+import { 
+  PatientOverviewTab,
+  PatientNotesTab,
+  PatientMedicationsTab,
+  PatientVitalSignsTab,
+  PatientAIInsightsTab
+} from '../tabs';
 import { useAuth } from '@/context/AuthContext';
+import { PatientInsight, PatientStatus } from '@/types/patient';
 
 interface DoctorPatientViewProps {
   patientId: string;
@@ -24,7 +28,15 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
   const { insights, isLoading: insightsLoading, error: insightsError } = usePatientInsights(patientId);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  
+  // Update URL when tab changes
+  useEffect(() => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    setSearchParams({ ...currentParams, tab: activeTab });
+  }, [activeTab, setSearchParams]);
   
   if (patientLoading) {
     return <LoadingSpinner />;
@@ -35,9 +47,15 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
   }
 
   // Ensure patient has the insights array
+  const adaptedInsights = insights?.map(insight => ({
+    ...insight,
+    // Ensure severity is compatible with PatientInsight type
+    severity: insight.severity as PatientInsight['severity']
+  })) || [];
+  
   const patientWithInsights = {
     ...patient,
-    insights: insights || []
+    insights: adaptedInsights
   };
   
   const handleGenerateInsight = () => {
@@ -52,7 +70,10 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
   
   return (
     <div className="space-y-6">
-      <PatientHeader patient={patientWithInsights} />
+      <PatientHeader 
+        patient={patientWithInsights} 
+        hasCriticalInsights={adaptedInsights.some(insight => insight.severity === 'critical')}
+      />
       
       <div className="flex flex-wrap gap-2 mb-4">
         <Button 
@@ -119,7 +140,7 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
         <TabsContent value="ai_insights">
           <PatientAIInsightsTab 
             patientId={patientId} 
-            insights={patientWithInsights.insights || []}
+            insights={adaptedInsights}
             isLoading={insightsLoading}
             onRefresh={handleRefreshInsights}
             onGenerateInsight={handleGenerateInsight}

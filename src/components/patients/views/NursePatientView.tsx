@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { usePatientData } from '@/hooks/usePatientData';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilePlus2, ActivitySquare, Pill, Droplets } from 'lucide-react';
 import PatientHeader from '../detail/PatientDetailHeader';
 import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
@@ -20,6 +20,15 @@ interface NursePatientViewProps {
 const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
   const { patient, isLoading, error } = usePatientData(patientId);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'vitals';
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    setSearchParams({ ...currentParams, tab: activeTab });
+  }, [activeTab, setSearchParams]);
   
   if (isLoading) {
     return <LoadingSpinner />;
@@ -31,7 +40,7 @@ const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
   
   return (
     <div className="space-y-6">
-      <PatientHeader patient={patient} />
+      <PatientHeader patient={patient} hasCriticalInsights={false} />
       
       <div className="flex flex-wrap gap-2 mb-4">
         <Button 
@@ -70,7 +79,7 @@ const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
         </Button>
       </div>
       
-      <Tabs defaultValue="vitals" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="flex overflow-x-auto pb-px">
           <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
           <TabsTrigger value="medications">Medications</TabsTrigger>

@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilePlus2, TestTube, ImagePlus } from 'lucide-react';
 import { usePatientData } from '@/hooks/usePatientData';
 import { PatientViewProps } from '@/types/patient';
@@ -18,7 +18,16 @@ const TechnicianPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
   const { patient, isLoading, error } = usePatientData(patientId);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isTechnicianType = user?.role.includes('technician');
+  const isTechnicianType = user?.role?.includes('technician');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'orders';
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    setSearchParams({ ...currentParams, tab: activeTab });
+  }, [activeTab, setSearchParams]);
   
   if (isLoading) {
     return <LoadingSpinner />;
@@ -30,7 +39,7 @@ const TechnicianPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
   
   return (
     <div className="space-y-6">
-      <PatientHeader patient={patient} />
+      <PatientHeader patient={patient} hasCriticalInsights={false} />
       
       <div className="flex flex-wrap gap-2 mb-4">
         {user?.role === 'lab_technician' && (
@@ -63,7 +72,7 @@ const TechnicianPatientView: React.FC<PatientViewProps> = ({ patientId }) => {
         </Button>
       </div>
       
-      <Tabs defaultValue="orders" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="flex overflow-x-auto pb-px">
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
