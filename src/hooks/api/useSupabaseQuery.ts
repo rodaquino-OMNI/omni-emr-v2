@@ -12,7 +12,7 @@ export function useSupabaseQuery<T>(
   queryFn: () => Promise<T>,
   options?: Omit<UseQueryOptions<T, Error>, 'queryKey' | 'queryFn'>
 ) {
-  return useQuery({
+  return useQuery<T, Error>({
     queryKey,
     queryFn: async () => {
       try {
@@ -52,7 +52,7 @@ export function useSupabaseTable<T>(
     cacheTime = 10 * 60 * 1000, // 10 minutes
   } = options;
 
-  return useQuery({
+  return useQuery<T[], Error>({
     queryKey,
     queryFn: async () => {
       let query = supabase.from(table).select(select);
