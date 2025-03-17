@@ -17,7 +17,7 @@ export const adaptToComponentAIInsight = (
     // Ensure type is always one of the allowed values
     type: mapCategoryToType(insight.category),
     // Make sure content is always set
-    content: insight.description || "",
+    content: insight.description || "No content available",
     timestamp: insight.timestamp || insight.created_at,
     patient_id: insight.patient_id
   };
@@ -29,7 +29,7 @@ export const adaptToComponentAIInsight = (
 const mapCategoryToType = (
   category: string
 ): "critical" | "warning" | "info" | "success" => {
-  switch (category) {
+  switch (category?.toLowerCase()) {
     case "critical":
       return "critical";
     case "warning":

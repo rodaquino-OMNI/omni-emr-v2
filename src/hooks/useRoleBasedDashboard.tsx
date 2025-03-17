@@ -4,9 +4,17 @@ import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { componentRegistry } from '@/registry/RoleComponentRegistry';
 import { UserRole } from '@/types/auth';
+import { 
+  DoctorDashboard,
+  NurseDashboard, 
+  AdminDashboard, 
+  PharmacistDashboard, 
+  DefaultDashboard 
+} from '@/registry/entrypoints';
 
 /**
  * Hook to determine which dashboard component to display based on user role
+ * Returns the appropriate dashboard component based on user role and permissions
  */
 export const useRoleBasedDashboard = () => {
   const { user } = useAuth();
@@ -16,12 +24,7 @@ export const useRoleBasedDashboard = () => {
   const DashboardComponent = React.useMemo(() => {
     if (!user?.role) {
       // Default dashboard for users without a role
-      return () => (
-        <div className="p-6">
-          <h2 className="text-xl font-semibold">Welcome to OmniCare</h2>
-          <p className="text-muted-foreground mt-2">Please contact an administrator to assign a role.</p>
-        </div>
-      );
+      return DefaultDashboard;
     }
     
     // Try to get a role-specific dashboard from the registry
@@ -34,13 +37,21 @@ export const useRoleBasedDashboard = () => {
       return registeredDashboard;
     }
     
-    // Fallback for when no dashboard is registered for the role
-    return () => (
-      <div className="p-6">
-        <h2 className="text-xl font-semibold">Welcome, {user.name}</h2>
-        <p className="text-muted-foreground mt-2">Your role is: {user.role}</p>
-      </div>
-    );
+    // Manual role mapping as a fallback
+    switch (user.role) {
+      case 'doctor':
+      case 'physician':
+        return DoctorDashboard;
+      case 'nurse':
+        return NurseDashboard;
+      case 'admin':
+      case 'system_administrator':
+        return AdminDashboard;
+      case 'pharmacist':
+        return PharmacistDashboard;
+      default:
+        return DefaultDashboard;
+    }
   }, [user]);
   
   return {

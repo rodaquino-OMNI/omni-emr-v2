@@ -1,6 +1,4 @@
 
-// Add this new file to ensure TaskFilter is properly defined
-
 export interface TaskFilter {
   status?: string;
   priority?: string;
@@ -8,5 +6,5 @@ export interface TaskFilter {
   searchTerm?: string;
   assignedTo?: string;
   dueDate?: string;
-  sector?: string;
+  patient?: string;
 }

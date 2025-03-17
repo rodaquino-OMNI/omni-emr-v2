@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { SectorType } from '@/types/sectorTypes';
 import { useToast } from '@/components/ui/use-toast';
@@ -68,6 +68,7 @@ const fetchSectors = async (): Promise<SectorType[]> => {
 export const useCachedSectorData = () => {
   const { toast } = useToast();
   const [isCacheStale, setIsCacheStale] = useState(false);
+  const toastShownRef = useRef(false);
   
   // Use react-query for caching
   const { 
@@ -107,6 +108,9 @@ export const useCachedSectorData = () => {
 
   const fetchSectorsAndUpdateCache = async () => {
     try {
+      if (toastShownRef.current) return;
+      
+      toastShownRef.current = true;
       await refetch();
       localStorage.setItem('lastSectorFetchTime', Date.now().toString());
       setIsCacheStale(false);
@@ -116,6 +120,11 @@ export const useCachedSectorData = () => {
         title: "Sectors Updated",
         description: "The sector data has been refreshed.",
       });
+      
+      // Reset the ref after a delay
+      setTimeout(() => {
+        toastShownRef.current = false;
+      }, 3000);
     } catch (error) {
       console.error('Error refreshing sectors:', error);
       toast({
@@ -123,6 +132,9 @@ export const useCachedSectorData = () => {
         description: "Could not refresh sector data. Please try again.",
         variant: "destructive",
       });
+      
+      // Reset the ref after error
+      toastShownRef.current = false;
     }
   };
 

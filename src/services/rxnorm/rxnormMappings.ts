@@ -107,7 +107,7 @@ export const getPatientMedicationHistory = async (
 /**
  * Create multiple mappings between RxNorm and ANVISA codes
  */
-const createMappings = async (mappings: RxNormMapping[]): Promise<boolean> => {
+export const createMappings = async (mappings: RxNormMapping[]): Promise<boolean> => {
   try {
     const { error } = await supabase.from('rxnorm_anvisa_mappings').insert(mappings);
     
