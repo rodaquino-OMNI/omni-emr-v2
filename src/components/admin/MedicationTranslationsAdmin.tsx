@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,11 +51,7 @@ const MedicationTranslationsAdmin: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [processingTranslation, setProcessingTranslation] = useState<string | null>(null);
   
-  useEffect(() => {
-    fetchTranslations();
-  }, [fetchTranslations]);
-  
-  const fetchTranslations = async () => {
+  const fetchTranslations = useCallback(async () => {
     setIsLoading(true);
     
     try {
@@ -78,7 +74,11 @@ const MedicationTranslationsAdmin: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [language]);
+  
+  useEffect(() => {
+    fetchTranslations();
+  }, [fetchTranslations]);
   
   const handleVerify = async (id: string) => {
     setProcessingTranslation(id);

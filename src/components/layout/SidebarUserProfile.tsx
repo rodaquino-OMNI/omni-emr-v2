@@ -7,13 +7,19 @@ import { Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useTranslation } from '@/hooks/useTranslation';
+import { User } from '@/types/auth';
 
-const SidebarUserProfile = () => {
+interface SidebarUserProfileProps {
+  user?: User;
+  onItemClick?: () => void;
+}
+
+const SidebarUserProfile = ({ user, onItemClick }: SidebarUserProfileProps) => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { t } = useTranslation();
   
-  // Always initialize permissions hook regardless of user state
+  // Always initialize permissions hook
   const permissions = usePermissions();
   
   // Handle case when user is not available
@@ -26,6 +32,9 @@ const SidebarUserProfile = () => {
     : user.email?.[0] || '?';
 
   const goToSettings = () => {
+    if (onItemClick) {
+      onItemClick();
+    }
     navigate('/settings');
   };
 

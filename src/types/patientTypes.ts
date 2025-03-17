@@ -1,4 +1,3 @@
-
 // Define patient status enum
 export enum PatientStatus {
   ACTIVE = 'active',

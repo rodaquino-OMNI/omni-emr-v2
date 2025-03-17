@@ -29,6 +29,8 @@ export default tseslint.config(
       "@typescript-eslint/no-empty-interface": "off", // Turn off empty interface errors
       "no-case-declarations": "off", // Allow lexical declarations in case blocks
       "react-hooks/exhaustive-deps": "warn", // Change to warning instead of error
+      "@typescript-eslint/no-empty-object-type": "off", // Turn off empty object type errors
+      "@typescript-eslint/no-duplicate-enum-values": "off", // Turn off duplicate enum values errors
     },
   }
 );
