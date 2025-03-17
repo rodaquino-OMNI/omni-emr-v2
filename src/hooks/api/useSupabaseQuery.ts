@@ -1,7 +1,8 @@
 
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { handleApiError } from '@/utils/errorHandling';
+import { handleApiError, handleDatabaseError } from '@/utils/errorHandling';
+import { toast } from '@/hooks/use-toast';
 
 /**
  * Generic hook for Supabase data fetching with react-query caching
@@ -76,7 +77,7 @@ export function useSupabaseTable<T>(
       const { data, error } = await query;
       
       if (error) {
-        throw error;
+        throw handleDatabaseError(error, 'fetch', table);
       }
       
       return data as T[];
@@ -124,4 +125,57 @@ export function useSupabaseMutation<T, V>(
       }
     },
   });
+}
+
+/**
+ * Execute a Supabase transaction that spans multiple operations
+ * Note: This is implemented using Supabase's API which doesn't have native transaction support,
+ * so we need to handle errors and rollback manually when needed
+ */
+export async function executeTransaction<T>(
+  operations: Array<() => Promise<any>>,
+  rollbackOperations: Array<() => Promise<any>> = [],
+  options: {
+    transactionName: string;
+    successMessage?: string;
+  }
+): Promise<T> {
+  const { transactionName, successMessage } = options;
+  let results: any[] = [];
+  
+  try {
+    // Execute each operation sequentially
+    for (const operation of operations) {
+      const result = await operation();
+      results.push(result);
+    }
+    
+    // Show success message if provided
+    if (successMessage) {
+      toast({
+        title: 'Success',
+        description: successMessage,
+        variant: 'success'
+      });
+    }
+    
+    // Return the last result by default, or the entire results array
+    return results[results.length - 1] as T;
+  } catch (error) {
+    console.error(`Transaction "${transactionName}" failed:`, error);
+    
+    // Attempt to perform rollback operations if provided
+    if (rollbackOperations.length > 0) {
+      try {
+        for (const rollbackOp of rollbackOperations) {
+          await rollbackOp();
+        }
+        console.log(`Rollback for transaction "${transactionName}" completed successfully`);
+      } catch (rollbackError) {
+        console.error(`Rollback for transaction "${transactionName}" failed:`, rollbackError);
+      }
+    }
+    
+    throw handleTransactionError(error, transactionName);
+  }
 }

@@ -1,6 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { RxNormDisplayTerm, RxNormInteraction, RxNormMedication } from '@/types/rxnorm';
+import { Json } from '@/integrations/supabase/types';
+import { handleDatabaseError } from '@/utils/errorHandling';
 
 /**
  * Caches RxNorm search results

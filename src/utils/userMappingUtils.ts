@@ -2,6 +2,7 @@
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { User, UserRole } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
+import { handleDatabaseError } from '@/utils/errorHandling';
 
 export const mapSupabaseUserToUser = async (supabaseUser: SupabaseUser): Promise<User> => {
   try {

@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { RxNormInteraction } from '@/types/rxnorm';
 import { Json } from '@/integrations/supabase/types';
+import { handleApiError } from '@/utils/errorHandling';
 
 /**
  * Check drug-drug interactions between medications

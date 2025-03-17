@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { RxNormMedicationDetails, RxNormNDC } from '@/types/rxnorm';
 import { RXNORM_API_BASE_URL, RxNormNDCResponse } from './rxnormTypes';
 import { mockGetMedicationDetails, mockGetMedicationNDCs, shouldUseMocks } from './mockRxnormService';
+import { handleApiError } from '@/utils/errorHandling';
 
 /**
  * Get medication details from RxNorm

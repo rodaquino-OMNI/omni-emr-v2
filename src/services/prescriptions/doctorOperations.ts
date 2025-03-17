@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Prescription } from '@/types/patientTypes';
+import { handleDatabaseError } from '@/utils/errorHandling';
 
 /**
  * Get prescriptions for a specific doctor
@@ -34,7 +35,7 @@ export const getDoctorPrescriptions = async (doctorId: string): Promise<Prescrip
       .eq('provider_id', doctorId)
       .order('created_at', { ascending: false });
       
-    if (error) throw error;
+    if (error) throw handleDatabaseError(error, 'fetch', 'prescriptions');
     
     // Map to Prescription type
     const prescriptions = data.map((prescription: any) => {

@@ -3,6 +3,7 @@ import { supabase, logAuditEvent } from "@/integrations/supabase/client";
 import { User } from '@/context/AuthContext';
 import { Prescription } from './types';
 import { transformPrescription } from './transformUtils';
+import { handleDatabaseError, handleTransactionError } from '@/utils/errorHandling';
 import { mockPrescriptions } from './mockData';
 
 /**
@@ -26,8 +27,7 @@ export const updatePrescription = async (
       .single();
 
     if (error) {
-      console.error('Error updating prescription:', error);
-      throw error;
+      throw handleDatabaseError(error, 'update', 'prescription');
     }
 
     // Update prescription items if provided
@@ -64,8 +64,7 @@ const updatePrescriptionItems = async (prescriptionId: string, items: any[]) => 
     .eq('prescription_id', prescriptionId);
     
   if (deleteError) {
-    console.error('Error deleting prescription items:', deleteError);
-    throw deleteError;
+    throw handleDatabaseError(deleteError, 'delete', 'prescription items');
   }
 
   // Then insert new items
@@ -88,8 +87,7 @@ const updatePrescriptionItems = async (prescriptionId: string, items: any[]) => 
     .insert(prescriptionItems);
     
   if (insertError) {
-    console.error('Error inserting prescription items:', insertError);
-    throw insertError;
+    throw handleDatabaseError(insertError, 'insert', 'prescription items');
   }
 };
 

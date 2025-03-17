@@ -1,7 +1,9 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { RxNormMedication, RxNormDisplayTerm } from '@/types/rxnorm';
 import { Json } from '@/integrations/supabase/types';
 import { RXNORM_API_BASE_URL } from './rxnormTypes';
+import { handleApiError } from '@/utils/errorHandling';
 
 /**
  * Search for medications in RxNorm by name

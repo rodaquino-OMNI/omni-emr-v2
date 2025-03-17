@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Prescription } from '@/types/patientTypes';
+import { handleDatabaseError } from '@/utils/errorHandling';
 
 /**
  * Get a specific prescription by ID
@@ -39,7 +40,7 @@ export const getPrescriptionById = async (prescriptionId: string): Promise<Presc
       if (error.code === 'PGRST116') {
         return null; // Not found
       }
-      throw error;
+      throw handleDatabaseError(error, 'fetch', 'prescription');
     }
     
     if (!data) return null;
