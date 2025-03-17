@@ -15,15 +15,15 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className, size = 'de
   const { language } = useTranslation();
   
   const getStatusLabel = (status: PatientStatus, lang: string): string => {
-    const labels: Record<PatientStatus, Record<string, string>> = {
-      [PatientStatus.ACTIVE]: { en: 'Active', pt: 'Ativo' },
-      [PatientStatus.INACTIVE]: { en: 'Inactive', pt: 'Inativo' },
-      [PatientStatus.DISCHARGED]: { en: 'Discharged', pt: 'Alta' },
-      [PatientStatus.CRITICAL]: { en: 'Critical', pt: 'Crítico' },
-      [PatientStatus.STABLE]: { en: 'Stable', pt: 'Estável' },
-      [PatientStatus.HOSPITAL]: { en: 'In Hospital', pt: 'Hospitalizado' },
-      [PatientStatus.HOME]: { en: 'At Home', pt: 'Em Casa' },
-      [PatientStatus.IMPROVING]: { en: 'Improving', pt: 'Melhorando' }
+    const labels: Record<string, Record<string, string>> = {
+      'active': { en: 'Active', pt: 'Ativo' },
+      'inactive': { en: 'Inactive', pt: 'Inativo' },
+      'discharged': { en: 'Discharged', pt: 'Alta' },
+      'critical': { en: 'Critical', pt: 'Crítico' },
+      'stable': { en: 'Stable', pt: 'Estável' },
+      'hospital': { en: 'In Hospital', pt: 'Hospitalizado' },
+      'home': { en: 'At Home', pt: 'Em Casa' },
+      'improving': { en: 'Improving', pt: 'Melhorando' }
     };
     
     return labels[status]?.[lang === 'pt' ? 'pt' : 'en'] || status;

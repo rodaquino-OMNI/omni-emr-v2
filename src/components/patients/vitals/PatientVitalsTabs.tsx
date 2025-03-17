@@ -37,11 +37,7 @@ const PatientVitalsTabs: React.FC<PatientVitalsTabsProps> = ({
       </TabsContent>
       
       <TabsContent value="insights">
-        <InsightsTab 
-          patientId={patientId} 
-          insights={insights} 
-          isLoading={insightsLoading} 
-        />
+        <InsightsTab patientId={patientId} />
       </TabsContent>
     </Tabs>
   );

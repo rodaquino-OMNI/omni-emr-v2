@@ -14,20 +14,6 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ patientId }) => {
   const { t } = useTranslation();
   const { insights, isLoading } = usePatientInsights(patientId, ['vitals']);
 
-  // Map our PatientInsights to the AI Insights format with proper typing
-  const mappedInsights: AIInsight[] = insights.map(insight => ({
-    id: insight.id,
-    type: mapSeverityToType(insight.severity),
-    source: mapCategoryToSource(insight.category),
-    title: insight.title,
-    description: insight.description,
-    relatedTo: insight.metadata?.id ? {
-      type: insight.category,
-      id: insight.metadata.id
-    } : undefined,
-    timestamp: new Date(insight.created_at)
-  }));
-
   // Helper function to map severity to InsightType
   function mapSeverityToType(severity: string): InsightType {
     switch (severity) {
@@ -49,6 +35,20 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ patientId }) => {
       default: return 'general';
     }
   }
+
+  // Map our PatientInsights to the AI Insights format with proper typing
+  const mappedInsights: AIInsight[] = insights.map(insight => ({
+    id: insight.id,
+    type: mapSeverityToType(insight.severity),
+    source: mapCategoryToSource(insight.category),
+    title: insight.title,
+    description: insight.description,
+    relatedTo: insight.metadata?.id ? {
+      type: insight.category,
+      id: insight.metadata.id
+    } : undefined,
+    timestamp: new Date(insight.created_at)
+  }));
 
   return (
     <>

@@ -3,7 +3,7 @@ import React from 'react';
 import { usePatientInsights } from '@/hooks/usePatientInsights';
 import { Card } from '@/components/ui/card';
 import { Brain } from 'lucide-react';
-import AIInsights from '@/components/ai/AIInsights';
+import AIInsights, { AIInsight, InsightType } from '@/components/ai/AIInsights';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface AIInsightsSectionProps {
@@ -24,12 +24,11 @@ const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
     (!insight.metadata?.id || insight.metadata.id === medicationId)
   );
 
-  // Map PatientInsight to AIInsight
-  const mappedInsights = medicationInsights.map(insight => ({
+  // Map PatientInsight to AIInsight with correct type conversions
+  const mappedInsights: AIInsight[] = medicationInsights.map(insight => ({
     id: insight.id,
-    type: insight.severity === 'critical' ? 'critical' : 
-          insight.severity === 'warning' ? 'warning' : 'info',
-    source: insight.category as 'medications' | 'vitals' | 'labs' | 'tasks' | 'general',
+    type: mapSeverityToInsightType(insight.severity),
+    source: mapCategoryToSource(insight.category),
     title: insight.title,
     description: insight.description,
     relatedTo: insight.metadata?.id ? {
@@ -38,6 +37,28 @@ const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
     } : undefined,
     timestamp: new Date(insight.created_at)
   }));
+
+  // Helper function to map severity to InsightType
+  function mapSeverityToInsightType(severity: string): InsightType {
+    switch (severity) {
+      case 'critical': return 'critical';
+      case 'warning': return 'warning';
+      case 'positive': return 'positive';
+      default: return 'info';
+    }
+  }
+
+  // Helper function to map category to source
+  function mapCategoryToSource(category: string): 'vitals' | 'labs' | 'medications' | 'tasks' | 'general' {
+    switch (category) {
+      case 'vitals': return 'vitals';
+      case 'lab': 
+      case 'labs': return 'labs';
+      case 'medications': return 'medications';
+      case 'tasks': return 'tasks';
+      default: return 'general';
+    }
+  }
 
   if (isLoading) {
     return (
