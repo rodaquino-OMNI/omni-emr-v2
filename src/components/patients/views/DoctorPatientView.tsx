@@ -8,7 +8,6 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilePlus2, Pill, ClipboardList, FileText } from 'lucide-react';
 import PatientHeader from '../detail/PatientDetailHeader';
-import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
 import { 
   PatientOverviewTab,
   PatientNotesTab,
@@ -17,7 +16,7 @@ import {
   PatientAIInsightsTab
 } from '../tabs';
 import { useAuth } from '@/context/AuthContext';
-import { PatientInsight, PatientStatus } from '@/types/patient';
+import { Patient, PatientInsight } from '@/types/patient';
 
 interface DoctorPatientViewProps {
   patientId: string;
@@ -46,14 +45,20 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
     return <div className="p-4 text-red-500">Error loading patient: {patientError?.toString()}</div>;
   }
 
-  // Ensure patient has the insights array
-  const adaptedInsights = insights?.map(insight => ({
+  // Ensure patient has the insights array and convert category to a valid type
+  const adaptedInsights = insights ? insights.map(insight => ({
     ...insight,
-    // Ensure severity is compatible with PatientInsight type
-    severity: insight.severity as PatientInsight['severity']
-  })) || [];
+    patient_id: insight.patientId,
+    // Map category to an acceptable union type
+    category: (insight.category === 'lab' || insight.category === 'medications' || 
+              insight.category === 'vitals' || insight.category === 'diagnosis') 
+              ? 'info' 
+              : (insight.severity === 'critical' ? 'critical' : 
+                 insight.severity === 'warning' ? 'warning' : 'info') as PatientInsight['category']
+  })) : [];
   
-  const patientWithInsights = {
+  // Create a typed patient object with the adapted insights
+  const patientWithDetails = {
     ...patient,
     insights: adaptedInsights
   };
@@ -71,7 +76,7 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
   return (
     <div className="space-y-6">
       <PatientHeader 
-        patient={patientWithInsights} 
+        patient={patient} 
         hasCriticalInsights={adaptedInsights.some(insight => insight.severity === 'critical')}
       />
       
@@ -122,7 +127,7 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
         </TabsList>
         
         <TabsContent value="overview">
-          <PatientOverviewTab patientId={patientId} patient={patientWithInsights} />
+          <PatientOverviewTab patientId={patientId} patient={patientWithDetails} />
         </TabsContent>
         
         <TabsContent value="vitals">

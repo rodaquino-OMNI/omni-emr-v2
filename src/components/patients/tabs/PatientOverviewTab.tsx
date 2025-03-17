@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PatientOverviewTabProps } from './index';
+import { PatientTabProps } from '@/types/patient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import HealthStatusSummary from '../overview/HealthStatusSummary';
 import VitalSignsCard from '../overview/VitalSignsCard';
@@ -9,6 +9,10 @@ import AppointmentsCard from '../overview/AppointmentsCard';
 import PatientQuickActions from '../overview/PatientQuickActions';
 import CareTimelineCard from '../overview/CareTimelineCard';
 import { PatientStatus } from '@/types/patient';
+
+export interface PatientOverviewTabProps extends PatientTabProps {
+  patient: any; // Using any temporarily to avoid circular dependency issues
+}
 
 const PatientOverviewTab: React.FC<PatientOverviewTabProps> = ({ patientId, patient }) => {
   if (!patient) {
@@ -32,16 +36,16 @@ const PatientOverviewTab: React.FC<PatientOverviewTabProps> = ({ patientId, pati
 
       {/* Quick Actions */}
       <div className="hidden md:block">
-        <PatientQuickActions patient={patient} patientId={patientId} />
+        <PatientQuickActions patient={patient} />
       </div>
 
       {/* Grid Layout for Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Vital Signs */}
-        <VitalSignsCard patient={patient} patientId={patientId} />
+        <VitalSignsCard patient={patient} />
 
         {/* Medications */}
-        <MedicationsCard patient={patient} patientId={patientId} />
+        <MedicationsCard patient={patient} />
       </div>
 
       {/* Timeline */}
@@ -51,14 +55,14 @@ const PatientOverviewTab: React.FC<PatientOverviewTabProps> = ({ patientId, pati
             <CardTitle className="text-lg">Care Timeline</CardTitle>
           </CardHeader>
           <CardContent>
-            <CareTimelineCard patient={patient} patientId={patientId} />
+            <CareTimelineCard patient={patient} />
           </CardContent>
         </Card>
       </div>
 
       {/* Appointments */}
       <div className="mt-6">
-        <AppointmentsCard patient={patient} patientId={patientId} />
+        <AppointmentsCard patient={patient} />
       </div>
     </div>
   );

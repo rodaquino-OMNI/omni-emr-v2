@@ -1,11 +1,9 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Patient } from './PatientCard';
 import StatusBadge from '../ui/StatusBadge';
 import { AlertCircle, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AIInsight } from '../ai/AIInsights';
 import { PatientStatus } from '@/types/patientTypes';
 
 type PatientHeaderProps = {

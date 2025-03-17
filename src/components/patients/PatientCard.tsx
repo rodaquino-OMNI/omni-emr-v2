@@ -10,19 +10,23 @@ import { UserCircle, UserPlus, UserMinus, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PatientStatus } from '@/types/patientTypes';
 
+// Export the Patient interface so it can be imported by other components
+export interface Patient {
+  id: string;
+  name: string;
+  age: number;
+  gender: string;
+  roomNumber?: string;
+  status: PatientStatus | string;
+  isAssigned?: boolean;
+  isCritical?: boolean;
+  mrn: string;
+  diagnosis?: string;
+  onToggleAssignment?: (e: React.MouseEvent) => void;
+}
+
 interface PatientCardProps {
-  patient: {
-    id: string;
-    name: string;
-    age: number;
-    gender: string;
-    roomNumber?: string;
-    status: PatientStatus | string;
-    isAssigned?: boolean;
-    isCritical?: boolean;
-    mrn: string;
-    onToggleAssignment?: (e: React.MouseEvent) => void;
-  };
+  patient: Patient;
   className?: string;
 }
 

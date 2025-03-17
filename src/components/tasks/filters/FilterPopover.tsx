@@ -1,12 +1,10 @@
 
 import React from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Filter } from 'lucide-react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Filter, Check, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -14,120 +12,122 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { TaskFilter } from '@/services/tasks';
 
 interface FilterPopoverProps {
-  filter: TaskFilter;
-  onFilterChange: (key: keyof TaskFilter, value: any) => void;
+  filters: {
+    status: string;
+    priority: string;
+    type: string;
+    searchQuery: string;
+  };
+  onFilterChange: (filterName: string, value: string) => void;
+  onReset: () => void;
+  activeFiltersCount: number;
 }
 
-const FilterPopover: React.FC<FilterPopoverProps> = ({ filter, onFilterChange }) => {
+const FilterPopover: React.FC<FilterPopoverProps> = ({
+  filters,
+  onFilterChange,
+  onReset,
+  activeFiltersCount,
+}) => {
+  const handleTextSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFilterChange('searchQuery', e.target.value);
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 gap-1">
-          <Filter className="h-4 w-4" />
-          Filters
+        <Button variant="outline" size="sm" className="h-8 border-dashed relative">
+          <Filter className="mr-2 h-3.5 w-3.5" />
+          <span>Filter</span>
+          {activeFiltersCount > 0 && (
+            <div className="absolute -right-1 -top-1 w-4 h-4 rounded-full bg-primary text-[10px] flex items-center justify-center text-primary-foreground">
+              {activeFiltersCount}
+            </div>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <h4 className="font-medium leading-none">Task Filters</h4>
-            <p className="text-sm text-muted-foreground">
-              Filter tasks by various criteria
-            </p>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium text-sm">Filter Tasks</h4>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 text-xs"
+              onClick={onReset}
+            >
+              Reset filters
+              <X className="ml-1 h-3 w-3" />
+            </Button>
           </div>
-          
-          <div className="grid gap-3">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right">
-                Status
-              </Label>
-              <Select
-                value={filter.status || ''}
-                onValueChange={(value) => 
-                  onFilterChange('status', value ? value : undefined)
-                }
-                className="col-span-3"
-              >
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Any status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Any status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="priority" className="text-right">
-                Priority
-              </Label>
-              <Select
-                value={filter.priority || ''}
-                onValueChange={(value) => 
-                  onFilterChange('priority', value ? value : undefined)
-                }
-                className="col-span-3"
-              >
-                <SelectTrigger id="priority">
-                  <SelectValue placeholder="Any priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Any priority</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="type" className="text-right">
-                Type
-              </Label>
-              <Select
-                value={filter.type || ''}
-                onValueChange={(value) => 
-                  onFilterChange('type', value ? value : undefined)
-                }
-                className="col-span-3"
-              >
-                <SelectTrigger id="type">
-                  <SelectValue placeholder="Any type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Any type</SelectItem>
-                  <SelectItem value="medication">Medication</SelectItem>
-                  <SelectItem value="examination">Examination</SelectItem>
-                  <SelectItem value="consultation">Consultation</SelectItem>
-                  <SelectItem value="procedure">Procedure</SelectItem>
-                  <SelectItem value="followup">Follow-up</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="delayed-tasks" className="text-right">
-                Delayed Tasks
-              </Label>
-              <div className="flex items-center space-x-2 col-span-3">
-                <Switch
-                  id="delayed-tasks"
-                  checked={!!filter.showDelayed}
-                  onCheckedChange={(checked) => 
-                    onFilterChange('showDelayed', checked || undefined)
-                  }
-                />
-                <Label htmlFor="delayed-tasks">Show only delayed tasks</Label>
-              </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={filters.status}
+              onValueChange={(value) => onFilterChange('status', value)}
+            >
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="priority">Priority</Label>
+            <Select
+              value={filters.priority}
+              onValueChange={(value) => onFilterChange('priority', value)}
+            >
+              <SelectTrigger id="priority">
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="type">Task Type</Label>
+            <Select
+              value={filters.type}
+              onValueChange={(value) => onFilterChange('type', value)}
+            >
+              <SelectTrigger id="type">
+                <SelectValue placeholder="Select task type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="medication">Medication</SelectItem>
+                <SelectItem value="examination">Examination</SelectItem>
+                <SelectItem value="vitals">Vitals</SelectItem>
+                <SelectItem value="documentation">Documentation</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="search">Search</Label>
+            <div className="flex space-x-2">
+              <Input
+                id="search"
+                placeholder="Search by name or description"
+                value={filters.searchQuery}
+                onChange={handleTextSearch}
+              />
             </div>
           </div>
         </div>

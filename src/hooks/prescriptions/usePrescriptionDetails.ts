@@ -26,8 +26,8 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
         // Convert to proper type before setting
         const typedData: Prescription = {
           id: data.id,
-          patient_id: data.patient_id || data.patientId || '',
-          provider_id: data.provider_id || data.doctorId || '',
+          patient_id: data.patient_id || '',
+          provider_id: data.provider_id || data.doctor_id || '',
           status: data.status as 'active' | 'completed' | 'cancelled',
           notes: data.notes,
           created_at: data.created_at || data.date || '',

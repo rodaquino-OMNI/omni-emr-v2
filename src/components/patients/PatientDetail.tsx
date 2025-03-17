@@ -2,23 +2,22 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { usePatient } from '@/hooks/usePatient';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
-import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
 
 // Import the correct components as default exports
 import PatientOverviewTab from './tabs/PatientOverviewTab';
 import PatientRecordsTab from './tabs/PatientRecordsTab';
 import PatientPrescriptionsTab from './tabs/PatientPrescriptionsTab';
 import PatientAIInsightsTab from './tabs/PatientAIInsightsTab';
+import { usePatientContext } from '@/context/PatientContext';
 
 interface PatientDetailProps {}
 
 const PatientDetail: React.FC<PatientDetailProps> = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const { patient, loading, error } = usePatient(id || '');
+  const { patient, loading, error } = usePatientContext();
 
   if (loading) {
     return <div>Loading...</div>;
@@ -27,9 +26,6 @@ const PatientDetail: React.FC<PatientDetailProps> = () => {
   if (error || !patient) {
     return <div>Error: {error || 'Patient not found'}</div>;
   }
-
-  // Ensure patient has insights array
-  const patientInsights = patient.insights || [];
 
   return (
     <div className="space-y-6">
@@ -76,7 +72,7 @@ const PatientDetail: React.FC<PatientDetailProps> = () => {
         <TabsContent value="ai_insights">
           <PatientAIInsightsTab 
             patientId={id || ''} 
-            insights={patientInsights}
+            insights={patient.insights || []}
             isLoading={false}
           />
         </TabsContent>

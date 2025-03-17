@@ -3,7 +3,6 @@ import { Patient } from '@/types/patientTypes';
 import { Patient as UnifiedPatient } from '@/types/patient';
 import { ComponentAIInsight } from '@/utils/typeAdapters';
 import { AIInsight as PatientAIInsight } from '@/types/patient';
-import { adaptAIInsight } from '@/utils/typeAdapters';
 
 /**
  * Adapts a patient from patientTypes.Patient to patient.Patient format
@@ -33,7 +32,8 @@ export const adaptPatientForDetail = (patient: Patient): UnifiedPatient => {
     emergency_contact_name: patient.emergency_contact_name,
     emergency_contact_phone: patient.emergency_contact_phone,
     age: patient.age,
-    identifiers: patient.identifiers
+    // Conditionally add identifiers only if it exists in the source patient
+    ...(patient.identifiers && { identifiers: patient.identifiers })
   };
 };
 
@@ -68,7 +68,7 @@ export const adaptInsightsForPatientDetail = (insights: ComponentAIInsight[]): P
       title: insight.title,
       description: insight.description,
       severity,
-      created_at: insight.timestamp,
+      created_at: insight.timestamp || insight.created_at,
       source: insight.source,
       category: insight.type
     };

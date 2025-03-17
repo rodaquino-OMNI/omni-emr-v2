@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { PatientInsight as TypedPatientInsight } from '@/types/patient';
 
 export interface PatientInsight {
   id: string;
@@ -8,7 +9,7 @@ export interface PatientInsight {
   category: string;
   title: string;
   description: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: 'info' | 'warning' | 'critical' | 'success';
   created_at: string;
   source: string;
   metadata?: any;
