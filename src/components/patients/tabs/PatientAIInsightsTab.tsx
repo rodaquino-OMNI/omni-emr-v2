@@ -3,18 +3,13 @@ import React from 'react';
 import PatientAIInsights from '../PatientAIInsights';
 
 interface PatientAIInsightsTabProps {
-  insights: any[];
-  loading: boolean;
+  patientId: string;
 }
 
-const PatientAIInsightsTab: React.FC<PatientAIInsightsTabProps> = ({ 
-  insights, 
-  loading 
-}) => {
+const PatientAIInsightsTab: React.FC<PatientAIInsightsTabProps> = ({ patientId }) => {
   return (
     <PatientAIInsights 
-      insights={insights} 
-      loading={loading} 
+      patientId={patientId}
     />
   );
 };

@@ -24,6 +24,21 @@ const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
     (!insight.metadata?.id || insight.metadata.id === medicationId)
   );
 
+  // Map PatientInsight to AIInsight
+  const mappedInsights = medicationInsights.map(insight => ({
+    id: insight.id,
+    type: insight.severity === 'critical' ? 'critical' : 
+          insight.severity === 'warning' ? 'warning' : 'info',
+    source: insight.category as 'medications' | 'vitals' | 'labs' | 'tasks' | 'general',
+    title: insight.title,
+    description: insight.description,
+    relatedTo: insight.metadata?.id ? {
+      type: insight.category,
+      id: insight.metadata.id
+    } : undefined,
+    timestamp: new Date(insight.created_at)
+  }));
+
   if (isLoading) {
     return (
       <Card className="p-4 mb-4 bg-muted/30">
@@ -41,14 +56,14 @@ const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
     );
   }
 
-  if (medicationInsights.length === 0) {
+  if (mappedInsights.length === 0) {
     return null; // Don't show section if no insights for this specific medication
   }
 
   return (
     <Card className="p-4 mb-4 bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900">
       <AIInsights 
-        insights={medicationInsights}
+        insights={mappedInsights}
         showSource
         compact
       />
