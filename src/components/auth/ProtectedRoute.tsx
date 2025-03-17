@@ -33,16 +33,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     language: 'en' 
   };
   
-  // Access sector context
+  // Access sector context - moved before any conditional logic
   const sectorContext = useSectorContext();
   
-  // Use offline mode hook for connectivity checks
+  // Use offline mode hook for connectivity checks - moved before any conditional logic
   const { isOfflineMode, checkingConnectivity } = useOfflineMode(
     isAuthenticated || false, 
     language || 'en'
   );
   
-  // Use route permissions hook to check permissions
+  // Use route permissions hook to check permissions - moved before any conditional logic
   const { isRootOrDashboard, hasRequired } = useRoutePermissions({
     user,
     requiredPermission,

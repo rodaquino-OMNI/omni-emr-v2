@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { QrCode, Camera, Shield, User, Pill, AlertTriangle } from 'lucide-react';
@@ -27,31 +28,8 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  useEffect(() => {
-    if (videoRef.current && scanning) {
-      const videoElement = videoRef.current;
-      const tracks = (videoElement.srcObject as MediaStream)?.getTracks();
-      if (!tracks || tracks.length === 0) {
-        initCamera();
-      }
-    }
-    
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
-    };
-  }, [scanning]);
-  
-  useEffect(() => {
-    if (scanning) {
-      initCamera();
-    }
-  }, [scanning, initCamera]);
-  
-  const initCamera = async () => {
+  // Define initCamera as a useCallback to avoid dependency issues
+  const initCamera = useCallback(async () => {
     if (!navigator.mediaDevices || !videoRef.current) {
       return;
     }
@@ -68,7 +46,34 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
       console.error('Error accessing camera:', err);
       onError(t('cameraAccessDenied'));
     }
-  };
+  }, [onError, t]);
+  
+  useEffect(() => {
+    if (videoRef.current && scanning) {
+      // Store a reference to avoid issues with cleanup
+      const currentVideoRef = videoRef.current;
+      const tracks = (currentVideoRef.srcObject as MediaStream)?.getTracks();
+      if (!tracks || tracks.length === 0) {
+        initCamera();
+      }
+    }
+    
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        // Store a reference to the stream to safely clean it up
+        const stream = videoRef.current.srcObject as MediaStream;
+        const tracks = stream.getTracks();
+        tracks.forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+    };
+  }, [scanning, initCamera]);
+  
+  useEffect(() => {
+    if (scanning) {
+      initCamera();
+    }
+  }, [scanning, initCamera]);
   
   const captureBarcode = () => {
     if (videoRef.current && canvasRef.current && scanning) {

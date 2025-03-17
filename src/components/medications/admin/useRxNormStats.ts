@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { fetchDatabaseStats, DatabaseStats } from './utils/dbUtils';
 import { syncMedications, clearCache } from './api/rxnormApi';
@@ -16,12 +17,12 @@ export const useRxNormStats = () => {
     lastSyncDate: null
   });
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     const stats = await fetchDatabaseStats(language);
     if (stats) {
       setDbStats(stats);
     }
-  };
+  }, [language]);
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -55,7 +56,7 @@ export const useRxNormStats = () => {
     // Refresh data every 5 minutes
     const intervalId = setInterval(fetchStats, 5 * 60 * 1000);
     return () => clearInterval(intervalId);
-  }, [fetchStats]);
+  }, [fetchStats]);  // Added fetchStats as dependency
 
   return {
     dbStats,

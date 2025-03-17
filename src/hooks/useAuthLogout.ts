@@ -35,7 +35,7 @@ export const useAuthLogout = (
       }
       
       // Clear sector context if available
-      if (sectorContext && sectorContext.selectSector) {
+      if (sectorContext?.selectSector) {
         sectorContext.selectSector(null);
       }
       
@@ -66,7 +66,7 @@ export const useAuthLogout = (
       setSession(null);
       
       // Still clear sector context even if logout fails
-      if (sectorContext && sectorContext.selectSector) {
+      if (sectorContext?.selectSector) {
         sectorContext.selectSector(null);
       }
       

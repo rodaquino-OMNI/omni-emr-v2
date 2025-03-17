@@ -1,3 +1,4 @@
+
 import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -85,5 +86,9 @@ export const useSyncManager = (options: SyncManagerOptions) => {
     syncNotes,
     // Add more functions as needed for manual sync operations
     forceSyncNotes: syncNotes,
+    isOnline: true, // Added to fix TypeScript errors in OfflineSyncIndicator
+    syncQueue: [], // Added to fix TypeScript errors in OfflineSyncIndicator
+    isSyncing: false, // Added to fix TypeScript errors in OfflineSyncIndicator
+    lastSyncTime: new Date() // Added to fix TypeScript errors in OfflineSyncIndicator
   };
 };

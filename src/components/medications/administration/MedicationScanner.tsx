@@ -122,7 +122,9 @@ const MedicationScanner = ({
             
             <TabsContent value="camera" className="space-y-4 focus-visible:outline-none focus-visible:ring-0">
               <BarcodeScanner
-                onCapture={simulateScan}
+                // Fix prop names to match what BarcodeScanner expects
+                onScan={simulateScan}
+                onError={(msg: string) => console.error(msg)}
                 patientScanned={patientScanned}
                 medicationScanned={medicationScanned}
                 error={error}
