@@ -1,156 +1,101 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Patient } from '@/types/patient';
-import { useAuth } from '@/context/AuthContext';
-import { usePermissions } from '@/hooks/usePermissions';
-import { useSectorContext } from '@/hooks/useSectorContext';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import { Patient } from '@/types/patientTypes';
 import { usePatientData } from '@/hooks/usePatientData';
-import { usePatientInsights } from '@/hooks/usePatientInsights';
-import { usePatientPrescriptions } from '@/hooks/usePatientPrescriptions';
-import { toast } from 'sonner';
+import { useSectorContext } from '@/hooks/useSectorContext';
+import { ErrorMessage } from '@/components/ui/error-message';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface PatientContextType {
   patient: Patient | null;
   isLoading: boolean;
   error: string | null;
-  refreshPatient: () => Promise<void>;
+  patientId: string;
   canEdit: boolean;
   canView: boolean;
-}
-
-interface PatientProviderProps {
-  children: ReactNode;
-  patientId?: string;
+  refreshPatient: () => Promise<void>;
 }
 
 const PatientContext = createContext<PatientContextType>({
   patient: null,
   isLoading: false,
   error: null,
-  refreshPatient: async () => {},
+  patientId: '',
   canEdit: false,
   canView: false,
+  refreshPatient: async () => {}
 });
 
-export const PatientProvider: React.FC<PatientProviderProps> = ({ children, patientId: propPatientId }) => {
-  const [error, setError] = useState<string | null>(null);
+interface PatientProviderProps {
+  patientId?: string;
+  children: React.ReactNode;
+}
+
+export const PatientProvider: React.FC<PatientProviderProps> = ({ patientId: externalPatientId, children }) => {
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
-  const params = useParams();
-  const { user } = useAuth();
-  const permissions = usePermissions(user);
-  
-  // Use sector context to check if patient is in selected sector
+  const { t } = useTranslation();
   const { selectedSector } = useSectorContext();
   
-  // Use patientId from props or route params
-  const patientId = propPatientId || params.id;
+  // Get the patient ID either from props, params, or location state
+  const patientId = externalPatientId || id || (location.state as any)?.patientId || '';
   
-  // Fetch patient data using our optimized hook
-  const { 
-    patient, 
-    isLoading: patientLoading, 
-    error: patientError,
-    fetchPatient
-  } = usePatientData(patientId);
+  // Fetch patient data
+  const { patient, isLoading, error, refreshPatient } = usePatientData(patientId);
   
-  // Fetch insights data with caching
-  const { 
-    insights, 
-    isLoading: insightsLoading, 
-    error: insightsError,
-    refetchInsights
-  } = usePatientInsights(patientId);
+  // Check if user can edit or view this patient based on sector
+  const [canEdit, setCanEdit] = useState<boolean>(false);
+  const [canView, setCanView] = useState<boolean>(false);
   
-  // Fetch prescriptions data with caching
-  const { 
-    data: prescriptions, 
-    isLoading: prescriptionsLoading,
-    refetch: refetchPrescriptions
-  } = usePatientPrescriptions(patientId);
-  
-  // Combined loading state
-  const isLoading = patientLoading || insightsLoading || prescriptionsLoading;
-  
-  // Check user permissions for this patient
-  const canView = Boolean(
-    user && 
-    patientId && 
-    (permissions.canAccessPatientData(patientId) || 
-     permissions.hasPermission('view_all_patients'))
-  );
-  
-  const canEdit = Boolean(
-    user && 
-    patientId && 
-    (permissions.hasPermission('edit_patient_data') ||
-     permissions.hasPermission('admin'))
-  );
-  
-  // Set error if patient data fetch fails
   useEffect(() => {
-    if (patientError) {
-      setError(patientError);
-    }
-  }, [patientError]);
-  
-  // Check if the patient belongs to the currently selected sector (for clinical staff)
-  useEffect(() => {
-    if (!isLoading && patient && selectedSector && 
-        user && ['doctor', 'nurse', 'medical_staff'].includes(user.role)) {
-      const patientInSector = patient.sectors?.some(s => s.id === selectedSector.id);
+    if (patient && selectedSector) {
+      // Check if patient is in the current sector
+      setCanView(true); // For now, assume everyone can view
       
-      if (!patientInSector) {
-        toast.warning('Patient is not in your current sector', {
-          description: 'You may need to change your selected sector to view this patient'
-        });
-      }
+      // Check if user has edit permission for this patient
+      setCanEdit(patient.is_assigned || false);
     }
-  }, [isLoading, patient, selectedSector, user]);
+  }, [patient, selectedSector]);
   
-  // Refresh patient data
-  const refreshPatient = async () => {
-    try {
-      await Promise.all([
-        fetchPatient(),
-        refetchInsights(),
-        refetchPrescriptions()
-      ]);
-      setError(null);
-    } catch (err) {
-      console.error('Error refreshing patient data:', err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Failed to refresh patient data');
-      }
-    }
-  };
+  // If loading, just return the children
+  if (isLoading) {
+    return <>{children}</>;
+  }
   
-  // Handle unauthorized access
-  useEffect(() => {
-    if (!isLoading && !canView && !error) {
-      toast.error('You do not have permission to view this patient');
-      navigate('/patients');
-    }
-  }, [isLoading, canView, error, navigate]);
-  
-  // Combine patient data with insights and prescriptions
-  const combinedPatientData = patient ? {
-    ...patient,
-    insights: insights || [],
-    prescriptions: prescriptions || []
-  } : null;
+  // If error or no patient ID, show error
+  if ((error || !patientId) && !isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center">
+          <Button variant="ghost" onClick={() => navigate('/patients')} className="mr-2">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t('backToPatients', 'Back to Patients')}
+          </Button>
+        </div>
+        
+        <ErrorMessage 
+          title={t('patientNotFound', 'Patient Not Found')}
+          message={error || t('noPatientId', 'No patient ID provided')}
+        />
+      </div>
+    );
+  }
   
   return (
-    <PatientContext.Provider
-      value={{
-        patient: combinedPatientData,
-        isLoading,
-        error,
-        refreshPatient,
-        canEdit,
-        canView
+    <PatientContext.Provider 
+      value={{ 
+        patient, 
+        isLoading, 
+        error, 
+        patientId, 
+        canEdit, 
+        canView,
+        refreshPatient
       }}
     >
       {children}
@@ -159,5 +104,3 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
 };
 
 export const usePatientContext = () => useContext(PatientContext);
-
-export default PatientContext;

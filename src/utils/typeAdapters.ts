@@ -79,3 +79,8 @@ export const adaptToPatientInsight = (insight: ComponentAIInsight): PatientInsig
     category: insight.type
   };
 };
+
+/**
+ * Alias function for adaptToComponentAIInsight to maintain compatibility
+ */
+export const adaptAIInsight = adaptToComponentAIInsight;
