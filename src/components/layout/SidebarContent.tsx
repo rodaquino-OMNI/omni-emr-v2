@@ -4,12 +4,16 @@ import { useAuth } from '@/context/AuthContext';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import SidebarItem from './SidebarItem';
-import SidebarUserProfile from './SidebarUserProfile';
+import { SidebarUserProfile } from './SidebarUserProfile';
 import SidebarLogo from './SidebarLogo';
 import SidebarSectorSelector from './SidebarSectorSelector';
 import { config } from '@/config/sidebarConfig';
 
-const SidebarContent: React.FC = () => {
+interface SidebarContentProps {
+  onItemClick?: () => void;
+}
+
+const SidebarContent: React.FC<SidebarContentProps> = ({ onItemClick }) => {
   const { user } = useAuth();
   const { t } = useTranslation();
   
@@ -29,7 +33,7 @@ const SidebarContent: React.FC = () => {
       
       {/* Profile information */}
       <div className="px-3 py-2">
-        <SidebarUserProfile />
+        {user && <SidebarUserProfile user={user} onItemClick={onItemClick} />}
       </div>
       
       {/* Sector Selector for clinical roles */}
@@ -41,10 +45,11 @@ const SidebarContent: React.FC = () => {
           {navItems.map((item, index) => (
             <SidebarItem 
               key={index}
-              title={t(item.i18nKey, item.title)}
+              label={t(item.i18nKey, item.title)}
               icon={item.icon}
-              path={item.path}
+              to={item.path}
               badge={item.badge}
+              onClick={onItemClick}
             />
           ))}
         </nav>
@@ -56,9 +61,10 @@ const SidebarContent: React.FC = () => {
           {config.footer.map((item, index) => (
             <SidebarItem 
               key={index} 
-              title={t(item.i18nKey, item.title)} 
+              label={t(item.i18nKey, item.title)} 
               icon={item.icon} 
-              path={item.path}
+              to={item.path}
+              onClick={onItemClick}
             />
           ))}
         </div>

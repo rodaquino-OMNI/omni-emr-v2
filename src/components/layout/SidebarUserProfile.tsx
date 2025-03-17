@@ -103,3 +103,5 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
     </DropdownMenu>
   );
 };
+
+export default SidebarUserProfile;

@@ -5,9 +5,23 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, RefreshCw } from 'lucide-react';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ComponentAIInsight, adaptToComponentAIInsight } from '@/utils/typeAdapters';
+import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
 import { AIInsight, PatientInsight } from '@/types/patient';
 import { Skeleton } from '@/components/ui/skeleton';
+
+export interface ComponentAIInsight {
+  id: string;
+  title: string;
+  content: string;
+  type: 'critical' | 'warning' | 'info' | 'success';
+  date: string;
+  source?: string;
+  actions?: {
+    label: string;
+    action: string;
+  }[];
+  dismissed?: boolean;
+}
 
 export interface PatientAIInsightsTabProps {
   patientId: string;

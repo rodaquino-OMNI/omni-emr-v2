@@ -1,63 +1,45 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '../../hooks/useTranslation';
-import { SidebarItem as SidebarItemType } from '@/config/sidebarConfig';
+import { Badge } from '@/components/ui/badge';
 
-interface SidebarItemProps {
-  item: SidebarItemType;
+export interface SidebarItemProps {
+  label: string;
+  icon?: LucideIcon | React.ElementType;
+  to: string;
+  badge?: string | number;
   onClick?: () => void;
-  badge?: number;
-  disabled?: boolean; // Added disabled prop
 }
 
-// Helper function to determine if an item is active based on the current path
-const isItemActive = (itemPath: string, currentPath: string): boolean => {
-  return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
-};
-
-// Helper function to get the appropriate CSS classes for the item
-const getItemClasses = (isActive: boolean, disabled?: boolean): string => {
-  return cn(
-    "flex items-center gap-3 rounded-md px-3 py-2 transition-colors",
-    isActive 
-      ? "bg-primary/10 text-primary" 
-      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-    disabled && "opacity-50 cursor-not-allowed pointer-events-none"
-  );
-};
-
-// Helper function to render the badge if it exists
-const renderBadge = (badge?: number): React.ReactNode => {
-  if (!badge) return null;
-  
+const SidebarItem: React.FC<SidebarItemProps> = ({
+  label,
+  icon: Icon,
+  to,
+  badge,
+  onClick
+}) => {
   return (
-    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-      {badge}
-    </span>
-  );
-};
-
-const SidebarItem = ({ item, onClick, badge, disabled }: SidebarItemProps) => {
-  const { pathname } = useLocation();
-  const { t } = useTranslation();
-  const Icon = item.icon;
-  
-  const active = isItemActive(item.path, pathname);
-  const itemClasses = getItemClasses(active, disabled);
-
-  return (
-    <Link 
-      to={item.path}
-      className={itemClasses}
+    <NavLink
+      to={to}
       onClick={onClick}
-      aria-disabled={disabled}
+      className={({ isActive }) => 
+        cn(
+          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+          "hover:bg-primary/10 hover:text-primary",
+          isActive 
+            ? "bg-primary/10 text-primary" 
+            : "text-foreground/70"
+        )
+      }
     >
-      <Icon className="h-5 w-5" />
-      <span>{t(item.translationKey as any)}</span>
-      {renderBadge(badge)}
-    </Link>
+      {Icon && <Icon className="h-4 w-4" />}
+      <span className="flex-1">{label}</span>
+      {badge && (
+        <Badge variant="secondary" className="ml-auto">{badge}</Badge>
+      )}
+    </NavLink>
   );
 };
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import { TaskFilter } from '@/services/tasks';
+import { TaskFilter } from '@/services/tasks/taskFilters';
 import SearchInput from './filters/SearchInput';
 import FilterPopover from './filters/FilterPopover';
 import ActiveFilters from './filters/ActiveFilters';

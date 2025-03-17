@@ -13,6 +13,12 @@ interface NoteTemplateSelectorProps {
   onTypeChange?: (type: NoteType) => void;
 }
 
+interface SectionType {
+  title: string;
+  content: string;
+  required?: boolean;
+}
+
 const NoteTemplateSelector = ({ 
   onSelectTemplate, 
   selectedType, 
@@ -37,7 +43,7 @@ const NoteTemplateSelector = ({
       name: template.name,
       isDefault: template.isDefault || false,
       template: "",
-      sections: template.sections.map(section => ({
+      sections: template.sections.map((section: string | { title: string, required?: boolean }) => ({
         title: typeof section === 'string' ? section : section.title,
         content: "",
         required: typeof section === 'string' ? false : section.required || false
