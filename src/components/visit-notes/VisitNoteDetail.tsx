@@ -10,7 +10,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useVisitNote } from '@/hooks/useVisitNote';
 import { VitalSignsDisplay } from '@/components/vitals/VitalSignsDisplay';
-import { VisitNote, VitalSigns } from '@/types/clinicalNotes';
+import { VisitNote, VitalSigns } from '@/types/visitNotes';
 import { useAuth } from '@/context/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 

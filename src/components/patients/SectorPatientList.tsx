@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -59,14 +58,17 @@ const SectorPatientList = ({
     setSortDirection,
     setPage,
     goToPage
-  } = useFilteredSectorPatients(sectorPatients, {
-    statusFilter,
-    searchTerm,
-    assignmentFilter,
-    sortBy,
-    sortDirection,
-    pageSize: limit || pageSize,
-    page: 1
+  } = useFilteredSectorPatients({
+    patients: sectorPatients,
+    options: {
+      statusFilter,
+      searchTerm,
+      assignmentFilter,
+      sortBy,
+      sortDirection,
+      pageSize: limit || pageSize,
+      page: 1
+    }
   });
   
   // Handle assignment toggle

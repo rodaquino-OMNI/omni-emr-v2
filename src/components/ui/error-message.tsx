@@ -1,16 +1,24 @@
 
 import React from 'react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 
 interface ErrorMessageProps {
   message: string;
+  title?: string;
+  className?: string;
 }
 
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
+export const ErrorMessage: React.FC<ErrorMessageProps> = ({
+  message,
+  title = 'Error',
+  className
+}) => {
   return (
-    <div className="flex items-center justify-center p-6 rounded-md border border-red-200 bg-red-50 text-red-700 my-4">
-      <AlertCircle className="mr-2 h-5 w-5" />
-      <span>{message}</span>
-    </div>
+    <Alert variant="destructive" className={className}>
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription>{message}</AlertDescription>
+    </Alert>
   );
 };

@@ -1,4 +1,3 @@
-
 // Core patient interface that standardizes the patient model across components
 export interface Patient {
   id: string;
@@ -26,6 +25,7 @@ export interface Patient {
   emergency_contact_phone?: string;
   age?: number;
   identifiers?: any;
+  sectors?: Array<{ id: string; name: string }>;
 }
 
 // Standardized interface for all patient-related data loading states

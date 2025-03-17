@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getPrescriptionById } from '@/services/prescriptions/prescriptionDetails';
-import { Prescription } from '@/types/patient';
+import { Prescription } from '@/services/prescriptions/types';
 
 export const usePrescriptionDetails = (prescriptionId?: string) => {
   const [prescription, setPrescription] = useState<Prescription | null>(null);

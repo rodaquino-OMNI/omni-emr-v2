@@ -104,6 +104,7 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
         {canViewAIInsights && (
           <TabsContent value="ai-insights" className="space-y-6">
             <PatientAIInsightsTab 
+              patientId={patientId}
               insights={insights} 
               isLoading={isLoading} 
             />
