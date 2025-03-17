@@ -44,7 +44,10 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
     isSubmitting: isEmailSubmitting,
     pendingApproval,
     error: emailError,
-    clearError: clearEmailError
+    clearError: clearEmailError,
+    isLockedOut,
+    resetLockout,
+    remainingLockoutTime
   } = useEmailLogin(language);
   
   // Social login
@@ -149,6 +152,10 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
             handleSocialLogin={handleSocialLogin}
             isSocialSubmitting={isSocialSubmitting}
             isSupabaseConnected={isSupabaseConnected}
+            
+            isLockedOut={isLockedOut}
+            resetLockout={resetLockout}
+            remainingLockoutTime={remainingLockoutTime}
           />
         </CardContent>
       </Card>

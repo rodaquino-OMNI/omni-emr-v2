@@ -4,10 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { Languages } from '@/types/auth';
+import { useAuthRateLimiting } from '@/hooks/useAuthRateLimiting';
 
 export const useEmailLogin = (language: Languages) => {
   const navigate = useNavigate();
   const { login, resetPassword } = useAuth();
+  const { 
+    handleLoginRateLimit, 
+    resetLoginAttempts, 
+    isLockedOut, 
+    getRemainingLockoutTime 
+  } = useAuthRateLimiting(language);
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,6 +22,20 @@ export const useEmailLogin = (language: Languages) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingApproval, setPendingApproval] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remainingLockoutTime, setRemainingLockoutTime] = useState(0);
+  
+  // Update remaining lockout time
+  useEffect(() => {
+    if (isLockedOut()) {
+      const interval = setInterval(() => {
+        setRemainingLockoutTime(getRemainingLockoutTime());
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    } else {
+      setRemainingLockoutTime(0);
+    }
+  }, [isLockedOut, getRemainingLockoutTime]);
   
   const toggleForgotPassword = useCallback(() => {
     setForgotPassword(!forgotPassword);
@@ -40,6 +61,17 @@ export const useEmailLogin = (language: Languages) => {
     setError(null);
     
     try {
+      // Check for rate limiting before attempting login
+      if (!forgotPassword) {
+        try {
+          handleLoginRateLimit();
+        } catch (error: any) {
+          setError(error.message);
+          setIsSubmitting(false);
+          return Promise.resolve();
+        }
+      }
+      
       if (forgotPassword) {
         const result = await resetPassword(email);
         
@@ -58,6 +90,9 @@ export const useEmailLogin = (language: Languages) => {
         const result = await login(email, password);
         
         if (result.success) {
+          // Reset login attempts on successful login
+          resetLoginAttempts();
+          
           if (result.pendingApproval) {
             setPendingApproval(true);
             
@@ -95,7 +130,7 @@ export const useEmailLogin = (language: Languages) => {
     }
 
     return Promise.resolve();
-  }, [email, password, forgotPassword, login, resetPassword, navigate, language]);
+  }, [email, password, forgotPassword, login, resetPassword, navigate, language, handleLoginRateLimit, resetLoginAttempts]);
   
   return {
     email,
@@ -108,6 +143,9 @@ export const useEmailLogin = (language: Languages) => {
     isSubmitting,
     pendingApproval,
     error,
-    clearError
+    clearError,
+    isLockedOut: isLockedOut(),
+    resetLockout: resetLoginAttempts,
+    remainingLockoutTime
   };
 };

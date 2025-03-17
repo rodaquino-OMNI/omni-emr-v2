@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { secureStorage } from '../utils/secureStorage';
 import { Languages } from '../types/auth';
@@ -27,13 +28,36 @@ export const useAuthRateLimiting = (language: Languages) => {
     return null;
   });
 
+  // Periodically check if lockout has expired
+  useEffect(() => {
+    if (!loginLockoutUntil) return;
+    
+    const checkLockoutInterval = setInterval(() => {
+      if (loginLockoutUntil && loginLockoutUntil <= Date.now()) {
+        setLoginLockoutUntil(null);
+        setLoginAttempts(0);
+        secureStorage.removeItem('login_attempts');
+        secureStorage.removeItem('login_lockout_until');
+      }
+    }, 10000); // Check every 10 seconds
+    
+    return () => clearInterval(checkLockoutInterval);
+  }, [loginLockoutUntil]);
+
   const handleLoginRateLimit = useCallback(() => {
     // Check if currently locked out
     if (loginLockoutUntil && loginLockoutUntil > Date.now()) {
       const remainingSeconds = Math.ceil((loginLockoutUntil - Date.now()) / 1000);
+      const remainingMinutes = Math.floor(remainingSeconds / 60);
+      const remainingSecs = remainingSeconds % 60;
+      
+      const formattedTime = remainingMinutes > 0 
+        ? `${remainingMinutes}m ${remainingSecs}s` 
+        : `${remainingSeconds}s`;
+      
       const message = language === 'pt'
-        ? `Tentativas de login excedidas. Tente novamente em ${remainingSeconds} segundos.`
-        : `Too many login attempts. Try again in ${remainingSeconds} seconds.`;
+        ? `Tentativas de login excedidas. Tente novamente em ${formattedTime}.`
+        : `Too many login attempts. Try again in ${formattedTime}.`;
       
       toast.error(message, {
         duration: 5000
@@ -72,10 +96,25 @@ export const useAuthRateLimiting = (language: Languages) => {
     secureStorage.removeItem('login_lockout_until');
   }, []);
 
+  // Add a function to check if currently locked out
+  const isLockedOut = useCallback(() => {
+    return loginLockoutUntil !== null && loginLockoutUntil > Date.now();
+  }, [loginLockoutUntil]);
+
+  // Return remaining lockout time in seconds
+  const getRemainingLockoutTime = useCallback(() => {
+    if (!loginLockoutUntil || loginLockoutUntil <= Date.now()) {
+      return 0;
+    }
+    return Math.ceil((loginLockoutUntil - Date.now()) / 1000);
+  }, [loginLockoutUntil]);
+
   return {
     loginAttempts,
     loginLockoutUntil,
     handleLoginRateLimit,
-    resetLoginAttempts
+    resetLoginAttempts,
+    isLockedOut,
+    getRemainingLockoutTime
   };
 };

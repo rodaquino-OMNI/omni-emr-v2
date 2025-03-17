@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserCheck, Loader2, KeyRound, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
+import { UserCheck, Loader2, KeyRound, ArrowLeft, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { Languages } from '@/types/auth';
 
 interface ValidationErrors {
@@ -23,6 +23,9 @@ interface EmailLoginFormProps {
   t: (key: string) => string;
   forgotPassword?: boolean;
   toggleForgotPassword?: () => void;
+  isLockedOut?: boolean;
+  resetLockout?: () => void;
+  remainingLockoutTime?: number;
 }
 
 const EmailLoginForm = ({
@@ -37,7 +40,10 @@ const EmailLoginForm = ({
   language,
   t,
   forgotPassword = false,
-  toggleForgotPassword
+  toggleForgotPassword,
+  isLockedOut = false,
+  resetLockout,
+  remainingLockoutTime = 0
 }: EmailLoginFormProps) => {
   const [showDemoCredentials, setShowDemoCredentials] = useState<boolean>(false);
 
@@ -45,8 +51,43 @@ const EmailLoginForm = ({
     setShowDemoCredentials(!showDemoCredentials);
   };
 
+  // Format remaining lockout time
+  const formatRemainingTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSecs = seconds % 60;
+    
+    if (minutes > 0) {
+      return `${minutes}m ${remainingSecs}s`;
+    }
+    return `${seconds}s`;
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {isLockedOut && (
+        <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
+          <div className="flex justify-between items-center">
+            <div>
+              {language === 'pt' 
+                ? `Conta bloqueada temporariamente. Tente novamente em ${formatRemainingTime(remainingLockoutTime)}.` 
+                : `Account temporarily locked. Try again in ${formatRemainingTime(remainingLockoutTime)}.`}
+            </div>
+            {resetLockout && (
+              <Button 
+                type="button" 
+                variant="destructive" 
+                size="sm" 
+                className="h-7 flex items-center gap-1"
+                onClick={resetLockout}
+              >
+                <RefreshCw className="h-3 w-3" />
+                {language === 'pt' ? 'Redefinir' : 'Reset'}
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium">
           {t('email')}
@@ -67,7 +108,7 @@ const EmailLoginForm = ({
               });
             }
           }}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isLockedOut}
           placeholder="admin@omnicare.com"
           autoComplete="email"
         />
@@ -87,6 +128,7 @@ const EmailLoginForm = ({
                 type="button" 
                 onClick={toggleForgotPassword}
                 className="text-xs text-primary hover:underline"
+                disabled={isLockedOut}
               >
                 {language === 'pt' ? 'Esqueceu a senha?' : 'Forgot password?'}
               </button>
@@ -108,7 +150,7 @@ const EmailLoginForm = ({
                 });
               }
             }}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLockedOut}
             placeholder="••••••••"
             autoComplete="current-password"
           />
@@ -121,7 +163,7 @@ const EmailLoginForm = ({
       <Button 
         type="submit" 
         className="w-full mt-6" 
-        disabled={isSubmitting}
+        disabled={isSubmitting || isLockedOut}
       >
         {isSubmitting ? (
           <>
@@ -145,6 +187,7 @@ const EmailLoginForm = ({
           type="button"
           onClick={toggleForgotPassword}
           className="w-full mt-2 text-sm text-center flex items-center justify-center text-muted-foreground hover:text-primary"
+          disabled={isLockedOut}
         >
           <ArrowLeft className="h-3 w-3 mr-1" />
           {language === 'pt' ? 'Voltar para o login' : 'Back to login'}

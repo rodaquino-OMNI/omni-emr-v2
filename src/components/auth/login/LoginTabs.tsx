@@ -1,22 +1,25 @@
 
 import React from 'react';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { Languages } from '@/types/auth';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmailLoginForm from '../EmailLoginForm';
 import PhoneLoginForm from '../PhoneLoginForm';
 import SocialLoginButtons from '../SocialLoginButtons';
-import { LoginView } from './LoginHeader';
+import { Languages } from '@/types/auth';
+
+interface ValidationErrors {
+  [key: string]: string;
+}
 
 interface LoginTabsProps {
-  activeView: LoginView;
+  activeView: 'email' | 'phone' | 'social';
   email: string;
   setEmail: (email: string) => void;
   password: string;
   setPassword: (password: string) => void;
   handleEmailFormSubmit: (e: React.FormEvent) => Promise<void>;
   isEmailSubmitting: boolean;
-  validationErrors: { [key: string]: string };
-  setValidationErrors: (errors: { [key: string]: string } | ((prev: any) => any)) => void;
+  validationErrors: ValidationErrors;
+  setValidationErrors: (errors: ValidationErrors | ((prev: ValidationErrors) => ValidationErrors)) => void;
   language: Languages;
   t: (key: string) => string;
   forgotPassword: boolean;
@@ -33,9 +36,13 @@ interface LoginTabsProps {
   verificationSent: boolean;
   resetPhoneForm: () => void;
   
-  handleSocialLogin: (provider: 'google' | 'facebook' | 'twitter' | 'azure') => Promise<void>;
+  handleSocialLogin: (provider: 'google' | 'facebook' | 'twitter' | 'azure') => void;
   isSocialSubmitting: boolean;
   isSupabaseConnected: boolean;
+  
+  isLockedOut?: boolean;
+  resetLockout?: () => void;
+  remainingLockoutTime?: number;
 }
 
 const LoginTabs: React.FC<LoginTabsProps> = ({
@@ -66,12 +73,28 @@ const LoginTabs: React.FC<LoginTabsProps> = ({
   
   handleSocialLogin,
   isSocialSubmitting,
-  isSupabaseConnected
+  isSupabaseConnected,
+  
+  isLockedOut = false,
+  resetLockout,
+  remainingLockoutTime = 0
 }) => {
   return (
-    <Tabs value={activeView} className="w-full">
-      <TabsContent value="email" className="mt-0">
-        <EmailLoginForm 
+    <Tabs defaultValue={activeView} className="w-full">
+      <TabsList className="grid grid-cols-3 mb-4">
+        <TabsTrigger value="email" onClick={clearEmailError}>
+          {language === 'pt' ? 'Email' : 'Email'}
+        </TabsTrigger>
+        <TabsTrigger value="phone" onClick={clearEmailError}>
+          {language === 'pt' ? 'Telefone' : 'Phone'}
+        </TabsTrigger>
+        <TabsTrigger value="social" onClick={clearEmailError}>
+          {language === 'pt' ? 'Social' : 'Social'}
+        </TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="email">
+        <EmailLoginForm
           email={email}
           setEmail={setEmail}
           password={password}
@@ -84,32 +107,34 @@ const LoginTabs: React.FC<LoginTabsProps> = ({
           t={t}
           forgotPassword={forgotPassword}
           toggleForgotPassword={toggleForgotPassword}
+          isLockedOut={isLockedOut}
+          resetLockout={resetLockout}
+          remainingLockoutTime={remainingLockoutTime}
         />
       </TabsContent>
       
-      <TabsContent value="phone" className="mt-0">
+      <TabsContent value="phone">
         <PhoneLoginForm 
           phone={phone}
           setPhone={setPhone}
           verificationCode={verificationCode}
           setVerificationCode={setVerificationCode}
-          handlePhoneSubmit={handlePhoneFormSubmit}
-          handleVerifySubmit={handleVerifyFormSubmit}
-          handleClearError={clearEmailError}
+          handlePhoneFormSubmit={handlePhoneFormSubmit}
+          handleVerifyFormSubmit={handleVerifyFormSubmit}
           isSubmitting={isPhoneSubmitting}
           verificationSent={verificationSent}
+          resetForm={resetPhoneForm}
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
           language={language}
-          t={t}
-          resetForm={resetPhoneForm}
         />
       </TabsContent>
       
-      <TabsContent value="social" className="mt-0">
-        <SocialLoginButtons 
-          isSubmitting={isSocialSubmitting}
-          handleSocialLogin={handleSocialLogin}
+      <TabsContent value="social">
+        <SocialLoginButtons
+          onLogin={handleSocialLogin}
+          isLoading={isSocialSubmitting}
+          language={language}
           isSupabaseConnected={isSupabaseConnected}
         />
       </TabsContent>
