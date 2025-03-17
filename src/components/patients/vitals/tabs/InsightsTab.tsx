@@ -29,20 +29,16 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ patientId }) => {
     timestamp: new Date(insight.created_at)
   }));
 
-  if (isLoading) {
-    return (
-      <div className="glass-card p-6 text-center">
-        <div className="flex justify-center items-center space-x-2">
-          <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          <p className="text-muted-foreground">{t('loadingInsights')}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
-      {mappedInsights && mappedInsights.length > 0 ? (
+      {isLoading ? (
+        <div className="glass-card p-6 text-center">
+          <div className="flex justify-center items-center space-x-2">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <p className="text-muted-foreground">{t('loadingInsights')}</p>
+          </div>
+        </div>
+      ) : mappedInsights && mappedInsights.length > 0 ? (
         <AIInsights 
           insights={mappedInsights}
           showSource={false}

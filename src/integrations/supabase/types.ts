@@ -3807,7 +3807,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      user_is_healthcare_provider: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       user_is_medical_staff: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      user_is_practitioner: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }

@@ -18,9 +18,10 @@ const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
   const { t } = useTranslation();
   const { insights, isLoading } = usePatientInsights(patientId, ['medications']);
   
-  // Filter only medication-related insights
+  // Filter only medication-related insights that match the current medication
   const medicationInsights = insights.filter(insight => 
-    insight.category === 'medications'
+    insight.category === 'medications' && 
+    (!insight.metadata?.id || insight.metadata.id === medicationId)
   );
 
   if (isLoading) {
@@ -41,7 +42,7 @@ const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
   }
 
   if (medicationInsights.length === 0) {
-    return null; // Don't show section if no insights
+    return null; // Don't show section if no insights for this specific medication
   }
 
   return (
