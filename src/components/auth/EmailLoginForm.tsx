@@ -174,7 +174,7 @@ const EmailLoginForm = ({
             <p>admin@omnicare.com</p>
             <p>doctor@omnicare.com</p>
             <p>nurse@omnicare.com</p>
-            <p className="mt-1">{language === 'pt' ? 'Senha: any' : 'Password: any'}</p>
+            <p className="mt-1">{language === 'pt' ? 'Senha: password123' : 'Password: password123'}</p>
           </div>
         )}
       </div>

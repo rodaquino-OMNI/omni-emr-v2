@@ -1,10 +1,11 @@
+
 import { User } from '@/types/auth';
 
 // Fix the date values to be proper Date objects
 export const mockUsers = [
   {
     id: '1',
-    email: 'doctor.smith@example.com',
+    email: 'doctor@omnicare.com',
     name: 'Dr. John Smith',
     role: 'doctor',
     permissions: ['patients:read', 'patients:write', 'prescriptions:write'],
@@ -13,7 +14,7 @@ export const mockUsers = [
   },
   {
     id: '2',
-    email: 'nurse.jane@example.com',
+    email: 'nurse@omnicare.com',
     name: 'Jane Doe',
     role: 'nurse',
     permissions: ['patients:read', 'vitals:write', 'medications:administer'],
@@ -22,7 +23,7 @@ export const mockUsers = [
   },
   {
     id: '3',
-    email: 'pharmacist.robert@example.com',
+    email: 'pharmacist@omnicare.com',
     name: 'Robert Lee',
     role: 'pharmacist',
     permissions: ['medications:read', 'medications:write', 'prescriptions:process'],
@@ -31,7 +32,7 @@ export const mockUsers = [
   },
   {
     id: '4',
-    email: 'admin.susan@example.com',
+    email: 'admin@omnicare.com',
     name: 'Susan Green',
     role: 'admin',
     permissions: ['all'],
@@ -40,7 +41,7 @@ export const mockUsers = [
   },
   {
     id: '5',
-    email: 'patient.mark@example.com',
+    email: 'patient@omnicare.com',
     name: 'Mark Johnson',
     role: 'patient',
     permissions: ['self:read', 'appointments:read'],

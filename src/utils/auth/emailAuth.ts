@@ -15,6 +15,11 @@ export const signInWithEmail = async (email: string, password: string) => {
     const mockUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
     
     if (mockUser) {
+      // For demo accounts, check if password is 'password123'
+      if (password !== 'password123') {
+        throw new Error('Invalid password for demo account');
+      }
+      
       // Return mock user data for demo purposes
       return {
         user: mockUser,
