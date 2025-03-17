@@ -35,7 +35,9 @@ export function usePatientPrescriptions(patientId?: string) {
       })) as Prescription[];
     },
     {
-      enabled: !!patientId
+      enabled: !!patientId,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
     }
   );
 }
