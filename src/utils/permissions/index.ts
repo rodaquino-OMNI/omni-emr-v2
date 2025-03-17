@@ -19,6 +19,15 @@ export {
   canDocumentMedicalDecisionMaking
 };
 
+// Re-export clinical workflow permissions
+export { 
+  canPerformEmergencyCare,
+  canPerformCareCoordination,
+  canPerformTelemedicine,
+  canManageFluidBalance,
+  canPerformTriageAssessment
+} from './clinicalWorkflows';
+
 // This file is the central location for permission-related functions
 // New permissions should be added here as needed
 
@@ -37,28 +46,4 @@ export const hasPermission = (user: any, permission: string): boolean => {
 export const getUserPermissions = (user: any): string[] => {
   if (!user) return [];
   return user.permissions || [];
-};
-
-// Emergency care permissions
-export const canPerformEmergencyCare = (user: any): boolean => {
-  if (!user) return false;
-  return ['doctor', 'nurse', 'emergency_staff'].includes(user.role);
-};
-
-// Care coordination permissions
-export const canPerformCareCoordination = (user: any): boolean => {
-  if (!user) return false;
-  return ['doctor', 'nurse', 'care_coordinator'].includes(user.role);
-};
-
-// Telemedicine permissions
-export const canPerformTelemedicine = (user: any): boolean => {
-  if (!user) return false;
-  return ['doctor', 'nurse', 'specialist'].includes(user.role);
-};
-
-// Fluid balance permissions
-export const canManageFluidBalance = (user: any): boolean => {
-  if (!user) return false;
-  return ['doctor', 'nurse'].includes(user.role);
 };

@@ -92,8 +92,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
   }
   
-  // Use route permissions hook to handle redirects and permission checks
-  const { isRootOrDashboard, hasPermission } = useRoutePermissions(requiredPermission);
+  // Use route permissions hook to check permissions
+  const { isRootOrDashboard, hasRequired } = useRoutePermissions({
+    user,
+    requiredPermission,
+    requiredRole
+  });
   
   // Check if the current route is the root or dashboard and user has no selected sector
   // Redirect to sector selection if so
@@ -105,8 +109,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/sectors" replace />;
   }
   
-  // If required permission is specified and user doesn't have it,
-  // the useRoutePermissions hook will redirect to unauthorized page
+  // If user doesn't have required permission or role, redirect to unauthorized
+  if (!hasRequired) {
+    return <Navigate to="/unauthorized" replace />;
+  }
   
   // Display HIPAA banner for patients if applicable
   const displayHipaaBanner = user?.role === 'patient';

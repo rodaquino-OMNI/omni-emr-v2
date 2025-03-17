@@ -1,23 +1,45 @@
 
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import { useLocation } from 'react-router-dom';
+import { User } from '@/types/auth';
 
-export const useRoutePermissions = (requiredPermission?: string) => {
+interface UseRoutePermissionsProps {
+  user: User | null;
+  requiredPermission?: string;
+  requiredRole?: string;
+}
+
+export const useRoutePermissions = ({
+  user,
+  requiredPermission,
+  requiredRole
+}: UseRoutePermissionsProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const auth = useAuth();
   
-  // Check if the current route is the root or dashboard
+  // Check if current route is dashboard or root
   const isRootOrDashboard = location.pathname === '/' || location.pathname === '/dashboard';
   
-  // Check if the user has the required permission
-  const hasPermission = requiredPermission ? auth.hasPermission(requiredPermission) : true;
+  // Check if user has the required permission
+  const hasPermission = () => {
+    if (!requiredPermission || !user) return true;
+    
+    // Admin has all permissions
+    if (user.role === 'admin' || user.role === 'system_administrator') return true;
+    
+    // Check user permissions
+    return user.permissions?.includes(requiredPermission) || user.permissions?.includes('all') || false;
+  };
   
-  // If the user doesn't have permission, redirect to unauthorized page
-  if (requiredPermission && !hasPermission) {
-    navigate('/unauthorized', { replace: true });
-    return { isRootOrDashboard: false, hasPermission: false };
-  }
+  // Check if user has the required role
+  const hasRole = () => {
+    if (!requiredRole || !user) return true;
+    return user.role === requiredRole;
+  };
   
-  return { isRootOrDashboard, hasPermission };
+  // User must have both the required permission and role if specified
+  const hasRequired = hasPermission() && hasRole();
+
+  return {
+    isRootOrDashboard,
+    hasRequired
+  };
 };

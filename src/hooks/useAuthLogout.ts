@@ -69,6 +69,14 @@ export const useAuthLogout = (
       // Still attempt to clear session on frontend even if server logout fails
       setUser(null);
       setSession(null);
+      
+      // Still clear sector context even if logout fails
+      if (sectorContext && sectorContext.selectSector) {
+        sectorContext.selectSector(null);
+      }
+      
+      // Still clear local storage even if logout fails
+      localStorage.removeItem('selectedSector');
     }
   }, [user, language, setUser, setSession, sectorContext]);
 
