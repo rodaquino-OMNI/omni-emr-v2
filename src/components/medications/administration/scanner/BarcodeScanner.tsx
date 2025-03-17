@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { QrCode, Camera, Shield, User, Pill, AlertTriangle } from 'lucide-react';
@@ -7,7 +7,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 
 interface BarcodeScannerProps {
-  onCapture: (type?: 'patient' | 'medication') => void;
+  onScan: (type?: 'patient' | 'medication') => void;
+  onError: (error: string) => void;
   patientScanned: boolean;
   medicationScanned: boolean;
   error: string | null;
@@ -15,7 +16,8 @@ interface BarcodeScannerProps {
 }
 
 const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
-  onCapture,
+  onScan,
+  onError,
   patientScanned,
   medicationScanned,
   error,
@@ -35,15 +37,19 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
     }
     
     return () => {
-      if (videoRef.current) {
-        const videoElement = videoRef.current;
-        if (videoElement.srcObject) {
-          const tracks = (videoElement.srcObject as MediaStream).getTracks();
-          tracks.forEach(track => track.stop());
-        }
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach(track => track.stop());
+        videoRef.current.srcObject = null;
       }
     };
   }, [scanning]);
+  
+  useEffect(() => {
+    if (scanning) {
+      initCamera();
+    }
+  }, [scanning, initCamera]);
   
   const initCamera = async () => {
     if (!navigator.mediaDevices || !videoRef.current) {
@@ -60,11 +66,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
       }
     } catch (err) {
       console.error('Error accessing camera:', err);
-      toast({
-        title: t('Error'),
-        description: t('cameraAccessDenied'),
-        variant: "destructive"
-      });
+      onError(t('cameraAccessDenied'));
     }
   };
   
@@ -79,7 +81,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        onCapture();
+        onScan();
       }
     }
   };
@@ -158,7 +160,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
       <div className="grid grid-cols-2 gap-4 mt-2">
         <Button 
           variant={patientScanned ? "default" : "outline"}
-          onClick={() => onCapture('patient')}
+          onClick={() => onScan('patient')}
           disabled={patientScanned}
           className={`${patientScanned ? "bg-green-600 hover:bg-green-700 text-white" : ""} h-14 rounded-lg shadow-sm transition-all duration-200`}
         >
@@ -175,7 +177,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         </Button>
         <Button 
           variant={medicationScanned ? "default" : "outline"}
-          onClick={() => onCapture('medication')}
+          onClick={() => onScan('medication')}
           disabled={medicationScanned}
           className={`${medicationScanned ? "bg-green-600 hover:bg-green-700 text-white" : ""} h-14 rounded-lg shadow-sm transition-all duration-200`}
         >

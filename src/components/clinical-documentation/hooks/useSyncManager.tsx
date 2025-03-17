@@ -1,106 +1,89 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/useTranslation';
-import { offlineStorage } from '@/services/clinicalNotes/offlineStorage';
-import { noteService } from '@/services/clinicalNotes/noteService';
+import { ClinicalNote } from '@/types/clinicalNotes';
 
-export const useSyncManager = () => {
+interface SyncManagerOptions {
+  onSyncSuccess?: (notes: ClinicalNote[]) => void;
+  onSyncError?: (error: Error) => void;
+  autoSync?: boolean;
+  syncInterval?: number;
+  userId?: string;
+}
+
+export const useSyncManager = (options: SyncManagerOptions) => {
+  const { user } = useAuth();
   const { language } = useTranslation();
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
-  const [syncQueue, setSyncQueue] = useState<string[]>([]);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  // Update online status
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  // Update sync queue from localStorage
-  useEffect(() => {
-    const queue = offlineStorage.getSyncQueue();
-    setSyncQueue(queue);
-  }, [isOnline]);
-
-  // Try to sync whenever we come back online
-  useEffect(() => {
-    if (isOnline && syncQueue.length > 0) {
-      syncNotes();
-    }
-  }, [isOnline, syncQueue]);
-
-  // Periodic sync attempt (every 5 minutes)
-  useEffect(() => {
-    const syncInterval = setInterval(() => {
-      if (isOnline && syncQueue.length > 0) {
-        syncNotes();
-      }
-    }, 5 * 60 * 1000); // 5 minutes
-
-    return () => clearInterval(syncInterval);
-  }, [isOnline, syncQueue]);
-
+  const userId = options.userId || user?.id;
+  const autoSync = options.autoSync !== false;
+  const syncInterval = options.syncInterval || 60000; // Default to 1 minute
+  
+  // Wrap syncNotes in useCallback
   const syncNotes = useCallback(async () => {
-    if (isSyncing || !isOnline || syncQueue.length === 0) return;
-
-    setIsSyncing(true);
+    if (!userId) {
+      console.warn('Cannot sync notes: No user ID provided');
+      return;
+    }
+    
     try {
-      const result = await noteService.syncOfflineNotes();
-      setLastSyncTime(new Date());
-      
-      // Update the queue
-      const updatedQueue = offlineStorage.getSyncQueue();
-      setSyncQueue(updatedQueue);
-      
-      if (result.success > 0) {
-        toast({
-          title: language === 'pt' ? 'Sincronização concluída' : 'Synchronization completed',
-          description: language === 'pt'
-            ? `${result.success} nota(s) sincronizada(s) com sucesso.`
-            : `${result.success} note(s) successfully synchronized.`,
-          variant: 'success'
-        });
+      // Fetch notes from the server
+      const { data, error } = await supabase
+        .from('clinical_notes')
+        .select('*')
+        .eq('created_by_id', userId);
+        
+      if (error) {
+        throw error;
       }
       
-      if (result.failed > 0) {
-        toast({
-          title: language === 'pt' ? 'Sincronização parcial' : 'Partial synchronization',
-          description: language === 'pt'
-            ? `${result.failed} nota(s) não puderam ser sincronizadas e serão tentadas novamente.`
-            : `${result.failed} note(s) could not be synchronized and will be retried.`,
-          variant: 'error'
-        });
+      if (options.onSyncSuccess) {
+        options.onSyncSuccess(data as ClinicalNote[]);
       }
+      
+      return data;
     } catch (error) {
       console.error('Error syncing notes:', error);
-      toast({
-        title: language === 'pt' ? 'Erro de sincronização' : 'Synchronization error',
-        description: language === 'pt'
-          ? 'Ocorreu um erro ao sincronizar as notas. Tentaremos novamente mais tarde.'
-          : 'An error occurred while synchronizing notes. We will try again later.',
-        variant: 'error'
-      });
-    } finally {
-      setIsSyncing(false);
+      
+      if (options.onSyncError) {
+        options.onSyncError(error as Error);
+      }
+      
+      toast.error(
+        language === 'pt' ? 'Erro ao sincronizar notas' : 'Error syncing notes',
+        {
+          description: language === 'pt' 
+            ? 'Não foi possível sincronizar suas notas clínicas' 
+            : 'Could not sync your clinical notes'
+        }
+      );
     }
-  }, [isSyncing, isOnline, syncQueue, language]);
+  }, [userId, options, language]);
 
+  // Set up automatic sync on component mount
+  useEffect(() => {
+    if (autoSync) {
+      syncNotes();
+    }
+  }, [autoSync, syncNotes]);
+  
+  // Set up interval for periodic sync
+  useEffect(() => {
+    if (!autoSync) return;
+    
+    const intervalId = setInterval(() => {
+      syncNotes();
+    }, syncInterval);
+    
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [autoSync, syncInterval, syncNotes]);
+  
   return {
-    isSyncing,
-    isOnline,
-    syncQueue,
-    lastSyncTime,
     syncNotes,
-    pendingCount: syncQueue.length
+    // Add more functions as needed for manual sync operations
+    forceSyncNotes: syncNotes,
   };
 };

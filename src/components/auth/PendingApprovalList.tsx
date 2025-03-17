@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -24,20 +24,18 @@ interface SupabaseError {
   code?: string;
 }
 
-const PendingApprovalList = () => {
+const PendingApprovalList: React.FC = () => {
   const { language } = useTranslation();
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingUser, setProcessingUser] = useState<string | null>(null);
   
-  // Clinical roles that require approval
   const clinicalRoles: UserRole[] = ['doctor', 'nurse', 'specialist', 'pharmacist', 'lab_technician', 'radiology_technician'];
   
-  const fetchPendingUsers = async () => {
+  const fetchPendingUsers = useCallback(async () => {
     setLoading(true);
     
     try {
-      // Fetch users where approval_status is 'pending'
       const { data, error } = await supabase
         .from('profiles')
         .select('id, email, name, role, created_at')
@@ -46,7 +44,6 @@ const PendingApprovalList = () => {
       
       if (error) throw error;
       
-      // Type assertion to ensure correct typing of role
       const typedData = data?.map(user => ({
         ...user,
         role: user.role as UserRole
@@ -63,7 +60,7 @@ const PendingApprovalList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [language]);
   
   useEffect(() => {
     fetchPendingUsers();
@@ -73,7 +70,6 @@ const PendingApprovalList = () => {
     setProcessingUser(userId);
     
     try {
-      // Update the user's approval status
       const { error } = await supabase
         .from('profiles')
         .update({ approval_status: 'approved' })
@@ -81,7 +77,6 @@ const PendingApprovalList = () => {
       
       if (error) throw error;
       
-      // Remove user from pending list
       setPendingUsers(pendingUsers.filter(user => user.id !== userId));
       
       toast.success(
@@ -104,7 +99,6 @@ const PendingApprovalList = () => {
     setProcessingUser(userId);
     
     try {
-      // Update the user's approval status
       const { error } = await supabase
         .from('profiles')
         .update({ approval_status: 'rejected' })
@@ -112,7 +106,6 @@ const PendingApprovalList = () => {
       
       if (error) throw error;
       
-      // Remove user from pending list
       setPendingUsers(pendingUsers.filter(user => user.id !== userId));
       
       toast.success(

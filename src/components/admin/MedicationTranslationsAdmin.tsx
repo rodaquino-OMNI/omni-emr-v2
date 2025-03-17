@@ -74,7 +74,7 @@ const MedicationTranslationsAdmin: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [language]);
+  }, []);
   
   useEffect(() => {
     fetchTranslations();

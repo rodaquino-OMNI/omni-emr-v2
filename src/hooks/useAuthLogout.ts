@@ -13,13 +13,8 @@ export const useAuthLogout = (
   setSession: (session: Session | null) => void,
   language: Languages
 ) => {
-  // Get sector context to clear it on logout
-  let sectorContext;
-  try {
-    sectorContext = useSectorContext();
-  } catch (error) {
-    console.error("Error accessing sector context in logout hook:", error);
-  }
+  // Get sector context always, not conditionally
+  const sectorContext = useSectorContext();
 
   const handleLogout = useCallback(async () => {
     try {

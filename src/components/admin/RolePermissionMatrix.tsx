@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import {
@@ -117,7 +116,7 @@ const RolePermissionMatrix: React.FC = () => {
     };
 
     fetchData();
-  }, [fetchRoles, fetchPermissions, fetchRolePermissions, roles]);
+  }, [roleTypes, roles]); // Add roles as a dependency
 
   const isPermissionAssigned = (roleId: string, permissionId: string): boolean => {
     return rolePermissions.some(
@@ -164,6 +163,13 @@ const RolePermissionMatrix: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const showSuccess = () => {
+    toast({
+      variant: "success",
+      description: "Permissions saved successfully"
+    });
   };
 
   return (

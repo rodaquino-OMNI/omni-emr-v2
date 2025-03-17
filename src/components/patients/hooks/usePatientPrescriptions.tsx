@@ -1,61 +1,71 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { extractTextFromCodeableConcept } from '@/utils/fhir/fhirExtractors';
-import { useFetchPrescriptionData } from './useFetchPrescriptionData';
-import { useProcessPrescriptionData } from './useProcessPrescriptionData';
+import { useTranslation } from '@/hooks/useTranslation';
+import { toast } from 'sonner';
+
+// Renamed to avoid React hooks naming conflict
+export const fetchPatientPrescriptions = async (patientId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('prescriptions')
+      .select('*')
+      .eq('patient_id', patientId);
+      
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching patient prescriptions:', error);
+    return [];
+  }
+};
 
 export const usePatientPrescriptions = (patientId: string) => {
+  const { language } = useTranslation();
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [dataStats, setDataStats] = useState<{
-    fhirCount: number,
-    legacyCount: number,
-    totalCount: number,
-    hasDualSources: boolean
-  } | null>(null);
-  
-  const { fetchFHIRData, fetchLegacyData } = useFetchPrescriptionData();
-  const { transformFHIRData, transformLegacyData } = useProcessPrescriptionData();
+  const [loading, setLoading] = useState(true);
+  const [dataStats, setDataStats] = useState({
+    fhirCount: 0,
+    legacyCount: 0,
+    totalCount: 0,
+    hasDualSources: false
+  });
   
   useEffect(() => {
     const fetchPrescriptions = async () => {
-      if (!patientId) return;
+      if (!patientId) {
+        setLoading(false);
+        return;
+      }
       
       setLoading(true);
+      
       try {
-        const fhirData = await fetchFHIRData(patientId);
-        const legacyData = await fetchLegacyData(patientId);
+        // Use the renamed function
+        const data = await fetchPatientPrescriptions(patientId);
         
-        const fhirCount = fhirData.length;
-        const legacyCount = legacyData.length;
-        const totalCount = fhirCount + legacyCount;
-        const hasDualSources = fhirCount > 0 && legacyCount > 0;
+        setPrescriptions(data);
+        
+        // Calculate data statistics
+        const fhirPrescriptions = data.filter(p => p.fhir_id);
+        const legacyPrescriptions = data.filter(p => !p.fhir_id);
         
         setDataStats({
-          fhirCount,
-          legacyCount,
-          totalCount,
-          hasDualSources
+          fhirCount: fhirPrescriptions.length,
+          legacyCount: legacyPrescriptions.length,
+          totalCount: data.length,
+          hasDualSources: fhirPrescriptions.length > 0 && legacyPrescriptions.length > 0
         });
-        
-        let combinedData: any[] = [];
-        
-        if (fhirCount > 0) {
-          const transformedFhirData = transformFHIRData(fhirData);
-          
-          if (legacyCount > 0) {
-            const transformedLegacyData = transformLegacyData(legacyData);
-            combinedData = [...transformedFhirData, ...transformedLegacyData];
-          } else {
-            combinedData = transformedFhirData;
-          }
-        } else if (legacyCount > 0) {
-          combinedData = transformLegacyData(legacyData);
-        }
-        
-        setPrescriptions(combinedData);
       } catch (error) {
-        console.error('Error fetching prescriptions:', error);
+        console.error('Error in usePatientPrescriptions:', error);
+        toast.error(
+          language === 'pt' 
+            ? 'Erro ao buscar prescrições' 
+            : 'Error fetching prescriptions'
+        );
         setPrescriptions([]);
       } finally {
         setLoading(false);
@@ -63,17 +73,7 @@ export const usePatientPrescriptions = (patientId: string) => {
     };
     
     fetchPrescriptions();
-  }, [patientId, fetchFHIRData, fetchLegacyData, transformFHIRData, transformLegacyData]);
+  }, [patientId, language]);
   
   return { prescriptions, loading, dataStats };
-};
-
-export const fetchPatientPrescriptions = async (patientId: string) => {
-  try {
-    const { prescriptions } = usePatientPrescriptions(patientId);
-    return prescriptions;
-  } catch (error) {
-    console.error('Error in fetchPatientPrescriptions:', error);
-    return [];
-  }
 };

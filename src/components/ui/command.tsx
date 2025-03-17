@@ -1,3 +1,4 @@
+
 import * as React from "react";
 
 export type CommandProps = React.HTMLAttributes<HTMLDivElement>;
@@ -24,7 +25,8 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
-interface CommandDialogProps extends DialogProps {}
+// Changed from interface to type extension
+export type CommandDialogProps = DialogProps;
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (
