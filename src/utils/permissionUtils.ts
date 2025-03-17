@@ -6,7 +6,9 @@ import {
   canPerformMedicationAction,
   canPerformClinicalDocumentation,
   canPerformClinicalAssessment,
-  canDocumentMedicalDecisionMaking
+  canDocumentMedicalDecisionMaking,
+  hasPermission as permissionCheck,
+  getUserPermissions as getPermissions
 } from './permissions/index';
 
 // Re-export the hasPermission function for general use

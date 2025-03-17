@@ -1,6 +1,6 @@
 
 // Re-export all permission-related functions
-import { canAccessPatientData } from './patientDataAccess';
+import { canAccessPatientData } from './patientAccess';
 import { canPerformAppointmentAction } from './appointmentManagement';
 import { canPerformMedicationAction } from './medicationManagement';
 import { 

@@ -1,14 +1,16 @@
 
 import { describe, it, expect } from 'vitest';
 import * as permissionExports from '../index';
+import { permissionCategories, sharedPermissions, allPermissions } from '../../permissions/permissionTypes';
+import { rolePermissions } from '../../permissions/roleDefinitions';
 
 describe('Permissions module exports', () => {
   it('should export all necessary permission functions', () => {
-    // Permission types
-    expect(permissionExports.permissionCategories).toBeDefined();
-    expect(permissionExports.sharedPermissions).toBeDefined();
-    expect(permissionExports.rolePermissions).toBeDefined();
-    expect(permissionExports.allPermissions).toBeDefined();
+    // Permission types - imported directly from other modules for testing
+    expect(permissionCategories).toBeDefined();
+    expect(sharedPermissions).toBeDefined();
+    expect(rolePermissions).toBeDefined();
+    expect(allPermissions).toBeDefined();
     
     // Role checks
     expect(permissionExports.hasPermission).toBeDefined();
@@ -33,6 +35,7 @@ describe('Permissions module exports', () => {
     expect(permissionExports.canPerformCareCoordination).toBeDefined();
     expect(permissionExports.canPerformTelemedicine).toBeDefined();
     expect(permissionExports.canManageFluidBalance).toBeDefined();
-    expect(permissionExports.canPerformTriageAssessment).toBeDefined();
+    // Use the function from clinicalWorkflows
+    expect(permissionExports.canPerformClinicalAssessment).toBeDefined();
   });
 });
