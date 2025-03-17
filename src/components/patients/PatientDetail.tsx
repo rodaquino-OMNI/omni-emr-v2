@@ -14,6 +14,7 @@ import { usePatientPrescriptions } from './hooks/usePatientPrescriptions';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { adaptInsightsForPatientDetail } from './utils/patientDetailAdapter';
 
 type PatientDetailProps = {
   patientId: string;
@@ -28,10 +29,13 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
   
   const patient = samplePatients.find(p => p.id === patientId);
   
-  const { insights, isLoading } = useAIInsights(
+  const { insights: componentInsights, isLoading } = useAIInsights(
     patientId, 
     ['vitals', 'labs', 'medications', 'tasks', 'general']
   );
+  
+  // Convert component insights to PatientAIInsight format
+  const insights = adaptInsightsForPatientDetail(componentInsights);
   
   const { prescriptions, loading: prescriptionsLoading } = usePatientPrescriptions(patientId);
   
@@ -48,7 +52,7 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
     );
   }
 
-  const criticalInsights = insights.filter(insight => insight.type === 'critical');
+  const criticalInsights = componentInsights.filter(insight => insight.type === 'critical');
   const hasCriticalInsights = criticalInsights.length > 0;
 
   return (
@@ -101,7 +105,7 @@ const PatientDetail = ({ patientId, className }: PatientDetailProps) => {
           <TabsContent value="ai-insights" className="space-y-6">
             <PatientAIInsightsTab 
               insights={insights} 
-              loading={isLoading} 
+              isLoading={isLoading} 
             />
           </TabsContent>
         )}

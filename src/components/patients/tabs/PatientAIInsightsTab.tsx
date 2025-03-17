@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AIInsight } from '@/types/patient';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { usePatientInsights } from '@/hooks/usePatientInsights'; 
+import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
 
 interface PatientAIInsightsTabProps {
   patientId?: string;
@@ -41,10 +43,11 @@ export const PatientAIInsightsTab: React.FC<PatientAIInsightsTabProps> = ({
   
   // Group insights by category
   const groupedInsights = insights.reduce((acc, insight) => {
-    if (!acc[insight.category]) {
-      acc[insight.category] = [];
+    const category = insight.category || 'General';
+    if (!acc[category]) {
+      acc[category] = [];
     }
-    acc[insight.category].push(insight);
+    acc[category].push(insight);
     return acc;
   }, {} as Record<string, AIInsight[]>);
   

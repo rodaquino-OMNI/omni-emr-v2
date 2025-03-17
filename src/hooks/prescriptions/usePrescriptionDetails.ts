@@ -27,14 +27,25 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
         const typedData: Prescription = {
           id: data.id,
           patient_id: data.patientId,
-          patientName: data.patientName,
           provider_id: data.doctorId,
-          doctorName: data.doctorName,
-          date: data.date,
           status: data.status as 'active' | 'completed' | 'cancelled',
           notes: data.notes,
-          items: data.items
+          created_at: data.date,
+          items: data.items.map(item => ({
+            id: item.id,
+            prescription_id: data.id,
+            name: item.name,
+            type: item.type,
+            dosage: item.dosage,
+            frequency: item.frequency,
+            duration: item.duration,
+            start_date: item.startDate,
+            end_date: item.endDate,
+            status: item.status,
+            instructions: item.instructions
+          }))
         };
+        
         setPrescription(typedData);
       } catch (err: any) {
         console.error('Error fetching prescription details:', err);

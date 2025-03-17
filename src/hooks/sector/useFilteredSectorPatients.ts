@@ -1,16 +1,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { SectorPatient } from '@/types/sector';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useSectorContext } from '@/hooks/useSectorContext';
+import { InitialFilterOptions } from '@/types/patientTypes';
 
-export interface InitialFilterOptions {
-  statusFilter?: string;
-  searchTerm?: string;
-  assignmentFilter?: 'all' | 'assigned' | 'unassigned';
-  sortBy?: 'name' | 'status' | 'room' | 'date';
-  sortDirection?: 'asc' | 'desc';
-  pageSize?: number;
-  page?: number;
-}
+export type PatientAssignmentFilter = 'all' | 'assigned' | 'unassigned';
+export type PatientSortField = 'name' | 'status' | 'room' | 'dateAdded' | 'updatedAt';
+export type SortDirection = 'asc' | 'desc';
 
 export interface Pagination {
   currentPage: number;
@@ -19,121 +15,162 @@ export interface Pagination {
   pageSize: number;
 }
 
+export interface SectorPatient {
+  id: string;
+  name: string;
+  status: string;
+  roomNumber?: string;
+  mrn: string;
+  isAssigned: boolean;
+  dateAdded: string;
+  lastUpdated: string;
+}
+
 export const useFilteredSectorPatients = (
-  patients: SectorPatient[],
   initialOptions: InitialFilterOptions = {}
 ) => {
-  // State for filters
-  const [statusFilter, setStatusFilter] = useState(initialOptions.statusFilter || 'all');
-  const [searchTerm, setSearchTerm] = useState(initialOptions.searchTerm || '');
-  const [assignmentFilter, setAssignmentFilter] = useState(initialOptions.assignmentFilter || 'all');
-  const [sortBy, setSortBy] = useState(initialOptions.sortBy || 'name');
-  const [sortDirection, setSortDirection] = useState(initialOptions.sortDirection || 'asc');
-  const [page, setPage] = useState(initialOptions.page || 1);
-  const pageSize = initialOptions.pageSize || 10;
+  const { t } = useTranslation();
+  const { selectedSector, patientsInSector, isLoading: sectorLoading } = useSectorContext();
   
-  // Reset page when filters change
+  // Setup state for filters and pagination
+  const [statusFilter, setStatusFilter] = useState(initialOptions.status || 'all');
+  const [assignmentFilter, setAssignmentFilter] = useState<PatientAssignmentFilter>('all');
+  const [searchQuery, setSearchQuery] = useState(initialOptions.searchTerm || '');
+  const [sortBy, setSortBy] = useState<PatientSortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  
+  // Reset pagination when filters change
   useEffect(() => {
-    setPage(1);
-  }, [statusFilter, searchTerm, assignmentFilter, sortBy, sortDirection]);
+    setCurrentPage(1);
+  }, [statusFilter, assignmentFilter, searchQuery, sortBy, sortDirection]);
   
-  // Filter and sort patients
+  // Get filtered and sorted patients
   const filteredPatients = useMemo(() => {
-    let result = [...patients];
+    // Start with all patients in sector
+    let result = [...(patientsInSector || [])];
     
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      result = result.filter(patient => patient.status === statusFilter);
+    // Filter by status
+    if (statusFilter && statusFilter !== 'all') {
+      result = result.filter(patient => patient.status.toLowerCase() === statusFilter.toLowerCase());
     }
     
-    // Apply assignment filter
-    if (assignmentFilter === 'assigned') {
-      result = result.filter(patient => patient.is_assigned);
-    } else if (assignmentFilter === 'unassigned') {
-      result = result.filter(patient => !patient.is_assigned);
-    }
-    
-    // Apply search filter
-    if (searchTerm) {
-      const lowercaseSearch = searchTerm.toLowerCase();
+    // Filter by assignment
+    if (assignmentFilter !== 'all') {
       result = result.filter(patient => 
-        `${patient.first_name} ${patient.last_name}`.toLowerCase().includes(lowercaseSearch) ||
-        patient.mrn?.toLowerCase().includes(lowercaseSearch)
+        assignmentFilter === 'assigned' ? patient.isAssigned : !patient.isAssigned
       );
     }
     
-    // Apply sorting
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(patient =>
+        patient.name.toLowerCase().includes(query) ||
+        patient.mrn.toLowerCase().includes(query) ||
+        (patient.roomNumber && patient.roomNumber.toLowerCase().includes(query))
+      );
+    }
+    
+    // Sort patients
     result.sort((a, b) => {
       let comparison = 0;
       
       switch (sortBy) {
         case 'name':
-          comparison = `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
+          comparison = a.name.localeCompare(b.name);
           break;
         case 'status':
           comparison = a.status.localeCompare(b.status);
           break;
         case 'room':
-          comparison = (a.room_number || '').localeCompare(b.room_number || '');
+          const roomA = a.roomNumber || '';
+          const roomB = b.roomNumber || '';
+          comparison = roomA.localeCompare(roomB);
           break;
-        case 'date':
-          comparison = new Date(a.date_of_birth).getTime() - new Date(b.date_of_birth).getTime();
+        case 'dateAdded':
+          comparison = new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime();
           break;
-        default:
-          comparison = 0;
+        case 'updatedAt':
+          comparison = new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime();
+          break;
       }
       
       return sortDirection === 'asc' ? comparison : -comparison;
     });
     
     return result;
-  }, [patients, statusFilter, searchTerm, assignmentFilter, sortBy, sortDirection]);
+  }, [patientsInSector, statusFilter, assignmentFilter, searchQuery, sortBy, sortDirection]);
   
-  // Calculate pagination
-  const pagination: Pagination = useMemo(() => {
-    const totalItems = filteredPatients.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    const validPage = Math.min(Math.max(1, page), totalPages);
-    
-    if (page !== validPage) {
-      setPage(validPage);
-    }
-    
-    return {
-      currentPage: validPage,
-      totalPages,
-      totalItems,
-      pageSize
-    };
-  }, [filteredPatients.length, page, pageSize]);
-  
-  // Get current page data
-  const displayedPatients = useMemo(() => {
-    const startIndex = (pagination.currentPage - 1) * pagination.pageSize;
-    const endIndex = startIndex + pagination.pageSize;
+  // Paginate the results
+  const paginatedPatients = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
     return filteredPatients.slice(startIndex, endIndex);
-  }, [filteredPatients, pagination]);
+  }, [filteredPatients, currentPage, pageSize]);
   
-  // Navigation function
+  // Calculate pagination metadata
+  const pagination: Pagination = useMemo(() => ({
+    currentPage,
+    totalPages: Math.max(1, Math.ceil(filteredPatients.length / pageSize)),
+    totalItems: filteredPatients.length,
+    pageSize
+  }), [filteredPatients.length, currentPage, pageSize]);
+  
+  // Navigation helpers
   const goToPage = (newPage: number) => {
-    const validPage = Math.min(Math.max(1, newPage), pagination.totalPages);
-    setPage(validPage);
+    const clampedPage = Math.max(1, Math.min(newPage, pagination.totalPages));
+    setCurrentPage(clampedPage);
+  };
+  
+  const nextPage = () => {
+    if (currentPage < pagination.totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+  
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+  
+  // Filter options for UI
+  const filterOptions = {
+    status: [
+      { value: 'all', label: t('all') },
+      { value: 'active', label: t('active') },
+      { value: 'critical', label: t('critical') },
+      { value: 'stable', label: t('stable') },
+      { value: 'discharged', label: t('discharged') }
+    ],
+    assignment: [
+      { value: 'all', label: t('allPatients') },
+      { value: 'assigned', label: t('assignedToMe') },
+      { value: 'unassigned', label: t('unassigned') }
+    ]
   };
   
   return {
-    displayedPatients,
+    displayedPatients: paginatedPatients,
+    filteredPatients,
     pagination,
     statusFilter,
     setStatusFilter,
-    searchTerm,
-    setSearchTerm,
     assignmentFilter,
-    setAssignmentFilter,
+    setAssignmentFilter: setAssignmentFilter as (value: string) => void,
+    searchQuery,
+    setSearchQuery,
     sortBy,
     setSortBy,
     sortDirection,
     setSortDirection,
-    setPage,
-    goToPage
+    nextPage,
+    prevPage,
+    goToPage,
+    isLoading: sectorLoading,
+    filterOptions,
+    setPageSize
   };
 };

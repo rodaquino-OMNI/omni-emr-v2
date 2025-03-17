@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Info, AlertTriangle } from 'lucide-react';
 
@@ -89,7 +89,7 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
     normalRange: [60, 100],
     normalSystolic: [90, 120],
     normalDiastolic: [60, 80],
-    domain: [0, 'auto']
+    domain: [0, 'auto'] as [number, 'auto'] // Fixed type by explicit casting
   };
   
   const formatYAxis = (value: number) => {

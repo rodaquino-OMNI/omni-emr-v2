@@ -242,7 +242,7 @@ const VisitNoteDetail: React.FC<VisitNoteDetailProps> = ({ id: propId }) => {
           {visitNote.vital_signs && Array.isArray(visitNote.vital_signs) && visitNote.vital_signs.length > 0 ? (
             <Card>
               <CardContent className="pt-6">
-                <VitalSignsDisplay vitalSigns={visitNote.vital_signs[0]} />
+                <VitalSignsDisplay vitals={visitNote.vital_signs[0]} />
               </CardContent>
             </Card>
           ) : (
