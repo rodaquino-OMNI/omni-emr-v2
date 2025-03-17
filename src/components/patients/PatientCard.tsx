@@ -1,187 +1,114 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, AlertTriangle, User, UserPlus, UserMinus, Clock, CircleX, HeartPulse } from 'lucide-react';
-import StatusBadge from '@/components/ui/StatusBadge';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Link } from 'react-router-dom';
+import { UserCircle, UserPlus, UserMinus, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import TranslatedText from '@/components/common/TranslatedText';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { PatientStatus } from '@/types/patientTypes';
 
-// Export the Patient type so it can be imported in other files
-export interface Patient {
-  id: string;
-  name: string;
-  age: number;
-  gender: string;
-  roomNumber?: string | null;
-  status: PatientStatus;
-  isAssigned: boolean;
-  isCritical?: boolean;
-  mrn: string;
-  diagnosis?: string;
-  lastUpdated?: string;
-  alerts?: Array<{
-    type: 'critical' | 'warning' | 'info';
-    message: string;
-  }>;
-  onToggleAssignment?: (e: React.MouseEvent) => void;
+interface PatientCardProps {
+  patient: {
+    id: string;
+    name: string;
+    age: number;
+    gender: string;
+    roomNumber?: string;
+    status: any;
+    isAssigned?: boolean;
+    isCritical?: boolean;
+    mrn: string;
+    onToggleAssignment?: (e: React.MouseEvent) => void;
+  };
+  className?: string;
 }
 
-export type PatientCardProps = {
-  patient: Patient;
-  className?: string;
-};
-
-const PatientCard = ({ patient, className }: PatientCardProps) => {
+const PatientCard: React.FC<PatientCardProps> = ({ patient, className }) => {
   const { language } = useTranslation();
   
-  // Get initials for avatar
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  };
-
-  // Get critical status indicator
-  const getCriticalIndicator = () => {
-    if (patient.status === 'critical' || patient.isCritical) {
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 shadow-md animate-pulse">
-                <AlertCircle className="h-3 w-3" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{language === 'pt' ? 'Paciente em estado crítico' : 'Patient in critical condition'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'critical':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      case 'stable':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'improving':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'active':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+      case 'discharged':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
-    return null;
   };
-
-  // Get alert badges
-  const getAlertBadges = () => {
-    if (!patient.alerts || patient.alerts.length === 0) return null;
-    
-    return (
-      <div className="flex flex-wrap gap-1 mt-1">
-        {patient.alerts.map((alert, index) => {
-          const icon = alert.type === 'critical' ? 
-            <HeartPulse className="h-3 w-3 mr-1" /> : 
-            alert.type === 'warning' ? 
-              <AlertTriangle className="h-3 w-3 mr-1" /> : 
-              <CircleX className="h-3 w-3 mr-1" />;
-              
-          const bgColor = alert.type === 'critical' ? 
-            'bg-red-100 text-red-800 border-red-200' : 
-            alert.type === 'warning' ? 
-              'bg-amber-100 text-amber-800 border-amber-200' : 
-              'bg-blue-100 text-blue-800 border-blue-200';
-              
-          return (
-            <TooltipProvider key={index}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="outline" className={cn("text-xs", bgColor)}>
-                    {icon}
-                    {alert.type}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{alert.message}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          );
-        })}
-      </div>
-    );
-  };
-
+  
+  const genderLabel = patient.gender === 'male' ? 
+    (language === 'pt' ? 'Masculino' : 'Male') : 
+    (language === 'pt' ? 'Feminino' : 'Female');
+  
   return (
-    <Link 
-      to={`/patients/${patient.id}`} 
-      className={cn(
-        "block py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-md px-2 -mx-2",
-        patient.status === 'critical' && "border-l-4 border-red-500 pl-1",
-        className
-      )}
-    >
+    <Card className={cn("p-4 hover:bg-accent/10 transition-colors", className)}>
       <div className="flex items-center gap-4">
-        <div className="relative">
-          <Avatar>
-            <AvatarImage src={undefined} alt={patient.name} />
-            <AvatarFallback>{getInitials(patient.name)}</AvatarFallback>
+        <Link 
+          to={`/patients/${patient.id}`} 
+          className="flex-1 flex items-center gap-4"
+        >
+          <Avatar className="w-10 h-10 bg-primary/10">
+            <AvatarFallback>
+              <UserCircle className="h-6 w-6 text-primary" />
+            </AvatarFallback>
           </Avatar>
           
-          {getCriticalIndicator()}
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="font-medium text-foreground flex items-center gap-2">
-            {patient.name}
-            {patient.isAssigned && (
-              <Badge variant="outline" className="ml-2 bg-primary/10">
-                <User className="h-3 w-3 mr-1" />
-                <TranslatedText
-                  textKey="assigned"
-                  fallback={language === 'pt' ? 'Atribuído' : 'Assigned'}
-                />
-              </Badge>
-            )}
-          </div>
-          <div className="text-sm text-muted-foreground flex flex-wrap gap-2">
-            <span>
-              {patient.age} {language === 'pt' ? 'anos' : 'yrs'}
-              {patient.gender && `, ${patient.gender === 'male' ? (language === 'pt' ? 'Masculino' : 'Male') : 
-                patient.gender === 'female' ? (language === 'pt' ? 'Feminino' : 'Female') : 
-                language === 'pt' ? 'Outro' : 'Other'}`}
-            </span>
-            {patient.roomNumber && (
-              <span>• {language === 'pt' ? 'Quarto' : 'Room'} {patient.roomNumber}</span>
-            )}
-            <span>• MRN: {patient.mrn}</span>
-            {patient.lastUpdated && (
-              <span className="flex items-center text-xs">
-                <Clock className="h-3 w-3 mr-1" />
-                {patient.lastUpdated}
-              </span>
-            )}
-          </div>
-          
-          {getAlertBadges()}
-          
-          {patient.diagnosis && (
-            <div className="mt-1 text-xs text-muted-foreground italic truncate">
-              {patient.diagnosis}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <div className="font-medium text-foreground truncate">
+                {patient.name}
+              </div>
+              
+              {patient.isCritical && (
+                <AlertCircle className="h-4 w-4 text-red-500" />
+              )}
             </div>
-          )}
-        </div>
+            
+            <div className="text-sm text-muted-foreground flex flex-wrap gap-x-2">
+              <span>{patient.age} {language === 'pt' ? 'anos' : 'yrs'}</span>
+              <span>•</span>
+              <span>{genderLabel}</span>
+              <span>•</span>
+              <span>MRN: {patient.mrn}</span>
+              {patient.roomNumber && (
+                <>
+                  <span>•</span>
+                  <span>{language === 'pt' ? 'Quarto' : 'Room'}: {patient.roomNumber}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </Link>
         
-        <div className="flex items-center gap-3">
-          <StatusBadge status={patient.status} />
+        <div className="flex items-center gap-2">
+          <Badge 
+            variant="secondary" 
+            className={cn("capitalize", getStatusColor(patient.status))}
+          >
+            {patient.status}
+          </Badge>
           
           {patient.onToggleAssignment && (
             <Button
-              size="icon"
-              variant={patient.isAssigned ? "destructive" : "default"}
-              className="h-8 w-8"
+              variant="outline"
+              size="sm"
+              className={cn(
+                "p-2 h-8 w-8", 
+                patient.isAssigned ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"
+              )}
               onClick={patient.onToggleAssignment}
               title={patient.isAssigned ? 
-                (language === 'pt' ? 'Remover atribuição' : 'Unassign') : 
-                (language === 'pt' ? 'Atribuir a mim' : 'Assign to me')
+                (language === 'pt' ? 'Remover atribuição' : 'Unassign patient') : 
+                (language === 'pt' ? 'Atribuir paciente' : 'Assign patient')
               }
             >
               {patient.isAssigned ? (
@@ -193,7 +120,7 @@ const PatientCard = ({ patient, className }: PatientCardProps) => {
           )}
         </div>
       </div>
-    </Link>
+    </Card>
   );
 };
 

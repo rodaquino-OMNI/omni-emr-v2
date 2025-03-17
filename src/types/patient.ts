@@ -1,77 +1,93 @@
-export type PatientStatus = 'stable' | 'unstable' | 'critical';
 
-export const mapToPatientStatus = (status: string): PatientStatus => {
-  switch (status) {
-    case 'stable':
-      return 'stable';
-    case 'unstable':
-      return 'unstable';
-    case 'critical':
-      return 'critical';
-    default:
-      return 'stable';
-  }
-};
+import { PatientStatus as PatientTypeStatus } from './patientTypes';
 
-export type InsightType = 'warning' | 'critical' | 'positive' | 'neutral';
+// Define patient status enum to match the PatientStatus in patientTypes
+export type PatientStatus = PatientTypeStatus;
 
-export interface AIInsight {
-  id: string;
-  patient_id: string;
-  title: string;
-  content: string;
-  description?: string; // Make optional to match ComponentAIInsight
-  category: string;
-  severity: 'high' | 'medium' | 'low';
-  created_at: string;
-  source?: string;
-  timestamp?: string;
-  type?: InsightType;
+// Define common props for patient tabs
+export interface PatientTabProps {
+  patientId: string;
 }
 
+// Define props for patient view components
+export interface PatientViewProps {
+  patientId: string;
+}
+
+// Define AI Insight type for patient
 export interface PatientInsight {
   id: string;
   title: string;
-  content: string;
-  description?: string;
-  type: InsightType;
-  timestamp?: string;
-  source?: string;
+  description: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  created_at: string;
+  source: string;
+  category: 'critical' | 'warning' | 'info' | 'success';
 }
 
+// Define component AI insight type
 export interface ComponentAIInsight {
   id: string;
   title: string;
-  content: string;
-  description?: string;
-  type: "info" | "warning" | "critical" | "success";
-  source?: string;
-  timestamp?: string;
+  description: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  created_at: string;
+  source: string;
+  type: 'info' | 'warning' | 'critical' | 'success';
+  content?: string;
+  patient_id?: string;
 }
 
-// Make sure Patient includes insights
-export interface Patient {
+// Define vital signs type
+export interface VitalSigns {
   id: string;
-  first_name: string;
-  last_name: string;
-  date_of_birth: string;
-  gender: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  insurance_provider?: string;
-  insurance_id?: string;
-  emergency_contact_name?: string;
-  emergency_contact_phone?: string;
-  primary_provider_id?: string;
-  status: PatientStatus;
-  mrn?: string;
-  insights?: (AIInsight | PatientInsight)[];
-  is_assigned?: boolean;
-  height?: number;
+  patient_id: string;
+  timestamp: string;
+  temperature?: number;
+  heart_rate?: number;
+  respiratory_rate?: number;
+  blood_pressure_systolic?: number;
+  blood_pressure_diastolic?: number;
+  oxygen_saturation?: number;
   weight?: number;
-  blood_type?: string;
-  allergies?: string[];
-  medications?: string[];
-  prescriptions?: any[];
+  height?: number;
+  bmi?: number;
+  notes?: string;
+}
+
+// Define prescription type
+export interface Prescription {
+  id: string;
+  patient_id: string;
+  provider_id: string;
+  status: string;
+  created_at: string;
+  updated_at?: string;
+  notes?: string;
+  items?: PrescriptionItem[];
+}
+
+// Define prescription item type
+export interface PrescriptionItem {
+  id: string;
+  prescription_id: string;
+  name: string;
+  type: string;
+  dosage?: string;
+  frequency?: string;
+  duration?: string;
+  start_date?: string;
+  end_date?: string;
+  instructions?: string;
+  status: string;
+}
+
+// Define allergy type
+export interface PatientAllergy {
+  id: string;
+  patient_id: string;
+  allergen: string;
+  severity: 'Mild' | 'Moderate' | 'Severe' | string;
+  reaction: string;
+  is_active: boolean;
 }

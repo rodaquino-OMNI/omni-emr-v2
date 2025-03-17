@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
@@ -27,6 +28,7 @@ import {
 import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
 import { useFilteredSectorPatients, PatientAssignmentFilter, PatientSortField, SortDirection } from '@/hooks/sector/useFilteredSectorPatients';
 import SectorPatientListPagination from '@/components/patients/SectorPatientListPagination';
+import { toast } from 'sonner';
 
 const PatientsPage = () => {
   const location = useLocation();
@@ -41,9 +43,10 @@ const PatientsPage = () => {
   const sortDirFromUrl = queryParams.get('sortDir') || 'asc';
   const pageFromUrl = queryParams.get('page') ? parseInt(queryParams.get('page') || '1') : 1;
   const pageSizeFromUrl = queryParams.get('pageSize') ? parseInt(queryParams.get('pageSize') || '10') : 10;
+  const searchTermFromUrl = queryParams.get('search') || '';
 
+  // Use the hook with proper parameters
   const {
-    filteredPatients,
     displayedPatients,
     pagination,
     filterOptions,
@@ -55,13 +58,17 @@ const PatientsPage = () => {
     setPage,
     setPageSize,
     goToPage
-  } = useFilteredSectorPatients(sectorPatients, {
-    statusFilter: statusFromUrl,
-    assignmentFilter: assignmentFromUrl as PatientAssignmentFilter,
-    sortBy: sortByFromUrl as PatientSortField,
-    sortDirection: sortDirFromUrl as SortDirection,
-    page: pageFromUrl,
-    pageSize: pageSizeFromUrl
+  } = useFilteredSectorPatients({
+    patients: sectorPatients,
+    options: {
+      statusFilter: statusFromUrl,
+      assignmentFilter: assignmentFromUrl as PatientAssignmentFilter,
+      sortBy: sortByFromUrl as PatientSortField,
+      sortDirection: sortDirFromUrl as SortDirection,
+      page: pageFromUrl,
+      pageSize: pageSizeFromUrl,
+      searchTerm: searchTermFromUrl
+    }
   });
 
   const statuses = [
@@ -119,6 +126,10 @@ const PatientsPage = () => {
     if (filterOptions.pageSize !== 10) {
       newParams.set('pageSize', filterOptions.pageSize.toString());
     }
+
+    if (filterOptions.searchTerm) {
+      newParams.set('search', filterOptions.searchTerm);
+    }
     
     navigate(`/patients${newParams.toString() ? `?${newParams.toString()}` : ''}`);
   };
@@ -131,7 +142,8 @@ const PatientsPage = () => {
     filterOptions.sortBy, 
     filterOptions.sortDirection,
     filterOptions.page,
-    filterOptions.pageSize
+    filterOptions.pageSize,
+    filterOptions.searchTerm
   ]);
 
   const handleNewPatient = () => {
@@ -140,6 +152,9 @@ const PatientsPage = () => {
 
   const handleRefresh = async () => {
     await refreshPatients();
+    toast.success(
+      language === 'pt' ? 'Lista de pacientes atualizada' : 'Patient list refreshed'
+    );
   };
 
   if (!selectedSector) {
@@ -157,6 +172,14 @@ const PatientsPage = () => {
 
   const handlePageSizeChange = (newSize: string) => {
     setPageSize(parseInt(newSize));
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+  };
+
+  const handleAssignmentChange = (value: string) => {
+    setAssignmentFilter(value as PatientAssignmentFilter);
   };
 
   return (
@@ -189,7 +212,7 @@ const PatientsPage = () => {
                 
                 <Select
                   value={filterOptions.statusFilter}
-                  onValueChange={setStatusFilter}
+                  onValueChange={handleStatusChange}
                 >
                   <SelectTrigger className="h-9 w-[140px]">
                     <SelectValue placeholder="Status" />
@@ -205,7 +228,7 @@ const PatientsPage = () => {
                 
                 <Select
                   value={filterOptions.assignmentFilter}
-                  onValueChange={setAssignmentFilter}
+                  onValueChange={handleAssignmentChange}
                 >
                   <SelectTrigger className="h-9 w-[160px]">
                     <SelectValue placeholder="Assignment" />

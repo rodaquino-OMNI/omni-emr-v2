@@ -1,79 +1,101 @@
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
-import { getPrescriptionById } from '@/services/prescriptions/prescriptionDetails';
-import { Prescription } from '@/services/prescriptions/types';
+import { supabase } from '@/integrations/supabase/client';
+import { Prescription, PrescriptionItem } from '@/types/patient';
+
+interface FormattedPrescription {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  status: string;
+  date: string;
+  notes?: string;
+  items: Array<{
+    id: string;
+    name: string;
+    type: string;
+    dosage?: string;
+    frequency?: string;
+    duration?: string;
+    startDate?: string;
+    endDate?: string;
+    instructions?: string;
+    status: string;
+  }>;
+}
 
 export const usePrescriptionDetails = (prescriptionId?: string) => {
-  const [prescription, setPrescription] = useState<Prescription | null>(null);
+  const [prescription, setPrescription] = useState<FormattedPrescription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { language } = useTranslation();
 
   useEffect(() => {
-    const fetchPrescription = async () => {
-      if (!prescriptionId) {
-        setLoading(false);
-        setError('No prescription ID provided');
-        return;
-      }
+    if (!prescriptionId) {
+      setLoading(false);
+      return;
+    }
 
+    const fetchPrescriptionDetails = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const data = await getPrescriptionById(prescriptionId);
-        // Convert to proper type before setting
-        const typedData: Prescription = {
-          id: data.id,
-          patient_id: data.patient_id || data.patientId || '',
-          provider_id: data.provider_id || data.doctorId || '',
-          status: data.status as 'active' | 'completed' | 'cancelled',
-          notes: data.notes,
-          created_at: data.created_at || data.date || '',
-          items: data.items.map(item => ({
+        // Fetch the prescription details
+        const { data: prescriptionData, error: prescriptionError } = await supabase
+          .from('prescriptions')
+          .select('*')
+          .eq('id', prescriptionId)
+          .single();
+
+        if (prescriptionError) {
+          throw prescriptionError;
+        }
+
+        // Fetch the prescription items
+        const { data: itemsData, error: itemsError } = await supabase
+          .from('prescription_items')
+          .select('*')
+          .eq('prescription_id', prescriptionId);
+
+        if (itemsError) {
+          throw itemsError;
+        }
+
+        // Format the data to match the expected structure
+        const formattedPrescription: FormattedPrescription = {
+          id: prescriptionData.id,
+          patientId: prescriptionData.patient_id,
+          doctorId: prescriptionData.doctor_id || "",
+          status: prescriptionData.status,
+          date: prescriptionData.created_at || new Date().toISOString(),
+          notes: prescriptionData.notes,
+          items: itemsData.map((item: PrescriptionItem) => ({
             id: item.id,
-            prescription_id: data.id,
             name: item.name,
-            type: item.type as "medication" | "procedure" | "lab_test" | "imaging",
+            type: item.type,
             dosage: item.dosage,
             frequency: item.frequency,
             duration: item.duration,
-            start_date: item.start_date || item.startDate || '',
-            end_date: item.end_date || item.endDate || '',
-            status: item.status as "pending" | "completed" | "cancelled" | "active",
-            instructions: item.instructions
+            startDate: item.start_date,
+            endDate: item.end_date,
+            instructions: item.instructions,
+            status: item.status
           }))
         };
-        
-        setPrescription(typedData);
+
+        setPrescription(formattedPrescription);
       } catch (err: any) {
         console.error('Error fetching prescription details:', err);
-        setError(err?.message || 'Failed to fetch prescription details');
+        setError(err.message || 'Failed to fetch prescription details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPrescription();
+    fetchPrescriptionDetails();
   }, [prescriptionId]);
 
-  // Format date helper function
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  return {
-    prescription,
-    loading,
-    error,
-    formatDate
-  };
+  return { prescription, loading, error };
 };
+
+export default usePrescriptionDetails;

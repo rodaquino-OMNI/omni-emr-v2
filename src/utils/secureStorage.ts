@@ -1,57 +1,83 @@
 
-// Define allowed storage keys for type safety
+import CryptoJS from 'crypto-js';
+
 export type StorageKey = 
-  | 'login_attempts' 
-  | 'login_lockout_until' 
-  | 'csrf_token' 
-  | 'language' 
-  | 'theme' 
-  | 'selected_sector'
-  | 'last_activity'
-  | 'user_preferences';
+  | 'userData'
+  | 'authToken'
+  | 'selectedSector'
+  | 'language'
+  | 'theme'
+  | 'consentGiven'
+  | 'lastLogin'
+  | 'deviceId'
+  | 'csrfToken'
+  | 'lastActiveTime';
+
+// Simple encryption key - in a real app, this should be more secure
+const SECRET_KEY = 'healthcare-secure-storage-key';
 
 /**
- * Get an item from secure storage
+ * A secure storage utility for sensitive data
  */
-export const getSecureItem = <T>(key: StorageKey): T | null => {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
-  } catch (error) {
-    console.error(`Error getting item from storage: ${key}`, error);
-    return null;
-  }
-};
+export const secureStorage = {
+  /**
+   * Store data securely in localStorage with encryption
+   */
+  setItem<T>(key: StorageKey, value: T): void {
+    try {
+      // Convert data to string and encrypt
+      const valueStr = JSON.stringify(value);
+      const encryptedValue = CryptoJS.AES.encrypt(valueStr, SECRET_KEY).toString();
+      
+      // Store in localStorage
+      localStorage.setItem(key, encryptedValue);
+    } catch (error) {
+      console.error('Error storing data securely:', error);
+    }
+  },
 
-/**
- * Set an item in secure storage
- */
-export const setSecureItem = <T>(key: StorageKey, value: T): void => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.error(`Error setting item in storage: ${key}`, error);
-  }
-};
+  /**
+   * Retrieve and decrypt data from localStorage
+   */
+  getItem<T>(key: StorageKey, defaultValue: T | null = null): T | null {
+    try {
+      // Get encrypted data from localStorage
+      const encryptedValue = localStorage.getItem(key);
+      
+      if (!encryptedValue) {
+        return defaultValue;
+      }
+      
+      // Decrypt data
+      const decryptedBytes = CryptoJS.AES.decrypt(encryptedValue, SECRET_KEY);
+      const decryptedValue = decryptedBytes.toString(CryptoJS.enc.Utf8);
+      
+      return JSON.parse(decryptedValue) as T;
+    } catch (error) {
+      console.error('Error retrieving secure data:', error);
+      return defaultValue;
+    }
+  },
 
-/**
- * Remove an item from secure storage
- */
-export const removeSecureItem = (key: StorageKey): void => {
-  try {
-    localStorage.removeItem(key);
-  } catch (error) {
-    console.error(`Error removing item from storage: ${key}`, error);
-  }
-};
+  /**
+   * Remove item from localStorage
+   */
+  removeItem(key: StorageKey): void {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Error removing data:', error);
+    }
+  },
 
-/**
- * Clear all secure storage
- */
-export const clearSecureStorage = (): void => {
-  try {
-    localStorage.clear();
-  } catch (error) {
-    console.error(`Error clearing storage`, error);
+  /**
+   * Clear all stored data
+   */
+  clear(): void {
+    try {
+      localStorage.clear();
+    } catch (error) {
+      console.error('Error clearing data:', error);
+    }
   }
 };

@@ -17,7 +17,7 @@ const SectorPatientListPagination: React.FC<PaginationProps> = ({
   onPageChange,
   disabled = false
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   
   // Don't show pagination if there's only one page
   if (totalPages <= 1) {
@@ -58,7 +58,7 @@ const SectorPatientListPagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(1)}
         disabled={currentPage === 1 || disabled}
         className="h-8 w-8"
-        aria-label={t('firstPage')}
+        aria-label={language === 'pt' ? 'Primeira página' : 'First page'}
       >
         <ChevronsLeft className="h-4 w-4" />
       </Button>
@@ -69,7 +69,7 @@ const SectorPatientListPagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1 || disabled}
         className="h-8 w-8"
-        aria-label={t('previousPage')}
+        aria-label={language === 'pt' ? 'Página anterior' : 'Previous page'}
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
@@ -83,7 +83,7 @@ const SectorPatientListPagination: React.FC<PaginationProps> = ({
             onClick={() => onPageChange(page)}
             disabled={disabled}
             className="h-8 w-8 mx-0.5 font-medium"
-            aria-label={`${t('page')} ${page}`}
+            aria-label={`${language === 'pt' ? 'Página' : 'Page'} ${page}`}
             aria-current={page === currentPage ? "page" : undefined}
           >
             {page}
@@ -97,7 +97,7 @@ const SectorPatientListPagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages || disabled}
         className="h-8 w-8"
-        aria-label={t('nextPage')}
+        aria-label={language === 'pt' ? 'Próxima página' : 'Next page'}
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
@@ -108,7 +108,7 @@ const SectorPatientListPagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(totalPages)}
         disabled={currentPage === totalPages || disabled}
         className="h-8 w-8"
-        aria-label={t('lastPage')}
+        aria-label={language === 'pt' ? 'Última página' : 'Last page'}
       >
         <ChevronsRight className="h-4 w-4" />
       </Button>

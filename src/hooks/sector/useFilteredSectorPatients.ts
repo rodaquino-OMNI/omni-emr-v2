@@ -16,7 +16,7 @@ interface FilterOptions {
   page: number;
 }
 
-interface UseFilteredPatientsParams {
+export interface UseFilteredPatientsParams {
   patients: SectorPatient[];
   options: FilterOptions;
 }
