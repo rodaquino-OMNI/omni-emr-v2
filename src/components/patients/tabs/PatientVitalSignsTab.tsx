@@ -6,11 +6,11 @@ import { usePatientVitals } from '@/hooks/usePatientVitals';
 import { PatientTabProps } from '@/types/patient';
 import { VitalSignsDisplay } from '@/components/vital-signs/VitalSignsDisplay';
 
-/**
- * Tab component to display patient vital signs
- * Uses standardized loading patterns and type definitions
- */
-const PatientVitalSignsTab: React.FC<PatientTabProps> = ({ patientId }) => {
+interface PatientVitalSignsTabProps extends PatientTabProps {
+  compact?: boolean;
+}
+
+const PatientVitalSignsTab: React.FC<PatientVitalSignsTabProps> = ({ patientId, compact = false }) => {
   const { data: vitals, isLoading, error } = usePatientVitals(patientId);
   
   if (isLoading) {
@@ -41,6 +41,19 @@ const PatientVitalSignsTab: React.FC<PatientTabProps> = ({ patientId }) => {
   
   // Recent vitals at the top
   const latestVitals = vitals[0];
+  
+  if (compact) {
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Latest Vital Signs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {latestVitals && <VitalSignsDisplay vitals={latestVitals} showTime={true} compact={true} />}
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <div className="space-y-4">
