@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getPrescriptionById } from '@/services/prescriptions/prescriptionDetails';
-import { Prescription } from '@/services/prescriptions/types';
+import { Prescription } from '@/types/patient';
 
 export const usePrescriptionDetails = (prescriptionId?: string) => {
   const [prescription, setPrescription] = useState<Prescription | null>(null);
@@ -23,8 +23,19 @@ export const usePrescriptionDetails = (prescriptionId?: string) => {
 
       try {
         const data = await getPrescriptionById(prescriptionId);
-        // Use functional update to ensure type compatibility
-        setPrescription(prev => data);
+        // Convert to proper type before setting
+        const typedData: Prescription = {
+          id: data.id,
+          patient_id: data.patientId,
+          patientName: data.patientName,
+          provider_id: data.doctorId,
+          doctorName: data.doctorName,
+          date: data.date,
+          status: data.status as 'active' | 'completed' | 'cancelled',
+          notes: data.notes,
+          items: data.items
+        };
+        setPrescription(typedData);
       } catch (err: any) {
         console.error('Error fetching prescription details:', err);
         setError(err?.message || 'Failed to fetch prescription details');

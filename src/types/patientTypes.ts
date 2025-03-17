@@ -1,3 +1,4 @@
+
 // Define patient status enum
 export type PatientStatus = 'active' | 'inactive' | 'discharged' | 'critical' | 'stable' | 'hospital' | 'home' | 'improving';
 

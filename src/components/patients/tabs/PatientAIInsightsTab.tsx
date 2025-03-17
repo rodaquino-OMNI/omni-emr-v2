@@ -1,123 +1,93 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AIInsight } from '@/types/patient';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { CircleAlert, BrainCircuit, AlertTriangle, Info } from 'lucide-react';
+import { usePatientInsights } from '@/hooks/usePatientInsights'; 
 
 interface PatientAIInsightsTabProps {
-  patientId: string;
-  insights?: any[];
+  patientId?: string;
+  insights?: AIInsight[];
   isLoading?: boolean;
 }
 
-const PatientAIInsightsTab: React.FC<PatientAIInsightsTabProps> = ({ 
+export const PatientAIInsightsTab: React.FC<PatientAIInsightsTabProps> = ({ 
   patientId, 
-  insights = [], 
-  isLoading = false 
+  insights: propInsights,
+  isLoading: propIsLoading 
 }) => {
+  // If insights are passed directly as props, use them
+  // Otherwise, fetch them using the hook
+  const { 
+    insights: hookInsights, 
+    isLoading: hookIsLoading 
+  } = patientId ? usePatientInsights(patientId) : { insights: [], isLoading: false };
+  
+  const insights = propInsights || hookInsights || [];
+  const isLoading = propIsLoading !== undefined ? propIsLoading : hookIsLoading;
+  
   if (isLoading) {
     return <LoadingSpinner />;
   }
   
-  if (!insights || insights.length === 0) {
+  if (!insights.length) {
     return (
-      <Alert variant="default" className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-        <BrainCircuit className="h-4 w-4 text-blue-600" />
-        <AlertTitle>No AI Insights Available</AlertTitle>
-        <AlertDescription className="text-sm text-blue-700 dark:text-blue-300">
-          There are currently no AI-generated insights for this patient.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-  
-  // Group insights by severity for display
-  const criticalInsights = insights.filter(insight => insight.severity === 'critical');
-  const highInsights = insights.filter(insight => insight.severity === 'high');
-  const mediumInsights = insights.filter(insight => insight.severity === 'medium');
-  const lowInsights = insights.filter(insight => insight.severity === 'low');
-  
-  const renderSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'critical':
-        return <Badge variant="destructive" className="ml-2">Critical</Badge>;
-      case 'high':
-        return <Badge variant="destructive" className="bg-orange-500 ml-2">High</Badge>;
-      case 'medium':
-        return <Badge variant="outline" className="text-amber-500 border-amber-500 ml-2">Medium</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="text-blue-500 border-blue-500 ml-2">Low</Badge>;
-      default:
-        return null;
-    }
-  };
-  
-  const renderInsightIcon = (severity: string) => {
-    switch (severity) {
-      case 'critical':
-        return <CircleAlert className="h-5 w-5 text-destructive flex-shrink-0" />;
-      case 'high':
-        return <AlertTriangle className="h-5 w-5 text-orange-500 flex-shrink-0" />;
-      case 'medium':
-        return <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0" />;
-      case 'low':
-        return <Info className="h-5 w-5 text-blue-500 flex-shrink-0" />;
-      default:
-        return <Info className="h-5 w-5 text-blue-500 flex-shrink-0" />;
-    }
-  };
-  
-  const renderInsightList = (insightsList: any[], title: string) => {
-    if (insightsList.length === 0) return null;
-    
-    return (
-      <Card className="mb-4">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center">
-            {title}
-            {renderSeverityBadge(insightsList[0].severity)}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {insightsList.map((insight, index) => (
-              <div key={insight.id || index} className="flex gap-3">
-                {renderInsightIcon(insight.severity)}
-                <div>
-                  <h4 className="font-medium">{insight.title}</h4>
-                  <p className="text-sm text-muted-foreground">{insight.description}</p>
-                  {insight.action_required && (
-                    <div className="mt-2 text-sm font-medium text-destructive">
-                      Action required: {insight.action_description}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          No AI insights available for this patient.
         </CardContent>
       </Card>
     );
+  }
+  
+  // Group insights by category
+  const groupedInsights = insights.reduce((acc, insight) => {
+    if (!acc[insight.category]) {
+      acc[insight.category] = [];
+    }
+    acc[insight.category].push(insight);
+    return acc;
+  }, {} as Record<string, AIInsight[]>);
+  
+  return (
+    <div className="space-y-6">
+      {Object.entries(groupedInsights).map(([category, categoryInsights]) => (
+        <Card key={category}>
+          <CardHeader>
+            <CardTitle>{category}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {categoryInsights.map(insight => (
+              <InsightCard key={insight.id} insight={insight} />
+            ))}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+const InsightCard: React.FC<{ insight: AIInsight }> = ({ insight }) => {
+  const severityColors = {
+    low: "border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-900/20",
+    medium: "border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-900/20",
+    high: "border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-900/20",
+    critical: "border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/20"
   };
   
   return (
-    <div className="space-y-2">
-      {criticalInsights.length > 0 && (
-        <Alert variant="destructive" className="mb-4">
-          <CircleAlert className="h-4 w-4" />
-          <AlertTitle>Critical Alerts</AlertTitle>
-          <AlertDescription>
-            {criticalInsights.length} critical insight{criticalInsights.length !== 1 ? 's' : ''} requiring immediate attention.
-          </AlertDescription>
-        </Alert>
+    <div className={`p-4 rounded-md border ${severityColors[insight.severity]}`}>
+      <div className="flex justify-between items-start">
+        <h3 className="font-medium">{insight.title}</h3>
+        <div className="text-xs font-medium px-2 py-1 rounded-full bg-background">
+          {insight.severity}
+        </div>
+      </div>
+      <p className="mt-2 text-sm">{insight.description}</p>
+      {insight.action_required && (
+        <div className="mt-3 text-sm font-medium">
+          <span className="text-primary">Recommended action:</span> {insight.action_description}
+        </div>
       )}
-      
-      {renderInsightList(criticalInsights, "Critical Insights")}
-      {renderInsightList(highInsights, "High Priority Insights")}
-      {renderInsightList(mediumInsights, "Medium Priority Insights")}
-      {renderInsightList(lowInsights, "Low Priority Insights")}
     </div>
   );
 };

@@ -3,7 +3,7 @@
 export interface Prescription {
   id: string;
   patientId: string;
-  patientName?: string;
+  patientName: string;
   doctorId: string;
   doctorName?: string;
   date: string;

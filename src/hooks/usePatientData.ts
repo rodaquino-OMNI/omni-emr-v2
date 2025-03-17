@@ -62,10 +62,36 @@ export function usePatientData(patientId?: string) {
     }
   }, [refetch]);
 
+  // Function to update patient data
+  const updatePatient = useCallback(async (updatedData: Partial<Patient>) => {
+    if (!patientId) {
+      throw new Error('Patient ID is required for updates');
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .update(updatedData)
+        .eq('id', patientId)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      
+      // Refresh the cache after update
+      await refetch();
+      return data;
+    } catch (err) {
+      setError(formatErrorMessage(err));
+      throw err;
+    }
+  }, [patientId, refetch]);
+
   return {
     patient,
     isLoading,
     error,
-    fetchPatient
+    fetchPatient,
+    updatePatient
   };
 }

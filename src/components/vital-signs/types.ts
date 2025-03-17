@@ -1,5 +1,5 @@
 
-import { VitalSigns } from '@/types/patientTypes';
+import { VitalSigns } from '@/types/patient';
 
 export interface VitalSignsDisplayProps {
   vitals: VitalSigns;

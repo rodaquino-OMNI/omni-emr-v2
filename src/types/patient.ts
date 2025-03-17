@@ -1,6 +1,4 @@
 
-import { PatientStatus, BloodType } from '@/types/patientTypes';
-
 // Core patient interface that standardizes the patient model across components
 export interface Patient {
   id: string;
@@ -135,3 +133,9 @@ export interface AIInsight {
 export interface PatientViewProps {
   patientId: string;
 }
+
+// Export PatientStatus enum from this file for consistency
+export type PatientStatus = 'active' | 'inactive' | 'discharged' | 'critical' | 'stable' | 'hospital' | 'home' | 'improving';
+
+// Export BloodType enum for consistency
+export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | null;
