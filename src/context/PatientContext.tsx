@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Patient } from '@/types/patientTypes';
+import { Patient } from '@/types/patient';
 import { usePatientData } from '@/hooks/usePatientData';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import { ErrorMessage } from '@/components/ui/error-message';
@@ -46,7 +46,7 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ patientId: ext
   const patientId = externalPatientId || id || (location.state as any)?.patientId || '';
   
   // Fetch patient data
-  const { patient, isLoading, error, fetchPatient, updatePatient } = usePatientData(patientId);
+  const { patient, isLoading, error, fetchPatient } = usePatientData(patientId);
   
   // Check if user can edit or view this patient based on sector
   const [canEdit, setCanEdit] = useState<boolean>(false);
@@ -91,13 +91,10 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ patientId: ext
     );
   }
   
-  // We need to cast the patient to avoid the type error related to phone property
-  const patientToUse = patient as unknown as Patient;
-  
   return (
     <PatientContext.Provider 
       value={{ 
-        patient: patientToUse, 
+        patient, 
         isLoading, 
         error, 
         patientId, 

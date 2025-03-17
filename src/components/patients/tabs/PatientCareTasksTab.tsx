@@ -1,142 +1,97 @@
 
 import React from 'react';
+import { PatientCareTasksTabProps } from './index';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle, Plus, ClipboardList } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-
-interface PatientCareTasksTabProps {
-  patientId: string;
-}
+import { PlusCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PatientCareTasksTab: React.FC<PatientCareTasksTabProps> = ({ patientId }) => {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [tasks, setTasks] = React.useState<any[]>([]);
-
-  React.useEffect(() => {
-    // Simulate loading tasks
-    const loadTasks = async () => {
-      try {
-        // In a real implementation, you would fetch tasks from an API
-        // For now, let's simulate a delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Simulate empty tasks for now
-        setTasks([]);
-      } catch (error) {
-        console.error('Error loading care tasks:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTasks();
-  }, [patientId]);
-
-  const handleAddTask = () => {
-    console.log('Add task for patient:', patientId);
-    // Open modal or navigate to task creation page
-  };
-
-  if (isLoading) {
-    return <TasksLoadingSkeleton />;
-  }
-
+  const { t } = useTranslation();
+  
+  // Placeholder for care tasks - would be fetched from API in a real implementation
+  const careTasks = [
+    {
+      id: '1',
+      title: 'Daily health check',
+      status: 'completed',
+      dueDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      assignedTo: 'Nurse Johnson'
+    },
+    {
+      id: '2',
+      title: 'Medication administration',
+      status: 'pending',
+      dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      assignedTo: 'Nurse Smith'
+    },
+    {
+      id: '3',
+      title: 'Physical therapy session',
+      status: 'scheduled',
+      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      assignedTo: 'Dr. Williams'
+    }
+  ];
+  
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Care Tasks</h3>
-        <Button onClick={handleAddTask}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Task
+        <h2 className="text-xl font-semibold">{t('careTasks', 'Care Tasks')}</h2>
+        <Button size="sm" className="flex items-center gap-1">
+          <PlusCircle className="h-4 w-4" />
+          {t('newTask', 'New Task')}
         </Button>
       </div>
-
-      {tasks.length === 0 ? (
-        <Card className="border-dashed border-2">
-          <CardContent className="pt-6 text-center">
-            <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground opacity-50 mb-2" />
-            <p className="text-muted-foreground">No care tasks assigned for this patient</p>
-            <Button onClick={handleAddTask} className="mt-4" variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Create First Task
-            </Button>
+      
+      {careTasks.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6 text-center text-muted-foreground">
+            {t('noCareTasks', 'No care tasks found for this patient.')}
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4">
-          {tasks.map(task => (
-            <TaskCard key={task.id} task={task} />
+          {careTasks.map(task => (
+            <Card key={task.id}>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-base">{task.title}</CardTitle>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    task.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    task.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-blue-100 text-blue-800'
+                  }`}>
+                    {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm space-y-1">
+                  <p className="text-muted-foreground">
+                    {t('assignedTo', 'Assigned to')}: {task.assignedTo}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {t('due', 'Due')}: {new Date(task.dueDate).toLocaleString()}
+                  </p>
+                </div>
+                <div className="mt-3 flex justify-end gap-2">
+                  <Button variant="outline" size="sm">
+                    {t('details', 'Details')}
+                  </Button>
+                  {task.status !== 'completed' && (
+                    <Button size="sm">
+                      {t('markComplete', 'Mark Complete')}
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
     </div>
   );
 };
-
-// Placeholder component for a task card
-const TaskCard: React.FC<{ task: any }> = ({ task }) => (
-  <Card>
-    <CardHeader className="pb-2">
-      <div className="flex justify-between items-start">
-        <CardTitle className="text-md">{task.title}</CardTitle>
-        <Badge 
-          variant={
-            task.status === 'completed' ? 'outline' : 
-            task.status === 'in_progress' ? 'default' : 
-            task.status === 'due' ? 'secondary' :
-            'destructive'
-          }
-        >
-          {task.status}
-        </Badge>
-      </div>
-    </CardHeader>
-    <CardContent>
-      <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
-      <div className="flex justify-between items-center mt-2">
-        <p className="text-xs text-muted-foreground">
-          Due: {new Date(task.due_date).toLocaleDateString()}
-        </p>
-        {task.status !== 'completed' && (
-          <Button size="sm" variant="outline" className="flex items-center">
-            <CheckCircle className="h-4 w-4 mr-1" />
-            Mark Complete
-          </Button>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const TasksLoadingSkeleton: React.FC = () => (
-  <div className="space-y-4">
-    <div className="flex justify-between items-center">
-      <Skeleton className="h-6 w-40" />
-      <Skeleton className="h-10 w-32" />
-    </div>
-    <div className="grid gap-4">
-      {[1, 2, 3].map(i => (
-        <Card key={i}>
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-start">
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-5 w-20" />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <div className="flex justify-between items-center mt-2">
-              <Skeleton className="h-3 w-32" />
-              <Skeleton className="h-8 w-32" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </div>
-);
 
 export default PatientCareTasksTab;

@@ -32,11 +32,16 @@ export interface Patient {
   city?: string;
   state?: string;
   zip_code?: string;
+  country?: string;
+  insurance?: string;
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
   blood_type?: string;
   is_assigned?: boolean;
   age?: number;
+  height?: number;
+  weight?: number;
+  allergies?: string[];
   insights?: PatientInsight[];
   prescriptions?: Prescription[];
 }
@@ -64,6 +69,9 @@ export interface ComponentAIInsight {
   content?: string;
   patient_id?: string;
 }
+
+// Export AIInsight as an alias for PatientInsight for backward compatibility
+export type AIInsight = PatientInsight;
 
 // Define vital signs type
 export interface VitalSigns {

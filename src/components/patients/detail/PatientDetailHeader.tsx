@@ -1,78 +1,128 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Pencil } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Patient } from '@/types/patient';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { AlertTriangle, User, Calendar, MapPin, UserPlus, UserMinus } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
-type PatientDetailHeaderProps = {
-  patient: Patient | string;
-  hasCriticalInsights?: boolean;
-  className?: string;
-  onAssignmentToggle?: () => Promise<void>;
-};
+interface PatientDetailHeaderProps {
+  patient: Patient;
+  hasCriticalInsights: boolean;
+  onAssignmentToggle?: () => void;
+}
 
-const PatientDetailHeader = ({ patient, hasCriticalInsights = false, className, onAssignmentToggle }: PatientDetailHeaderProps) => {
-  const navigate = useNavigate();
-
-  // Create a type-safe way to handle either a string ID or a Patient object
-  const patientId = typeof patient === 'string' ? patient : patient.id;
-  const patientName = typeof patient === 'string' ? 'Loading...' : patient.name || `${patient.first_name} ${patient.last_name}`;
-  const patientMRN = typeof patient === 'string' ? 'Loading...' : patient.mrn;
-
-  // Handle navigation to profile safely
-  const handleNavigateToProfile = () => {
-    navigate(`/patients/${patientId}/profile`);
-  };
-
+const PatientDetailHeader: React.FC<PatientDetailHeaderProps> = ({
+  patient,
+  hasCriticalInsights,
+  onAssignmentToggle
+}) => {
+  const { language } = useTranslation();
+  
+  const age = patient.age || 
+    (patient.date_of_birth ? 
+      Math.floor((new Date().getTime() - new Date(patient.date_of_birth).getTime()) / 31557600000) 
+      : 0);
+  
   return (
-    <div className={cn("flex items-center justify-between", className)}>
-      <div className="flex items-center space-x-4">
-        <Avatar>
-          <AvatarImage src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${patientName}`} />
-          <AvatarFallback>{patientName?.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <h1 className="text-2xl font-bold">{patientName}</h1>
-          <p className="text-muted-foreground">
-            MRN: {patientMRN}
-          </p>
+    <div className="glass-card p-6 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center gap-4">
+        {/* Avatar/Profile section */}
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="h-10 w-10 text-primary" />
+            </div>
+            
+            {hasCriticalInsights && (
+              <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-red-500 flex items-center justify-center">
+                <AlertTriangle className="h-4 w-4 text-white" />
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <h2 className="text-2xl font-bold">
+              {patient.name || `${patient.first_name} ${patient.last_name}`}
+            </h2>
+            
+            <div className="flex flex-wrap gap-x-4 text-sm text-muted-foreground mt-1">
+              <div className="flex items-center gap-1">
+                <User className="h-3.5 w-3.5" />
+                <span>
+                  {`${age} ${language === 'pt' ? 'anos' : 'yrs'}`}
+                  {patient.gender && `, ${patient.gender}`}
+                </span>
+              </div>
+              
+              {patient.date_of_birth && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>
+                    {new Date(patient.date_of_birth).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+              
+              {patient.room_number && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span>
+                    {language === 'pt' ? 'Quarto ' : 'Room '}{patient.room_number}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Status and actions */}
+        <div className="flex flex-wrap items-center gap-3 ml-auto mt-2 md:mt-0">
+          <StatusBadge status={patient.status} />
+          
+          {onAssignmentToggle && (
+            <Button
+              variant={patient.is_assigned ? "outline" : "default"}
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={onAssignmentToggle}
+            >
+              {patient.is_assigned ? (
+                <>
+                  <UserMinus className="h-4 w-4" />
+                  <span>{language === 'pt' ? 'Desatribuir' : 'Unassign'}</span>
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4" />
+                  <span>{language === 'pt' ? 'Atribuir a mim' : 'Assign to me'}</span>
+                </>
+              )}
+            </Button>
+          )}
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            asChild
+          >
+            <Link to={`/patients/${patient.id}/profile`}>
+              {language === 'pt' ? 'Editar perfil' : 'Edit profile'}
+            </Link>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            asChild
+          >
+            <Link to={`/patients/${patient.id}/medical-history`}>
+              {language === 'pt' ? 'Histórico médico' : 'Medical history'}
+            </Link>
+          </Button>
         </div>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open user menu</span>
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={handleNavigateToProfile}>
-            <Pencil className="mr-2 h-4 w-4" />
-            <span>Edit Profile</span>
-          </DropdownMenuItem>
-          {onAssignmentToggle && (
-            <DropdownMenuItem onClick={onAssignmentToggle}>
-              <span>{typeof patient !== 'string' && patient.is_assigned ? 'Unassign Patient' : 'Assign Patient'}</span>
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            {hasCriticalInsights ? 'Resolve Insights' : 'View Insights'}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
   );
 };

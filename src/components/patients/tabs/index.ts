@@ -8,6 +8,7 @@ import PatientAIInsightsTab from './PatientAIInsightsTab';
 import PatientVitalSignsTab from './PatientVitalSignsTab';
 import PatientAllergiesTab from './PatientAllergiesTab';
 import PatientMedicationsTab from './PatientMedicationsTab';
+import PatientNotesTab from './PatientNotesTab';
 
 // Define interface for each tab with PatientTabProps
 export interface PatientOverviewTabProps extends PatientTabProps {
@@ -27,6 +28,7 @@ export interface PatientMedicationsTabProps extends PatientTabProps {
 export interface PatientNotesTabProps extends PatientTabProps {
   filter?: string;
 }
+export interface PatientCareTasksTabProps extends PatientTabProps {}
 
 export {
   PatientOverviewTab,
@@ -35,5 +37,6 @@ export {
   PatientAIInsightsTab,
   PatientVitalSignsTab,
   PatientAllergiesTab,
-  PatientMedicationsTab
+  PatientMedicationsTab,
+  PatientNotesTab
 };

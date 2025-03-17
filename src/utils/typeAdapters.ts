@@ -39,3 +39,9 @@ const mapCategoryToType = (
       return "info";
   }
 };
+
+// Alias for backward compatibility
+export const adaptAIInsight = adaptToComponentAIInsight;
+
+// Export ComponentAIInsight type
+export type { ComponentAIInsight };

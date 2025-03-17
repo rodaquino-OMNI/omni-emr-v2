@@ -30,7 +30,7 @@ const MedicalStaffPatientView: React.FC<MedicalStaffPatientViewProps> = ({ patie
   
   return (
     <div className="space-y-6">
-      <PatientHeader patient={patient} />
+      <PatientHeader patient={patient} hasCriticalInsights={false} />
       
       <div className="flex flex-wrap gap-2 mb-4">
         <Button 
