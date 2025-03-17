@@ -10,7 +10,7 @@ import { toast } from '@/hooks/use-toast';
 export function useSupabaseQuery<T>(
   queryKey: string[],
   queryFn: () => Promise<T>,
-  options?: UseQueryOptions<T, Error>
+  options?: Omit<UseQueryOptions<T, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
     queryKey,
