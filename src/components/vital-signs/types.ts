@@ -8,7 +8,7 @@ export interface VitalSignsDisplayProps {
 }
 
 export interface VitalSignsChartProps {
-  vitalSigns: VitalSigns[];
-  patientId: string;
+  vitals: VitalSigns[];
+  patientId?: string;
   timeRange?: string;
 }

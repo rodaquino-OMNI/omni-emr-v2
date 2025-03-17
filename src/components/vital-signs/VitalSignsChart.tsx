@@ -4,11 +4,7 @@ import { VitalSigns } from '@/types/patientTypes';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { format, subDays } from 'date-fns';
-
-interface VitalSignsChartProps {
-  vitals: VitalSigns[];
-  timeRange?: 'day' | 'week' | 'month';
-}
+import { VitalSignsChartProps } from './types';
 
 const VitalSignsChart: React.FC<VitalSignsChartProps> = ({ vitals, timeRange = 'week' }) => {
   const chartData = useMemo(() => {

@@ -53,9 +53,10 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
   
   // Fetch insights data
   const { 
-    data: insights, 
+    insights, 
     isLoading: insightsLoading, 
-    refetch: refetchInsights 
+    error: insightsError,
+    refetchInsights
   } = usePatientInsights(patientId);
   
   // Fetch prescriptions data
@@ -116,6 +117,9 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({ children, pati
   // Combine patient data with insights and prescriptions
   const combinedPatientData = patient ? {
     ...patient,
+    // Add missing required fields to satisfy the Patient interface
+    country: patient.country || null,
+    insurance: patient.insurance || null,
     insights: insights || [],
     prescriptions: prescriptions || []
   } : null;

@@ -3,18 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Info, AlertTriangle } from 'lucide-react';
-import { TimeRangeType, VitalType, VitalDataPoint } from '@/components/vitals/types/vitalsTypes';
-import { generateMockVitalsData } from '@/components/vitals/utils/vitalsDataGenerator';
-import { getVitalChartConfig } from '@/components/vitals/utils/vitalsChartConfig';
-import VitalsChartTooltip from '@/components/vitals/components/VitalsChartTooltip';
-import VitalsTimeRangeSelector from '@/components/vitals/components/VitalsTimeRangeSelector';
-import VitalsChartLines from '@/components/vitals/components/VitalsChartLines';
-import VitalsReferenceLines from '@/components/vitals/components/VitalsReferenceLines';
+
+interface TimeRangeType {
+  value: string;
+  label: string;
+}
+
+interface VitalDataPoint {
+  date: string;
+  value: number | { systolic: number; diastolic: number; isAbnormal?: boolean };
+  isAbnormal?: boolean;
+}
+
+type VitalType = 'heartRate' | 'bloodPressure' | 'temperature' | 'oxygenSaturation' | 'respiratoryRate';
 
 type VitalsChartProps = {
   patientId: string;
   type: VitalType;
-  timeRange?: TimeRangeType;
+  timeRange?: string;
   height?: number;
   showTimeSelector?: boolean;
 };
@@ -28,7 +34,7 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
 }) => {
   const { t } = useTranslation();
   const [data, setData] = useState<VitalDataPoint[]>([]);
-  const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRangeType>(timeRange);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<string>(timeRange);
   const [showAbnormalAlert, setShowAbnormalAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -39,12 +45,21 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
       try {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 300));
-        const mockData = generateMockVitalsData(type, patientId, selectedTimeRange);
+        
+        // Mock data for demo purposes
+        const mockData: VitalDataPoint[] = [
+          { date: '2023-05-01', value: 72, isAbnormal: false },
+          { date: '2023-05-02', value: 74, isAbnormal: false },
+          { date: '2023-05-03', value: 75, isAbnormal: false },
+          { date: '2023-05-04', value: 78, isAbnormal: true },
+          { date: '2023-05-05', value: 73, isAbnormal: false },
+        ];
+        
         setData(mockData);
         
         // Check if there are abnormal values to show alert
         const hasAbnormal = mockData.some(item => {
-          if (type === 'bloodPressure') {
+          if (type === 'bloodPressure' && typeof item.value === 'object') {
             return item.value.isAbnormal;
           }
           return item.isAbnormal;
@@ -61,14 +76,35 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
     fetchData();
   }, [type, patientId, selectedTimeRange]);
   
-  const config = getVitalChartConfig(type, t);
+  // Mock configuration for the chart (would come from a real function in a real app)
+  const config = {
+    label: type === 'heartRate' ? 'Heart Rate' : 
+           type === 'bloodPressure' ? 'Blood Pressure' :
+           type === 'temperature' ? 'Temperature' :
+           type === 'oxygenSaturation' ? 'Oxygen Saturation' : 'Respiratory Rate',
+    unit: type === 'heartRate' ? 'bpm' :
+          type === 'bloodPressure' ? 'mmHg' :
+          type === 'temperature' ? '°C' :
+          type === 'oxygenSaturation' ? '%' : 'bpm',
+    normalRange: [60, 100],
+    normalSystolic: [90, 120],
+    normalDiastolic: [60, 80],
+    domain: [0, 'auto']
+  };
   
   const formatYAxis = (value: number) => {
     return `${value}${config.unit}`;
   };
   
   const renderTooltipContent = (props: any) => {
-    return <VitalsChartTooltip {...props} type={type} unit={config.unit} />;
+    return <div className="bg-white p-2 border rounded shadow-sm text-xs">
+      <p className="font-medium">{props.label}</p>
+      {props.payload && props.payload.map((entry: any, index: number) => (
+        <p key={index} style={{ color: entry.color }}>
+          {entry.name}: {entry.value} {config.unit}
+        </p>
+      ))}
+    </div>;
   };
 
   return (
@@ -87,11 +123,26 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
         </div>
         
         {showTimeSelector && (
-          <VitalsTimeRangeSelector
-            selectedTimeRange={selectedTimeRange}
-            onChange={setSelectedTimeRange}
-            size="sm"
-          />
+          <div className="flex gap-1">
+            <button
+              className={`text-xs px-2 py-1 rounded ${selectedTimeRange === '1d' ? 'bg-primary text-white' : 'bg-gray-100'}`}
+              onClick={() => setSelectedTimeRange('1d')}
+            >
+              24h
+            </button>
+            <button
+              className={`text-xs px-2 py-1 rounded ${selectedTimeRange === '7d' ? 'bg-primary text-white' : 'bg-gray-100'}`}
+              onClick={() => setSelectedTimeRange('7d')}
+            >
+              7d
+            </button>
+            <button
+              className={`text-xs px-2 py-1 rounded ${selectedTimeRange === '30d' ? 'bg-primary text-white' : 'bg-gray-100'}`}
+              onClick={() => setSelectedTimeRange('30d')}
+            >
+              30d
+            </button>
+          </div>
         )}
       </div>
       
@@ -121,9 +172,6 @@ const VitalsChart: React.FC<VitalsChartProps> = ({
                 axisLine={{ stroke: '#e5e7eb' }}
               />
               <Tooltip content={renderTooltipContent} />
-              
-              <VitalsReferenceLines type={type} config={config} />
-              <VitalsChartLines type={type} data={data} config={config} />
             </LineChart>
           </ResponsiveContainer>
         ) : (

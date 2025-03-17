@@ -155,7 +155,7 @@ const PatientVitalSignsTab: React.FC<PatientVitalSignsTabProps> = ({ patientId }
                 </p>
               </CardHeader>
               <CardContent>
-                <VitalSignsDisplay vitalSigns={vitals[0]} />
+                <VitalSignsDisplay vitals={vitals[0]} />
               </CardContent>
               <CardFooter className="bg-muted/30 pt-2">
                 <div className="text-xs text-muted-foreground">
@@ -184,7 +184,7 @@ const PatientVitalSignsTab: React.FC<PatientVitalSignsTabProps> = ({ patientId }
             </div>
           ) : vitals.length > 0 ? (
             <div className="space-y-6">
-              <VitalSignsChart vitalSigns={vitals} />
+              <VitalSignsChart vitals={vitals} />
               
               <Separator />
               
@@ -204,7 +204,7 @@ const PatientVitalSignsTab: React.FC<PatientVitalSignsTabProps> = ({ patientId }
                         </div>
                       </CardHeader>
                       <CardContent className="py-3 px-4">
-                        <VitalSignsDisplay vitalSigns={vital} isCompact />
+                        <VitalSignsDisplay vitals={vital} isCompact={true} />
                       </CardContent>
                     </Card>
                   ))}

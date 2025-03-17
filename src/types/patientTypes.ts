@@ -1,14 +1,5 @@
 // Define patient status enum
-export enum PatientStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  DISCHARGED = 'discharged',
-  CRITICAL = 'critical',
-  STABLE = 'stable',
-  HOSPITAL = 'hospital',
-  HOME = 'home',
-  IMPROVING = 'improving'
-}
+export type PatientStatus = 'active' | 'inactive' | 'discharged' | 'critical' | 'stable' | 'hospital' | 'home' | 'improving';
 
 // Define patient type
 export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | null;
@@ -73,7 +64,6 @@ export interface VitalSigns {
   created_at?: string;
   updated_at?: string;
   taken_by?: string;
-  // Alias properties for compatibility with different naming conventions
   systolic_bp?: number;
   diastolic_bp?: number;
   o2_saturation?: number;
@@ -166,22 +156,22 @@ export const mapToPatientStatus = (status: string): PatientStatus => {
   
   switch (normalizedStatus) {
     case 'active':
-      return PatientStatus.ACTIVE;
+      return 'active';
     case 'inactive':
-      return PatientStatus.INACTIVE;
+      return 'inactive';
     case 'discharged':
-      return PatientStatus.DISCHARGED;
+      return 'discharged';
     case 'critical':
-      return PatientStatus.CRITICAL;
+      return 'critical';
     case 'stable':
-      return PatientStatus.STABLE;
+      return 'stable';
     case 'hospital':
-      return PatientStatus.HOSPITAL;
+      return 'hospital';
     case 'home':
-      return PatientStatus.HOME;
+      return 'home';
     case 'improving':
-      return PatientStatus.IMPROVING;
+      return 'improving';
     default:
-      return PatientStatus.ACTIVE;
+      return 'active';
   }
 };

@@ -1,5 +1,6 @@
 
 import { Patient } from '../components/patients/PatientCard';
+import { PatientStatus } from '@/types/patientTypes';
 
 // Sample patient data
 export const samplePatients: Patient[] = [
@@ -9,7 +10,7 @@ export const samplePatients: Patient[] = [
     age: 65,
     gender: "Male",
     roomNumber: "203",
-    status: "hospital",
+    status: "hospital" as PatientStatus,
     diagnosis: "Post-op recovery",
     isAssigned: false,
     mrn: "MRN-001"
@@ -19,7 +20,7 @@ export const samplePatients: Patient[] = [
     name: "Emma Thompson",
     age: 72,
     gender: "Female",
-    status: "critical",
+    status: "critical" as PatientStatus,
     roomNumber: "ICU-5",
     diagnosis: "Pneumonia",
     isAssigned: true,
@@ -31,7 +32,7 @@ export const samplePatients: Patient[] = [
     name: "Michael Johnson",
     age: 58,
     gender: "Male",
-    status: "home",
+    status: "home" as PatientStatus,
     diagnosis: "Chronic heart failure",
     isAssigned: false,
     mrn: "MRN-003"
@@ -42,7 +43,7 @@ export const samplePatients: Patient[] = [
     age: 45,
     gender: "Female",
     roomNumber: "105",
-    status: "improving",
+    status: "improving" as PatientStatus,
     diagnosis: "Diabetes management",
     isAssigned: false,
     mrn: "MRN-004"
@@ -52,7 +53,7 @@ export const samplePatients: Patient[] = [
     name: "Robert Chen",
     age: 68,
     gender: "Male",
-    status: "stable",
+    status: "stable" as PatientStatus,
     roomNumber: "218",
     diagnosis: "Hip replacement",
     isAssigned: false,
@@ -63,7 +64,7 @@ export const samplePatients: Patient[] = [
     name: "Olivia Wilson",
     age: 83,
     gender: "Female",
-    status: "home",
+    status: "home" as PatientStatus,
     diagnosis: "Rehabilitation",
     isAssigned: false,
     mrn: "MRN-006"
@@ -73,7 +74,7 @@ export const samplePatients: Patient[] = [
     name: "William Davis",
     age: 71,
     gender: "Male",
-    status: "discharged",
+    status: "discharged" as PatientStatus,
     diagnosis: "Recovered",
     isAssigned: false,
     mrn: "MRN-007"
