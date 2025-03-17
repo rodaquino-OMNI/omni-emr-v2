@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { PlusCircle, RefreshCw } from 'lucide-react';
 import { AIInsightCard } from '@/components/ai/AIInsightCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { adaptToComponentAIInsight } from '@/utils/typeAdapters';
-import { AIInsight, PatientInsight } from '@/types/patient';
+import { AIInsight, PatientInsight, ComponentAIInsight as PatientComponentAIInsight } from '@/types/patient';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface ComponentAIInsight {
@@ -21,6 +20,10 @@ export interface ComponentAIInsight {
     action: string;
   }[];
   dismissed?: boolean;
+  description?: string;
+  timestamp?: string;
+  created_at?: string;
+  patient_id?: string;
 }
 
 export interface PatientAIInsightsTabProps {
@@ -46,8 +49,15 @@ const PatientAIInsightsTab: React.FC<PatientAIInsightsTabProps> = ({
   const [insightComponents, setInsightComponents] = useState<ComponentAIInsight[]>([]);
   
   useEffect(() => {
-    // Convert insights to component format
-    const convertedInsights = insights.map(insight => adaptToComponentAIInsight(insight));
+    const convertedInsights = insights.map(insight => {
+      const adaptedInsight = adaptToComponentAIInsight(insight);
+      return {
+        ...adaptedInsight,
+        date: adaptedInsight.created_at || adaptedInsight.timestamp || new Date().toISOString(),
+        content: adaptedInsight.description || adaptedInsight.content || "No content available"
+      } as ComponentAIInsight;
+    });
+    
     setInsightComponents(convertedInsights);
   }, [insights]);
 

@@ -1,61 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Search, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
+import { cn } from '@/lib/utils';
 
-interface SearchInputProps {
+export interface SearchInputProps {
   value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
+  onChange: (searchTerm: string) => void;
+  customClassName?: string;
 }
 
 const SearchInput: React.FC<SearchInputProps> = ({ 
   value, 
-  onChange, 
-  placeholder = "Search tasks..." 
+  onChange,
+  customClassName
 }) => {
-  const [localValue, setLocalValue] = useState(value);
-  
-  // Update local value when prop value changes
-  useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
-  
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localValue !== value) {
-        onChange(localValue);
-      }
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, [localValue, onChange, value]);
+  const { t } = useTranslation();
   
   return (
-    <div className="relative flex-1 max-w-sm">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <div className={cn(
+      "relative w-full md:w-64 lg:w-72", 
+      customClassName
+    )}>
+      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      
       <Input
-        value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
-        placeholder={placeholder}
-        className="pl-9 pr-9 h-9"
+        type="search"
+        placeholder={t('searchTasks', 'Search tasks...')}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="pl-9 pr-4 h-10"
       />
-      {localValue && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute right-0 top-0 h-9 w-9 p-0"
-          onClick={() => {
-            setLocalValue('');
-            onChange('');
-          }}
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Clear</span>
-        </Button>
-      )}
     </div>
   );
 };

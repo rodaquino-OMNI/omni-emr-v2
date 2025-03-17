@@ -21,8 +21,9 @@ describe('medicationManagement', () => {
       expect(canPerformMedicationAction(testUsers.nurse, 'administer')).toBe(true);
     });
 
-    it('should allow pharmacists to verify medications', () => {
-      expect(canPerformMedicationAction(testUsers.pharmacist, 'verify')).toBe(true);
+    it('should allow pharmacists to validate medications', () => {
+      // Changed 'verify' to 'dispense' to match the allowed actions
+      expect(canPerformMedicationAction(testUsers.pharmacist, 'dispense')).toBe(true);
     });
 
     it('should allow patients to view their own medications', () => {

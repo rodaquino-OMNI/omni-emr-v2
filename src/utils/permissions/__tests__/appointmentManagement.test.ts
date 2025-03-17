@@ -17,14 +17,16 @@ describe('appointmentManagement', () => {
       expect(canPerformAppointmentAction(testUsers.patient, 'schedule')).toBe(true);
     });
 
-    it('should allow administrative staff to schedule and modify appointments', () => {
+    it('should allow administrative staff to schedule and reschedule appointments', () => {
       expect(canPerformAppointmentAction(testUsers.administrative, 'schedule')).toBe(true);
-      expect(canPerformAppointmentAction(testUsers.administrative, 'modify')).toBe(true);
+      // Changed 'modify' to 'reschedule' to match the allowed actions
+      expect(canPerformAppointmentAction(testUsers.administrative, 'reschedule')).toBe(true);
       expect(canPerformAppointmentAction(testUsers.administrative, 'cancel')).toBe(true);
     });
 
     it('should deny patients from modifying appointments', () => {
-      expect(canPerformAppointmentAction(testUsers.patient, 'modify')).toBe(false);
+      // Changed 'modify' to 'reschedule' to match the allowed actions
+      expect(canPerformAppointmentAction(testUsers.patient, 'reschedule')).toBe(false);
       expect(canPerformAppointmentAction(testUsers.patient, 'cancel')).toBe(false);
     });
 

@@ -13,11 +13,18 @@ interface NoteEditorTabsProps {
 const NoteEditorTabs = ({ activeTab, onTabChange }: NoteEditorTabsProps) => {
   const { language } = useTranslation();
   
+  // Create a type-safe handler
+  const handleTabChange = (value: string) => {
+    if (value === 'editor' || value === 'preview') {
+      onTabChange(value);
+    }
+  };
+  
   return (
     <Tabs 
       defaultValue="editor" 
       value={activeTab} 
-      onValueChange={(value) => onTabChange(value as 'editor' | 'preview')}
+      onValueChange={handleTabChange}
       className="w-auto"
     >
       <TabsList className="grid grid-cols-2 w-[200px] h-9">

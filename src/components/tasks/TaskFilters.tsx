@@ -3,7 +3,7 @@ import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import { TaskFilter } from '@/services/tasks/taskFilters';
+import { TaskFilter } from '@/types/TaskFilter';
 import SearchInput from './filters/SearchInput';
 import FilterPopover from './filters/FilterPopover';
 import ActiveFilters from './filters/ActiveFilters';
@@ -61,7 +61,7 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
         <SearchInput 
           value={searchTerm} 
           onChange={onSearchChange} 
-          className="transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/30"
+          customClassName="transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/30"
         />
         
         <FilterPopover 

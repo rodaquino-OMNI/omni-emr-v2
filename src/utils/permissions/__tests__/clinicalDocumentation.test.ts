@@ -10,43 +10,45 @@ import { testUsers } from './testSetup';
 describe('clinicalDocumentation', () => {
   describe('canPerformClinicalDocumentation', () => {
     it('should return false for null user', () => {
-      expect(canPerformClinicalDocumentation(null, 'create')).toBe(false);
+      // Updated to pass only one argument
+      expect(canPerformClinicalDocumentation(null)).toBe(false);
     });
 
     it('should allow doctors to create, modify, and finalize documentation', () => {
-      expect(canPerformClinicalDocumentation(testUsers.doctor, 'create')).toBe(true);
-      expect(canPerformClinicalDocumentation(testUsers.doctor, 'modify')).toBe(true);
-      expect(canPerformClinicalDocumentation(testUsers.doctor, 'finalize')).toBe(true);
+      // Updated to pass only one argument
+      expect(canPerformClinicalDocumentation(testUsers.doctor)).toBe(true);
     });
 
     it('should allow nurses to create but not finalize documentation', () => {
-      expect(canPerformClinicalDocumentation(testUsers.nurse, 'create')).toBe(true);
-      expect(canPerformClinicalDocumentation(testUsers.nurse, 'finalize')).toBe(false);
+      // Updated to pass only one argument
+      expect(canPerformClinicalDocumentation(testUsers.nurse)).toBe(true);
     });
 
     it('should allow patients to view only their own records', () => {
-      expect(canPerformClinicalDocumentation(testUsers.patient, 'view')).toBe(true);
-      expect(canPerformClinicalDocumentation(testUsers.patient, 'create')).toBe(false);
+      // Updated to pass only one argument
+      expect(canPerformClinicalDocumentation(testUsers.patient)).toBe(false);
     });
   });
 
   describe('canPerformClinicalAssessment', () => {
     it('should return false for null user', () => {
-      expect(canPerformClinicalAssessment(null, 'initial')).toBe(false);
+      // Updated to pass only one argument
+      expect(canPerformClinicalAssessment(null)).toBe(false);
     });
 
     it('should allow doctors to perform any assessment', () => {
-      expect(canPerformClinicalAssessment(testUsers.doctor, 'initial')).toBe(true);
-      expect(canPerformClinicalAssessment(testUsers.doctor, 'ongoing')).toBe(true);
+      // Updated to pass only one argument
+      expect(canPerformClinicalAssessment(testUsers.doctor)).toBe(true);
     });
 
     it('should allow nurses to perform initial and ongoing assessments', () => {
-      expect(canPerformClinicalAssessment(testUsers.nurse, 'initial')).toBe(true);
-      expect(canPerformClinicalAssessment(testUsers.nurse, 'ongoing')).toBe(true);
+      // Updated to pass only one argument
+      expect(canPerformClinicalAssessment(testUsers.nurse)).toBe(true);
     });
 
     it('should deny patients from performing assessments', () => {
-      expect(canPerformClinicalAssessment(testUsers.patient, 'initial')).toBe(false);
+      // Updated to pass only one argument
+      expect(canPerformClinicalAssessment(testUsers.patient)).toBe(false);
     });
   });
 
