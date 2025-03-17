@@ -1,33 +1,34 @@
 
 import React from 'react';
 import SidebarLogo from './SidebarLogo';
-import SidebarUserProfile from './SidebarUserProfile';
-import QuickActions from './sidebar/QuickActions';
-import MainNavigation from './sidebar/MainNavigation';
+import { MainNavigation } from './sidebar/MainNavigation';
+import { SidebarUserProfile } from './SidebarUserProfile';
 import { useAuth } from '@/context/AuthContext';
 
 interface SidebarContentProps {
   onItemClick?: () => void;
 }
 
-const SidebarContent = ({ onItemClick }: SidebarContentProps) => {
+const SidebarContent: React.FC<SidebarContentProps> = ({ onItemClick }) => {
   const { user } = useAuth();
-  
+
   return (
-    <>
+    <div className="flex flex-col h-full py-4">
       <SidebarLogo />
       
-      <div className="px-3 space-y-1 flex-1 overflow-y-auto">
-        {/* Quick actions section - shown for roles with quick actions */}
-        <QuickActions onItemClick={onItemClick} />
-        
-        {/* Main navigation items */}
+      <div className="flex-1 px-3 mt-6">
         <MainNavigation onItemClick={onItemClick} />
       </div>
       
-      {/* Pass user and onItemClick properly */}
-      <SidebarUserProfile user={user} onItemClick={onItemClick} />
-    </>
+      {user && (
+        <div className="px-3 mt-auto pt-4">
+          <SidebarUserProfile 
+            user={user} 
+            onItemClick={onItemClick} 
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

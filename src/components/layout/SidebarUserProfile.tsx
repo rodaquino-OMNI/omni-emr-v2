@@ -62,7 +62,7 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
         <div className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-primary/5 transition-colors rounded-md">
           <div className="flex items-center space-x-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.avatarUrl || ''} />
+              <AvatarImage src={user.avatar_url || ''} />
               <AvatarFallback className="bg-primary/10 text-primary text-xs">
                 {getInitials(user.name)}
               </AvatarFallback>

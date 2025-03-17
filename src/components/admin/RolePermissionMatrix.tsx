@@ -107,9 +107,7 @@ const RolePermissionMatrix: React.FC = () => {
       } catch (err: any) {
         console.error('Error fetching data:', err);
         setError(err?.message || 'Failed to fetch data');
-        toast("Failed to load security roles and permissions. Please try again.", {
-          variant: "destructive"
-        });
+        toast("Failed to load security roles and permissions. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -158,16 +156,12 @@ const RolePermissionMatrix: React.FC = () => {
     } catch (err: any) {
       console.error('Error toggling permission:', err);
       setError(err?.message || 'Failed to toggle permission');
-      toast("Failed to update security permission. Please try again.", {
-        variant: "destructive"
-      });
+      toast("Failed to update security permission. Please try again.");
     }
   };
 
   const showSuccess = () => {
-    toast("Permissions saved successfully", {
-      variant: "success"
-    });
+    toast("Permissions saved successfully");
   };
 
   return (
