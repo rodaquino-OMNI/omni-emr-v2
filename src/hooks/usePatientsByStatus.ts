@@ -3,6 +3,9 @@ import { useSupabaseQuery } from './api/useSupabaseQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { Patient, PatientStatus } from '@/types/patientTypes';
 
+/**
+ * Hook for fetching patients filtered by status
+ */
 export function usePatientsByStatus(status?: PatientStatus | PatientStatus[]) {
   const statusArray = status ? (Array.isArray(status) ? status : [status]) : [];
   const statusKey = statusArray.join(',');
@@ -24,7 +27,7 @@ export function usePatientsByStatus(status?: PatientStatus | PatientStatus[]) {
       return data as Patient[];
     },
     {
-      staleTime: 5 * 60 * 1000 // 5 minutes
+      enabled: true
     }
   );
 }

@@ -179,3 +179,21 @@ export async function executeTransaction<T>(
     throw handleTransactionError(error, transactionName);
   }
 }
+
+/**
+ * Handle transaction errors with appropriate error messages
+ */
+function handleTransactionError(error: any, transactionName: string): Error {
+  // Format error message for transaction errors
+  const baseMessage = `Transaction "${transactionName}" failed: `;
+  
+  if (error?.message) {
+    return new Error(`${baseMessage}${error.message}`);
+  }
+  
+  if (typeof error === 'string') {
+    return new Error(`${baseMessage}${error}`);
+  }
+  
+  return new Error(`${baseMessage}Unknown error`);
+}
