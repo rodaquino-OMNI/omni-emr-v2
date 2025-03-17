@@ -4,7 +4,6 @@ import { RouteObject } from 'react-router-dom';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import Layout from '../components/layout/Layout';
 import Dashboard from '../pages/Dashboard';
-import SectorSelection from '../pages/SectorSelection';
 import Unauthorized from '../pages/Unauthorized';
 import { RoleBasedRoute } from '@/registry/RoleBasedRouter';
 
@@ -16,17 +15,16 @@ export const protectedRoutes: RouteObject[] = [
       {
         path: '/dashboard',
         element: (
-          <ProtectedRoute requiredPermission="dashboard:view">
+          <ProtectedRoute 
+            requiredPermission="dashboard:view"
+            requireSector={false} // Don't require sector for dashboard
+          >
             <Dashboard />
           </ProtectedRoute>
         ),
         handle: {
           requiredPermission: "dashboard:view"
         }
-      },
-      {
-        path: '/sectors',
-        element: <ProtectedRoute><SectorSelection /></ProtectedRoute>
       },
       {
         path: '/unauthorized',
@@ -38,6 +36,7 @@ export const protectedRoutes: RouteObject[] = [
           <ProtectedRoute 
             requiredPermission="patients:view"
             requiredRole={['doctor', 'nurse', 'administrative']}
+            requireSector={true} // Require sector for patients
           >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>
@@ -50,7 +49,8 @@ export const protectedRoutes: RouteObject[] = [
         ),
         handle: {
           requiredPermission: "patients:view",
-          requiredRoles: ['doctor', 'nurse', 'administrative']
+          requiredRoles: ['doctor', 'nurse', 'administrative'],
+          requireSector: true
         }
       },
       {
@@ -59,6 +59,7 @@ export const protectedRoutes: RouteObject[] = [
           <ProtectedRoute 
             requiredPermission="patients:view"
             requiredRole={['doctor', 'nurse', 'administrative']}
+            requireSector={true} // Require sector for patient details
           >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>
@@ -71,13 +72,17 @@ export const protectedRoutes: RouteObject[] = [
         ),
         handle: {
           requiredPermission: "patients:view",
-          requiredRoles: ['doctor', 'nurse', 'administrative']
+          requiredRoles: ['doctor', 'nurse', 'administrative'],
+          requireSector: true
         }
       },
       {
         path: '/clinical-documentation',
         element: (
-          <ProtectedRoute requiredPermission="notes:view">
+          <ProtectedRoute 
+            requiredPermission="notes:view"
+            requireSector={true} // Require sector for clinical documentation
+          >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>
                 {React.createElement(React.lazy(() => import('../pages/ClinicalDocumentation')))}
@@ -89,13 +94,17 @@ export const protectedRoutes: RouteObject[] = [
         ),
         handle: {
           requiredPermission: "notes:view",
-          requiredRoles: ['doctor', 'nurse', 'specialist']
+          requiredRoles: ['doctor', 'nurse', 'specialist'],
+          requireSector: true
         }
       },
       {
         path: '/medications',
         element: (
-          <ProtectedRoute requiredPermission="medications:view">
+          <ProtectedRoute 
+            requiredPermission="medications:view"
+            requireSector={true} // Require sector for medications
+          >
             <RoleBasedRoute
               element={<React.Suspense fallback={<div>Loading...</div>}>
                 {React.createElement(React.lazy(() => import('../pages/Medications')))}
@@ -107,7 +116,8 @@ export const protectedRoutes: RouteObject[] = [
         ),
         handle: {
           requiredPermission: "medications:view",
-          requiredRoles: ['doctor', 'nurse', 'pharmacist']
+          requiredRoles: ['doctor', 'nurse', 'pharmacist'],
+          requireSector: true
         }
       }
       // Additional protected routes can be added here
