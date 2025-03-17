@@ -10,6 +10,7 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import { useTranslation } from '@/hooks/useTranslation';
 import TranslatedText from '@/components/common/TranslatedText';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PatientStatus } from '@/types/patientTypes';
 
 // Export the Patient type so it can be imported in other files
 export interface Patient {
@@ -18,7 +19,7 @@ export interface Patient {
   age: number;
   gender: string;
   roomNumber?: string | null;
-  status: "hospital" | "home" | "discharged" | "critical" | "stable" | "improving";
+  status: PatientStatus;
   isAssigned: boolean;
   isCritical?: boolean;
   mrn: string;

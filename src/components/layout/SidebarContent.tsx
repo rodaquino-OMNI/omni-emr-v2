@@ -1,7 +1,7 @@
 
 import React from 'react';
 import SidebarLogo from './SidebarLogo';
-import { MainNavigation } from './sidebar/MainNavigation';
+import MainNavigation from './sidebar/MainNavigation';
 import { SidebarUserProfile } from './SidebarUserProfile';
 import { useAuth } from '@/context/AuthContext';
 

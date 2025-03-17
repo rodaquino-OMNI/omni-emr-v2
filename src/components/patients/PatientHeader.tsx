@@ -6,9 +6,18 @@ import StatusBadge from '../ui/StatusBadge';
 import { AlertCircle, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AIInsight } from '../ai/AIInsights';
+import { PatientStatus } from '@/types/patientTypes';
 
 type PatientHeaderProps = {
-  patient: Patient;
+  patient: {
+    id: string;
+    name: string;
+    status: PatientStatus;
+    age: number;
+    gender: string;
+    roomNumber?: string;
+    diagnosis?: string;
+  };
   hasCriticalInsights: boolean;
 };
 

@@ -7,6 +7,7 @@ import StatusBadge from '../ui/StatusBadge';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { PatientStatus } from '@/types/patientTypes';
 
 type Patient = {
   id: string;
@@ -14,7 +15,7 @@ type Patient = {
   age: number;
   gender: 'male' | 'female';
   room?: string;
-  status: "hospital" | "home" | "discharged" | "critical" | "stable" | "improving";
+  status: PatientStatus;
   lastVisit?: string;
   nextAppointment?: string;
   image?: string;
