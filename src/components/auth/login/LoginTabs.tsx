@@ -13,6 +13,7 @@ interface ValidationErrors {
 
 interface LoginTabsProps {
   activeView: 'email' | 'phone' | 'social';
+  setActiveView: (view: 'email' | 'phone' | 'social') => void;
   email: string;
   setEmail: (email: string) => void;
   password: string;
@@ -48,6 +49,7 @@ interface LoginTabsProps {
 
 const LoginTabs: React.FC<LoginTabsProps> = ({
   activeView,
+  setActiveView,
   email,
   setEmail,
   password,
@@ -81,7 +83,7 @@ const LoginTabs: React.FC<LoginTabsProps> = ({
   remainingLockoutTime = 0
 }) => {
   return (
-    <Tabs defaultValue={activeView} className="w-full">
+    <Tabs value={activeView} onValueChange={(value) => setActiveView(value as 'email' | 'phone' | 'social')} className="w-full">
       <TabsList className="grid grid-cols-3 mb-6 bg-background/10 p-1 rounded-lg">
         <TabsTrigger value="email" onClick={clearEmailError} className="flex items-center gap-2 data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground">
           <Mail className="h-4 w-4" />

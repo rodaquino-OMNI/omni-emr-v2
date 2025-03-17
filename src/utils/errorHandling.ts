@@ -1,124 +1,80 @@
 
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { PostgrestError } from '@supabase/supabase-js';
 
 /**
- * Standard error handling for API and data fetching operations
+ * Handle Supabase PostgrestError and display appropriate toast message
  */
-export function handleApiError(error: unknown, friendlyMessage: string): Error {
-  console.error('API Error:', error);
+export const handleDatabaseError = (error: PostgrestError | null | unknown): void => {
+  if (!error) return;
   
-  // Create standardized error object
-  const errorObj = error instanceof Error ? error : new Error(
-    typeof error === 'string' ? error : friendlyMessage
-  );
-  
-  // Show toast notification for user
-  toast({
-    title: 'Error',
-    description: friendlyMessage,
-    variant: 'destructive'
-  });
-  
-  return errorObj;
-}
-
-/**
- * Format error message for display
- */
-export function formatErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
+  // For PostgrestError from Supabase
+  if (typeof error === 'object' && error !== null && 'code' in error && 'message' in error) {
+    const pgError = error as PostgrestError;
+    
+    console.error('Database error:', pgError);
+    
+    // Handle common error codes
+    switch (pgError.code) {
+      case '23505': // unique_violation
+        toast.error('Record already exists', {
+          description: 'A duplicate record was found. Please modify your data and try again.'
+        });
+        break;
+        
+      case '23503': // foreign_key_violation
+        toast.error('Related record not found', {
+          description: 'The referenced record does not exist or has been deleted.'
+        });
+        break;
+        
+      case '42P01': // undefined_table
+        toast.error('System error', {
+          description: 'The requested data table does not exist. Please contact support.'
+        });
+        break;
+        
+      case '42601': // syntax_error
+      case '42702': // ambiguous_column
+      case '42703': // undefined_column
+        toast.error('Query error', {
+          description: 'There was a problem with the database query. Please contact support.'
+        });
+        break;
+        
+      default:
+        toast.error('Database error', {
+          description: pgError.message || 'An unknown database error occurred.'
+        });
+    }
+  } else {
+    // Generic error handling
+    console.error('Application error:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    
+    toast.error('Error', {
+      description: errorMessage
+    });
   }
-  
-  if (typeof error === 'string') {
-    return error;
-  }
-  
-  return 'An unknown error occurred';
-}
+};
 
 /**
- * Validate API response data
+ * Handle form validation errors
  */
-export function validateApiResponse<T>(data: T | null): T {
-  if (!data) {
-    throw new Error('Data not found');
-  }
-  return data;
-}
-
-/**
- * Specialized error handling for Supabase database operations
- */
-export function handleDatabaseError(error: unknown, operation: string, entity: string): Error {
-  console.error(`Database Error (${operation} ${entity}):`, error);
-  
-  // Detect specific Supabase error types
-  const supabaseError = error as { code?: string; message?: string };
-  
-  // Create more specific error messages based on common Supabase error codes
-  let errorMessage = `Failed to ${operation} ${entity}`;
-  let friendlyMessage = `There was a problem with the ${entity.toLowerCase()} data`;
-  
-  // Check for common Supabase error codes
-  if (supabaseError?.code) {
-    switch (supabaseError.code) {
-      case '23505': // Unique violation
-        errorMessage = `A ${entity.toLowerCase()} with this identifier already exists`;
-        friendlyMessage = `This ${entity.toLowerCase()} already exists in the system`;
-        break;
-      case '23503': // Foreign key violation
-        errorMessage = `Referenced ${entity.toLowerCase()} doesn't exist`;
-        friendlyMessage = `The ${entity.toLowerCase()} references data that doesn't exist`;
-        break;
-      case '42P01': // Undefined table
-        errorMessage = `Database table not found`;
-        friendlyMessage = `System configuration error`;
-        break;
-      case '42703': // Undefined column
-        errorMessage = `Database column not found`;
-        friendlyMessage = `System configuration error`;
-        break;
-      case '28P01': // Connection error
-        errorMessage = `Database authentication error`;
-        friendlyMessage = `Unable to connect to the database`;
-        break;
-      case '23502': // Not null violation
-        errorMessage = `Missing required fields`;
-        friendlyMessage = `Please fill out all required fields`;
-        break;
+export const handleValidationErrors = (
+  errors: Record<string, string> | null | undefined, 
+  setValidationErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>
+): void => {
+  if (errors && Object.keys(errors).length > 0) {
+    setValidationErrors(errors);
+    
+    // Show toast with first error
+    const firstError = Object.values(errors)[0];
+    if (firstError) {
+      toast.error('Validation Error', {
+        description: firstError
+      });
     }
   }
-  
-  const errorObj = new Error(errorMessage);
-  
-  // Show toast notification for user
-  toast({
-    title: 'Database Error',
-    description: friendlyMessage,
-    variant: 'destructive'
-  });
-  
-  return errorObj;
-}
-
-/**
- * Handle transaction errors with proper rollback support
- */
-export function handleTransactionError(error: unknown, operation: string): Error {
-  console.error(`Transaction Error (${operation}):`, error);
-  
-  const errorObj = error instanceof Error ? error : new Error(
-    typeof error === 'string' ? error : `Failed to complete ${operation}`
-  );
-  
-  // Show specific toast for transaction errors
-  toast({
-    title: 'Operation Failed',
-    description: `The ${operation} couldn't be completed. No changes were made.`,
-    variant: 'destructive'
-  });
-  
-  return errorObj;
-}
-
+};

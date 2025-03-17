@@ -8,15 +8,13 @@ export type LoginView = 'email' | 'phone' | 'social';
 interface LoginHeaderProps {
   t: (key: string, fallback?: string) => string;
   language: Languages;
-  activeView: LoginView;
-  setActiveView: (view: LoginView) => void;
+  activeView?: LoginView;
+  setActiveView?: (view: LoginView) => void;
 }
 
 const LoginHeader: React.FC<LoginHeaderProps> = ({ 
   t, 
-  language,
-  activeView,
-  setActiveView
+  language
 }) => {
   return (
     <div className="space-y-4 text-center mb-6">

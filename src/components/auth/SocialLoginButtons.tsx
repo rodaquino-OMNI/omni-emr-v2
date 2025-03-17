@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Languages } from '@/types/auth';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
-// Update props to match with LoginTabs component
 interface SocialLoginButtonsProps {
   handleSocialLogin: (provider: 'google' | 'facebook' | 'twitter' | 'azure') => void;
   isLoading: boolean;
@@ -69,10 +68,10 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin mr-2" />
         ) : (
-          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none">
             <path
-              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-              fill="#fff"
+              d="M9.19795 21.5H13.198V13.4901H16.8021L17.198 9.50977H13.198V7.5C13.198 6.94772 13.6457 6.5 14.198 6.5H17.198V2.5H14.198C11.4365 2.5 9.19795 4.73858 9.19795 7.5V9.50977H7.19795L6.80206 13.4901H9.19795V21.5Z"
+              fill="white"
             />
           </svg>
         )}
@@ -87,9 +86,11 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin mr-2" />
         ) : (
-          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
-            <rect width="24" height="24" fill="#0078D4" />
-            <path d="M12 6l-8 2v8l8 2 8-2V8l-8-2z" fill="#fff" />
+          <svg className="h-5 w-5 mr-2" viewBox="0 0 23 23" fill="none">
+            <path d="M1 1h9v9H1V1z" fill="#f25022" />
+            <path d="M1 12h9v9H1v-9z" fill="#00a4ef" />
+            <path d="M12 1h9v9h-9V1z" fill="#7fba00" />
+            <path d="M12 12h9v9h-9v-9z" fill="#ffb900" />
           </svg>
         )}
         {language === 'pt' ? 'Continuar com Microsoft' : 'Continue with Microsoft'}

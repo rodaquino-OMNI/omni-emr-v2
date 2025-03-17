@@ -1,59 +1,40 @@
 
+import { format, isValid, parseISO } from 'date-fns';
+
 /**
- * Format a date as a relative time string (e.g., "2 hours ago")
+ * Format a date string or Date object to a readable format
+ * 
+ * @param dateString Date string or Date object to format
+ * @param formatString Optional format string for date-fns
+ * @returns Formatted date string or "Invalid Date" if the date is invalid
  */
-export const formatRelativeTime = (date: Date): string => {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) {
-    return 'just now';
+export const formatDate = (dateString?: string | Date | null, formatString: string = 'MMM dd, yyyy HH:mm'): string => {
+  if (!dateString) return 'Not recorded';
+  
+  try {
+    const date = typeof dateString === 'string' ? parseISO(dateString) : dateString;
+    
+    if (!isValid(date)) {
+      return 'Invalid Date';
+    }
+    
+    return format(date, formatString);
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Invalid Date';
   }
-
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-  }
-
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-  }
-
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-  }
-
-  const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) {
-    return `${diffInMonths} month${diffInMonths > 1 ? 's' : ''} ago`;
-  }
-
-  const diffInYears = Math.floor(diffInMonths / 12);
-  return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
 };
 
 /**
- * Format a date as a string (e.g., "Jan 1, 2021")
+ * Format a date string or Date object to a short date format (MMM d, yyyy)
  */
-export const formatDate = (date: Date, locale: string = 'en-US'): string => {
-  return date.toLocaleDateString(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+export const formatShortDate = (dateString?: string | Date | null): string => {
+  return formatDate(dateString, 'MMM d, yyyy');
 };
 
 /**
- * Format a date as a string with time (e.g., "Jan 1, 2021, 12:00 PM")
+ * Format a date string or Date object to show only time (HH:mm)
  */
-export const formatDateTime = (date: Date, locale: string = 'en-US'): string => {
-  return date.toLocaleDateString(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  });
+export const formatTime = (dateString?: string | Date | null): string => {
+  return formatDate(dateString, 'HH:mm');
 };
