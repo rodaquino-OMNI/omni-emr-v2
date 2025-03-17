@@ -1,33 +1,45 @@
 
-import { useMemo } from 'react';
+import React from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { UserRole } from '@/types/auth';
-import { componentRegistry } from '@/registry/RoleComponentRegistry';
-import { DefaultDashboard } from '@/registry/entrypoints';
+import DefaultDashboard from '@/components/dashboard/DefaultDashboard';
 
-/**
- * Hook that returns the appropriate dashboard component based on user role
- */
 export const useRoleBasedDashboard = () => {
   const { user } = useAuth();
   
-  const DashboardComponent = useMemo(() => {
-    // If user is not authenticated or has no role, default dashboard
-    if (!user || !user.role) {
-      return DefaultDashboard;
+  // Default to the standard dashboard component
+  let DashboardComponent = DefaultDashboard;
+  
+  // If user role is doctor, use DoctorDashboard or fall back to DefaultDashboard
+  if (user?.role === 'doctor') {
+    try {
+      // Dynamically import if possible, otherwise use default
+      const DoctorDashboard = React.lazy(() => import('@/registry/entrypoints/DoctorDashboard'));
+      DashboardComponent = () => (
+        <React.Suspense fallback={<div>Loading doctor dashboard...</div>}>
+          <DoctorDashboard />
+        </React.Suspense>
+      );
+    } catch (e) {
+      console.warn('Doctor dashboard not available, using default');
     }
-    
-    // Get component from registry based on role
-    const roleSpecificDashboard = componentRegistry.getComponent(
-      'dashboard', 
-      user.role as UserRole
-    );
-    
-    return roleSpecificDashboard || DefaultDashboard;
-  }, [user]);
+  }
+  
+  // If user role is nurse, use NurseDashboard or fall back to DefaultDashboard
+  if (user?.role === 'nurse') {
+    try {
+      // Dynamically import if possible, otherwise use default
+      const NurseDashboard = React.lazy(() => import('@/registry/entrypoints/NurseDashboard'));
+      DashboardComponent = () => (
+        <React.Suspense fallback={<div>Loading nurse dashboard...</div>}>
+          <NurseDashboard />
+        </React.Suspense>
+      );
+    } catch (e) {
+      console.warn('Nurse dashboard not available, using default');
+    }
+  }
   
   return {
-    DashboardComponent,
-    userRole: user?.role || 'guest'
+    DashboardComponent
   };
 };

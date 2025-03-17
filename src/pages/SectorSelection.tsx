@@ -23,8 +23,8 @@ const SectorSelection: React.FC = () => {
     fetchSectors();
   }, [fetchSectors]);
   
-  // Define fallback sectors for when context is empty
-  const fallbackSectors = [
+  // Define specialized sectors for healthcare
+  const specializedSectors = [
     {
       id: 'emergency',
       name: language === 'pt' ? 'Emergência' : 'Emergency',
@@ -40,8 +40,36 @@ const SectorSelection: React.FC = () => {
       is_active: true
     },
     {
+      id: 'cardiology',
+      name: language === 'pt' ? 'Cardiologia' : 'Cardiology',
+      description: language === 'pt' ? 'Departamento de cardiologia para tratamento de doenças cardíacas' : 'Cardiology department for heart disease treatment',
+      code: 'CAR',
+      is_active: true
+    },
+    {
+      id: 'neurology',
+      name: language === 'pt' ? 'Neurologia' : 'Neurology',
+      description: language === 'pt' ? 'Departamento de neurologia para tratamento de doenças neurológicas' : 'Neurology department for neurological disorders',
+      code: 'NEU',
+      is_active: true
+    },
+    {
+      id: 'oncology',
+      name: language === 'pt' ? 'Oncologia' : 'Oncology',
+      description: language === 'pt' ? 'Departamento de oncologia para tratamento de câncer' : 'Oncology department for cancer treatment',
+      code: 'ONC',
+      is_active: true
+    },
+    {
+      id: 'pediatrics',
+      name: language === 'pt' ? 'Pediatria' : 'Pediatrics',
+      description: language === 'pt' ? 'Departamento de pediatria para atendimento infantil' : 'Pediatrics department for child care',
+      code: 'PED',
+      is_active: true
+    },
+    {
       id: 'general',
-      name: language === 'pt' ? 'Enfermaria Geral' : 'General Medical',
+      name: language === 'pt' ? 'Enfermaria Geral' : 'General Ward',
       description: language === 'pt' ? 'Enfermaria médica geral para internação padrão' : 'General medical ward for standard inpatient care',
       code: 'GEN',
       is_active: true
@@ -52,20 +80,13 @@ const SectorSelection: React.FC = () => {
       description: language === 'pt' ? 'Clínicas e serviços ambulatoriais' : 'Outpatient clinics and services',
       code: 'OUT',
       is_active: true
-    },
-    {
-      id: 'homecare',
-      name: language === 'pt' ? 'Cuidados Domiciliares' : 'Home Care',
-      description: language === 'pt' ? 'Serviços de cuidados remotos para pacientes em casa' : 'Remote care services for patients at home',
-      code: 'HMC',
-      is_active: true
     }
   ];
 
-  // Use context sectors if available, otherwise use fallback
+  // Use context sectors if available, otherwise use specialized sectors
   const availableSectors = sectors.length > 0 
     ? sectors 
-    : fallbackSectors;
+    : specializedSectors;
 
   const handleContinue = () => {
     if (selectedSector) {
@@ -127,7 +148,7 @@ const SectorSelection: React.FC = () => {
             )}
           </div>
           <CardDescription>
-            {t('selectSectorDescription')}
+            {t('selectSectorDescription', 'Please select the sector where you will be working')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -178,7 +199,7 @@ const SectorSelection: React.FC = () => {
             disabled={!selectedSector || isLoading}
             onClick={handleContinue}
           >
-            {t('continue')}
+            {t('continue', 'Continue')}
           </Button>
         </CardFooter>
       </Card>

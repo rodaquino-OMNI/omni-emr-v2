@@ -31,6 +31,8 @@ const SectorSelector = () => {
           ? `Setor alterado para ${sector.name}` 
           : `Sector changed to ${sector.name}`
       );
+      // Redirect to dashboard after selecting sector
+      navigate('/dashboard');
     }
   };
   

@@ -33,7 +33,7 @@ const RoleDashboardContainer: React.FC = () => {
         </p>
         <div className="flex justify-center gap-4">
           <Button onClick={() => navigate('/sectors')}>
-            {t('manageSectors', 'Manage Sectors')}
+            {t('selectSector', 'Select Sector')}
           </Button>
         </div>
       </Card>
@@ -53,15 +53,29 @@ const RoleDashboardContainer: React.FC = () => {
         </p>
         <div className="flex justify-center gap-4">
           <Button onClick={() => navigate('/sectors')}>
-            {t('manageSectors', 'Manage Sectors')}
+            {t('refreshSectors', 'Refresh Sectors')}
           </Button>
         </div>
       </Card>
     );
   }
   
-  // Render the appropriate dashboard
-  return <DashboardComponent />;
+  // Render the appropriate dashboard with sector data
+  return (
+    <div className="space-y-6">
+      <div className="bg-muted/30 p-4 rounded-lg">
+        <h2 className="text-lg font-medium flex items-center gap-2">
+          <Building className="h-5 w-5 text-primary" />
+          <span>
+            {t('currentSector', 'Current Sector')}: <span className="font-semibold">{selectedSector?.name}</span>
+          </span>
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">{selectedSector?.description}</p>
+      </div>
+      
+      <DashboardComponent />
+    </div>
+  );
 };
 
 export default RoleDashboardContainer;
