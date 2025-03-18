@@ -24,8 +24,8 @@ export interface ClinicalNote {
   offlineId?: string; // For offline-created notes
   needsSync?: boolean; // Flag for notes that need to be synced
   lastSyncAttempt?: Date; // Last sync attempt timestamp
-  collaborators?: string[]; // Adding missing property
-  attachments?: { type: 'image' | 'drawing', url: string }[]; // Adding missing property
+  collaborators?: string[]; // For collaborative editing
+  attachments?: { type: 'image' | 'drawing', url: string }[]; // For note attachments
 }
 
 export interface NoteTemplate {
@@ -39,7 +39,7 @@ export interface NoteTemplate {
     content: string;
     required: boolean;
   }>;
-  roles?: string[]; // Adding missing property for role-based access
+  roles?: string[]; // Role-based access to templates
 }
 
 export interface NoteValidator {

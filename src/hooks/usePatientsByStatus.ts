@@ -1,10 +1,8 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { Patient } from '@/types/patient';
 import { supabase } from '@/integrations/supabase/client';
 import { PatientStatus } from '@/types/patientTypes';
 
-// Create a proper hook that returns the expected structure
 export const usePatientsByStatus = (sectorId?: string) => {
   const fetchPatients = async () => {
     let query = supabase
@@ -39,9 +37,23 @@ export const usePatientsByStatus = (sectorId?: string) => {
   ) || [];
 
   return {
+    data,
     criticalPatients,
     stablePatients,
     loading: isLoading,
     error
   };
+};
+
+// Utility function to filter patients by status
+export const filterPatientsByStatus = (patients: Patient[], status: PatientStatus | PatientStatus[]): Patient[] => {
+  if (!patients) return [];
+  
+  // If status is an array, filter patients whose status is in the array
+  if (Array.isArray(status)) {
+    return patients.filter(patient => status.includes(patient.status));
+  }
+  
+  // Otherwise, filter patients with the matching status
+  return patients.filter(patient => patient.status === status);
 };

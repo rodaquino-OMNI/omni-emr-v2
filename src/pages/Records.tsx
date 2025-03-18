@@ -1,797 +1,330 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Label } from '@/components/ui/label';
-import { toast } from "sonner";
-import { Plus, Edit, Trash2, Search, FileText, Calendar } from 'lucide-react';
-import { recordService } from '@/services/recordService';
-import { MedicalRecord, RecordTypeOption, RecordFilters } from '@/types/medicalRecordTypes';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { useDebounce } from '@/hooks/useDebounce';
-import { format } from 'date-fns';
-import { DateRange } from 'react-day-picker';
-import { Calendar as CalendarIcon } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { addDays } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { CalendarIcon, Filter, Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import RecordsList from '@/components/records/RecordsList';
+import { MedicalRecord, RecordType, RecordStatus } from '@/types/medicalRecords';
+import { useRecords } from '@/hooks/useRecords';
+import { DateRange } from 'react-day-picker';
+import { useAuth } from '@/context/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
+import { RoleBasedRoute } from '@/registry/RoleBasedRouter';
+import AlertBanner from '@/components/ui/alert-banner';
+import { AddRecordDialog } from '@/components/records/AddRecordDialog';
+import { RecordTemplatesDialog } from '@/components/records/RecordTemplatesDialog';
+import { WithRoleBasedAccess } from '@/components/auth/withRoleBasedAccess';
 
-const Records = () => {
-  const navigate = useNavigate();
-  const { t, language } = useTranslation();
-  const { user } = useAuth();
-  
-  const [records, setRecords] = useState<MedicalRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<RecordFilters>({
-    searchTerm: '',
-    typeFilter: '',
-    dateRange: undefined,
-    statusFilter: ''
+// Create placeholder data for demonstration
+const mockMedicalRecords: MedicalRecord[] = [
+  {
+    id: '1',
+    title: 'Initial Assessment',
+    type: 'progress_note',
+    patientId: '123',
+    date: '2023-06-15',
+    provider: 'Dr. Smith',
+    status: 'signed',
+    content: 'Patient presented with fever and cough...',
+    notes: 'Follow up in 2 weeks',
+    media: [],
+    templateId: ''
+  },
+  {
+    id: '2',
+    title: 'Follow Up Appointment',
+    type: 'progress_note',
+    patientId: '123',
+    date: '2023-06-29',
+    provider: 'Dr. Smith',
+    status: 'signed',
+    content: 'Patient's symptoms have improved...',
+    notes: '',
+    media: [],
+    templateId: ''
+  },
+  {
+    id: '3',
+    title: 'Lab Results Review',
+    type: 'lab_report',
+    patientId: '123',
+    date: '2023-06-16',
+    provider: 'Dr. Lee',
+    status: 'signed',
+    content: 'Blood work shows elevated white blood cell count...',
+    notes: 'Requires additional testing',
+    media: ['lab_report_123.pdf'],
+    templateId: ''
+  },
+  {
+    id: '4',
+    title: 'X-Ray Results',
+    type: 'imaging',
+    patientId: '123',
+    date: '2023-06-17',
+    provider: 'Dr. Johnson',
+    status: 'signed',
+    content: 'Chest X-ray shows mild lung opacity...',
+    notes: '',
+    media: ['xray_123.jpg'],
+    templateId: ''
+  },
+  {
+    id: '5',
+    title: 'Medication Review',
+    type: 'medication_review',
+    patientId: '123',
+    date: '2023-06-20',
+    provider: 'Dr. Smith',
+    status: 'draft',
+    content: 'Current medications include...',
+    notes: 'Consider adjusting dosage',
+    media: [],
+    templateId: ''
+  },
+];
+
+const Records: React.FC = () => {
+  const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [recordTypeFilter, setRecordTypeFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
-  const debouncedSearchTerm = useDebounce(filters.searchTerm, 500);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [showAddRecordDialog, setShowAddRecordDialog] = useState(false);
+  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const permissions = usePermissions(user);
 
-  const recordTypes: RecordTypeOption[] = [
-    { value: 'lab', label: language === 'pt' ? 'Resultados de Laboratório' : 'Lab Results' },
-    { value: 'imaging', label: language === 'pt' ? 'Imagens' : 'Imaging' },
-    { value: 'procedure', label: language === 'pt' ? 'Procedimentos' : 'Procedures' },
-    { value: 'visit', label: language === 'pt' ? 'Notas de Visita' : 'Visit Notes' },
-    { value: 'discharge', label: language === 'pt' ? 'Resumo de Alta' : 'Discharge Summary' },
-  ];
-
-  const fetchRecords = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const fetchedRecords = await recordService.getRecords({
-        searchTerm: debouncedSearchTerm,
-        typeFilter: filters.typeFilter,
-        dateRange: dateRange,
-        statusFilter: filters.statusFilter,
-        page: currentPage,
-        limit: itemsPerPage
-      });
-      
-      setRecords(fetchedRecords.records);
-      setTotalItems(fetchedRecords.total);
-    } catch (err: any) {
-      console.error("Error fetching records:", err);
-      setError(t('fetchRecordsError') || 'Failed to fetch records.');
-      toast.error(t('fetchRecordsError') || 'Failed to fetch records.');
-    } finally {
-      setLoading(false);
-    }
-  }, [debouncedSearchTerm, filters, currentPage, itemsPerPage, t, dateRange]);
+  // Use the custom hook to fetch records from API
+  const { records, loading, error, fetchRecords, createRecord, updateRecord } = useRecords();
 
   useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
+    // In a real application, this would fetch data from an API
+    // fetchRecords();
+  }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters(prev => ({ ...prev, searchTerm: e.target.value }));
-    setCurrentPage(1);
-  };
-  
-  const handleTypeFilterChange = (value: string) => {
-    setFilters(prev => ({ ...prev, typeFilter: value }));
-    setCurrentPage(1);
+  const handleRecordSelect = (record: MedicalRecord) => {
+    setSelectedRecord(record);
+    // Navigate to the record detail page
+    navigate(`/clinical-documentation/${record.id}/${record.patientId}`);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm(t('confirmDeleteRecord') || 'Are you sure you want to delete this record?')) {
-      try {
-        await recordService.deleteRecord(id);
-        setRecords(prev => prev.filter(record => record.id !== id));
-        toast.success(t('recordDeleted') || 'Record deleted successfully.');
-        fetchRecords();
-      } catch (err: any) {
-        console.error("Error deleting record:", err);
-        toast.error(t('deleteRecordError') || 'Failed to delete record.');
-      }
-    }
+  const handleAddRecord = () => {
+    setShowAddRecordDialog(true);
   };
-  
-  const filterByDateRange = (records: MedicalRecord[], dateRange: { from: Date; to: Date }) => {
-    if (!dateRange?.from || !dateRange?.to) {
-      return records;
-    }
+
+  const handleSaveRecord = (record: Partial<MedicalRecord>) => {
+    // Call API to create record
+    createRecord(record);
+    setShowAddRecordDialog(false);
+  };
+
+  const handleCreateNewRecord = (record: Omit<MedicalRecord, 'id'>) => {
+    // Call API to create record
+    createRecord(record);
+    setShowAddRecordDialog(false);
+  };
+
+  const handleUseTemplate = () => {
+    setShowTemplatesDialog(true);
+  };
+
+  const handleSelectTemplate = (templateId: string) => {
+    setShowTemplatesDialog(false);
+    setShowAddRecordDialog(true);
+    // Pre-fill the add record form with template data
+    // This would be implemented in the AddRecordDialog component
+  };
+
+  const filteredRecords = mockMedicalRecords.filter(record => {
+    // Apply filters
+    const matchesSearch = record.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         record.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = recordTypeFilter ? record.type === recordTypeFilter : true;
+    const matchesStatus = statusFilter ? record.status === statusFilter : true;
+    const matchesDate = dateRange?.from ? new Date(record.date) >= dateRange.from &&
+                        (!dateRange.to || new Date(record.date) <= dateRange.to) : true;
     
-    return records.filter(record => {
-      const recordDate = new Date(record.date);
-      const fromDate = new Date(dateRange.from);
-      const toDate = new Date(dateRange.to);
-      
-      return recordDate >= fromDate && recordDate <= addDays(toDate, 1);
-    });
-  };
-  
-  const filteredByDate = filterByDateRange(records, {
-    from: dateRange?.from || new Date(),
-    to: dateRange?.to || new Date()
+    return matchesSearch && matchesType && matchesStatus && matchesDate;
   });
 
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
   return (
-    <div className="container mx-auto mt-8 p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">{t('clinicalRecords') || 'Clinical Records'}</h2>
-        <Button onClick={() => navigate('/clinical-documentation')}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('addRecord') || 'Add Record'}
-        </Button>
-      </div>
+    <WithRoleBasedAccess
+      requiredPermission="notes:view"
+      requiredRoles={['doctor', 'nurse', 'specialist']}
+    >
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">{t('clinicalDocumentation', 'Clinical Documentation')}</h1>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleUseTemplate}>
+              {t('useTemplate', 'Use Template')}
+            </Button>
+            <Button onClick={handleAddRecord}>
+              <Plus className="mr-2 h-4 w-4" /> {t('addNewRecord', 'Add New Record')}
+            </Button>
+          </div>
+        </div>
 
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>{t('searchAndFilter') || 'Search and Filter'}</CardTitle>
-          <CardDescription>
-            {t('searchRecordsByTitleAndType') || 'Search records by title, filter by type and date.'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="search">{t('search') || 'Search'}</Label>
-              <Input
-                type="search"
-                id="search"
-                placeholder={t('searchByTitle') || 'Search by title...'}
-                onChange={handleSearchChange}
-              />
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('medicalRecords', 'Medical Records')}</CardTitle>
+            <CardDescription>{t('managePatientRecords', 'View and manage patient medical records')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder={t('searchRecords', 'Search records...')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="flex flex-col md:flex-row gap-2">
+                  <Select value={recordTypeFilter} onValueChange={setRecordTypeFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder={t('recordType', 'Record Type')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">{t('all', 'All')}</SelectItem>
+                      <SelectItem value="progress_note">{t('progressNote', 'Progress Note')}</SelectItem>
+                      <SelectItem value="lab_report">{t('labReport', 'Lab Report')}</SelectItem>
+                      <SelectItem value="imaging">{t('imaging', 'Imaging')}</SelectItem>
+                      <SelectItem value="medication_review">{t('medicationReview', 'Medication Review')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder={t('status', 'Status')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">{t('all', 'All')}</SelectItem>
+                      <SelectItem value="draft">{t('draft', 'Draft')}</SelectItem>
+                      <SelectItem value="signed">{t('signed', 'Signed')}</SelectItem>
+                      <SelectItem value="pending_cosign">{t('pendingCosign', 'Pending Cosign')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-[240px] justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            `${format(dateRange.from, 'LLL dd, y')} - ${format(dateRange.to, 'LLL dd, y')}`
+                          ) : (
+                            format(dateRange.from, 'LLL dd, y')
+                          )
+                        ) : (
+                          t('dateRange', 'Date Range')
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <div className="p-2">
+                        <Calendar
+                          mode="range"
+                          selected={dateRange}
+                          onSelect={setDateRange}
+                          initialFocus
+                        />
+                        <div className="flex justify-end mt-2 gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setDateRange(undefined)}
+                          >
+                            {t('clear', 'Clear')}
+                          </Button>
+                          <Button 
+                            size="sm"
+                            onClick={() => {
+                              // Apply date filter
+                            }}
+                          >
+                            {t('apply', 'Apply')}
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid grid-cols-4 md:w-[400px]">
+                  <TabsTrigger value="all">{t('all', 'All')}</TabsTrigger>
+                  <TabsTrigger value="progress_notes">{t('notes', 'Notes')}</TabsTrigger>
+                  <TabsTrigger value="labs">{t('labs', 'Labs')}</TabsTrigger>
+                  <TabsTrigger value="imaging">{t('imaging', 'Imaging')}</TabsTrigger>
+                </TabsList>
+                <TabsContent value="all">
+                  <RecordsList 
+                    records={filteredRecords} 
+                    onRecordSelect={handleRecordSelect} 
+                    loading={loading}
+                  />
+                </TabsContent>
+                <TabsContent value="progress_notes">
+                  <RecordsList 
+                    records={filteredRecords.filter(r => r.type === 'progress_note')} 
+                    onRecordSelect={handleRecordSelect}
+                    loading={loading}
+                  />
+                </TabsContent>
+                <TabsContent value="labs">
+                  <RecordsList 
+                    records={filteredRecords.filter(r => r.type === 'lab_report')} 
+                    onRecordSelect={handleRecordSelect}
+                    loading={loading}
+                  />
+                </TabsContent>
+                <TabsContent value="imaging">
+                  <RecordsList 
+                    records={filteredRecords.filter(r => r.type === 'imaging')} 
+                    onRecordSelect={handleRecordSelect}
+                    loading={loading}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
-            <div>
-              <Label htmlFor="type">{t('recordType') || 'Record Type'}</Label>
-              <Select
-                onValueChange={handleTypeFilterChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('allTypes') || 'All Types'} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">{t('allTypes') || 'All Types'}</SelectItem>
-                  {recordTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t('filterByDate') || 'Filter by date'}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !dateRange?.from && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        `${format(dateRange.from, "LLL dd, y")} - ${format(dateRange.to, "LLL dd, y")}`
-                      ) : (
-                        format(dateRange.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>{t('pickDateRange') || "Pick a date range"}</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="center" side="bottom">
-                  <div className="border rounded-md p-2">
-                    <div className="react-datepicker__header">
-                      <div className="react-datepicker__current-month">
-                        {t('selectRange') || "Select a date range"}
-                      </div>
-                    </div>
-                    <div className="react-datepicker__month-container">
-                      <div className="react-datepicker__month">
-                        <div className="react-datepicker__week">
-                          <div className="react-datepicker__day-names">
-                            <div>{t('sun') || "Sun"}</div>
-                            <div>{t('mon') || "Mon"}</div>
-                            <div>{t('tue') || "Tue"}</div>
-                            <div>{t('wed') || "Wed"}</div>
-                            <div>{t('thu') || "Thu"}</div>
-                            <div>{t('fri') || "Fri"}</div>
-                            <div>{t('sat') || "Sat"}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__view">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-2">
-                      <div className="grid gap-2">
-                        <div className="relative">
-                          <div className="absolute top-0.5 left-0.5 size-4">
-                            <CalendarIcon className="h-4 w-4" />
-                          </div>
-                          <div className="ml-6">
-                            <div className="focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 relative overflow-hidden rounded-md border border-input bg-background text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:bg-popover data-[state=open]:text-popover-foreground">
-                              <div className="p-2">
-                                <div className="react-datepicker">
-                                  <div className="react-datepicker__navigation react-datepicker__navigation--previous">
-                                    <span className="react-datepicker__navigation-icon react-datepicker__navigation-icon--previous">
-                                      {"<"}
-                                    </span>
-                                  </div>
-                                  <div className="react-datepicker__navigation react-datepicker__navigation--next">
-                                    <span className="react-datepicker__navigation-icon react-datepicker__navigation-icon--next">
-                                      {">"}
-                                    </span>
-                                  </div>
-                                  <div className="react-datepicker__month-container">
-                                    <div className="react-datepicker__month">
-                                      <div className="react-datepicker__week">
-                                        <div className="react-datepicker__day-names">
-                                          <div>{t('sun') || "Sun"}</div>
-                                          <div>{t('mon') || "Mon"}</div>
-                                          <div>{t('tue') || "Tue"}</div>
-                                          <div>{t('wed') || "Wed"}</div>
-                                          <div>{t('thu') || "Thu"}</div>
-                                          <div>{t('fri') || "Fri"}</div>
-                                          <div>{t('sat') || "Sat"}</div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="react-datepicker__tab-loop">
-                                    <div tabIndex={-1} />
-                                  </div>
-                                  <div className="react-datepicker__portal">
-                                    <div className="react-datepicker__month-container">
-                                      <div className="react-datepicker__month">
-                                        <div className="react-datepicker__week">
-                                          <div className="react-datepicker__day-names">
-                                            <div>{t('sun') || "Sun"}</div>
-                                            <div>{t('mon') || "Mon"}</div>
-                                            <div>{t('tue') || "Tue"}</div>
-                                            <div>{t('wed') || "Wed"}</div>
-                                            <div>{t('thu') || "Thu"}</div>
-                                            <div>{t('fri') || "Fri"}</div>
-                                            <div>{t('sat') || "Sat"}</div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
-                              <div>{t('fri') || "Fri"}</div>
-                              <div>{t('sat') || "Sat"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="react-datepicker__tab-loop">
-                      <div tabIndex={-1} />
-                    </div>
-                    <div className="react-datepicker__portal">
-                      <div className="react-datepicker__month-container">
-                        <div className="react-datepicker__month">
-                          <div className="react-datepicker__week">
-                            <div className="react-datepicker__day-names">
-                              <div>{t('sun') || "Sun"}</div>
-                              <div>{t('mon') || "Mon"}</div>
-                              <div>{t('tue') || "Tue"}</div>
-                              <div>{t('wed') || "Wed"}</div>
-                              <div>{t('thu') || "Thu"}</div>
+          </CardContent>
+        </Card>
+
+        {/* Dialogs */}
+        <AddRecordDialog 
+          open={showAddRecordDialog} 
+          onOpenChange={setShowAddRecordDialog}
+          onSave={handleCreateNewRecord} 
+        />
+        <RecordTemplatesDialog
+          open={showTemplatesDialog}
+          onOpenChange={setShowTemplatesDialog}
+          onSelectTemplate={handleSelectTemplate}
+        />
+      </div>
+    </WithRoleBasedAccess>
+  );
+};
+
+export default Records;

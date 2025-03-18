@@ -1,40 +1,19 @@
+
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route, Navigate, RouterProvider, RouteObject } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Loading from '@/components/ui/Loading';
 import { useAuth } from '@/context/AuthContext';
 import { checkSupabaseConnectivity } from '@/utils/supabaseConnectivity';
-
-// Define a type for lazy route modules
-type RouteModule = {
-  Component: React.ComponentType<any>;
-};
+import { RouteDefinition, getRoutesByRole, filterRoutesByPermissions } from './RouteConfig';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import RoleBasedRoutes from './RoleBasedRoutes';
 
 // Generic function to lazy load a component
-const lazyLoad = (importFn: () => Promise<RouteModule>, componentName: string) => {
+const lazyLoad = (componentPath: string) => {
   return lazy(() =>
-    importFn().then((module) => {
-      if (!module.Component) {
-        throw new Error(`Component "${componentName}" not found in module.`);
-      }
-      return { default: module.Component };
-    })
+    import(`../pages/${componentPath}`).then(module => ({ default: module.default }))
   );
-};
-
-// ProtectedRoute component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return <Loading />;
-  }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return <>{children}</>;
 };
 
 // Define lazy-loaded components
@@ -51,58 +30,164 @@ const Medications = lazy(() => import('../pages/Medications').then(module => ({ 
 const Appointments = lazy(() => import('../pages/Appointments').then(module => ({ default: module.default })));
 const EmergencyTriageWorkflow = lazy(() => import('../components/emergency/EmergencyTriageWorkflow').then(module => ({ default: module.default })));
 const Settings = lazy(() => import('../pages/Settings').then(module => ({ default: module.default })));
+const Unauthorized = lazy(() => import('../pages/Unauthorized').then(module => ({ default: module.default })));
 const PageNotFound = lazy(() => import('../pages/PageNotFound').then(module => ({ default: module.default })));
 
-// Define dashboard routes
-const dashboardRoutes: RouteObject[] = [
-  {
-    index: true,
-    element: React.createElement(lazyLoad(() => import('../registry/entrypoints/DoctorDashboard'), 'DoctorDashboard'))
-  },
-  {
-    path: "nurse",
-    element: React.createElement(lazyLoad(() => import('../registry/entrypoints/NurseDashboard'), 'NurseDashboard'))
-  },
-  {
-    path: "admin",
-    element: React.createElement(lazyLoad(() => import('../registry/entrypoints/AdminDashboard'), 'AdminDashboard'))
-  }
-];
-
-// Router configuration
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <>
-      <Route path="/login" element={<Suspense fallback={<Loading />}><Login /></Suspense>} />
-      <Route path="/auth/callback" element={<Suspense fallback={<Loading />}><AuthCallback /></Suspense>} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/dashboard" element={<Suspense fallback={<Loading />}><Dashboard /></Suspense>} />
-        <Route path="/patients" element={<Suspense fallback={<Loading />}><Patients /></Suspense>} />
-        <Route path="/patients/:id" element={<Suspense fallback={<Loading />}><PatientDetail /></Suspense>} />
-        <Route path="/patient-profile/:id" element={<Suspense fallback={<Loading />}><PatientProfile /></Suspense>} />
-        <Route path="/records" element={<Suspense fallback={<Loading />}><Records /></Suspense>} />
-        <Route path="/clinical-documentation" element={<Suspense fallback={<Loading />}><ClinicalDocumentation /></Suspense>} />
-         <Route path="/clinical-documentation/:id/:patientId" element={<Suspense fallback={<Loading />}><ClinicalDocumentation /></Suspense>} />
-        <Route path="/orders" element={<Suspense fallback={<Loading />}><Orders /></Suspense>} />
-        <Route path="/medications" element={<Suspense fallback={<Loading />}><Medications /></Suspense>} />
-        <Route path="/appointments" element={<Suspense fallback={<Loading />}><Appointments /></Suspense>} />
-        <Route path="/emergency/:patientId" element={<Suspense fallback={<Loading />}><EmergencyTriageWorkflow /></Suspense>} />
-        <Route path="/settings" element={<Suspense fallback={<Loading />}><Settings /></Suspense>} />
-      </Route>
-      <Route path="*" element={<Suspense fallback={<Loading />}><PageNotFound /></Suspense>} />
-    </>
-  )
-);
-
-const AppRouter = () => {
-  return <RouterProvider router={router} />;
+// Function to create protected route from a route definition
+const createProtectedRoute = (routeDef: RouteDefinition): React.ReactNode => {
+  const Component = lazyLoad(routeDef.component);
+  
+  return (
+    <Route
+      path={routeDef.path}
+      element={
+        <ProtectedRoute
+          requiredPermission={routeDef.requiredPermission}
+          requiredRole={routeDef.requiredRoles}
+          requireSector={routeDef.requireSector}
+        >
+          <RoleBasedRoutes
+            requiredRoles={routeDef.requiredRoles}
+            requiredPermission={routeDef.requiredPermission}
+            fallbackPath="/unauthorized"
+          >
+            <Suspense fallback={<Loading />}>
+              <Component />
+            </Suspense>
+          </RoleBasedRoutes>
+        </ProtectedRoute>
+      }
+      key={routeDef.path}
+    />
+  );
 };
 
-export default AppRouter;
+// Create dynamic routes based on user role and permissions
+export const createDynamicRoutes = (userRole: string, userPermissions: string[] = []): RouteObject[] => {
+  // Get routes for this role
+  const roleRoutes = getRoutesByRole(userRole as any);
+  
+  // Filter routes based on user permissions
+  const accessibleRoutes = filterRoutesByPermissions(roleRoutes, userPermissions);
+  
+  // Create the routes configuration
+  return [
+    {
+      path: '/login',
+      element: <Suspense fallback={<Loading />}><Login /></Suspense>,
+    },
+    {
+      path: '/auth/callback',
+      element: <Suspense fallback={<Loading />}><AuthCallback /></Suspense>,
+    },
+    {
+      path: '/',
+      element: (
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
+      ),
+      children: accessibleRoutes.map(route => ({
+        path: route.path.startsWith('/') ? route.path.substring(1) : route.path,
+        element: (
+          <ProtectedRoute
+            requiredPermission={route.requiredPermission}
+            requiredRole={route.requiredRoles}
+            requireSector={route.requireSector}
+          >
+            <Suspense fallback={<Loading />}>
+              {React.createElement(lazyLoad(route.component))}
+            </Suspense>
+          </ProtectedRoute>
+        ),
+        index: route.isIndex || false,
+      })),
+    },
+    {
+      path: '*',
+      element: <Suspense fallback={<Loading />}><PageNotFound /></Suspense>,
+    },
+  ];
+};
+
+// Fallback static routes when user role/permissions are not available
+export const routes: RouteObject[] = [
+  {
+    path: '/login',
+    element: <Suspense fallback={<Loading />}><Login /></Suspense>,
+  },
+  {
+    path: '/auth/callback',
+    element: <Suspense fallback={<Loading />}><AuthCallback /></Suspense>,
+  },
+  {
+    path: '/unauthorized',
+    element: <Suspense fallback={<Loading />}><Unauthorized /></Suspense>,
+  },
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: 'dashboard',
+        element: <Suspense fallback={<Loading />}><Dashboard /></Suspense>,
+      },
+      {
+        path: 'patients',
+        element: <Suspense fallback={<Loading />}><Patients /></Suspense>,
+      },
+      {
+        path: 'patients/:id',
+        element: <Suspense fallback={<Loading />}><PatientDetail /></Suspense>,
+      },
+      {
+        path: 'patient-profile/:id',
+        element: <Suspense fallback={<Loading />}><PatientProfile /></Suspense>,
+      },
+      {
+        path: 'records',
+        element: <Suspense fallback={<Loading />}><Records /></Suspense>,
+      },
+      {
+        path: 'clinical-documentation',
+        element: <Suspense fallback={<Loading />}><ClinicalDocumentation /></Suspense>,
+      },
+      {
+        path: 'clinical-documentation/:id/:patientId',
+        element: <Suspense fallback={<Loading />}><ClinicalDocumentation /></Suspense>,
+      },
+      {
+        path: 'orders',
+        element: <Suspense fallback={<Loading />}><Orders /></Suspense>,
+      },
+      {
+        path: 'medications',
+        element: <Suspense fallback={<Loading />}><Medications /></Suspense>,
+      },
+      {
+        path: 'appointments',
+        element: <Suspense fallback={<Loading />}><Appointments /></Suspense>,
+      },
+      {
+        path: 'emergency/:patientId',
+        element: <Suspense fallback={<Loading />}><EmergencyTriageWorkflow /></Suspense>,
+      },
+      {
+        path: 'settings',
+        element: <Suspense fallback={<Loading />}><Settings /></Suspense>,
+      },
+    ],
+  },
+  {
+    path: '*',
+    element: <Suspense fallback={<Loading />}><PageNotFound /></Suspense>,
+  },
+];
+
+export default function AppRouter() {
+  return <RouterProvider router={createBrowserRouter(routes)} />;
+}

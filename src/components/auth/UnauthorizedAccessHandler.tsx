@@ -52,6 +52,9 @@ const UnauthorizedAccessHandler: React.FC<UnauthorizedAccessHandlerProps> = ({
       case 'forbidden_patient':
         return t('unauthorizedPatientMessage', 'You don\'t have permission to access this patient\'s data');
         
+      case 'needs_sector':
+        return t('needsSectorMessage', 'Please select a sector to access this resource');
+        
       default:
         return t('unauthorizedDefaultMessage', 'You don\'t have permission to access this resource');
     }

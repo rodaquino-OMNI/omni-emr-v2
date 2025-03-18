@@ -166,9 +166,9 @@ const EmergencyTriageWorkflow: React.FC<EmergencyTriageWorkflowProps> = ({
         <TabsContent value="vitals" className="space-y-4 mt-4">
           <VitalSigns 
             vitals={mockVitalSigns}
-            patientId={patientId}
             canPerformTriage={true}
             onUpdateVitals={handleUpdateVitals}
+            patientId={patientId}
           />
         </TabsContent>
         
