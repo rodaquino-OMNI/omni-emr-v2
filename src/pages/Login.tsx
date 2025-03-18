@@ -13,7 +13,7 @@ const Login = () => {
   // Check if user is already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      // Redirect directly to dashboard instead of sector selection
+      // Redirect directly to dashboard
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);

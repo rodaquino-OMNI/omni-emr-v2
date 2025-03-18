@@ -53,8 +53,8 @@ const AuthCallback = () => {
     );
   }
 
-  // Redirect to sector selection on success instead of dashboard
-  return <Navigate to="/sectors" replace />;
+  // Redirect to dashboard directly instead of sector selection
+  return <Navigate to="/dashboard" replace />;
 };
 
 export default AuthCallback;

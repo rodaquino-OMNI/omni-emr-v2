@@ -31,6 +31,8 @@ const VitalsTimeRangeSelector: React.FC<VitalsTimeRangeSelectorProps> = ({
           size="sm"
           className="px-2 py-1 h-8 text-xs"
           onClick={() => onChange(range.value)}
+          aria-pressed={selectedTimeRange === range.value}
+          aria-label={`Show ${range.label} of data`}
         >
           {range.label}
         </Button>

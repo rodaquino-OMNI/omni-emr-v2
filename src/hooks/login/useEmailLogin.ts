@@ -106,7 +106,8 @@ export const useEmailLogin = (language: Languages) => {
             return Promise.resolve();
           }
           
-          navigate('/sectors');
+          // Redirect directly to dashboard instead of sectors
+          navigate('/dashboard');
         } else if (result && 'error' in result) {
           throw result.error;
         }
