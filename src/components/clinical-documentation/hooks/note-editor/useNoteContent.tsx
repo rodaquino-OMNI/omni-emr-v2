@@ -9,7 +9,7 @@ export const useNoteContent = (
   const [sections, setSections] = useState<{ [key: string]: string }>({});
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [requiredFieldsError, setRequiredFieldsError] = useState<string[]>([]);
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(existingNote?.updated_at ? new Date(existingNote.updated_at) : null);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(existingNote?.updatedAt ? new Date(existingNote.updatedAt) : null);
   const [collaborators, setCollaborators] = useState<string[]>(existingNote?.collaborators || []);
   const [multimediaAttachments, setMultimediaAttachments] = useState<{ type: 'image' | 'drawing', url: string }[]>(
     existingNote?.attachments || []

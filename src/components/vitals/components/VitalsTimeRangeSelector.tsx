@@ -1,46 +1,39 @@
 
 import React from 'react';
-import { Toggle } from '@/components/ui/toggle';
-import { TimeRangeType } from '../types/vitalsTypes';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
+import { TimeRangeType } from '../types/vitalsTypes';
 
 interface VitalsTimeRangeSelectorProps {
   selectedTimeRange: TimeRangeType;
-  onChange: (range: TimeRangeType) => void;
-  size?: 'sm' | 'md';
+  onChange: (timeRange: TimeRangeType) => void;
 }
 
-const VitalsTimeRangeSelector: React.FC<VitalsTimeRangeSelectorProps> = ({ 
+const VitalsTimeRangeSelector: React.FC<VitalsTimeRangeSelectorProps> = ({
   selectedTimeRange,
-  onChange,
-  size = 'md'
+  onChange
 }) => {
   const { t } = useTranslation();
   
   const timeRanges: { value: TimeRangeType; label: string }[] = [
-    { value: '24h', label: '24h' },
-    { value: '3d', label: '3d' },
-    { value: '7d', label: '7d' },
-    { value: '30d', label: '30d' },
+    { value: '24h', label: t('24Hours', '24h') },
+    { value: '3d', label: t('3Days', '3d') },
+    { value: '7d', label: t('7Days', '7d') },
+    { value: '30d', label: t('30Days', '30d') }
   ];
   
-  const toggleClasses = size === 'sm' 
-    ? 'px-2 py-1 text-xs h-7' 
-    : 'px-3 py-1 text-sm';
-
   return (
-    <div className="inline-flex bg-muted rounded-md p-1 gap-0.5">
-      {timeRanges.map((range) => (
-        <Toggle
+    <div className="flex gap-1">
+      {timeRanges.map(range => (
+        <Button
           key={range.value}
-          pressed={selectedTimeRange === range.value}
-          onPressedChange={() => onChange(range.value)}
-          className={toggleClasses}
-          variant="outline"
+          variant={selectedTimeRange === range.value ? 'default' : 'outline'}
           size="sm"
+          className="px-2 py-1 h-8 text-xs"
+          onClick={() => onChange(range.value)}
         >
           {range.label}
-        </Toggle>
+        </Button>
       ))}
     </div>
   );
