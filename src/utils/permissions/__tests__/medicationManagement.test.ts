@@ -22,7 +22,7 @@ describe('medicationManagement', () => {
     });
 
     it('should allow pharmacists to validate medications', () => {
-      // Changed 'verify' to 'dispense' to match the allowed actions
+      // Using 'dispense' as the correct action for pharmacists
       expect(canPerformMedicationAction(testUsers.pharmacist, 'dispense')).toBe(true);
     });
 

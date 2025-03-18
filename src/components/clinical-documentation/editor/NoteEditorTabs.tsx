@@ -10,8 +10,8 @@ interface NoteEditorTabsProps {
   onTabChange: (value: 'editor' | 'preview') => void;
 }
 
-const NoteEditorTabs = ({ activeTab, onTabChange }: NoteEditorTabsProps) => {
-  const { language } = useTranslation();
+const NoteEditorTabs: React.FC<NoteEditorTabsProps> = ({ activeTab, onTabChange }: NoteEditorTabsProps) => {
+  const { t, language } = useTranslation();
   
   // Create a type-safe handler
   const handleTabChange = (value: string) => {
