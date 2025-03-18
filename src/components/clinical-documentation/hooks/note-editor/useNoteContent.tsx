@@ -9,6 +9,11 @@ export const useNoteContent = (
   const [sections, setSections] = useState<{ [key: string]: string }>({});
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [requiredFieldsError, setRequiredFieldsError] = useState<string[]>([]);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(existingNote?.updated_at ? new Date(existingNote.updated_at) : null);
+  const [collaborators, setCollaborators] = useState<string[]>(existingNote?.collaborators || []);
+  const [multimediaAttachments, setMultimediaAttachments] = useState<{ type: 'image' | 'drawing', url: string }[]>(
+    existingNote?.attachments || []
+  );
 
   useEffect(() => {
     const initialSections: { [key: string]: string } = {};
@@ -46,13 +51,43 @@ export const useNoteContent = (
     }
   };
 
+  const addMultimediaAttachment = (attachment: { type: 'image' | 'drawing', url: string }) => {
+    setMultimediaAttachments(prev => [...prev, attachment]);
+  };
+
+  const removeMultimediaAttachment = (index: number) => {
+    setMultimediaAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const addCollaborator = (collaboratorId: string) => {
+    if (!collaborators.includes(collaboratorId)) {
+      setCollaborators(prev => [...prev, collaboratorId]);
+    }
+  };
+
+  const removeCollaborator = (collaboratorId: string) => {
+    setCollaborators(prev => prev.filter(id => id !== collaboratorId));
+  };
+
+  const updateLastSavedTime = () => {
+    setLastSavedAt(new Date());
+  };
+
   return {
     sections,
     activeTab,
     requiredFieldsError,
+    lastSavedAt,
+    collaborators,
+    multimediaAttachments,
     setActiveTab,
     setRequiredFieldsError,
     handleSectionChange,
-    compileNoteContent
+    compileNoteContent,
+    addMultimediaAttachment,
+    removeMultimediaAttachment,
+    addCollaborator,
+    removeCollaborator,
+    updateLastSavedTime
   };
 };
