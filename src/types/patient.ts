@@ -21,7 +21,7 @@ export interface Patient {
   last_name: string;
   name?: string;
   date_of_birth: string;
-  gender?: string;
+  gender?: string; // Make gender optional to match with patientTypes
   status: PatientStatus;
   room_number?: string;
   mrn: string;

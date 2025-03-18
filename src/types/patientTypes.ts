@@ -141,7 +141,7 @@ export interface PrescriptionItem {
   id: string;
   prescription_id: string;
   name: string;
-  type: string;
+  type: string; // Ensure this is present
   dosage?: string;
   frequency?: string;
   duration?: string;

@@ -7,6 +7,7 @@ export interface Order {
   id: string;
   patientId: string;
   doctorId: string;
+  providerId?: string; // Add this for backward compatibility
   providerName?: string;
   orderType: OrderType;
   type?: OrderType; // For backward compatibility

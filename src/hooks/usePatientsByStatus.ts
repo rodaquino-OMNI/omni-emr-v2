@@ -1,37 +1,47 @@
 
-import { useSupabaseQuery } from './api/useSupabaseQuery';
+import { useQuery } from '@tanstack/react-query';
+import { Patient } from '@/types/patient';
 import { supabase } from '@/integrations/supabase/client';
-import { Patient, PatientStatus } from '@/types/patient';
+import { PatientStatus } from '@/types/patientTypes';
 
-/**
- * Hook for fetching patients filtered by status
- */
-export function usePatientsByStatus(status?: PatientStatus | PatientStatus[]) {
-  const statusArray = status ? (Array.isArray(status) ? status : [status]) : [];
-  const statusKey = statusArray.join(',');
-
-  return useSupabaseQuery<Patient[]>(
-    ['patientsByStatus', statusKey],
-    async () => {
-      let query = supabase.from('patients').select('*');
-      
-      // Apply status filter if provided
-      if (statusArray.length > 0) {
-        query = query.in('status', statusArray);
-      }
-      
-      const { data, error } = await query;
-
-      if (error) throw error;
-      
-      return data as Patient[];
-    },
-    {
-      enabled: true,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
+// Create a proper hook that returns the expected structure
+export const usePatientsByStatus = (sectorId?: string) => {
+  const fetchPatients = async () => {
+    let query = supabase
+      .from('patients')
+      .select('*');
+    
+    if (sectorId) {
+      query = query.eq('sector_id', sectorId);
     }
-  );
-}
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data as Patient[];
+  };
 
-export default usePatientsByStatus;
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['patients', sectorId],
+    queryFn: fetchPatients
+  });
+
+  // Filter patients by status
+  const criticalPatients = data?.filter(p => 
+    p.status === 'critical' || p.status === 'hospital'
+  ) || [];
+  
+  const stablePatients = data?.filter(p => 
+    p.status === 'stable' || p.status === 'improving'
+  ) || [];
+
+  return {
+    criticalPatients,
+    stablePatients,
+    loading: isLoading,
+    error
+  };
+};

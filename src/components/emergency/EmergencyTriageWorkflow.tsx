@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -167,7 +166,8 @@ const EmergencyTriageWorkflow: React.FC<EmergencyTriageWorkflowProps> = ({
         <TabsContent value="vitals" className="space-y-4 mt-4">
           <VitalSigns 
             vitals={mockVitalSigns}
-            canPerformTriage={canPerformTriage}
+            patientId={patientId}
+            canPerformTriage={true}
             onUpdateVitals={handleUpdateVitals}
           />
         </TabsContent>

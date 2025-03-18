@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -11,14 +10,13 @@ import { Label } from '@/components/ui/label';
 import { toast } from "sonner";
 import { ArrowLeft, Save, ClipboardList, Image, ArrowUpCircle } from 'lucide-react';
 import { recordService } from '@/services/recordService';
-import { ClinicalDocumentationFormData, RecordTypeOption } from '@/types/medicalRecordTypes';
+import { ClinicalDocumentationFormData, RecordTypeOption, RecordStatus } from '@/types/medicalRecordTypes';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import TemplateSelector, { DocumentationTemplate } from '@/components/clinical-documentation/TemplateSelector';
 import { useQuery } from '@tanstack/react-query';
 import NoteSectionEditor from '@/components/clinical-documentation/components/NoteSectionEditor';
 
-// Example templates - in a real app these would come from an API
 const documentTemplates: DocumentationTemplate[] = [
   {
     id: 'soap',
@@ -65,7 +63,6 @@ const ClinicalDocumentation = () => {
     notes: ''
   });
   
-  // State for template-based content
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [sections, setSections] = useState<Record<string, string>>({});
@@ -81,11 +78,9 @@ const ClinicalDocumentation = () => {
     { value: 'discharge', label: language === 'pt' ? 'Resumo de Alta' : 'Discharge Summary' },
   ];
 
-  // Fetch patient data using React Query
   const { data: patient } = useQuery({
     queryKey: ['patient', patientId],
     queryFn: async () => {
-      // In a real app, this would fetch the patient's data
       return { name: 'Patient Name' };
     },
     enabled: !!patientId
@@ -99,7 +94,6 @@ const ClinicalDocumentation = () => {
   }, [patient, patientId]);
     
   useEffect(() => {
-    // If we have a record ID, fetch the record for editing
     if (id) {
       const fetchRecord = async () => {
         try {
@@ -114,7 +108,6 @@ const ClinicalDocumentation = () => {
               notes: record.notes || ''
             });
             
-            // Also fetch the patient name
             setPatientName('Patient Name');
           }
         } catch (error) {
@@ -142,17 +135,14 @@ const ClinicalDocumentation = () => {
   const handleSelectTemplate = (templateId: string) => {
     setSelectedTemplate(templateId);
     
-    // Find the selected template
     const template = documentTemplates.find(t => t.id === templateId);
     if (template) {
-      // Initialize sections from template
       const newSections: Record<string, string> = {};
       template.sections.forEach(section => {
         newSections[section] = '';
       });
       setSections(newSections);
       
-      // Update form data
       setFormData(prev => ({
         ...prev,
         title: template.name
@@ -161,7 +151,6 @@ const ClinicalDocumentation = () => {
   };
 
   const compileContent = () => {
-    // Combine all sections into a single content string
     let compiledContent = '';
     
     if (Object.keys(sections).length > 0) {
@@ -200,7 +189,7 @@ const ClinicalDocumentation = () => {
         patientId: formData.patientId,
         date: new Date().toISOString(),
         provider: user?.name || 'Unknown Provider',
-        status: 'completed',
+        status: 'completed' as RecordStatus,
         content: compiledContent,
         notes: formData.notes,
         media: uploadedImages,
@@ -210,10 +199,8 @@ const ClinicalDocumentation = () => {
       let result;
       
       if (id) {
-        // Update existing record
         result = await recordService.updateRecord(id, record);
       } else {
-        // Create new record
         result = await recordService.createRecord(record);
       }
       
@@ -240,12 +227,9 @@ const ClinicalDocumentation = () => {
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // In a real app, this would upload the image to a server
-    // For this example, we'll just simulate adding an image URL
     if (event.target.files && event.target.files.length > 0) {
       setUploadedImages(prev => [...prev, URL.createObjectURL(event.target.files![0])]);
       
-      // Reset the input
       event.target.value = '';
     }
   };
@@ -363,7 +347,6 @@ const ClinicalDocumentation = () => {
             </div>
           </div>
           
-          {/* Template-based content or basic textarea */}
           {selectedTemplate && Object.keys(sections).length > 0 ? (
             <div className="space-y-4">
               <h3 className="font-medium text-sm text-muted-foreground">
@@ -399,7 +382,6 @@ const ClinicalDocumentation = () => {
             </div>
           )}
           
-          {/* Image upload capability */}
           <div className="space-y-2">
             <Label htmlFor="images">
               {language === 'pt' ? 'Adicionar Imagens' : 'Add Images'}
@@ -421,7 +403,6 @@ const ClinicalDocumentation = () => {
               />
             </div>
             
-            {/* Display uploaded images */}
             {uploadedImages.length > 0 && (
               <div className="grid grid-cols-3 gap-2 mt-2">
                 {uploadedImages.map((img, index) => (

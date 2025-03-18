@@ -1,4 +1,3 @@
-
 import { NoteTemplate, NoteType } from "@/types/clinicalNotes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
@@ -121,7 +120,7 @@ export const templateService = {
         // Filter by role if provided
         if (userRole) {
           templates = templates.filter(t => 
-            !t.roles || t.roles.includes(userRole)
+            !t.roles || (t.roles && t.roles.includes(userRole))
           );
         }
 
