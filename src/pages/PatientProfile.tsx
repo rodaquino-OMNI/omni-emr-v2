@@ -114,7 +114,10 @@ const PatientProfile = () => {
         <Header />
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto">
-            <PatientDetailHeader patient={patientForHeader} />
+            <PatientDetailHeader 
+              patient={patientForHeader} 
+              hasCriticalInsights={false}
+            />
             
             <div className="glass-card p-6 mb-6">
               <h2 className="text-2xl font-bold mb-6">{t('editProfile') || 'Edit Patient Profile'}</h2>

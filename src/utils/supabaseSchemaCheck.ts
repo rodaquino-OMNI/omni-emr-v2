@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/core';
 import { toast } from 'sonner';
-import { checkConnectivity } from './supabaseConnectivity';
+import { checkSupabaseConnection as checkConnectivity } from './supabaseConnectivity';
 import { checkTableExists } from './supabaseTableCheck';
 
 /**

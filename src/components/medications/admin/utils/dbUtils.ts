@@ -1,5 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/core';
-import { checkConnectivity } from '@/utils/supabaseConnectivity';
+import { checkSupabaseConnection as checkConnectivity } from '@/utils/supabaseConnectivity';
 import { toast } from '@/hooks/use-toast';
 import { Languages } from '@/types/auth';
 

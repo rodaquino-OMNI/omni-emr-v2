@@ -1,16 +1,18 @@
 
 import React from 'react';
 
+export interface VitalSignsData {
+  heartRate: number;
+  respiratoryRate: number;
+  bloodPressure: string;
+  temperature: number;
+  painLevel: number;
+  oxygenSaturation: number;
+}
+
 export interface VitalSignsProps {
-  vitals: {
-    heartRate: number;
-    respiratoryRate: number;
-    bloodPressure: string;
-    temperature: number;
-    painLevel: number;
-    oxygenSaturation: number;
-  };
-  patientId: string; // Add required patientId prop
+  vitals: VitalSignsData;
+  patientId: string;
   canPerformTriage: boolean;
   onUpdateVitals: () => void;
 }
