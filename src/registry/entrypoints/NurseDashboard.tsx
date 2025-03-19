@@ -11,14 +11,14 @@ const NurseDashboard: React.FC = () => {
   const { selectedSector } = useSectorContext();
   const { data, loading, error } = usePatientsByStatus(selectedSector?.id);
   
-  // Ensure patients have required properties
+  // Ensure patients have required properties with proper type handling
   const ensureRequiredProps = (patients: any[] = []): PatientCardType[] => {
     return patients.map(patient => ({
       ...patient,
       name: patient.name || `${patient.first_name} ${patient.last_name}`,
       mrn: patient.mrn || '',
       age: patient.age || 0,
-      gender: patient.gender || '',
+      gender: patient.gender || '',  // Keep gender as string to match PatientCardType
       status: patient.status || 'active'
     })) as PatientCardType[];
   };
