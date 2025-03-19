@@ -1,3 +1,4 @@
+
 import { NoteTemplate, NoteType } from "@/types/clinicalNotes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
@@ -109,7 +110,8 @@ export const templateService = {
           name: item.template_name,
           isDefault: item.is_default,
           template: item.template_content || "",
-          sections: item.sections || []
+          sections: item.sections || [],
+          roles: item.allowed_roles || [] // Add roles property
         }));
 
         // Filter by type if provided

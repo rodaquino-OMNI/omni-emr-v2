@@ -26,6 +26,7 @@ export interface ClinicalNote {
   lastSyncAttempt?: Date; // Last sync attempt timestamp
   collaborators?: string[]; // For collaborative editing
   attachments?: { type: 'image' | 'drawing', url: string }[]; // For note attachments
+  roles?: string[]; // For role-based access to notes
 }
 
 export interface NoteTemplate {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import { toast } from 'sonner';
 import { usePatientData } from '@/hooks/usePatientData';
 import PatientDetailLoader from '@/components/patients/detail/PatientDetailLoader';
+import { Patient as PatientType } from '@/types/patientTypes';
 
 interface PatientFormData {
   firstName: string;
@@ -102,6 +102,11 @@ const PatientProfile = () => {
     return <PatientDetailLoader />;
   }
 
+  const patientForHeader = {
+    ...patient,
+    gender: patient.gender || ''
+  } as PatientType;
+
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
@@ -109,7 +114,7 @@ const PatientProfile = () => {
         <Header />
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto">
-            <PatientDetailHeader patient={patient} />
+            <PatientDetailHeader patient={patientForHeader} />
             
             <div className="glass-card p-6 mb-6">
               <h2 className="text-2xl font-bold mb-6">{t('editProfile') || 'Edit Patient Profile'}</h2>

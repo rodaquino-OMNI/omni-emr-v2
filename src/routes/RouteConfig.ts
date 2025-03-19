@@ -1,3 +1,4 @@
+
 import { UserRole } from '@/types/auth';
 
 export interface RouteDefinition {
@@ -260,7 +261,6 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
   ],
   // Add other roles with empty arrays as placeholders
   'physician': [],
-  'nurse': [],
   'lab_technician': [],
   'radiologist': [],
   'therapist': [],

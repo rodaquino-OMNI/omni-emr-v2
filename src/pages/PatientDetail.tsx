@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PatientProvider } from '@/context/PatientContext';
+import { Patient, PrescriptionItem } from '@/types/patient';
 
 const PatientDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -93,20 +94,29 @@ const PatientDetail = () => {
     </div>
   );
   
-  // Check for critical insights (for the hasCriticalInsights prop)
+  // Check for critical insights
   const hasCriticalInsights = insights?.some(insight => 
     typeof insight === 'object' && 
     'severity' in insight && 
     insight.severity === 'critical'
   ) || false;
   
-  // Ensure patient has the correct status type
+  // Ensure prescriptions have the required type property
+  const fixedPrescriptions = prescriptions?.map(prescription => ({
+    ...prescription,
+    items: prescription.items?.map((item: PrescriptionItem & {type?: string}) => ({
+      ...item,
+      type: item.type || 'medication' // Ensure type property exists
+    })) || []
+  })) || [];
+  
+  // Ensure patient has the correct status type and fixed prescriptions
   const patientWithValidStatus = {
     ...patient,
     status: mapToPatientStatus(patient.status?.toString() || 'stable'),
     insights: insights || [],
-    prescriptions: prescriptions || []
-  };
+    prescriptions: fixedPrescriptions
+  } as Patient;
   
   return (
     <div className="min-h-screen flex bg-background">

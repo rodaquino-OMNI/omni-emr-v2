@@ -1,10 +1,9 @@
-
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route, Navigate, RouterProvider, RouteObject } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Loading from '@/components/ui/Loading';
 import { useAuth } from '@/context/AuthContext';
-import { checkSupabaseConnectivity } from '@/utils/supabaseConnectivity';
+import { checkSupabaseConnection } from '@/utils/supabaseConnectivity'; // Fixed function name
 import { RouteDefinition, getRoutesByRole, filterRoutesByPermissions } from './RouteConfig';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import RoleBasedRoutes from './RoleBasedRoutes';
@@ -174,7 +173,15 @@ export const routes: RouteObject[] = [
       },
       {
         path: 'emergency/:patientId',
-        element: <Suspense fallback={<Loading />}><EmergencyTriageWorkflow /></Suspense>,
+        element: (
+          <Suspense fallback={<Loading />}>
+            {/* Render with required props that will be filled from URL params */}
+            <EmergencyTriageWorkflow 
+              patientId="" 
+              patientName="" 
+            />
+          </Suspense>
+        ),
       },
       {
         path: 'settings',

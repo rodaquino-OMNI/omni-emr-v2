@@ -1,198 +1,160 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useTranslation } from '@/hooks/useTranslation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import { CalendarIcon, Save } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { MedicalRecord, RecordType, RecordStatus } from '@/types/medicalRecordTypes';
 
-interface NewRecordFormProps {
-  patientId?: string;
-  onSuccess: () => void;
+export interface NewRecordFormProps {
+  onSubmit: (record: Omit<MedicalRecord, "id">) => Promise<void>;
   onCancel: () => void;
 }
 
-const NewRecordForm = ({ patientId, onSuccess, onCancel }: NewRecordFormProps) => {
-  const { user } = useAuth();
-  const { language } = useTranslation();
-  const [date, setDate] = useState<Date>(new Date());
-  const [title, setTitle] = useState('');
-  const [type, setType] = useState('lab');
-  const [notes, setNotes] = useState('');
-  const [patient, setPatient] = useState(patientId || '');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const recordTypes = [
-    { value: 'lab', label: language === 'pt' ? 'Resultados de Laboratório' : 'Lab Results' },
-    { value: 'imaging', label: language === 'pt' ? 'Imagens' : 'Imaging' },
-    { value: 'procedure', label: language === 'pt' ? 'Procedimentos' : 'Procedures' },
-    { value: 'visit', label: language === 'pt' ? 'Notas de Visita' : 'Visit Notes' },
-    { value: 'discharge', label: language === 'pt' ? 'Resumo de Alta' : 'Discharge Summary' },
-  ];
+const NewRecordForm: React.FC<NewRecordFormProps> = ({ onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    type: 'visit' as RecordType,
+    patientId: '',
+    date: new Date().toISOString().split('T')[0],
+    provider: '',
+    status: 'pending' as RecordStatus,
+    content: '',
+    notes: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      // In a real app, this would be an API call
-      // Simulating API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newRecord = {
-        id: Math.random().toString(36).substr(2, 9),
-        title,
-        type,
-        date,
-        provider: user?.name || 'Unknown Provider',
-        patientId: patient,
-        notes
-      };
-      
-      console.log('New record created:', newRecord);
-      
-      // Success message and cleanup
-      toast.success(
-        language === 'pt' 
-          ? 'Registro médico criado com sucesso' 
-          : 'Medical record created successfully'
-      );
-      onSuccess();
-      
-    } catch (error) {
-      console.error('Error creating record:', error);
-      toast.error(
-        language === 'pt' 
-          ? 'Erro ao criar registro médico' 
-          : 'Error creating medical record'
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+    await onSubmit(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="title">
-          {language === 'pt' ? 'Título' : 'Title'}
-        </Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          placeholder={language === 'pt' ? 'Ex: Hemograma Completo' : 'Ex: Complete Blood Count'}
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="type">
-          {language === 'pt' ? 'Tipo de Registro' : 'Record Type'}
-        </Label>
-        <select
-          id="type"
-          className="w-full h-10 px-3 py-2 rounded-md border border-border bg-background"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          required
-        >
-          {recordTypes.map((recordType) => (
-            <option key={recordType.value} value={recordType.value}>
-              {recordType.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <Label>
-          {language === 'pt' ? 'Data' : 'Date'}
-        </Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-left font-normal h-10"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, 'PPP') : (language === 'pt' ? 'Selecione uma data' : 'Select a date')}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(date) => date && setDate(date)}
-              initialFocus
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+        <h2 className="text-2xl font-bold mb-4">New Medical Record</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
             />
-          </PopoverContent>
-        </Popover>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Record Type</label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            >
+              <option value="lab">Lab Result</option>
+              <option value="imaging">Imaging</option>
+              <option value="procedure">Procedure</option>
+              <option value="visit">Visit Note</option>
+              <option value="discharge">Discharge</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Patient ID</label>
+            <input
+              type="text"
+              name="patientId"
+              value={formData.patientId}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Date</label>
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Provider</label>
+            <input
+              type="text"
+              name="provider"
+              value={formData.provider}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            >
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Content</label>
+            <textarea
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              rows={4}
+            ></textarea>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Notes</label>
+            <textarea
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              rows={2}
+            ></textarea>
+          </div>
+          
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 border rounded hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Create Record
+            </button>
+          </div>
+        </form>
       </div>
-
-      {!patientId && (
-        <div>
-          <Label htmlFor="patient">
-            {language === 'pt' ? 'ID do Paciente' : 'Patient ID'}
-          </Label>
-          <Input
-            id="patient"
-            value={patient}
-            onChange={(e) => setPatient(e.target.value)}
-            required={!patientId}
-            placeholder={language === 'pt' ? 'Digite o ID do paciente' : 'Enter patient ID'}
-          />
-        </div>
-      )}
-
-      <div>
-        <Label htmlFor="notes">
-          {language === 'pt' ? 'Notas e Observações' : 'Notes and Observations'}
-        </Label>
-        <Textarea
-          id="notes"
-          rows={5}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder={language === 'pt' ? 'Detalhes do registro médico' : 'Medical record details'}
-        />
-      </div>
-
-      <div className="flex justify-end gap-2 pt-4">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          {language === 'pt' ? 'Cancelar' : 'Cancel'}
-        </Button>
-        <Button 
-          type="submit" 
-          disabled={isSubmitting}
-          className="flex items-center gap-1"
-        >
-          {isSubmitting ? (
-            language === 'pt' ? 'Salvando...' : 'Saving...'
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              {language === 'pt' ? 'Salvar Registro' : 'Save Record'}
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
+    </div>
   );
 };
 

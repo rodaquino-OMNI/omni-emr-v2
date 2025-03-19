@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -245,7 +244,7 @@ const Records: React.FC = () => {
         </CardFooter>
       </Card>
 
-      {/* Records List */}
+      {/* Records List with correct props */}
       <RecordsList
         records={records}
         isLoading={isLoading}
@@ -253,7 +252,7 @@ const Records: React.FC = () => {
         onUpdate={handleUpdateRecord}
       />
 
-      {/* New Record Form Modal */}
+      {/* New Record Form with correct props */}
       {isNewRecordOpen && (
         <NewRecordForm
           onSubmit={handleCreateRecord}
