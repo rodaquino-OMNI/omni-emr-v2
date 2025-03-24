@@ -29,7 +29,8 @@ const Dashboard = lazy(() => import('../pages/Dashboard').then(module => ({ defa
 const Patients = lazy(() => import('../pages/Patients').then(module => ({ default: module.default })));
 const PatientDetail = lazy(() => import('../pages/PatientDetail').then(module => ({ default: module.default })));
 const PatientProfile = lazy(() => import('../pages/PatientProfile').then(module => ({ default: module.default })));
-const Records = lazy(() => import('../pages/Records').then(module => ({ default: module.default })));
+// Records page has been removed, using PatientDetail as a replacement
+const Records = PatientDetail; // Reusing PatientDetail component instead of the removed Records page
 const ClinicalDocumentation = lazy(() => import('../pages/ClinicalDocumentation').then(module => ({ default: module.default })));
 const Orders = lazy(() => import('../pages/Orders').then(module => ({ default: module.default })));
 const Medications = lazy(() => import('../pages/Medications').then(module => ({ default: module.default })));
@@ -37,7 +38,8 @@ const Appointments = lazy(() => import('../pages/Appointments').then(module => (
 const EmergencyTriageWorkflow = lazy(() => import('../components/emergency/EmergencyTriageWorkflow').then(module => ({ default: module.default })));
 const Settings = lazy(() => import('../pages/Settings').then(module => ({ default: module.default })));
 const Unauthorized = lazy(() => import('../pages/Unauthorized').then(module => ({ default: module.default })));
-const PageNotFound = lazy(() => import('../pages/PageNotFound').then(module => ({ default: module.default })));
+// PageNotFound page has been removed, using Dashboard as a replacement
+const PageNotFound = lazy(() => import('../pages/Dashboard').then(module => ({ default: module.default })));
 const PrescribeMedication = lazy(() => import('../pages/PrescribeMedication').then(module => ({ default: module.default })));
 const Prescriptions = lazy(() => import('../pages/Prescriptions').then(module => ({ default: module.default })));
 const PrescriptionView = lazy(() => import('../pages/PrescriptionView').then(module => ({ default: module.default })));
