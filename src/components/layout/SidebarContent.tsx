@@ -1,117 +1,63 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import SidebarLogo from './SidebarLogo';
 import SidebarSectorSelector from './SidebarSectorSelector';
-import { Home, Users, Calendar, FileText, Package2, Settings, HelpCircle } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { sidebarItems, getSidebarItemsForRole, groupSidebarItemsByCategory, CATEGORIES } from '@/config/sidebarConfig';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SidebarContentProps {
   onItemClick?: () => void;
 }
 
+// Category labels for display
+const CATEGORY_LABELS = {
+  [CATEGORIES.CLINICAL]: 'Clinical Care',
+  [CATEGORIES.ADMINISTRATIVE]: 'Administrative',
+  [CATEGORIES.COMMUNICATION]: 'Communication',
+  [CATEGORIES.SYSTEM]: 'System',
+  'other': 'Other'
+};
+
 const SidebarContent: React.FC<SidebarContentProps> = ({ onItemClick }) => {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    [CATEGORIES.CLINICAL]: true,
+    [CATEGORIES.ADMINISTRATIVE]: true,
+    [CATEGORIES.COMMUNICATION]: true,
+    [CATEGORIES.SYSTEM]: true,
+    'other': true
+  });
   
   const role = user?.role || 'unauthenticated';
   
-  // Define navigation items for each role
-  const getNavigationItems = () => {
-    // Common navigation items for all authenticated users
-    const commonItems = [
-      {
-        label: t('dashboard', 'Dashboard'),
-        icon: Home,
-        to: '/dashboard'
-      }
-    ];
-    
-    // Role-specific navigation items
-    switch(role) {
-      case 'doctor':
-      case 'physician':
-        return [
-          ...commonItems,
-          {
-            label: t('patients', 'Patients'),
-            icon: Users,
-            to: '/patients'
-          },
-          {
-            label: t('schedule', 'Schedule'),
-            icon: Calendar,
-            to: '/schedule'
-          },
-          {
-            label: t('clinicalDocumentation', 'Documentation'),
-            icon: FileText,
-            to: '/documentation'
-          },
-          {
-            label: t('medications', 'Medications'),
-            icon: Package2,
-            to: '/medications'
-          }
-        ];
-      case 'nurse':
-        return [
-          ...commonItems,
-          {
-            label: t('patients', 'Patients'),
-            icon: Users,
-            to: '/patients'
-          },
-          {
-            label: t('tasks', 'Tasks'),
-            icon: FileText,
-            to: '/tasks'
-          },
-          {
-            label: t('medications', 'Medications'),
-            icon: Package2,
-            to: '/medications'
-          }
-        ];
-      case 'admin':
-        return [
-          ...commonItems,
-          {
-            label: t('users', 'Users'),
-            icon: Users,
-            to: '/users'
-          },
-          {
-            label: t('settings', 'Settings'),
-            icon: Settings,
-            to: '/settings'
-          }
-        ];
-      default:
-        return commonItems;
-    }
+  // Mock function for function block access - in a real app, this would check actual permissions
+  const hasAccessToFunctionBlock = (functionBlockId: string) => {
+    // For demo purposes, assume access to all function blocks
+    return true;
   };
   
-  // Footer navigation items (same for all users)
-  const footerItems = [
-    {
-      label: t('settings', 'Settings'),
-      icon: Settings,
-      to: '/settings'
-    },
-    {
-      label: t('help', 'Help & Support'),
-      icon: HelpCircle,
-      to: '/help'
-    }
-  ];
+  // Get filtered sidebar items for the current user's role
+  const filteredItems = getSidebarItemsForRole(sidebarItems, role, hasAccessToFunctionBlock);
+  
+  // Group items by category
+  const groupedItems = groupSidebarItemsByCategory(filteredItems);
+  
+  // Toggle category expansion
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
   
   // Check if user is a clinical role that needs sector selection
   const isClinicalRole = ['doctor', 'nurse', 'medical_staff'].includes(role);
-  
-  const navItems = getNavigationItems();
   
   return (
     <div className="flex h-full flex-col">
@@ -127,34 +73,54 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onItemClick }) => {
       {/* Sector Selector for clinical roles */}
       {isClinicalRole && <SidebarSectorSelector />}
       
-      {/* Navigation Items */}
+      {/* Navigation Items by Category */}
       <div className="flex-1 overflow-auto py-4">
-        <nav className="grid items-start px-2 text-sm font-medium gap-1">
-          {navItems.map((item, index) => (
-            <SidebarItem 
-              key={index}
-              label={item.label}
-              icon={item.icon}
-              to={item.to}
-              onClick={onItemClick}
-            />
-          ))}
-        </nav>
-      </div>
-      
-      {/* Footer Items */}
-      <div className="mt-auto border-t border-sidebar-border bg-muted/40 pt-2">
-        <div className="grid items-start px-2 py-2 text-sm font-medium gap-1">
-          {footerItems.map((item, index) => (
-            <SidebarItem 
-              key={index} 
-              label={item.label} 
-              icon={item.icon} 
-              to={item.to}
-              onClick={onItemClick}
-            />
-          ))}
-        </div>
+        <TooltipProvider delayDuration={300}>
+          <nav className="grid items-start px-2 text-sm font-medium gap-1">
+            {Object.entries(groupedItems).map(([category, items]) => (
+              <div key={category} className="mb-2">
+                {/* Category Header */}
+                <button
+                  onClick={() => toggleCategory(category)}
+                  className="flex items-center w-full px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors"
+                >
+                  {expandedCategories[category] ? (
+                    <ChevronDown className="h-3.5 w-3.5 mr-1" />
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 mr-1" />
+                  )}
+                  {CATEGORY_LABELS[category] || category}
+                </button>
+                
+                {/* Category Items */}
+                <div className={cn(
+                  "grid gap-1 transition-all duration-200 overflow-hidden",
+                  expandedCategories[category] ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                )}>
+                  <div className="min-h-0 overflow-hidden">
+                    {items.map((item, index) => (
+                      <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <SidebarItem 
+                              item={item}
+                              onClick={onItemClick}
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        {item.tooltip && (
+                          <TooltipContent side="right" className="max-w-[200px]">
+                            {item.tooltip}
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </nav>
+        </TooltipProvider>
       </div>
     </div>
   );
