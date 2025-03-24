@@ -42,6 +42,8 @@ const PrescriptionView = lazy(() => import('../pages/PrescriptionView').then(mod
 const Tasks = lazy(() => import('../pages/Tasks').then(module => ({ default: module.default })));
 const VitalSigns = lazy(() => import('../pages/VitalSigns').then(module => ({ default: module.default })));
 const Schedule = lazy(() => import('../pages/Schedule').then(module => ({ default: module.default })));
+const CriticalResults = lazy(() => import('../pages/CriticalResults').then(module => ({ default: module.default })));
+const FluidBalance = lazy(() => import('../pages/FluidBalance').then(module => ({ default: module.default })));
 
 // Function to create protected route from a route definition
 const createProtectedRoute = (routeDef: RouteDefinition): React.ReactNode => {
@@ -237,6 +239,14 @@ export const routes: RouteObject[] = [
       {
         path: 'schedule',
         element: <Suspense fallback={<Loading />}><Schedule /></Suspense>,
+      },
+      {
+        path: 'critical-results',
+        element: <Suspense fallback={<Loading />}><CriticalResults /></Suspense>,
+      },
+      {
+        path: 'fluid-balance',
+        element: <Suspense fallback={<Loading />}><FluidBalance /></Suspense>,
       },
     ],
   },
