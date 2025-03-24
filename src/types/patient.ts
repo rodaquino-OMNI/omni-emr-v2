@@ -100,6 +100,14 @@ export interface VitalSigns {
   recorder_name?: string;
 }
 
+// Define provider type for prescriptions
+export interface Provider {
+  id: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+}
+
 // Define prescription type
 export interface Prescription {
   id: string;
@@ -112,6 +120,9 @@ export interface Prescription {
   notes?: string;
   items?: PrescriptionItem[];
   date?: string; // For backward compatibility
+  // Add joined data from Supabase queries
+  provider?: Provider;
+  patient?: Patient;
 }
 
 // Define prescription item type

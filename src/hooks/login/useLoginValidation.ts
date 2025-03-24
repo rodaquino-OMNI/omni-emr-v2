@@ -6,28 +6,38 @@ export const useLoginValidation = (language: Languages) => {
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
 
   const validateEmailPassword = useCallback((email: string, password: string, forgotPassword: boolean): boolean => {
+    console.log('Validating email and password:', { email, passwordLength: password?.length, forgotPassword });
+    
     const errors: {[key: string]: string} = {};
     
     if (!email.trim()) {
+      console.log('Email is empty');
       errors.email = language === 'pt' ? 'Email é obrigatório' : 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
+      console.log('Email format is invalid');
       errors.email = language === 'pt' ? 'Email inválido' : 'Invalid email format';
     }
     
     if (!forgotPassword) {
       const isDemoAccount = email.toLowerCase().endsWith('@omnicare.com');
+      console.log('Is demo account:', isDemoAccount);
       
       if (!password) {
+        console.log('Password is empty');
         errors.password = language === 'pt' ? 'Senha é obrigatória' : 'Password is required';
       } else if (password.length < 6 && !isDemoAccount) {
-        errors.password = language === 'pt' 
-          ? 'Senha deve ter pelo menos 6 caracteres' 
+        console.log('Password is too short and not a demo account');
+        errors.password = language === 'pt'
+          ? 'Senha deve ter pelo menos 6 caracteres'
           : 'Password must be at least 6 characters';
       }
     }
     
     setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
+    const isValid = Object.keys(errors).length === 0;
+    console.log('Validation errors:', errors);
+    console.log('Validation result:', isValid ? 'Valid' : 'Invalid');
+    return isValid;
   }, [language]);
 
   const validatePhone = useCallback((phone: string, verificationSent: boolean, verificationCode: string): boolean => {

@@ -12,7 +12,7 @@ export const SidebarMobileToggle = ({ onClick }: { onClick: () => void }) => (
   <Button
     variant="ghost"
     size="icon"
-    className="fixed left-4 top-3 z-50 lg:hidden"
+    className="fixed left-4 top-3 z-50 lg:hidden sidebar-mobile-toggle"
     onClick={onClick}
   >
     <Menu className="h-6 w-6" />

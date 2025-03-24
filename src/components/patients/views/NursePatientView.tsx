@@ -7,11 +7,14 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilePlus2, ActivitySquare, Pill, Droplets } from 'lucide-react';
 import PatientHeader from '../detail/PatientDetailHeader';
-import PatientVitalSignsTab from '../tabs/PatientVitalSignsTab';
-import PatientMedicationsTab from '../tabs/PatientMedicationsTab';
-import PatientNotesTab from '../tabs/PatientNotesTab';
-import PatientCareTasksTab from '../tabs/PatientCareTasksTab';
-import PatientFluidBalanceTab from '../tabs/PatientFluidBalanceTab';
+import {
+  PatientVitalSignsTab,
+  EnhancedPatientMedicationsTab,
+  PatientNotesTab,
+  PatientCareTasksTab,
+  PatientFluidBalanceTab,
+  PatientAppointmentsTab
+} from '../tabs';
 
 interface NursePatientViewProps {
   patientId: string;
@@ -85,6 +88,7 @@ const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
           <TabsTrigger value="medications">Medications</TabsTrigger>
           <TabsTrigger value="tasks">Care Tasks</TabsTrigger>
           <TabsTrigger value="fluid-balance">Fluid Balance</TabsTrigger>
+          <TabsTrigger value="appointments">Appointments</TabsTrigger>
           <TabsTrigger value="notes">Nursing Notes</TabsTrigger>
         </TabsList>
         
@@ -93,7 +97,7 @@ const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
         </TabsContent>
         
         <TabsContent value="medications">
-          <PatientMedicationsTab patientId={patientId} />
+          <EnhancedPatientMedicationsTab patientId={patientId} />
         </TabsContent>
         
         <TabsContent value="tasks">
@@ -102,6 +106,10 @@ const NursePatientView: React.FC<NursePatientViewProps> = ({ patientId }) => {
         
         <TabsContent value="fluid-balance">
           <PatientFluidBalanceTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="appointments">
+          <PatientAppointmentsTab patientId={patientId} />
         </TabsContent>
         
         <TabsContent value="notes">

@@ -17,7 +17,7 @@ export const signInWithEmail = async (email: string, password: string) => {
     if (mockUser) {
       // For demo accounts, check if password is 'password123'
       if (password !== 'password123') {
-        throw new Error('Invalid password for demo account');
+        throw new Error('Demo accounts require the password "password123". Please use this exact password for demo accounts.');
       }
       
       // Return mock user data for demo purposes

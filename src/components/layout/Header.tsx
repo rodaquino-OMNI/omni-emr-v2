@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ModeToggle';
@@ -15,8 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Bell, LogOut, Settings, User } from 'lucide-react';
+import { Bell, LogOut, Menu, Settings, User } from 'lucide-react';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import SectorSelector from './SectorSelector';
 
@@ -46,9 +44,24 @@ const Header = () => {
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 md:hidden">
-          <SidebarTrigger />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => {
+              // Find the sidebar toggle button and click it
+              const sidebarToggle = document.querySelector('.sidebar-mobile-toggle');
+              if (sidebarToggle && sidebarToggle instanceof HTMLElement) {
+                sidebarToggle.click();
+              }
+            }}
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
         </div>
         
+        <div className="flex-1"></div>
         <div className="flex-1"></div>
         
         <div className="flex items-center gap-2">

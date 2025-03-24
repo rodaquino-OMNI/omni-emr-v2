@@ -8,8 +8,11 @@ import PatientAIInsightsTab from './PatientAIInsightsTab';
 import PatientVitalSignsTab from './PatientVitalSignsTab';
 import PatientAllergiesTab from './PatientAllergiesTab';
 import PatientMedicationsTab from './PatientMedicationsTab';
+import EnhancedPatientMedicationsTab from './EnhancedPatientMedicationsTab';
 import PatientNotesTab from './PatientNotesTab';
 import PatientCareTasksTab from './PatientCareTasksTab';
+import PatientAppointmentsTab from './PatientAppointmentsTab';
+import PatientFluidBalanceTab from './PatientFluidBalanceTab';
 
 // Define interface for each tab with PatientTabProps
 export interface PatientOverviewTabProps extends PatientTabProps {
@@ -28,10 +31,17 @@ export interface PatientAllergiesTabProps extends PatientTabProps {}
 export interface PatientMedicationsTabProps extends PatientTabProps {
   readOnly?: boolean;
 }
+export interface EnhancedPatientMedicationsTabProps extends PatientTabProps {
+  compact?: boolean;
+}
 export interface PatientNotesTabProps extends PatientTabProps {
   filter?: string;
 }
 export interface PatientCareTasksTabProps extends PatientTabProps {}
+export interface PatientAppointmentsTabProps extends PatientTabProps {
+  compact?: boolean;
+}
+export interface PatientFluidBalanceTabProps extends PatientTabProps {}
 
 export {
   PatientOverviewTab,
@@ -41,6 +51,9 @@ export {
   PatientVitalSignsTab,
   PatientAllergiesTab,
   PatientMedicationsTab,
+  EnhancedPatientMedicationsTab,
   PatientNotesTab,
-  PatientCareTasksTab
+  PatientCareTasksTab,
+  PatientAppointmentsTab,
+  PatientFluidBalanceTab
 };

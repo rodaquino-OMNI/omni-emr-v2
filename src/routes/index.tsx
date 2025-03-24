@@ -10,8 +10,12 @@ import RoleBasedRoutes from './RoleBasedRoutes';
 
 // Generic function to lazy load a component
 const lazyLoad = (componentPath: string) => {
+  const fullComponentPath = componentPath.endsWith('.js') || componentPath.endsWith('.tsx')
+    ? `../pages/${componentPath}`
+    : `../pages/${componentPath}.tsx`;
+
   return lazy(() =>
-    import(`../pages/${componentPath}`).then(module => ({ default: module.default }))
+    import(/* @vite-ignore */ fullComponentPath).then(module => ({ default: module.default }))
   );
 };
 
@@ -31,6 +35,13 @@ const EmergencyTriageWorkflow = lazy(() => import('../components/emergency/Emerg
 const Settings = lazy(() => import('../pages/Settings').then(module => ({ default: module.default })));
 const Unauthorized = lazy(() => import('../pages/Unauthorized').then(module => ({ default: module.default })));
 const PageNotFound = lazy(() => import('../pages/PageNotFound').then(module => ({ default: module.default })));
+const PrescribeMedication = lazy(() => import('../pages/PrescribeMedication').then(module => ({ default: module.default })));
+const Prescriptions = lazy(() => import('../pages/Prescriptions').then(module => ({ default: module.default })));
+const PrescriptionView = lazy(() => import('../pages/PrescriptionView').then(module => ({ default: module.default })));
+// Add missing lazy-loaded components
+const Tasks = lazy(() => import('../pages/Tasks').then(module => ({ default: module.default })));
+const VitalSigns = lazy(() => import('../pages/VitalSigns').then(module => ({ default: module.default })));
+const Schedule = lazy(() => import('../pages/Schedule').then(module => ({ default: module.default })));
 
 // Function to create protected route from a route definition
 const createProtectedRoute = (routeDef: RouteDefinition): React.ReactNode => {
@@ -176,9 +187,9 @@ export const routes: RouteObject[] = [
         element: (
           <Suspense fallback={<Loading />}>
             {/* Render with required props that will be filled from URL params */}
-            <EmergencyTriageWorkflow 
-              patientId="" 
-              patientName="" 
+            <EmergencyTriageWorkflow
+              patientId=""
+              patientName=""
             />
           </Suspense>
         ),
@@ -186,6 +197,46 @@ export const routes: RouteObject[] = [
       {
         path: 'settings',
         element: <Suspense fallback={<Loading />}><Settings /></Suspense>,
+      },
+      {
+        path: 'medications',
+        element: <Suspense fallback={<Loading />}><Medications /></Suspense>,
+      },
+      {
+        path: 'prescribe-medication',
+        element: <Suspense fallback={<Loading />}><PrescribeMedication /></Suspense>,
+      },
+      {
+        path: 'prescriptions',
+        element: <Suspense fallback={<Loading />}><Prescriptions /></Suspense>,
+      },
+      {
+        path: 'prescriptions/:id',
+        element: <Suspense fallback={<Loading />}><PrescriptionView /></Suspense>,
+      },
+      {
+        path: 'tasks',
+        element: <Suspense fallback={<Loading />}><Tasks /></Suspense>,
+      },
+      {
+        path: 'vital-signs',
+        element: <Suspense fallback={<Loading />}><VitalSigns /></Suspense>,
+      },
+      {
+        path: 'schedule',
+        element: <Suspense fallback={<Loading />}><Schedule /></Suspense>,
+      },
+      {
+        path: 'tasks',
+        element: <Suspense fallback={<Loading />}><Tasks /></Suspense>,
+      },
+      {
+        path: 'vital-signs',
+        element: <Suspense fallback={<Loading />}><VitalSigns /></Suspense>,
+      },
+      {
+        path: 'schedule',
+        element: <Suspense fallback={<Loading />}><Schedule /></Suspense>,
       },
     ],
   },

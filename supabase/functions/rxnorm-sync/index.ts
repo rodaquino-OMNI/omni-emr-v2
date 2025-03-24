@@ -1,87 +1,123 @@
-
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.1'
+import http from 'http';
+import { URL } from 'url';
+import { createClient } from '@supabase/supabase-js';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  'Content-Type': 'application/json'
+};
 
-// Handle CORS preflight requests
-Deno.serve(async (req) => {
+// Create a Supabase client
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Create HTTP server
+const server = http.createServer(async (req, res) => {
+  // Set CORS headers for all responses
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    res.statusCode = 200;
+    res.end();
+    return;
   }
 
-  // Create a Supabase client with the Auth context of the logged in user
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-  // Get the session from the request headers
-  const authHeader = req.headers.get('Authorization');
-  if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'Missing Authorization header' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 401,
-    });
-  }
-
-  // Extract the token from the Authorization header
-  const token = authHeader.replace('Bearer ', '');
-  const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-
-  if (userError || !user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 401,
-    });
-  }
-
-  // Check if the user has a valid role to use this function
-  const { data: profileData } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profileData || !['admin', 'doctor', 'pharmacist'].includes(profileData.role)) {
-    return new Response(JSON.stringify({ error: 'Access denied. Requires admin, doctor, or pharmacist role.' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 403,
-    });
-  }
-
-  // Parse the request
-  const url = new URL(req.url);
-  const action = url.searchParams.get('action') || 'sync_popular';
-  const limit = parseInt(url.searchParams.get('limit') || '100');
-  
   try {
-    switch (action) {
-      case 'sync_popular':
-        return await handleSyncPopular(limit, supabase, corsHeaders);
-      case 'clear_cache':
-        return await handleClearCache(supabase, corsHeaders);
-      case 'sync_specific': 
-        // Syncs specific medications, requires a payload
-        const payload = await req.json();
-        return await handleSyncSpecific(payload, supabase, corsHeaders);
-      default:
-        return new Response(JSON.stringify({ error: 'Invalid action parameter' }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
-        });
+    // Parse URL and query parameters
+    const reqUrl = new URL(req.url || '', `http://${req.headers.host}`);
+    const action = reqUrl.searchParams.get('action') || 'sync_popular';
+    const limit = parseInt(reqUrl.searchParams.get('limit') || '100');
+
+    // Authentication check
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      res.statusCode = 401;
+      res.end(JSON.stringify({ error: 'Missing Authorization header' }));
+      return;
     }
+
+    // Extract the token from the Authorization header
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+    if (userError || !user) {
+      res.statusCode = 401;
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+
+    // Check if the user has a valid role to use this function
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profileData || !['admin', 'doctor', 'pharmacist'].includes(profileData.role)) {
+      res.statusCode = 403;
+      res.end(JSON.stringify({
+        error: 'Access denied. Requires admin, doctor, or pharmacist role.'
+      }));
+      return;
+    }
+
+    // Process the request based on the action
+    let result;
+    
+    if (req.method === 'POST' && action === 'sync_specific') {
+      // Parse request body for sync_specific action
+      let body = '';
+      req.on('data', chunk => {
+        body += chunk.toString();
+      });
+      
+      await new Promise<void>((resolve) => {
+        req.on('end', () => {
+          resolve();
+        });
+      });
+      
+      const payload = JSON.parse(body);
+      result = await handleSyncSpecific(payload, supabase);
+    } else if (action === 'sync_popular') {
+      result = await handleSyncPopular(limit, supabase);
+    } else if (action === 'clear_cache') {
+      result = await handleClearCache(supabase);
+    } else {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ error: 'Invalid action parameter' }));
+      return;
+    }
+    
+    // Send the response
+    res.statusCode = result.status;
+    res.end(JSON.stringify(result.body));
+    
   } catch (error) {
     console.error('Error processing request:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    });
+    res.statusCode = 500;
+    res.end(JSON.stringify({ error: 'Internal server error' }));
   }
 });
 
-async function handleSyncPopular(limit: number, supabase: any, corsHeaders: any) {
+// Start the server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`RxNorm sync server running on port ${PORT}`);
+});
+
+// Helper function to create a standardized response format
+interface ApiResponse {
+  status: number;
+  body: any;
+}
+
+async function handleSyncPopular(limit: number, supabase: any): Promise<ApiResponse> {
   try {
     // Get the most frequently prescribed medications
     const { data: frequentMeds, error: rpcError } = await supabase
@@ -89,17 +125,17 @@ async function handleSyncPopular(limit: number, supabase: any, corsHeaders: any)
     
     if (rpcError) {
       console.error('Error fetching frequently prescribed medications:', rpcError);
-      return new Response(JSON.stringify({ error: 'Error fetching frequently prescribed medications' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return {
         status: 500,
-      });
+        body: { error: 'Error fetching frequently prescribed medications' }
+      };
     }
     
     if (!frequentMeds || frequentMeds.length === 0) {
-      return new Response(JSON.stringify({ message: 'No medications to sync', count: 0 }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return {
         status: 200,
-      });
+        body: { message: 'No medications to sync', count: 0 }
+      };
     }
     
     const results = {
@@ -130,7 +166,7 @@ async function handleSyncPopular(limit: number, supabase: any, corsHeaders: any)
             results.errors.push(`No RxNorm code found for ${med.medication_name}`);
             results.failed++;
           }
-        } 
+        }
         // If it already has an RxNorm code, update medication details
         else if (med.rxnorm_code) {
           const details = await getMedicationDetails(med.rxnorm_code);
@@ -164,85 +200,88 @@ async function handleSyncPopular(limit: number, supabase: any, corsHeaders: any)
       errors: results.errors.length > 0 ? results.errors : null
     });
     
-    return new Response(JSON.stringify({
-      message: 'Sync completed',
-      totalProcessed: frequentMeds.length,
-      success: results.success,
-      failed: results.failed,
-      updates: results.updated,
-      errors: results.errors
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return {
       status: 200,
-    });
+      body: {
+        message: 'Sync completed',
+        totalProcessed: frequentMeds.length,
+        success: results.success,
+        failed: results.failed,
+        updates: results.updated,
+        errors: results.errors
+      }
+    };
   } catch (error) {
     console.error('Error in handleSyncPopular:', error);
-    return new Response(JSON.stringify({ error: 'Failed to sync popular medications' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return {
       status: 500,
-    });
+      body: { error: 'Failed to sync popular medications' }
+    };
   }
 }
 
-async function handleClearCache(supabase: any, corsHeaders: any) {
+async function handleClearCache(supabase: any): Promise<ApiResponse> {
   try {
+    // Set the search path
+    await supabase.rpc('set_config', { key: 'search_path', value: "'$user', public", is_global: false });
+
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - 7); // Keep 7 days of cache
     const cutoffDateStr = cutoffDate.toISOString();
-    
+
     // Delete expired search cache entries
     const { error: searchCacheError } = await supabase
       .from('rxnorm_search_cache')
       .delete()
       .lt('created_at', cutoffDateStr);
-      
+
     if (searchCacheError) {
       console.error('Error clearing search cache:', searchCacheError);
-      return new Response(JSON.stringify({ error: 'Error clearing search cache' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return {
         status: 500,
-      });
+        body: { error: 'Error clearing search cache' }
+      };
     }
-    
+
     // Delete expired details cache entries
     const { error: detailsCacheError } = await supabase
       .from('rxnorm_details_cache')
       .delete()
       .lt('created_at', cutoffDateStr);
-    
+
     if (detailsCacheError) {
       console.error('Error clearing details cache:', detailsCacheError);
-      return new Response(JSON.stringify({ error: 'Error clearing details cache' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return {
         status: 500,
-      });
+        body: { error: 'Error clearing details cache' }
+      };
     }
-    
-    return new Response(JSON.stringify({
-      message: 'Cache cleared successfully',
-      cutoffDate: cutoffDateStr
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+
+    return {
       status: 200,
-    });
+      body: {
+        message: 'Cache cleared successfully',
+        cutoffDate: cutoffDateStr
+      }
+    };
   } catch (error) {
     console.error('Error in handleClearCache:', error);
-    return new Response(JSON.stringify({ error: 'Failed to clear cache' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return {
       status: 500,
-    });
+      body: { error: 'Failed to clear cache' }
+    };
   }
 }
 
-async function handleSyncSpecific(payload: any, supabase: any, corsHeaders: any) {
+async function handleSyncSpecific(payload: any, supabase: any): Promise<ApiResponse> {
   try {
     const { medications } = payload;
     
     if (!medications || !Array.isArray(medications) || medications.length === 0) {
-      return new Response(JSON.stringify({ error: 'Invalid or empty medications list' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return {
         status: 400,
-      });
+        body: { error: 'Invalid or empty medications list' }
+      };
     }
     
     const results = {
@@ -317,23 +356,23 @@ async function handleSyncSpecific(payload: any, supabase: any, corsHeaders: any)
       errors: results.errors.length > 0 ? results.errors : null
     });
     
-    return new Response(JSON.stringify({
-      message: 'Sync completed',
-      totalProcessed: medications.length,
-      success: results.success,
-      failed: results.failed,
-      updates: results.updated,
-      errors: results.errors
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return {
       status: 200,
-    });
+      body: {
+        message: 'Sync completed',
+        totalProcessed: medications.length,
+        success: results.success,
+        failed: results.failed,
+        updates: results.updated,
+        errors: results.errors
+      }
+    };
   } catch (error) {
     console.error('Error in handleSyncSpecific:', error);
-    return new Response(JSON.stringify({ error: 'Failed to sync specific medications' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return {
       status: 500,
-    });
+      body: { error: 'Failed to sync specific medications' }
+    };
   }
 }
 

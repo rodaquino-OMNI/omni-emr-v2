@@ -8,13 +8,16 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilePlus2, Pill, ClipboardList, FileText } from 'lucide-react';
 import PatientHeader from '../detail/PatientDetailHeader';
-import { 
+import {
   PatientOverviewTab,
   PatientNotesTab,
-  PatientMedicationsTab,
   PatientVitalSignsTab,
-  PatientAIInsightsTab
+  PatientAIInsightsTab,
+  PatientPrescriptionsTab,
+  PatientCareTasksTab,
+  PatientAppointmentsTab
 } from '../tabs';
+import EnhancedPatientMedicationsTab from '../tabs/EnhancedPatientMedicationsTab';
 import { useAuth } from '@/context/AuthContext';
 import { Patient, PatientInsight } from '@/types/patient';
 
@@ -122,6 +125,9 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="vitals">Vital Signs</TabsTrigger>
           <TabsTrigger value="medications">Medications</TabsTrigger>
+          <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="appointments">Appointments</TabsTrigger>
           <TabsTrigger value="notes">Clinical Notes</TabsTrigger>
           <TabsTrigger value="ai_insights">AI Insights</TabsTrigger>
         </TabsList>
@@ -135,7 +141,19 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
         </TabsContent>
         
         <TabsContent value="medications">
-          <PatientMedicationsTab patientId={patientId} />
+          <EnhancedPatientMedicationsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="prescriptions">
+          <PatientPrescriptionsTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="tasks">
+          <PatientCareTasksTab patientId={patientId} />
+        </TabsContent>
+        
+        <TabsContent value="appointments">
+          <PatientAppointmentsTab patientId={patientId} />
         </TabsContent>
         
         <TabsContent value="notes">
@@ -143,8 +161,8 @@ const DoctorPatientView: React.FC<DoctorPatientViewProps> = ({ patientId }) => {
         </TabsContent>
         
         <TabsContent value="ai_insights">
-          <PatientAIInsightsTab 
-            patientId={patientId} 
+          <PatientAIInsightsTab
+            patientId={patientId}
             insights={adaptedInsights}
             isLoading={insightsLoading}
             onRefresh={handleRefreshInsights}

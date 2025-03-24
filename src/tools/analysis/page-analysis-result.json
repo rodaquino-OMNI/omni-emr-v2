@@ -1,0 +1,3368 @@
+{
+  "pages": [
+    {
+      "path": "Admin/FunctionBlocks.tsx",
+      "name": "FunctionBlocks",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/context/AuthContext",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/use-toast",
+        "lucide-react",
+        "@/types/functionBlocks",
+        "@/components/ui/badge",
+        "@/components/ui/tabs",
+        "@/components/ui/input",
+        "@/components/ui/switch",
+        "@/components/ui/select",
+        "@/components/ui/dialog",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/components/ui/scroll-area",
+        "@/components/ui/separator"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Admin/RoleManagement.tsx",
+      "name": "RoleManagement",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/context/AuthContext",
+        "@/components/ui/card",
+        "@/components/ui/tabs",
+        "@/components/ui/button",
+        "@/components/ui/use-toast",
+        "@/components/admin/RolePermissionMatrix",
+        "@/components/admin/RolesList",
+        "@/components/ui/separator",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Admin.tsx",
+      "name": "Admin",
+      "imports": [
+        "react",
+        "@/components/ui/tabs",
+        "@/components/ui/card",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/hooks/usePermissions",
+        "@/components/admin/RolesList",
+        "@/components/admin/RolePermissionMatrix",
+        "@/components/admin/FunctionBlocksManager",
+        "@/components/auth/PendingApprovalList"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Appointments.tsx",
+      "name": "Appointments",
+      "imports": [
+        "react",
+        "@tanstack/react-query",
+        "date-fns",
+        "lucide-react",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/tabs",
+        "@/components/ui/badge",
+        "@/components/ui/popover",
+        "@/components/ui/calendar",
+        "@/components/ui/select",
+        "@/components/ui/dialog",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/hooks/use-toast",
+        "@/hooks/useTranslation",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/components/ui/loading-spinner",
+        "@/components/ErrorBoundary"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "patientVisitRegistration"
+      ]
+    },
+    {
+      "path": "AuthCallback.tsx",
+      "name": "AuthCallback",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/integrations/supabase/client"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "ClinicalDocumentation.tsx",
+      "name": "ClinicalDocumentation",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/context/AuthContext",
+        "@/hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/textarea",
+        "@/components/ui/input",
+        "@/components/ui/card",
+        "@/components/ui/label",
+        "sonner",
+        "lucide-react",
+        "@/services/recordService",
+        "@/types/medicalRecordTypes",
+        "@/components/ui/select",
+        "@/components/ui/dialog",
+        "@/components/clinical-documentation/TemplateSelector",
+        "@tanstack/react-query",
+        "@/components/clinical-documentation/components/NoteSectionEditor"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "CriticalResults.tsx",
+      "name": "CriticalResults",
+      "imports": [
+        "react",
+        "@/components/critical-results/CriticalResultsList",
+        "@/hooks/useCriticalResults",
+        "@/hooks/useTranslation",
+        "@/components/ui/card",
+        "@/context/AuthContext",
+        "@/utils/permissions/roleChecks"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Dashboard.tsx",
+      "name": "Dashboard",
+      "imports": [
+        "react",
+        "@/components/dashboard/RoleDashboardContainer",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/hooks/useSectorContext"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "EmergencyCare.tsx",
+      "name": "EmergencyCare",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/table",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/emergency/EmergencyTriageWorkflow"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "FluidBalance.tsx",
+      "name": "FluidBalance",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/fluid-balance/FluidIntakeForm",
+        "@/components/fluid-balance/FluidIntakeHistory",
+        "@/components/fluid-balance/FluidOutputForm",
+        "@/components/fluid-balance/FluidOutputHistory",
+        "@/components/ui/button",
+        "@/components/ui/tabs",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    },
+    {
+      "path": "Help.tsx",
+      "name": "Help",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/components/ui/accordion",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Home.tsx",
+      "name": "Home",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/hooks/useTranslation",
+        "@/components/auth/LanguageToggle",
+        "@/context/AuthContext"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "HospitalWorkflows.tsx",
+      "name": "HospitalWorkflows",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/table",
+        "@/components/hospital/AdmissionDischargeWorkflow"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Index.tsx",
+      "name": "Index",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../context/AuthContext",
+        "@/components/ui/button",
+        "lucide-react",
+        "../hooks/useTranslation",
+        "@/components/common/TranslatedText"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Login.tsx",
+      "name": "Login",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../context/AuthContext",
+        "../utils/supabaseConnectivity",
+        "../components/auth/login/LoginContainer"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "MedicalHistory.tsx",
+      "name": "MedicalHistory",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/hooks/usePatientData",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/patients/PatientMedicalHistory",
+        "@/components/ui/card",
+        "@/hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "MedicationAdministration.tsx",
+      "name": "MedicationAdministration",
+      "imports": [
+        "react",
+        "@/components/medications/administration/page/MedicationAdministrationPage"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "MedicationView.tsx",
+      "name": "MedicationView",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/medications/MedicationDetail",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Medications.tsx",
+      "name": "Medications",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/medications/MedicationsList",
+        "lucide-react",
+        "../hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/tabs",
+        "@/components/ui/select",
+        "@/components/ui/sheet",
+        "@/components/ui/alert",
+        "@/components/ui/badge",
+        "@/components/ui/card",
+        "../components/medications/NewMedicationForm",
+        "../components/medications/drugInteractions/DrugInteractionChecker",
+        "../components/medications/reconciliation/MedicationReconciliation",
+        "../hooks/usePatient",
+        "@/context/AuthContext",
+        "@/utils/permissions/medicationManagement"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Messages.tsx",
+      "name": "Messages",
+      "imports": [
+        "react",
+        "../components/layout/Sidebar",
+        "../components/layout/Header",
+        "../components/messages/MessageList",
+        "../components/messages/MessageView",
+        "../hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "NewOrder.tsx",
+      "name": "NewOrder",
+      "imports": [
+        "react",
+        "@/components/ui/button",
+        "lucide-react",
+        "react-router-dom"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "NotFound.tsx",
+      "name": "NotFound",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Notifications.tsx",
+      "name": "Notifications",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "../components/notifications/NotificationsList",
+        "../components/notifications/NotificationFilters"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Orders.tsx",
+      "name": "Orders",
+      "imports": [
+        "react",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/types/orders",
+        "@/context/AuthContext",
+        "react-router-dom"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PageNotFound.tsx",
+      "name": "PageNotFound",
+      "imports": [
+        "react",
+        "@/components/ui/button",
+        "react-router-dom"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PatientDetail.tsx",
+      "name": "PatientDetail",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/hooks/usePatientData",
+        "@/hooks/usePatientInsights",
+        "@/components/patients/hooks/usePatientPrescriptions",
+        "@/components/patients/detail/PatientDetailHeader",
+        "@/components/patients/detail/PatientDetailLoader",
+        "@/components/patients/PatientViewSelector",
+        "@/types/patientTypes",
+        "@/hooks/useSectorContext",
+        "@/components/ui/button",
+        "sonner",
+        "lucide-react",
+        "@/hooks/useTranslation",
+        "@/context/PatientContext",
+        "@/types/patient"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PatientProfile.tsx",
+      "name": "PatientProfile",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/textarea",
+        "@/hooks/useTranslation",
+        "@/components/patients/PatientDetailHeader",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "sonner",
+        "@/hooks/usePatientData",
+        "@/components/patients/detail/PatientDetailLoader",
+        "@/types/patientTypes"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Patients.tsx",
+      "name": "Patients",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/patients/SectorPatientList",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/components/ui/badge",
+        "@/components/ui/select",
+        "../hooks/useTranslation",
+        "@/hooks/useSectorContext",
+        "@/components/common/TranslatedText",
+        "@/components/ui/dropdown-menu",
+        "@/components/ui/LoadingOverlay",
+        "@/hooks/sector/useFilteredSectorPatients",
+        "@/components/patients/SectorPatientListPagination",
+        "sonner"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PrescribeMedication.tsx",
+      "name": "PrescribeMedication",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "sonner",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/components/ui/tabs",
+        "@/components/ui/select",
+        "@/components/ui/badge",
+        "@/components/ui/separator",
+        "@/components/ui/radio-group",
+        "@/components/ui/slider",
+        "@/components/ui/switch",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/components/medications/RxNormMedicationSelector",
+        "@/components/ui/alert"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "PrescriptionView.tsx",
+      "name": "PrescriptionView",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/badge",
+        "@/components/ui/tabs",
+        "@/components/ui/loading-spinner",
+        "lucide-react",
+        "date-fns",
+        "@/hooks/useTranslation",
+        "@/integrations/supabase/client",
+        "@/types/patient"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Prescriptions.tsx",
+      "name": "Prescriptions",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/components/ui/button",
+        "../context/AuthContext",
+        "../components/prescriptions",
+        "../services/prescriptionService",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "RecordView.tsx",
+      "name": "RecordView",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/records/RecordDetail",
+        "lucide-react",
+        "@/hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/alert-dialog",
+        "sonner",
+        "@/services/recordService"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Records.tsx",
+      "name": "Records",
+      "imports": [
+        "react",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/select",
+        "@/components/ui/tabs",
+        "@/components/ui/calendar",
+        "@/components/ui/popover",
+        "date-fns",
+        "lucide-react",
+        "@/lib/utils",
+        "@/hooks/usePatientRecords",
+        "@/components/records/RecordsList",
+        "@/components/records/NewRecordForm",
+        "@/services/recordService",
+        "@/types/medicalRecordTypes",
+        "sonner"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Register.tsx",
+      "name": "Register",
+      "imports": [
+        "react",
+        "@/hooks/useTranslation",
+        "@/components/ui/card",
+        "@/components/auth/RegisterForm",
+        "@/components/auth/LoginHeader"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "ResetPassword.tsx",
+      "name": "ResetPassword",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/button",
+        "@/components/ui/label",
+        "lucide-react",
+        "sonner",
+        "@/hooks/useTranslation",
+        "@/utils/signUpUtils",
+        "@/integrations/supabase/client"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "RxNormManagement.tsx",
+      "name": "RxNormManagement",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/tabs",
+        "../components/medications/RxNormMedicationSelector",
+        "../components/medications/RxNormAdminPanel",
+        "../components/medications/drugInteractions/DrugInteractionChecker",
+        "../components/admin/MedicationTranslationsAdmin",
+        "lucide-react",
+        "@/components/ui/card"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Schedule.tsx",
+      "name": "Schedule",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "lucide-react",
+        "@/components/ui/calendar",
+        "date-fns",
+        "@/lib/utils",
+        "@/components/ui/popover",
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/components/ui/select",
+        "../hooks/useTranslation",
+        "sonner"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "patientVisitRegistration"
+      ]
+    },
+    {
+      "path": "SectorSelection.tsx",
+      "name": "SectorSelection",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/radio-group",
+        "@/components/ui/label",
+        "lucide-react",
+        "@/components/ui/alert",
+        "@/hooks/useTranslation",
+        "@/hooks/useSectorContext",
+        "@/components/ui/empty-state",
+        "@/components/sector/SectorSelectionSkeleton"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Settings.tsx",
+      "name": "Settings",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/components/ui/tabs",
+        "../components/settings/ProfileSettings",
+        "../components/settings/SystemSettings",
+        "../components/settings/SecuritySettings",
+        "../components/settings/NotificationSettings",
+        "../hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "TaskDetail.tsx",
+      "name": "TaskDetail",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/hooks/useTranslation",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/tasks/detail/useTaskDetail",
+        "@/components/tasks/detail/TaskDetailHeader",
+        "@/components/tasks/detail/TaskDetailCard"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    },
+    {
+      "path": "Tasks.tsx",
+      "name": "Tasks",
+      "imports": [
+        "react",
+        "@tanstack/react-query",
+        "@/hooks/use-toast",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/components/tasks/card/TaskCardTypes",
+        "@/components/tasks/TaskCompletionForm",
+        "@/services/tasks",
+        "@/components/tasks/TaskPageHeader",
+        "@/components/tasks/TaskTabs"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    },
+    {
+      "path": "Telemedicine.tsx",
+      "name": "Telemedicine",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/tabs",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Unauthorized.tsx",
+      "name": "Unauthorized",
+      "imports": [
+        "react",
+        "@/components/auth/UnauthorizedAccessHandler"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "VisitNotes.tsx",
+      "name": "VisitNotes",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/visit-notes/VitalSignsForm",
+        "@/components/visit-notes/VitalSignsView",
+        "@/components/ui/tabs",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/textarea",
+        "@/components/ui/input",
+        "@/components/ui/checkbox",
+        "@/components/ui/label",
+        "@/components/ui/dialog",
+        "lucide-react",
+        "sonner",
+        "@/components/visit-notes/VisitNoteDrawingCanvas",
+        "@tanstack/react-query"
+      ],
+      "exports": [
+        "export",
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "patientVisitRegistration"
+      ]
+    },
+    {
+      "path": "VitalSigns.tsx",
+      "name": "VitalSigns",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/table",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/patients/PatientVitals",
+        "@/integrations/supabase/client",
+        "@/hooks/useAsync",
+        "@/hooks/usePermissions",
+        "@/context/AuthContext"
+      ],
+      "exports": [
+        "export",
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "path": "/login",
+      "component": "Login /"
+    },
+    {
+      "path": "/register",
+      "component": "RegisterPage /"
+    },
+    {
+      "path": "/auth/callback",
+      "component": "AuthCallback /"
+    },
+    {
+      "path": "/login",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "/auth/callback",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "/",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "*",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "/login",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "/auth/callback",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "/unauthorized",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "/",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "dashboard",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "patients",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "patients/:id",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "patient-profile/:id",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "records",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "clinical-documentation",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "clinical-documentation/:id/:patientId",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "orders",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "medications",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "appointments",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "emergency/:patientId",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "settings",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "medications",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "prescribe-medication",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "prescriptions",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "prescriptions/:id",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "tasks",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "vital-signs",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "schedule",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "tasks",
+      "component": "Suspense fallback={<Loading /"
+    },
+    {
+      "path": "/",
+      "component": "ProtectedRoute"
+    },
+    {
+      "path": "/dashboard",
+      "component": "Unauthorized /"
+    },
+    {
+      "path": "/",
+      "component": "Home /"
+    },
+    {
+      "path": "/unauthorized",
+      "component": "Unauthorized /"
+    },
+    {
+      "path": "*",
+      "component": "NotFound /"
+    },
+    {
+      "path": "/translations/diagnostics",
+      "component": "TranslationDiagnostics /"
+    },
+    {
+      "path": "/translations/admin",
+      "component": "MedicationTranslationsAdmin /"
+    }
+  ],
+  "orphanedPages": [
+    {
+      "path": "Admin/FunctionBlocks.tsx",
+      "name": "FunctionBlocks",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/context/AuthContext",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/use-toast",
+        "lucide-react",
+        "@/types/functionBlocks",
+        "@/components/ui/badge",
+        "@/components/ui/tabs",
+        "@/components/ui/input",
+        "@/components/ui/switch",
+        "@/components/ui/select",
+        "@/components/ui/dialog",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/components/ui/scroll-area",
+        "@/components/ui/separator"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Admin/RoleManagement.tsx",
+      "name": "RoleManagement",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/context/AuthContext",
+        "@/components/ui/card",
+        "@/components/ui/tabs",
+        "@/components/ui/button",
+        "@/components/ui/use-toast",
+        "@/components/admin/RolePermissionMatrix",
+        "@/components/admin/RolesList",
+        "@/components/ui/separator",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Admin.tsx",
+      "name": "Admin",
+      "imports": [
+        "react",
+        "@/components/ui/tabs",
+        "@/components/ui/card",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/hooks/usePermissions",
+        "@/components/admin/RolesList",
+        "@/components/admin/RolePermissionMatrix",
+        "@/components/admin/FunctionBlocksManager",
+        "@/components/auth/PendingApprovalList"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Appointments.tsx",
+      "name": "Appointments",
+      "imports": [
+        "react",
+        "@tanstack/react-query",
+        "date-fns",
+        "lucide-react",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/tabs",
+        "@/components/ui/badge",
+        "@/components/ui/popover",
+        "@/components/ui/calendar",
+        "@/components/ui/select",
+        "@/components/ui/dialog",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/hooks/use-toast",
+        "@/hooks/useTranslation",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/components/ui/loading-spinner",
+        "@/components/ErrorBoundary"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "patientVisitRegistration"
+      ]
+    },
+    {
+      "path": "AuthCallback.tsx",
+      "name": "AuthCallback",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/integrations/supabase/client"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "ClinicalDocumentation.tsx",
+      "name": "ClinicalDocumentation",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/context/AuthContext",
+        "@/hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/textarea",
+        "@/components/ui/input",
+        "@/components/ui/card",
+        "@/components/ui/label",
+        "sonner",
+        "lucide-react",
+        "@/services/recordService",
+        "@/types/medicalRecordTypes",
+        "@/components/ui/select",
+        "@/components/ui/dialog",
+        "@/components/clinical-documentation/TemplateSelector",
+        "@tanstack/react-query",
+        "@/components/clinical-documentation/components/NoteSectionEditor"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "CriticalResults.tsx",
+      "name": "CriticalResults",
+      "imports": [
+        "react",
+        "@/components/critical-results/CriticalResultsList",
+        "@/hooks/useCriticalResults",
+        "@/hooks/useTranslation",
+        "@/components/ui/card",
+        "@/context/AuthContext",
+        "@/utils/permissions/roleChecks"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Dashboard.tsx",
+      "name": "Dashboard",
+      "imports": [
+        "react",
+        "@/components/dashboard/RoleDashboardContainer",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/hooks/useSectorContext"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "EmergencyCare.tsx",
+      "name": "EmergencyCare",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/table",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/emergency/EmergencyTriageWorkflow"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "FluidBalance.tsx",
+      "name": "FluidBalance",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/fluid-balance/FluidIntakeForm",
+        "@/components/fluid-balance/FluidIntakeHistory",
+        "@/components/fluid-balance/FluidOutputForm",
+        "@/components/fluid-balance/FluidOutputHistory",
+        "@/components/ui/button",
+        "@/components/ui/tabs",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    },
+    {
+      "path": "Help.tsx",
+      "name": "Help",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/components/ui/accordion",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Home.tsx",
+      "name": "Home",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/hooks/useTranslation",
+        "@/components/auth/LanguageToggle",
+        "@/context/AuthContext"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "HospitalWorkflows.tsx",
+      "name": "HospitalWorkflows",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/table",
+        "@/components/hospital/AdmissionDischargeWorkflow"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Index.tsx",
+      "name": "Index",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../context/AuthContext",
+        "@/components/ui/button",
+        "lucide-react",
+        "../hooks/useTranslation",
+        "@/components/common/TranslatedText"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Login.tsx",
+      "name": "Login",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../context/AuthContext",
+        "../utils/supabaseConnectivity",
+        "../components/auth/login/LoginContainer"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "MedicalHistory.tsx",
+      "name": "MedicalHistory",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/hooks/usePatientData",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/patients/PatientMedicalHistory",
+        "@/components/ui/card",
+        "@/hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "MedicationAdministration.tsx",
+      "name": "MedicationAdministration",
+      "imports": [
+        "react",
+        "@/components/medications/administration/page/MedicationAdministrationPage"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "MedicationView.tsx",
+      "name": "MedicationView",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/medications/MedicationDetail",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Medications.tsx",
+      "name": "Medications",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/medications/MedicationsList",
+        "lucide-react",
+        "../hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/tabs",
+        "@/components/ui/select",
+        "@/components/ui/sheet",
+        "@/components/ui/alert",
+        "@/components/ui/badge",
+        "@/components/ui/card",
+        "../components/medications/NewMedicationForm",
+        "../components/medications/drugInteractions/DrugInteractionChecker",
+        "../components/medications/reconciliation/MedicationReconciliation",
+        "../hooks/usePatient",
+        "@/context/AuthContext",
+        "@/utils/permissions/medicationManagement"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Messages.tsx",
+      "name": "Messages",
+      "imports": [
+        "react",
+        "../components/layout/Sidebar",
+        "../components/layout/Header",
+        "../components/messages/MessageList",
+        "../components/messages/MessageView",
+        "../hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "NewOrder.tsx",
+      "name": "NewOrder",
+      "imports": [
+        "react",
+        "@/components/ui/button",
+        "lucide-react",
+        "react-router-dom"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "NotFound.tsx",
+      "name": "NotFound",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Notifications.tsx",
+      "name": "Notifications",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "../components/notifications/NotificationsList",
+        "../components/notifications/NotificationFilters"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Orders.tsx",
+      "name": "Orders",
+      "imports": [
+        "react",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/types/orders",
+        "@/context/AuthContext",
+        "react-router-dom"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PageNotFound.tsx",
+      "name": "PageNotFound",
+      "imports": [
+        "react",
+        "@/components/ui/button",
+        "react-router-dom"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PatientDetail.tsx",
+      "name": "PatientDetail",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/hooks/usePatientData",
+        "@/hooks/usePatientInsights",
+        "@/components/patients/hooks/usePatientPrescriptions",
+        "@/components/patients/detail/PatientDetailHeader",
+        "@/components/patients/detail/PatientDetailLoader",
+        "@/components/patients/PatientViewSelector",
+        "@/types/patientTypes",
+        "@/hooks/useSectorContext",
+        "@/components/ui/button",
+        "sonner",
+        "lucide-react",
+        "@/hooks/useTranslation",
+        "@/context/PatientContext",
+        "@/types/patient"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PatientProfile.tsx",
+      "name": "PatientProfile",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/textarea",
+        "@/hooks/useTranslation",
+        "@/components/patients/PatientDetailHeader",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "sonner",
+        "@/hooks/usePatientData",
+        "@/components/patients/detail/PatientDetailLoader",
+        "@/types/patientTypes"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Patients.tsx",
+      "name": "Patients",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/patients/SectorPatientList",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/components/ui/badge",
+        "@/components/ui/select",
+        "../hooks/useTranslation",
+        "@/hooks/useSectorContext",
+        "@/components/common/TranslatedText",
+        "@/components/ui/dropdown-menu",
+        "@/components/ui/LoadingOverlay",
+        "@/hooks/sector/useFilteredSectorPatients",
+        "@/components/patients/SectorPatientListPagination",
+        "sonner"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "PrescribeMedication.tsx",
+      "name": "PrescribeMedication",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "sonner",
+        "lucide-react",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/components/ui/tabs",
+        "@/components/ui/select",
+        "@/components/ui/badge",
+        "@/components/ui/separator",
+        "@/components/ui/radio-group",
+        "@/components/ui/slider",
+        "@/components/ui/switch",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/components/medications/RxNormMedicationSelector",
+        "@/components/ui/alert"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "PrescriptionView.tsx",
+      "name": "PrescriptionView",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/badge",
+        "@/components/ui/tabs",
+        "@/components/ui/loading-spinner",
+        "lucide-react",
+        "date-fns",
+        "@/hooks/useTranslation",
+        "@/integrations/supabase/client",
+        "@/types/patient"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Prescriptions.tsx",
+      "name": "Prescriptions",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/components/ui/button",
+        "../context/AuthContext",
+        "../components/prescriptions",
+        "../services/prescriptionService",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "RecordView.tsx",
+      "name": "RecordView",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../components/records/RecordDetail",
+        "lucide-react",
+        "@/hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/alert-dialog",
+        "sonner",
+        "@/services/recordService"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Records.tsx",
+      "name": "Records",
+      "imports": [
+        "react",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/select",
+        "@/components/ui/tabs",
+        "@/components/ui/calendar",
+        "@/components/ui/popover",
+        "date-fns",
+        "lucide-react",
+        "@/lib/utils",
+        "@/hooks/usePatientRecords",
+        "@/components/records/RecordsList",
+        "@/components/records/NewRecordForm",
+        "@/services/recordService",
+        "@/types/medicalRecordTypes",
+        "sonner"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Register.tsx",
+      "name": "Register",
+      "imports": [
+        "react",
+        "@/hooks/useTranslation",
+        "@/components/ui/card",
+        "@/components/auth/RegisterForm",
+        "@/components/auth/LoginHeader"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "ResetPassword.tsx",
+      "name": "ResetPassword",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/button",
+        "@/components/ui/label",
+        "lucide-react",
+        "sonner",
+        "@/hooks/useTranslation",
+        "@/utils/signUpUtils",
+        "@/integrations/supabase/client"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "RxNormManagement.tsx",
+      "name": "RxNormManagement",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/tabs",
+        "../components/medications/RxNormMedicationSelector",
+        "../components/medications/RxNormAdminPanel",
+        "../components/medications/drugInteractions/DrugInteractionChecker",
+        "../components/admin/MedicationTranslationsAdmin",
+        "lucide-react",
+        "@/components/ui/card"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Schedule.tsx",
+      "name": "Schedule",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "lucide-react",
+        "@/components/ui/calendar",
+        "date-fns",
+        "@/lib/utils",
+        "@/components/ui/popover",
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/label",
+        "@/components/ui/textarea",
+        "@/components/ui/select",
+        "../hooks/useTranslation",
+        "sonner"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "patientVisitRegistration"
+      ]
+    },
+    {
+      "path": "SectorSelection.tsx",
+      "name": "SectorSelection",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/components/ui/card",
+        "@/components/ui/button",
+        "@/components/ui/radio-group",
+        "@/components/ui/label",
+        "lucide-react",
+        "@/components/ui/alert",
+        "@/hooks/useTranslation",
+        "@/hooks/useSectorContext",
+        "@/components/ui/empty-state",
+        "@/components/sector/SectorSelectionSkeleton"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "Settings.tsx",
+      "name": "Settings",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "@/components/ui/tabs",
+        "../components/settings/ProfileSettings",
+        "../components/settings/SystemSettings",
+        "../components/settings/SecuritySettings",
+        "../components/settings/NotificationSettings",
+        "../hooks/useTranslation"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "TaskDetail.tsx",
+      "name": "TaskDetail",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "@/hooks/useTranslation",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/tasks/detail/useTaskDetail",
+        "@/components/tasks/detail/TaskDetailHeader",
+        "@/components/tasks/detail/TaskDetailCard"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    },
+    {
+      "path": "Tasks.tsx",
+      "name": "Tasks",
+      "imports": [
+        "react",
+        "@tanstack/react-query",
+        "@/hooks/use-toast",
+        "@/hooks/useTranslation",
+        "@/context/AuthContext",
+        "@/components/layout/Header",
+        "@/components/layout/Sidebar",
+        "@/components/tasks/card/TaskCardTypes",
+        "@/components/tasks/TaskCompletionForm",
+        "@/services/tasks",
+        "@/components/tasks/TaskPageHeader",
+        "@/components/tasks/TaskTabs"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    },
+    {
+      "path": "Telemedicine.tsx",
+      "name": "Telemedicine",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/button",
+        "@/components/ui/tabs",
+        "lucide-react"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "prescriptionManagement"
+      ]
+    },
+    {
+      "path": "Unauthorized.tsx",
+      "name": "Unauthorized",
+      "imports": [
+        "react",
+        "@/components/auth/UnauthorizedAccessHandler"
+      ],
+      "exports": [
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": []
+    },
+    {
+      "path": "VisitNotes.tsx",
+      "name": "VisitNotes",
+      "imports": [
+        "react",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/visit-notes/VitalSignsForm",
+        "@/components/visit-notes/VitalSignsView",
+        "@/components/ui/tabs",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/textarea",
+        "@/components/ui/input",
+        "@/components/ui/checkbox",
+        "@/components/ui/label",
+        "@/components/ui/dialog",
+        "lucide-react",
+        "sonner",
+        "@/components/visit-notes/VisitNoteDrawingCanvas",
+        "@tanstack/react-query"
+      ],
+      "exports": [
+        "export",
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "patientVisitRegistration"
+      ]
+    },
+    {
+      "path": "VitalSigns.tsx",
+      "name": "VitalSigns",
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../components/layout/Header",
+        "../components/layout/Sidebar",
+        "../hooks/useTranslation",
+        "@/components/ui/table",
+        "@/components/ui/button",
+        "lucide-react",
+        "@/components/patients/PatientVitals",
+        "@/integrations/supabase/client",
+        "@/hooks/useAsync",
+        "@/hooks/usePermissions",
+        "@/context/AuthContext"
+      ],
+      "exports": [
+        "export",
+        "export"
+      ],
+      "referencedIn": [],
+      "isReferenced": false,
+      "potentiallyOrphaned": true,
+      "clinicalWorkflows": [
+        "clinicalTaskExecution"
+      ]
+    }
+  ],
+  "clinicalWorkflowPages": {
+    "prescriptionManagement": [
+      {
+        "path": "MedicationAdministration.tsx",
+        "name": "MedicationAdministration",
+        "imports": [
+          "react",
+          "@/components/medications/administration/page/MedicationAdministrationPage"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "prescriptionManagement"
+        ]
+      },
+      {
+        "path": "MedicationView.tsx",
+        "name": "MedicationView",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../components/medications/MedicationDetail",
+          "lucide-react"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "prescriptionManagement"
+        ]
+      },
+      {
+        "path": "Medications.tsx",
+        "name": "Medications",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../components/medications/MedicationsList",
+          "lucide-react",
+          "../hooks/useTranslation",
+          "@/components/ui/button",
+          "@/components/ui/tabs",
+          "@/components/ui/select",
+          "@/components/ui/sheet",
+          "@/components/ui/alert",
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "../components/medications/NewMedicationForm",
+          "../components/medications/drugInteractions/DrugInteractionChecker",
+          "../components/medications/reconciliation/MedicationReconciliation",
+          "../hooks/usePatient",
+          "@/context/AuthContext",
+          "@/utils/permissions/medicationManagement"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "prescriptionManagement"
+        ]
+      },
+      {
+        "path": "PrescribeMedication.tsx",
+        "name": "PrescribeMedication",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "sonner",
+          "lucide-react",
+          "@/components/ui/button",
+          "@/components/ui/card",
+          "@/components/ui/input",
+          "@/components/ui/label",
+          "@/components/ui/textarea",
+          "@/components/ui/tabs",
+          "@/components/ui/select",
+          "@/components/ui/badge",
+          "@/components/ui/separator",
+          "@/components/ui/radio-group",
+          "@/components/ui/slider",
+          "@/components/ui/switch",
+          "@/hooks/useTranslation",
+          "@/context/AuthContext",
+          "@/components/medications/RxNormMedicationSelector",
+          "@/components/ui/alert"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "prescriptionManagement"
+        ]
+      },
+      {
+        "path": "PrescriptionView.tsx",
+        "name": "PrescriptionView",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/badge",
+          "@/components/ui/tabs",
+          "@/components/ui/loading-spinner",
+          "lucide-react",
+          "date-fns",
+          "@/hooks/useTranslation",
+          "@/integrations/supabase/client",
+          "@/types/patient"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "prescriptionManagement"
+        ]
+      },
+      {
+        "path": "Prescriptions.tsx",
+        "name": "Prescriptions",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "@/components/ui/button",
+          "../context/AuthContext",
+          "../components/prescriptions",
+          "../services/prescriptionService",
+          "lucide-react"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "prescriptionManagement"
+        ]
+      },
+      {
+        "path": "Telemedicine.tsx",
+        "name": "Telemedicine",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "@/components/ui/button",
+          "@/components/ui/tabs",
+          "lucide-react"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "prescriptionManagement"
+        ]
+      }
+    ],
+    "clinicalTaskExecution": [
+      {
+        "path": "FluidBalance.tsx",
+        "name": "FluidBalance",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "@/components/fluid-balance/FluidIntakeForm",
+          "@/components/fluid-balance/FluidIntakeHistory",
+          "@/components/fluid-balance/FluidOutputForm",
+          "@/components/fluid-balance/FluidOutputHistory",
+          "@/components/ui/button",
+          "@/components/ui/tabs",
+          "lucide-react"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "clinicalTaskExecution"
+        ]
+      },
+      {
+        "path": "TaskDetail.tsx",
+        "name": "TaskDetail",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/hooks/useTranslation",
+          "@/components/layout/Header",
+          "@/components/layout/Sidebar",
+          "@/components/ui/button",
+          "lucide-react",
+          "@/components/tasks/detail/useTaskDetail",
+          "@/components/tasks/detail/TaskDetailHeader",
+          "@/components/tasks/detail/TaskDetailCard"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "clinicalTaskExecution"
+        ]
+      },
+      {
+        "path": "Tasks.tsx",
+        "name": "Tasks",
+        "imports": [
+          "react",
+          "@tanstack/react-query",
+          "@/hooks/use-toast",
+          "@/hooks/useTranslation",
+          "@/context/AuthContext",
+          "@/components/layout/Header",
+          "@/components/layout/Sidebar",
+          "@/components/tasks/card/TaskCardTypes",
+          "@/components/tasks/TaskCompletionForm",
+          "@/services/tasks",
+          "@/components/tasks/TaskPageHeader",
+          "@/components/tasks/TaskTabs"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "clinicalTaskExecution"
+        ]
+      },
+      {
+        "path": "VitalSigns.tsx",
+        "name": "VitalSigns",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "@/components/ui/table",
+          "@/components/ui/button",
+          "lucide-react",
+          "@/components/patients/PatientVitals",
+          "@/integrations/supabase/client",
+          "@/hooks/useAsync",
+          "@/hooks/usePermissions",
+          "@/context/AuthContext"
+        ],
+        "exports": [
+          "export",
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "clinicalTaskExecution"
+        ]
+      }
+    ],
+    "patientVisitRegistration": [
+      {
+        "path": "Appointments.tsx",
+        "name": "Appointments",
+        "imports": [
+          "react",
+          "@tanstack/react-query",
+          "date-fns",
+          "lucide-react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/input",
+          "@/components/ui/tabs",
+          "@/components/ui/badge",
+          "@/components/ui/popover",
+          "@/components/ui/calendar",
+          "@/components/ui/select",
+          "@/components/ui/dialog",
+          "@/components/ui/label",
+          "@/components/ui/textarea",
+          "@/hooks/use-toast",
+          "@/hooks/useTranslation",
+          "@/components/layout/Header",
+          "@/components/layout/Sidebar",
+          "@/components/ui/loading-spinner",
+          "@/components/ErrorBoundary"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "patientVisitRegistration"
+        ]
+      },
+      {
+        "path": "Schedule.tsx",
+        "name": "Schedule",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "lucide-react",
+          "@/components/ui/calendar",
+          "date-fns",
+          "@/lib/utils",
+          "@/components/ui/popover",
+          "@/components/ui/button",
+          "@/components/ui/input",
+          "@/components/ui/label",
+          "@/components/ui/textarea",
+          "@/components/ui/select",
+          "../hooks/useTranslation",
+          "sonner"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "patientVisitRegistration"
+        ]
+      },
+      {
+        "path": "VisitNotes.tsx",
+        "name": "VisitNotes",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "@/components/visit-notes/VitalSignsForm",
+          "@/components/visit-notes/VitalSignsView",
+          "@/components/ui/tabs",
+          "@/components/ui/button",
+          "@/components/ui/card",
+          "@/components/ui/textarea",
+          "@/components/ui/input",
+          "@/components/ui/checkbox",
+          "@/components/ui/label",
+          "@/components/ui/dialog",
+          "lucide-react",
+          "sonner",
+          "@/components/visit-notes/VisitNoteDrawingCanvas",
+          "@tanstack/react-query"
+        ],
+        "exports": [
+          "export",
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": [
+          "patientVisitRegistration"
+        ]
+      }
+    ],
+    "other": [
+      {
+        "path": "Admin/FunctionBlocks.tsx",
+        "name": "FunctionBlocks",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/context/AuthContext",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/use-toast",
+          "lucide-react",
+          "@/types/functionBlocks",
+          "@/components/ui/badge",
+          "@/components/ui/tabs",
+          "@/components/ui/input",
+          "@/components/ui/switch",
+          "@/components/ui/select",
+          "@/components/ui/dialog",
+          "@/components/ui/label",
+          "@/components/ui/textarea",
+          "@/components/ui/scroll-area",
+          "@/components/ui/separator"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Admin/RoleManagement.tsx",
+        "name": "RoleManagement",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/context/AuthContext",
+          "@/components/ui/card",
+          "@/components/ui/tabs",
+          "@/components/ui/button",
+          "@/components/ui/use-toast",
+          "@/components/admin/RolePermissionMatrix",
+          "@/components/admin/RolesList",
+          "@/components/ui/separator",
+          "lucide-react"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Admin.tsx",
+        "name": "Admin",
+        "imports": [
+          "react",
+          "@/components/ui/tabs",
+          "@/components/ui/card",
+          "@/hooks/useTranslation",
+          "@/context/AuthContext",
+          "@/hooks/usePermissions",
+          "@/components/admin/RolesList",
+          "@/components/admin/RolePermissionMatrix",
+          "@/components/admin/FunctionBlocksManager",
+          "@/components/auth/PendingApprovalList"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "AuthCallback.tsx",
+        "name": "AuthCallback",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/integrations/supabase/client"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "ClinicalDocumentation.tsx",
+        "name": "ClinicalDocumentation",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/context/AuthContext",
+          "@/hooks/useTranslation",
+          "@/components/ui/button",
+          "@/components/ui/textarea",
+          "@/components/ui/input",
+          "@/components/ui/card",
+          "@/components/ui/label",
+          "sonner",
+          "lucide-react",
+          "@/services/recordService",
+          "@/types/medicalRecordTypes",
+          "@/components/ui/select",
+          "@/components/ui/dialog",
+          "@/components/clinical-documentation/TemplateSelector",
+          "@tanstack/react-query",
+          "@/components/clinical-documentation/components/NoteSectionEditor"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "CriticalResults.tsx",
+        "name": "CriticalResults",
+        "imports": [
+          "react",
+          "@/components/critical-results/CriticalResultsList",
+          "@/hooks/useCriticalResults",
+          "@/hooks/useTranslation",
+          "@/components/ui/card",
+          "@/context/AuthContext",
+          "@/utils/permissions/roleChecks"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Dashboard.tsx",
+        "name": "Dashboard",
+        "imports": [
+          "react",
+          "@/components/dashboard/RoleDashboardContainer",
+          "@/hooks/useTranslation",
+          "@/context/AuthContext",
+          "@/hooks/useSectorContext"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "EmergencyCare.tsx",
+        "name": "EmergencyCare",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "@/components/ui/table",
+          "@/components/ui/button",
+          "lucide-react",
+          "@/components/emergency/EmergencyTriageWorkflow"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Help.tsx",
+        "name": "Help",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "@/components/ui/accordion",
+          "lucide-react"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Home.tsx",
+        "name": "Home",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "lucide-react",
+          "@/components/ui/button",
+          "@/hooks/useTranslation",
+          "@/components/auth/LanguageToggle",
+          "@/context/AuthContext"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "HospitalWorkflows.tsx",
+        "name": "HospitalWorkflows",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "@/components/ui/table",
+          "@/components/hospital/AdmissionDischargeWorkflow"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Index.tsx",
+        "name": "Index",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../context/AuthContext",
+          "@/components/ui/button",
+          "lucide-react",
+          "../hooks/useTranslation",
+          "@/components/common/TranslatedText"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Login.tsx",
+        "name": "Login",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../context/AuthContext",
+          "../utils/supabaseConnectivity",
+          "../components/auth/login/LoginContainer"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "MedicalHistory.tsx",
+        "name": "MedicalHistory",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "@/hooks/usePatientData",
+          "@/components/ui/button",
+          "lucide-react",
+          "@/components/patients/PatientMedicalHistory",
+          "@/components/ui/card",
+          "@/hooks/useTranslation"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Messages.tsx",
+        "name": "Messages",
+        "imports": [
+          "react",
+          "../components/layout/Sidebar",
+          "../components/layout/Header",
+          "../components/messages/MessageList",
+          "../components/messages/MessageView",
+          "../hooks/useTranslation"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "NewOrder.tsx",
+        "name": "NewOrder",
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "lucide-react",
+          "react-router-dom"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "NotFound.tsx",
+        "name": "NotFound",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "lucide-react",
+          "@/components/ui/button",
+          "@/hooks/useTranslation"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Notifications.tsx",
+        "name": "Notifications",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "../components/notifications/NotificationsList",
+          "../components/notifications/NotificationFilters"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Orders.tsx",
+        "name": "Orders",
+        "imports": [
+          "react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/types/orders",
+          "@/context/AuthContext",
+          "react-router-dom"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "PageNotFound.tsx",
+        "name": "PageNotFound",
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "react-router-dom"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "PatientDetail.tsx",
+        "name": "PatientDetail",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/components/layout/Header",
+          "@/components/layout/Sidebar",
+          "@/hooks/usePatientData",
+          "@/hooks/usePatientInsights",
+          "@/components/patients/hooks/usePatientPrescriptions",
+          "@/components/patients/detail/PatientDetailHeader",
+          "@/components/patients/detail/PatientDetailLoader",
+          "@/components/patients/PatientViewSelector",
+          "@/types/patientTypes",
+          "@/hooks/useSectorContext",
+          "@/components/ui/button",
+          "sonner",
+          "lucide-react",
+          "@/hooks/useTranslation",
+          "@/context/PatientContext",
+          "@/types/patient"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "PatientProfile.tsx",
+        "name": "PatientProfile",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/components/ui/button",
+          "@/components/ui/input",
+          "@/components/ui/textarea",
+          "@/hooks/useTranslation",
+          "@/components/patients/PatientDetailHeader",
+          "@/components/layout/Header",
+          "@/components/layout/Sidebar",
+          "sonner",
+          "@/hooks/usePatientData",
+          "@/components/patients/detail/PatientDetailLoader",
+          "@/types/patientTypes"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Patients.tsx",
+        "name": "Patients",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../components/patients/SectorPatientList",
+          "lucide-react",
+          "@/components/ui/button",
+          "@/components/ui/badge",
+          "@/components/ui/select",
+          "../hooks/useTranslation",
+          "@/hooks/useSectorContext",
+          "@/components/common/TranslatedText",
+          "@/components/ui/dropdown-menu",
+          "@/components/ui/LoadingOverlay",
+          "@/hooks/sector/useFilteredSectorPatients",
+          "@/components/patients/SectorPatientListPagination",
+          "sonner"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "RecordView.tsx",
+        "name": "RecordView",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../components/records/RecordDetail",
+          "lucide-react",
+          "@/hooks/useTranslation",
+          "@/components/ui/button",
+          "@/components/ui/alert-dialog",
+          "sonner",
+          "@/services/recordService"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Records.tsx",
+        "name": "Records",
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "@/components/ui/card",
+          "@/components/ui/input",
+          "@/components/ui/select",
+          "@/components/ui/tabs",
+          "@/components/ui/calendar",
+          "@/components/ui/popover",
+          "date-fns",
+          "lucide-react",
+          "@/lib/utils",
+          "@/hooks/usePatientRecords",
+          "@/components/records/RecordsList",
+          "@/components/records/NewRecordForm",
+          "@/services/recordService",
+          "@/types/medicalRecordTypes",
+          "sonner"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Register.tsx",
+        "name": "Register",
+        "imports": [
+          "react",
+          "@/hooks/useTranslation",
+          "@/components/ui/card",
+          "@/components/auth/RegisterForm",
+          "@/components/auth/LoginHeader"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "ResetPassword.tsx",
+        "name": "ResetPassword",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/components/ui/card",
+          "@/components/ui/input",
+          "@/components/ui/button",
+          "@/components/ui/label",
+          "lucide-react",
+          "sonner",
+          "@/hooks/useTranslation",
+          "@/utils/signUpUtils",
+          "@/integrations/supabase/client"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "RxNormManagement.tsx",
+        "name": "RxNormManagement",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "../hooks/useTranslation",
+          "@/components/ui/tabs",
+          "../components/medications/RxNormMedicationSelector",
+          "../components/medications/RxNormAdminPanel",
+          "../components/medications/drugInteractions/DrugInteractionChecker",
+          "../components/admin/MedicationTranslationsAdmin",
+          "lucide-react",
+          "@/components/ui/card"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "SectorSelection.tsx",
+        "name": "SectorSelection",
+        "imports": [
+          "react",
+          "react-router-dom",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/radio-group",
+          "@/components/ui/label",
+          "lucide-react",
+          "@/components/ui/alert",
+          "@/hooks/useTranslation",
+          "@/hooks/useSectorContext",
+          "@/components/ui/empty-state",
+          "@/components/sector/SectorSelectionSkeleton"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Settings.tsx",
+        "name": "Settings",
+        "imports": [
+          "react",
+          "../components/layout/Header",
+          "../components/layout/Sidebar",
+          "@/components/ui/tabs",
+          "../components/settings/ProfileSettings",
+          "../components/settings/SystemSettings",
+          "../components/settings/SecuritySettings",
+          "../components/settings/NotificationSettings",
+          "../hooks/useTranslation"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      },
+      {
+        "path": "Unauthorized.tsx",
+        "name": "Unauthorized",
+        "imports": [
+          "react",
+          "@/components/auth/UnauthorizedAccessHandler"
+        ],
+        "exports": [
+          "export"
+        ],
+        "referencedIn": [],
+        "isReferenced": false,
+        "potentiallyOrphaned": true,
+        "clinicalWorkflows": []
+      }
+    ]
+  }
+}

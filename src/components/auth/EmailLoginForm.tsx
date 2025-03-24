@@ -63,7 +63,10 @@ const EmailLoginForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={(e) => {
+      console.log('EmailLoginForm: Form submitted');
+      handleSubmit(e);
+    }} className="space-y-4">
       {isLockedOut && (
         <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
           <div className="flex justify-between items-center">
@@ -100,6 +103,7 @@ const EmailLoginForm = ({
           }`}
           value={email}
           onChange={(e) => {
+            console.log('Email input changed:', e.target.value);
             setEmail(e.target.value);
             if (validationErrors.email) {
               setValidationErrors({
@@ -217,7 +221,8 @@ const EmailLoginForm = ({
             <p>admin@omnicare.com</p>
             <p>doctor@omnicare.com</p>
             <p>nurse@omnicare.com</p>
-            <p className="mt-1">{language === 'pt' ? 'Senha: password123' : 'Password: password123'}</p>
+            <p className="mt-1 font-semibold">{language === 'pt' ? 'Senha: password123' : 'Password: password123'}</p>
+            <p className="mt-1 text-xs text-destructive">{language === 'pt' ? 'Importante: Esta senha é obrigatória para contas de demonstração' : 'Important: This password is required for demo accounts'}</p>
           </div>
         )}
       </div>

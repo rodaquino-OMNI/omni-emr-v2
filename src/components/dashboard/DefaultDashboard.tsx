@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSectorContext } from '@/hooks/useSectorContext';
@@ -7,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Activity, Calendar, ClipboardList, Users } from 'lucide-react';
 import SectorPatientList from '@/components/patients/SectorPatientList';
+import TasksCard from './cards/TasksCard';
+import VitalSignsCard from './cards/VitalSignsCard';
+import ScheduleCard from './cards/ScheduleCard';
 
 const DefaultDashboard: React.FC = () => {
   const { t, language } = useTranslation();
@@ -104,45 +106,15 @@ const DefaultDashboard: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="tasks">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tasks', 'Tasks')}</CardTitle>
-              <CardDescription>
-                {t('manageTasks', 'Manage your tasks for today')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>{t('noTasksMessage', 'No tasks available for this sector yet.')}</p>
-            </CardContent>
-          </Card>
+          <TasksCard limit={5} />
         </TabsContent>
         
         <TabsContent value="vital-signs">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('vitalSigns', 'Vital Signs')}</CardTitle>
-              <CardDescription>
-                {t('vitalSignsDescription', 'Monitor patient vital signs')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>{t('noDataMessage', 'No vital signs data available yet.')}</p>
-            </CardContent>
-          </Card>
+          <VitalSignsCard limit={5} />
         </TabsContent>
         
         <TabsContent value="schedule">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('schedule', 'Schedule')}</CardTitle>
-              <CardDescription>
-                {t('scheduleDescription', 'View and manage appointments')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>{t('noAppointmentsMessage', 'No appointments available for today.')}</p>
-            </CardContent>
-          </Card>
+          <ScheduleCard limit={5} />
         </TabsContent>
       </Tabs>
     </div>

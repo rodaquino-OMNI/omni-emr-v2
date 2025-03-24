@@ -11,7 +11,9 @@ import { AuthProvider } from './context/AuthContext';
 import { PatientsProvider } from './hooks/usePatientsContext';
 import { useAuth } from './context/AuthContext';
 import { usePermissions } from './hooks/usePermissions';
+import { checkSupabaseConnection } from './integrations/supabase/core';
 import './App.css';
+
 
 // Import registry configuration
 import './registry/PatientViewRegistration';

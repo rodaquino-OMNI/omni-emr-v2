@@ -78,9 +78,20 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
   
   // Handle form submission for email login
   const handleEmailFormSubmit = async (e: React.FormEvent): Promise<void> => {
+    console.log('LoginContainer: handleEmailFormSubmit called');
+    console.log('LoginContainer: Email:', email);
+    console.log('LoginContainer: Password:', password ? '(password provided)' : '(no password)');
     e.preventDefault();
     if (validateEmailPassword(email, password, forgotPassword)) {
-      await handleEmailSubmit(e, () => validateEmailPassword(email, password, forgotPassword));
+      console.log('LoginContainer: Validation passed, calling handleEmailSubmit');
+      try {
+        await handleEmailSubmit(e, () => validateEmailPassword(email, password, forgotPassword));
+        console.log('LoginContainer: handleEmailSubmit completed');
+      } catch (error) {
+        console.error('LoginContainer: Error in handleEmailSubmit:', error);
+      }
+    } else {
+      console.log('LoginContainer: Validation failed');
     }
     return Promise.resolve();
   };

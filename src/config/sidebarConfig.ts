@@ -71,7 +71,7 @@ export const sidebarItems: SidebarItem[] = [
   },
   {
     name: 'Vital Signs',
-    path: '/vitals',
+    path: '/vital-signs',
     icon: Activity,
     translationKey: 'vitals',
     permissionRequired: 'view_vitals',
@@ -113,19 +113,29 @@ export const sidebarItems: SidebarItem[] = [
     priority: 11
   },
   {
+    name: 'Prescribe Medication',
+    path: '/prescribe-medication',
+    icon: FileText,
+    translationKey: 'prescribeMedication',
+    permissionRequired: 'medications:prescribe',
+    functionBlockRequired: 'medication_management',
+    priority: 12,
+    roles: ['doctor', 'admin', 'system_administrator']
+  },
+  {
     name: 'Messages',
     path: '/messages',
     icon: MessageSquare,
     translationKey: 'messages',
     functionBlockRequired: 'messaging',
-    priority: 12
+    priority: 13
   },
   {
     name: 'Notifications',
     path: '/notifications',
     icon: Bell,
     translationKey: 'notifications',
-    priority: 13
+    priority: 14
   },
   {
     name: 'Telemedicine',
@@ -134,7 +144,7 @@ export const sidebarItems: SidebarItem[] = [
     translationKey: 'telemedicine',
     permissionRequired: 'telemedicine',
     functionBlockRequired: 'telemedicine',
-    priority: 14
+    priority: 15
   },
   {
     name: 'Orders',
@@ -142,7 +152,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: ClipboardList,
     translationKey: 'orders',
     permissionRequired: 'view_orders',
-    priority: 15
+    priority: 16
   },
   {
     name: 'Analytics',
@@ -150,7 +160,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: BarChart,
     translationKey: 'analytics',
     permissionRequired: 'view_analytics',
-    priority: 16,
+    priority: 17,
     roles: ['admin', 'doctor', 'system_administrator']
   },
   {
@@ -158,14 +168,14 @@ export const sidebarItems: SidebarItem[] = [
     path: '/help',
     icon: HelpCircle,
     translationKey: 'help',
-    priority: 17
+    priority: 18
   },
   {
     name: 'Settings',
     path: '/settings',
     icon: Settings,
     translationKey: 'settings',
-    priority: 18
+    priority: 19
   },
   // Admin section
   {
@@ -174,7 +184,7 @@ export const sidebarItems: SidebarItem[] = [
     icon: Shield,
     translationKey: 'administration',
     permissionRequired: 'manage_users',
-    priority: 19,
+    priority: 20,
     roles: ['admin', 'system_administrator'],
     children: [
       {

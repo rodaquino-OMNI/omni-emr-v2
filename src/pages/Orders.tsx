@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Order, OrderType, OrderStatus, OrderPriority } from '@/types/orders';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // This is a placeholder component for a real Orders page
 const Orders: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([
     {
@@ -95,7 +97,7 @@ const Orders: React.FC = () => {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Orders</h1>
-        <Button>New Order</Button>
+        <Button onClick={() => navigate('/new-order')}>New Order</Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

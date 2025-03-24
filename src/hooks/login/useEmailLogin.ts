@@ -87,28 +87,34 @@ export const useEmailLogin = (language: Languages) => {
           throw result.error;
         }
       } else {
+        console.log('useEmailLogin: Attempting login with email:', email);
         const result = await login(email, password);
+        console.log('useEmailLogin: Login result:', result);
         
         if (result.success) {
+          console.log('useEmailLogin: Login successful');
           // Reset login attempts on successful login
           resetLoginAttempts();
           
           if (result.pendingApproval) {
+            console.log('useEmailLogin: Account pending approval');
             setPendingApproval(true);
             
             toast.info(
               language === 'pt' ? 'Aprovação pendente' : 'Approval pending',
-              { description: language === 'pt' 
-                  ? 'Sua conta está aguardando aprovação de um administrador' 
+              { description: language === 'pt'
+                  ? 'Sua conta está aguardando aprovação de um administrador'
                   : 'Your account is awaiting administrator approval'
               }
             );
             return Promise.resolve();
           }
           
+          console.log('useEmailLogin: Redirecting to dashboard');
           // Redirect directly to dashboard instead of sectors
           navigate('/dashboard');
         } else if (result && 'error' in result) {
+          console.error('useEmailLogin: Login error:', result.error);
           throw result.error;
         }
       }
