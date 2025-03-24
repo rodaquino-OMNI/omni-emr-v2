@@ -1,0 +1,1318 @@
+[
+  {
+    "name": "FunctionBlocks",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Admin/FunctionBlocks.tsx",
+    "lastModified": "2025-03-19T20:30:32.748Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 16,
+        "hasErrorHandling": false,
+        "commentRatio": 0.02385008517887564,
+        "longLineRatio": 0.015332197614991482
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Low",
+      "primaryFunctionality": "Patient management, Medication management, Administrative, Emergency care, Authentication, Clinical documentation",
+      "uniqueFeatures": [
+        "Administrative functionality",
+        "Emergency care functionality",
+        "Documentation functionality"
+      ],
+      "overlap": [
+        "Some overlap with Patients/PatientDetail pages",
+        "Some overlap with Medications pages",
+        "Some authentication-related functionality"
+      ],
+      "imports": [
+        "useNavigate",
+        "useAuth",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Button",
+        "useToast",
+        "Package",
+        "Shield",
+        "FileText",
+        "Activity",
+        "User",
+        "Pill",
+        "Calendar",
+        "MessageSquare",
+        "FunctionBlock",
+        "FunctionBlockCategory",
+        "Badge",
+        "Tabs",
+        "TabsContent",
+        "TabsList",
+        "TabsTrigger",
+        "Input",
+        "Switch",
+        "Select",
+        "SelectContent",
+        "SelectItem",
+        "SelectTrigger",
+        "SelectValue",
+        "Dialog",
+        "DialogContent",
+        "DialogHeader",
+        "DialogTitle",
+        "DialogFooter",
+        "Label",
+        "Textarea",
+        "ScrollArea",
+        "Separator"
+      ],
+      "hooks": [
+        "useState",
+        "useEffect",
+        "useNavigate",
+        "useAuth",
+        "useToast"
+      ],
+      "details": {
+        "importCount": 40,
+        "hookCount": 5,
+        "uniqueFeaturesCount": 3,
+        "overlapCount": 3
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Administrative Functions",
+      "userRoles": [
+        "admin",
+        "system_administrator"
+      ]
+    },
+    "recommendation": {
+      "decision": "Delete",
+      "justification": "Low code quality and low functional uniqueness",
+      "priority": "Low",
+      "strategy": "Remove the file and ensure functionality is available elsewhere"
+    },
+    "implementationSteps": [
+      "1. Verify that the functionality provided by FunctionBlocks is available elsewhere or no longer needed",
+      "2. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Admin/FunctionBlocks.tsx"
+    ]
+  },
+  {
+    "name": "EmergencyCare",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/EmergencyCare.tsx",
+    "lastModified": "2025-03-19T20:30:32.749Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 5,
+        "hasErrorHandling": false,
+        "commentRatio": 0.01775147928994083,
+        "longLineRatio": 0.047337278106508875
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "Patient management, Emergency care",
+      "uniqueFeatures": [
+        "Emergency care functionality"
+      ],
+      "overlap": [
+        "Some overlap with Patients/PatientDetail pages"
+      ],
+      "imports": [
+        "useTranslation",
+        "Table",
+        "TableHeader",
+        "TableRow",
+        "TableHead",
+        "TableBody",
+        "TableCell",
+        "Button",
+        "PlusCircle",
+        "AlertTriangle"
+      ],
+      "hooks": [
+        "useState",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 10,
+        "hookCount": 2,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 1
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Emergency Care",
+      "userRoles": [
+        "doctor",
+        "nurse"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by EmergencyCare is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/EmergencyCare.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "Help",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Help.tsx",
+    "lastModified": "2025-03-19T20:30:32.749Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 0.2,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 1,
+        "hasErrorHandling": false,
+        "commentRatio": 0.013245033112582781,
+        "longLineRatio": 0.059602649006622516
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Low",
+      "primaryFunctionality": "Patient management, Medication management, Clinical documentation",
+      "uniqueFeatures": [
+        "Documentation functionality"
+      ],
+      "overlap": [
+        "Some overlap with Patients/PatientDetail pages",
+        "Some overlap with Medications pages"
+      ],
+      "imports": [
+        "Accordion",
+        "AccordionContent",
+        "AccordionItem",
+        "AccordionTrigger",
+        "Mail",
+        "Phone",
+        "MessageSquare",
+        "FileQuestion",
+        "Search"
+      ],
+      "hooks": [
+        "useState"
+      ],
+      "details": {
+        "importCount": 9,
+        "hookCount": 1,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 2
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Utility Functions",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Delete",
+      "justification": "Low code quality and low functional uniqueness",
+      "priority": "Low",
+      "strategy": "Remove the file and ensure functionality is available elsewhere"
+    },
+    "implementationSteps": [
+      "1. Verify that the functionality provided by Help is available elsewhere or no longer needed",
+      "2. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Help.tsx"
+    ]
+  },
+  {
+    "name": "HospitalWorkflows",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/HospitalWorkflows.tsx",
+    "lastModified": "2025-03-19T20:30:32.750Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 5,
+        "hasErrorHandling": false,
+        "commentRatio": 0.01904761904761905,
+        "longLineRatio": 0.05714285714285714
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Low",
+      "primaryFunctionality": "Patient management",
+      "uniqueFeatures": [],
+      "overlap": [
+        "Some overlap with Patients/PatientDetail pages"
+      ],
+      "imports": [
+        "useTranslation",
+        "Table",
+        "TableHeader",
+        "TableRow",
+        "TableHead",
+        "TableBody",
+        "TableCell"
+      ],
+      "hooks": [
+        "useState",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 7,
+        "hookCount": 2,
+        "uniqueFeaturesCount": 0,
+        "overlapCount": 1
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Patient Management",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin"
+      ]
+    },
+    "recommendation": {
+      "decision": "Delete",
+      "justification": "Low code quality and low functional uniqueness",
+      "priority": "Low",
+      "strategy": "Remove the file and ensure functionality is available elsewhere"
+    },
+    "implementationSteps": [
+      "1. Verify that the functionality provided by HospitalWorkflows is available elsewhere or no longer needed",
+      "2. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/HospitalWorkflows.tsx"
+    ]
+  },
+  {
+    "name": "Index",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Index.tsx",
+    "lastModified": "2025-03-19T20:30:32.750Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 9,
+        "hasErrorHandling": false,
+        "commentRatio": 0.016666666666666666,
+        "longLineRatio": 0.016666666666666666
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Low",
+      "primaryFunctionality": "Authentication",
+      "uniqueFeatures": [],
+      "overlap": [
+        "Some authentication-related functionality"
+      ],
+      "imports": [
+        "useEffect",
+        "useNavigate",
+        "useAuth",
+        "Button",
+        "ArrowRight",
+        "useTranslation"
+      ],
+      "hooks": [
+        "useEffect",
+        "useNavigate",
+        "useAuth",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 6,
+        "hookCount": 4,
+        "uniqueFeaturesCount": 0,
+        "overlapCount": 1
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Authentication",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Delete",
+      "justification": "Low code quality and low functional uniqueness",
+      "priority": "Low",
+      "strategy": "Remove the file and ensure functionality is available elsewhere"
+    },
+    "implementationSteps": [
+      "1. Verify that the functionality provided by Index is available elsewhere or no longer needed",
+      "2. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Index.tsx"
+    ]
+  },
+  {
+    "name": "MedicalHistory",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/MedicalHistory.tsx",
+    "lastModified": "2025-03-19T20:30:32.751Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 9,
+        "hasErrorHandling": false,
+        "commentRatio": 0,
+        "longLineRatio": 0.017543859649122806
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Low",
+      "primaryFunctionality": "Patient management",
+      "uniqueFeatures": [],
+      "overlap": [
+        "Some overlap with Patients/PatientDetail pages"
+      ],
+      "imports": [
+        "useParams",
+        "Link",
+        "usePatientData",
+        "Button",
+        "ChevronLeft",
+        "Card",
+        "CardContent",
+        "CardHeader",
+        "CardTitle",
+        "useTranslation"
+      ],
+      "hooks": [
+        "useState",
+        "useParams",
+        "usePatientData",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 10,
+        "hookCount": 4,
+        "uniqueFeaturesCount": 0,
+        "overlapCount": 1
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Patient Management",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin"
+      ]
+    },
+    "recommendation": {
+      "decision": "Delete",
+      "justification": "Low code quality and low functional uniqueness",
+      "priority": "Low",
+      "strategy": "Remove the file and ensure functionality is available elsewhere"
+    },
+    "implementationSteps": [
+      "1. Verify that the functionality provided by MedicalHistory is available elsewhere or no longer needed",
+      "2. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/MedicalHistory.tsx"
+    ]
+  },
+  {
+    "name": "Messages",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Messages.tsx",
+    "lastModified": "2025-03-19T20:30:32.751Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 5,
+        "hasErrorHandling": false,
+        "commentRatio": 0,
+        "longLineRatio": 0.02040816326530612
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "Messages functionality",
+      "uniqueFeatures": [
+        "Messages-specific functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "MessageList",
+        "MessageView",
+        "useTranslation"
+      ],
+      "hooks": [
+        "useState",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 3,
+        "hookCount": 2,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Utility Functions",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by Messages is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Messages.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "NewOrder",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/NewOrder.tsx",
+    "lastModified": "2025-03-24T14:11:25.680Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 0.4,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 2,
+        "hasErrorHandling": false,
+        "commentRatio": 0.06666666666666667,
+        "longLineRatio": 0
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "NewOrder functionality",
+      "uniqueFeatures": [
+        "NewOrder-specific functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "Button",
+        "ArrowLeft",
+        "useNavigate"
+      ],
+      "hooks": [
+        "useNavigate"
+      ],
+      "details": {
+        "importCount": 3,
+        "hookCount": 1,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Utility Functions",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by NewOrder is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/NewOrder.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "Notifications",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Notifications.tsx",
+    "lastModified": "2025-03-19T20:30:32.751Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 5,
+        "hasErrorHandling": false,
+        "commentRatio": 0,
+        "longLineRatio": 0
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "Notifications functionality",
+      "uniqueFeatures": [
+        "Notifications-specific functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "useTranslation"
+      ],
+      "hooks": [
+        "useState",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 1,
+        "hookCount": 2,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Utility Functions",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by Notifications is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Notifications.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "PageNotFound",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/PageNotFound.tsx",
+    "lastModified": "2025-03-19T20:30:32.751Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 0.4,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 2,
+        "hasErrorHandling": false,
+        "commentRatio": 0,
+        "longLineRatio": 0
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "PageNotFound functionality",
+      "uniqueFeatures": [
+        "PageNotFound-specific functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "Button",
+        "useNavigate"
+      ],
+      "hooks": [
+        "useNavigate"
+      ],
+      "details": {
+        "importCount": 2,
+        "hookCount": 1,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Utility Functions",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by PageNotFound is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/PageNotFound.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "RecordView",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/RecordView.tsx",
+    "lastModified": "2025-03-19T20:30:32.752Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Medium",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1.5,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 10,
+        "hasErrorHandling": true,
+        "commentRatio": 0,
+        "longLineRatio": 0.013245033112582781
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "Clinical documentation",
+      "uniqueFeatures": [
+        "Documentation functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "useParams",
+        "Link",
+        "useNavigate",
+        "ArrowLeft",
+        "Edit",
+        "Printer",
+        "Trash2",
+        "AlertCircle",
+        "useTranslation",
+        "Button",
+        "AlertDialog",
+        "AlertDialogAction",
+        "AlertDialogCancel",
+        "AlertDialogContent",
+        "AlertDialogDescription",
+        "AlertDialogFooter",
+        "AlertDialogHeader",
+        "AlertDialogTitle",
+        "toast",
+        "recordService"
+      ],
+      "hooks": [
+        "useState",
+        "useParams",
+        "useNavigate",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 20,
+        "hookCount": 4,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Clinical Documentation",
+      "userRoles": [
+        "doctor",
+        "nurse"
+      ]
+    },
+    "recommendation": {
+      "decision": "Reintegrate with refactoring",
+      "justification": "Medium code quality and medium functional uniqueness",
+      "priority": "Medium",
+      "strategy": "Refactor the code to improve quality, then reintegrate"
+    },
+    "implementationSteps": [
+      "1. Refactor RecordView to address code quality issues",
+      "2. Add route definition for RecordView in src/routes/RouteConfig.ts",
+      "3. Add sidebar entry for RecordView in src/config/sidebarConfig.ts if needed",
+      "4. Add required permissions in src/constants/permissions.ts if needed",
+      "5. Add translations in src/i18n/translations.ts if needed",
+      "6. Add component import and route in src/routes/index.tsx",
+      "7. Test the page to ensure it works correctly"
+    ]
+  },
+  {
+    "name": "Records",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Records.tsx",
+    "lastModified": "2025-03-19T20:30:32.753Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Medium",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1.5,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 15,
+        "hasErrorHandling": true,
+        "commentRatio": 0.026217228464419477,
+        "longLineRatio": 0.011235955056179775
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Low",
+      "primaryFunctionality": "Patient management, Medication management, Clinical documentation",
+      "uniqueFeatures": [
+        "Documentation functionality"
+      ],
+      "overlap": [
+        "Some overlap with Patients/PatientDetail pages",
+        "Some overlap with Medications pages"
+      ],
+      "imports": [
+        "Button",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle",
+        "Input",
+        "Select",
+        "SelectContent",
+        "SelectItem",
+        "SelectTrigger",
+        "SelectValue",
+        "Tabs",
+        "TabsContent",
+        "TabsList",
+        "TabsTrigger",
+        "Calendar",
+        "Popover",
+        "PopoverContent",
+        "PopoverTrigger",
+        "format",
+        "Calendar as CalendarIcon",
+        "cn",
+        "usePatientRecords",
+        "recordService",
+        "MedicalRecord",
+        "RecordFilters",
+        "RecordType",
+        "RecordStatus",
+        "toast"
+      ],
+      "hooks": [
+        "useState",
+        "useEffect",
+        "usePatientRecords"
+      ],
+      "details": {
+        "importCount": 31,
+        "hookCount": 3,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 2
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Clinical Documentation",
+      "userRoles": [
+        "doctor",
+        "nurse"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or consolidation",
+      "justification": "Medium code quality but low functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider consolidating functionality with existing pages"
+    },
+    "implementationSteps": [
+      "1. Identify existing pages that provide similar functionality",
+      "2. Determine if any unique functionality from Records should be preserved",
+      "3. If needed, migrate unique functionality to existing pages",
+      "4. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Records.tsx if no unique functionality needs to be preserved"
+    ]
+  },
+  {
+    "name": "Register",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Register.tsx",
+    "lastModified": "2025-03-19T20:30:32.753Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 0.6000000000000001,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 3,
+        "hasErrorHandling": false,
+        "commentRatio": 0,
+        "longLineRatio": 0
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "Authentication",
+      "uniqueFeatures": [
+        "Core authentication functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "useTranslation",
+        "Card",
+        "CardContent",
+        "CardHeader",
+        "CardTitle",
+        "CardDescription"
+      ],
+      "hooks": [
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 6,
+        "hookCount": 1,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Authentication",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by Register is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/Register.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "ResetPassword",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/ResetPassword.tsx",
+    "lastModified": "2025-03-19T20:30:32.753Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Medium",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1.5,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 14,
+        "hasErrorHandling": true,
+        "commentRatio": 0.008438818565400843,
+        "longLineRatio": 0.02109704641350211
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "Authentication",
+      "uniqueFeatures": [
+        "Core authentication functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "useNavigate",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle",
+        "Input",
+        "Button",
+        "Label",
+        "Loader2",
+        "KeyRound",
+        "ArrowLeft",
+        "CheckCircle2",
+        "toast",
+        "useTranslation",
+        "updatePassword",
+        "supabase"
+      ],
+      "hooks": [
+        "useState",
+        "useEffect",
+        "useNavigate",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 17,
+        "hookCount": 4,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Authentication",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Reintegrate with refactoring",
+      "justification": "Medium code quality and medium functional uniqueness",
+      "priority": "Medium",
+      "strategy": "Refactor the code to improve quality, then reintegrate"
+    },
+    "implementationSteps": [
+      "1. Refactor ResetPassword to address code quality issues",
+      "2. Add route definition for ResetPassword in src/routes/RouteConfig.ts",
+      "3. Add sidebar entry for ResetPassword in src/config/sidebarConfig.ts if needed",
+      "4. Add required permissions in src/constants/permissions.ts if needed",
+      "5. Add translations in src/i18n/translations.ts if needed",
+      "6. Add component import and route in src/routes/index.tsx",
+      "7. Test the page to ensure it works correctly"
+    ]
+  },
+  {
+    "name": "RxNormManagement",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/RxNormManagement.tsx",
+    "lastModified": "2025-03-19T20:30:32.753Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 5,
+        "hasErrorHandling": false,
+        "commentRatio": 0,
+        "longLineRatio": 0.022222222222222223
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "Medication management, Administrative",
+      "uniqueFeatures": [
+        "Administrative functionality"
+      ],
+      "overlap": [
+        "Some overlap with Medications pages"
+      ],
+      "imports": [
+        "useTranslation",
+        "Tabs",
+        "TabsContent",
+        "TabsList",
+        "TabsTrigger",
+        "Database",
+        "GitBranch",
+        "FileSearch",
+        "AlertCircle",
+        "Languages",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardHeader",
+        "CardTitle"
+      ],
+      "hooks": [
+        "useState",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 15,
+        "hookCount": 2,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 1
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Medication Management",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "pharmacist"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by RxNormManagement is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/RxNormManagement.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "SectorSelection",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/SectorSelection.tsx",
+    "lastModified": "2025-03-19T20:30:32.753Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 13,
+        "hasErrorHandling": false,
+        "commentRatio": 0.03773584905660377,
+        "longLineRatio": 0.031446540880503145
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "SectorSelection functionality",
+      "uniqueFeatures": [
+        "SectorSelection-specific functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "useNavigate",
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle",
+        "Button",
+        "RadioGroup",
+        "RadioGroupItem",
+        "Label",
+        "ShieldAlert",
+        "RefreshCw",
+        "Alert",
+        "AlertDescription",
+        "AlertTitle",
+        "useTranslation",
+        "useSectorContext",
+        "EmptyState"
+      ],
+      "hooks": [
+        "useState",
+        "useEffect",
+        "useNavigate",
+        "useTranslation",
+        "useSectorContext"
+      ],
+      "details": {
+        "importCount": 19,
+        "hookCount": 5,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Utility Functions",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by SectorSelection is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/SectorSelection.tsx after replacement is complete"
+    ]
+  },
+  {
+    "name": "NotFound",
+    "filePath": "/Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/NotFound.tsx",
+    "lastModified": "2025-03-19T20:30:32.751Z",
+    "status": "analyzed",
+    "technicalAssessment": {
+      "codeQuality": "Low",
+      "issues": [
+        "Limited or no comments/documentation",
+        "Missing prop types or interface definitions",
+        "Limited accessibility considerations"
+      ],
+      "score": 1,
+      "details": {
+        "componentStructure": "Class component",
+        "usesTypeScript": false,
+        "hooksCount": 5,
+        "hasErrorHandling": false,
+        "commentRatio": 0,
+        "longLineRatio": 0.043478260869565216
+      }
+    },
+    "functionalAssessment": {
+      "uniqueness": "Medium",
+      "primaryFunctionality": "NotFound functionality",
+      "uniqueFeatures": [
+        "NotFound-specific functionality"
+      ],
+      "overlap": [],
+      "imports": [
+        "useNavigate",
+        "FileQuestion",
+        "Home",
+        "ArrowLeft",
+        "Button",
+        "useTranslation"
+      ],
+      "hooks": [
+        "useNavigate",
+        "useTranslation"
+      ],
+      "details": {
+        "importCount": 6,
+        "hookCount": 2,
+        "uniqueFeaturesCount": 1,
+        "overlapCount": 0
+      }
+    },
+    "workflowAndRoles": {
+      "clinicalWorkflow": "Utility Functions",
+      "userRoles": [
+        "doctor",
+        "nurse",
+        "admin",
+        "system_administrator",
+        "pharmacist",
+        "administrative"
+      ]
+    },
+    "recommendation": {
+      "decision": "Consider for deletion or replacement",
+      "justification": "Low code quality and medium functional uniqueness",
+      "priority": "Low",
+      "strategy": "Consider replacing with new implementation or consolidating with existing pages"
+    },
+    "implementationSteps": [
+      "1. Evaluate if the functionality provided by NotFound is still needed",
+      "2. If needed, create a new implementation with better code quality",
+      "3. Remove /Users/rodrigo/OmniCare-V1/omnicare-emr/src/pages/NotFound.tsx after replacement is complete"
+    ]
+  }
+]

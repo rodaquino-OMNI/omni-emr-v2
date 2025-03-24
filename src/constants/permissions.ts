@@ -28,4 +28,9 @@ export const PERMISSIONS = {
   SCHEDULE_VIEW: 'schedule:view',
   SCHEDULE_MANAGE: 'schedule:manage',
 
-  VIEW_CRITICAL_RESULTS: 'view_critical_results',};
+  VIEW_CRITICAL_RESULTS: 'view_critical_results',
+  VIEW_MEDICATIONS: 'view_medications',
+  MANAGE_ROLES: 'manage_roles',
+  ADMINISTER_MEDICATIONS: 'administer_medications',
+  VIEW_RECORDS: 'view_records',
+  TELEMEDICINE: 'telemedicine',};

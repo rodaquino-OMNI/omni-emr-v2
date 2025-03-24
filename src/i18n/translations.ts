@@ -40,8 +40,13 @@ export const translations: Translations = {
     availableSectors: "Available Sectors",
     noSectorsAvailable: "No sectors available",
     loading: "Loading...",
-    criticalResults: "Critical Results"
-  },
+    criticalResults: "Critical Results",
+
+    roleManagement: "Role Management",
+    medicationAdministration: "Medication Administration"
+
+    taskDetail: "Task Detail",
+    visitNotes: "Visit Notes",  },
   
   pt: {
     ...commonTranslations.pt,
@@ -67,6 +72,11 @@ export const translations: Translations = {
     availableSectors: "Setores Disponíveis",
     noSectorsAvailable: "Nenhum setor disponível",
     loading: "Carregando...",
-    criticalResults: "Resultados Críticos"
-  }
+    criticalResults: "Resultados Críticos",
+
+    roleManagement: "Gerenciamento de Funções",
+    medicationAdministration: "Administração de Medicamentos"
+
+    visitNotes: "Notas de Consulta",
+    taskDetail: "Detalhes da Tarefa",  }
 };

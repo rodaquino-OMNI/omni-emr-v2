@@ -192,9 +192,18 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/critical-results",
+        "/critical-results",
+        "/critical-results",
+        "/critical-results",
+        "/critical-results",
+        "/critical-results",
+        "/critical-results",
+        "/critical-results"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -257,9 +266,18 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/fluid-balance",
+        "/fluid-balance",
+        "/fluid-balance",
+        "/fluid-balance",
+        "/fluid-balance",
+        "/fluid-balance",
+        "/fluid-balance",
+        "/fluid-balance"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "clinicalTaskExecution"
       ]
@@ -396,9 +414,22 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration",
+        "/medication-administration"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
@@ -417,9 +448,22 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id",
+        "/medications/:id"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
@@ -635,9 +679,18 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/patients/:id/profile",
+        "/patients/:id/profile",
+        "/patients/:id/profile",
+        "/patients/:id/profile",
+        "/patients/:id/profile",
+        "/patients/:id/profile",
+        "/patients/:id/profile",
+        "/patients/:id/profile"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -999,9 +1052,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/tasks/:id"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "clinicalTaskExecution"
       ]
@@ -1053,9 +1108,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/telemedicine"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
@@ -1106,9 +1163,11 @@
         "export",
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/visit-notes"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "patientVisitRegistration"
       ]
@@ -1162,6 +1221,18 @@
       "component": "Settings"
     },
     {
+      "path": "/visit-notes",
+      "component": "VisitNotes"
+    },
+    {
+      "path": "/telemedicine",
+      "component": "Telemedicine"
+    },
+    {
+      "path": "/tasks/:id",
+      "component": "TaskDetail"
+    },
+    {
       "path": "/patients",
       "component": "Patients"
     },
@@ -1196,6 +1267,30 @@
     {
       "path": "/medications",
       "component": "Medications"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
     },
     {
       "path": "/prescribe-medication",
@@ -1222,6 +1317,30 @@
       "component": "Patients"
     },
     {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
+    },
+    {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
+    },
+    {
       "path": "/tasks",
       "component": "Tasks"
     },
@@ -1254,6 +1373,54 @@
       "component": "Medications"
     },
     {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
+    },
+    {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
+    },
+    {
       "path": "/patients",
       "component": "Patients"
     },
@@ -1326,6 +1493,66 @@
       "component": "Admin"
     },
     {
+      "path": "/admin/roles",
+      "component": "Admin/RoleManagement"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/admin/roles",
+      "component": "Admin/RoleManagement"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/admin/roles",
+      "component": "Admin/RoleManagement"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
+    },
+    {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
+    },
+    {
       "path": "/patients",
       "component": "Patients"
     },
@@ -1372,6 +1599,66 @@
     {
       "path": "/admin",
       "component": "Admin"
+    },
+    {
+      "path": "/admin/roles",
+      "component": "Admin/RoleManagement"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/admin/roles",
+      "component": "Admin/RoleManagement"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/admin/roles",
+      "component": "Admin/RoleManagement"
+    },
+    {
+      "path": "/medication-administration",
+      "component": "MedicationAdministration"
+    },
+    {
+      "path": "/medications/:id",
+      "component": "MedicationView"
+    },
+    {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
+    },
+    {
+      "path": "/critical-results",
+      "component": "CriticalResults"
+    },
+    {
+      "path": "/fluid-balance",
+      "component": "FluidBalance"
+    },
+    {
+      "path": "/patients/:id/profile",
+      "component": "PatientProfile"
     },
     {
       "path": "/login",
@@ -1498,6 +1785,26 @@
       "component": "Suspense"
     },
     {
+      "path": "vital-signs",
+      "component": "Suspense"
+    },
+    {
+      "path": "schedule",
+      "component": "Suspense"
+    },
+    {
+      "path": "critical-results",
+      "component": "Suspense"
+    },
+    {
+      "path": "fluid-balance",
+      "component": "Suspense"
+    },
+    {
+      "path": "admin/roles",
+      "component": "Suspense"
+    },
+    {
       "path": "/",
       "component": "ProtectedRoute"
     },
@@ -1583,26 +1890,6 @@
       "clinicalWorkflows": []
     },
     {
-      "path": "CriticalResults.tsx",
-      "name": "CriticalResults",
-      "imports": [
-        "react",
-        "@/components/critical-results/CriticalResultsList",
-        "@/hooks/useCriticalResults",
-        "@/hooks/useTranslation",
-        "@/components/ui/card",
-        "@/context/AuthContext",
-        "@/utils/permissions/roleChecks"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
       "path": "EmergencyCare.tsx",
       "name": "EmergencyCare",
       "imports": [
@@ -1622,32 +1909,6 @@
       "isReferenced": false,
       "potentiallyOrphaned": true,
       "clinicalWorkflows": []
-    },
-    {
-      "path": "FluidBalance.tsx",
-      "name": "FluidBalance",
-      "imports": [
-        "react",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "../hooks/useTranslation",
-        "@/components/fluid-balance/FluidIntakeForm",
-        "@/components/fluid-balance/FluidIntakeHistory",
-        "@/components/fluid-balance/FluidOutputForm",
-        "@/components/fluid-balance/FluidOutputHistory",
-        "@/components/ui/button",
-        "@/components/ui/tabs",
-        "lucide-react"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "clinicalTaskExecution"
-      ]
     },
     {
       "path": "Help.tsx",
@@ -1730,44 +1991,6 @@
       "clinicalWorkflows": []
     },
     {
-      "path": "MedicationAdministration.tsx",
-      "name": "MedicationAdministration",
-      "imports": [
-        "react",
-        "@/components/medications/administration/page/MedicationAdministrationPage"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "prescriptionManagement"
-      ]
-    },
-    {
-      "path": "MedicationView.tsx",
-      "name": "MedicationView",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "../components/medications/MedicationDetail",
-        "lucide-react"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "prescriptionManagement"
-      ]
-    },
-    {
       "path": "Messages.tsx",
       "name": "Messages",
       "imports": [
@@ -1829,32 +2052,6 @@
         "react",
         "@/components/ui/button",
         "react-router-dom"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "PatientProfile.tsx",
-      "name": "PatientProfile",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "@/components/ui/button",
-        "@/components/ui/input",
-        "@/components/ui/textarea",
-        "@/hooks/useTranslation",
-        "@/components/patients/PatientDetailHeader",
-        "@/components/layout/Header",
-        "@/components/layout/Sidebar",
-        "sonner",
-        "@/hooks/usePatientData",
-        "@/components/patients/detail/PatientDetailLoader",
-        "@/types/patientTypes"
       ],
       "exports": [
         "export"
@@ -2008,87 +2205,6 @@
       "isReferenced": false,
       "potentiallyOrphaned": true,
       "clinicalWorkflows": []
-    },
-    {
-      "path": "TaskDetail.tsx",
-      "name": "TaskDetail",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "@/hooks/useTranslation",
-        "@/components/layout/Header",
-        "@/components/layout/Sidebar",
-        "@/components/ui/button",
-        "lucide-react",
-        "@/components/tasks/detail/useTaskDetail",
-        "@/components/tasks/detail/TaskDetailHeader",
-        "@/components/tasks/detail/TaskDetailCard"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "clinicalTaskExecution"
-      ]
-    },
-    {
-      "path": "Telemedicine.tsx",
-      "name": "Telemedicine",
-      "imports": [
-        "react",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "../hooks/useTranslation",
-        "@/components/ui/button",
-        "@/components/ui/tabs",
-        "lucide-react"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "prescriptionManagement"
-      ]
-    },
-    {
-      "path": "VisitNotes.tsx",
-      "name": "VisitNotes",
-      "imports": [
-        "react",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "../hooks/useTranslation",
-        "@/components/visit-notes/VitalSignsForm",
-        "@/components/visit-notes/VitalSignsView",
-        "@/components/ui/tabs",
-        "@/components/ui/button",
-        "@/components/ui/card",
-        "@/components/ui/textarea",
-        "@/components/ui/input",
-        "@/components/ui/checkbox",
-        "@/components/ui/label",
-        "@/components/ui/dialog",
-        "lucide-react",
-        "sonner",
-        "@/components/visit-notes/VisitNoteDrawingCanvas",
-        "@tanstack/react-query"
-      ],
-      "exports": [
-        "export",
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "patientVisitRegistration"
-      ]
     }
   ],
   "clinicalWorkflowPages": {
@@ -2103,9 +2219,22 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration",
+          "/medication-administration"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "prescriptionManagement"
         ]
@@ -2124,9 +2253,22 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id",
+          "/medications/:id"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "prescriptionManagement"
         ]
@@ -2286,9 +2428,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/telemedicine"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "prescriptionManagement"
         ]
@@ -2314,9 +2458,18 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/fluid-balance",
+          "/fluid-balance",
+          "/fluid-balance",
+          "/fluid-balance",
+          "/fluid-balance",
+          "/fluid-balance",
+          "/fluid-balance",
+          "/fluid-balance"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "clinicalTaskExecution"
         ]
@@ -2339,9 +2492,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/tasks/:id"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "clinicalTaskExecution"
         ]
@@ -2516,9 +2671,11 @@
           "export",
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/visit-notes"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "patientVisitRegistration"
         ]
@@ -2677,9 +2834,18 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/critical-results",
+          "/critical-results",
+          "/critical-results",
+          "/critical-results",
+          "/critical-results",
+          "/critical-results",
+          "/critical-results",
+          "/critical-results"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -3016,9 +3182,18 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/patients/:id/profile",
+          "/patients/:id/profile",
+          "/patients/:id/profile",
+          "/patients/:id/profile",
+          "/patients/:id/profile",
+          "/patients/:id/profile",
+          "/patients/:id/profile",
+          "/patients/:id/profile"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {

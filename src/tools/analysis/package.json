@@ -1,0 +1,24 @@
+{
+  "name": "orphaned-pages-analysis",
+  "version": "1.0.0",
+  "description": "Tools for analyzing orphaned pages in the OmniCare EMR system",
+  "type": "module",
+  "main": "orphanedPagesAnalyzer.js",
+  "scripts": {
+    "analyze": "node runAnalysis.js",
+    "report": "node -e \"console.log('Opening report...'); require('child_process').exec('open ../../Orphaned-Pages-Final-Analysis-Report.md')\"",
+    "diagram": "node -e \"console.log('Opening diagram...'); require('child_process').exec('open ../../orphaned-pages-hierarchy-diagram.md')\""
+  },
+  "keywords": [
+    "analysis",
+    "orphaned-pages",
+    "code-quality",
+    "emr"
+  ],
+  "author": "OmniCare Team",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

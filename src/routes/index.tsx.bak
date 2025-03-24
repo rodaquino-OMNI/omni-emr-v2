@@ -9,9 +9,6 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import RoleBasedRoutes from './RoleBasedRoutes';
 
 // Generic function to lazy load a component
-const TaskDetail = lazy(() => import('../pages/TaskDetail'));
-const Telemedicine = lazy(() => import('../pages/Telemedicine'));
-const VisitNotes = lazy(() => import('../pages/VisitNotes'));
 const lazyLoad = (componentPath: string) => {
   const fullComponentPath = componentPath.endsWith('.js') || componentPath.endsWith('.tsx')
     ? `../pages/${componentPath}`

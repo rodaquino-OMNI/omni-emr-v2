@@ -1,101 +1,107 @@
 # Orphaned Pages Testing Guide
 
-This guide provides instructions for testing the reintegrated orphaned pages in the OmniCare EMR system.
+This document provides instructions for testing the reintegrated orphaned pages:
 
-## Login Credentials
+1. MedicationAdministration (src/pages/MedicationAdministration.tsx)
+2. MedicationView (src/pages/MedicationView.tsx)
+3. RoleManagement (src/pages/Admin/RoleManagement.tsx)
 
-Use the following credentials to log in to the system:
+## Prerequisites
 
-| Role | Email | Password |
-|------|-------|----------|
-| Doctor | doctor@omnicare.com | password123 |
-| Nurse | nurse@omnicare.com | password123 |
-| Admin | admin@omnicare.com | password123 |
+- The OmniCare EMR application should be running (`npm run dev`)
+- You should have access to accounts with different roles (doctor, nurse, admin, system_administrator)
 
-## Testing the Reintegrated Pages
+## Testing Steps
 
-### 1. Critical Results Page
+### 1. Medication Administration Page
 
-1. **Access via Sidebar**:
-   - Log in with any of the credentials above
-   - Verify that "Critical Results" appears in the sidebar
-   - Click on "Critical Results" in the sidebar
-   - Verify that the Critical Results page loads correctly
+1. **Navigation Test**:
+   - Log in as a nurse or doctor
+   - Verify that "Medication Administration" appears in the sidebar
+   - Click on "Medication Administration" in the sidebar
+   - Verify that you are navigated to the `/medication-administration` route
+   - Verify that the MedicationAdministrationPage component is rendered correctly
 
-2. **Access via Direct URL**:
-   - Navigate to `/critical-results`
-   - Verify that the Critical Results page loads correctly
+2. **Functionality Test**:
+   - Verify that the medication administration interface loads correctly
+   - Check that all components are properly displayed
+   - Test any interactive elements (if applicable)
 
-3. **Functionality Testing**:
-   - Verify that critical results are displayed
-   - Test filtering by acknowledgment status (all/acknowledged/unacknowledged)
-   - Test acknowledging a critical result
-   - Verify that permission checks work as expected
+3. **Permission Test**:
+   - Log in as a user without the 'administer_medications' permission
+   - Verify that the "Medication Administration" option is not visible in the sidebar
+   - Try to navigate directly to `/medication-administration`
+   - Verify that you are redirected to an unauthorized page or shown an appropriate error message
 
-### 2. Fluid Balance Page
+### 2. Medication View Page
 
-1. **Access via Sidebar**:
-   - Log in with any of the credentials above
-   - Verify that "Fluid Balance" appears in the sidebar
-   - Click on "Fluid Balance" in the sidebar
-   - Verify that the Fluid Balance page loads correctly
+1. **Navigation Test**:
+   - Log in as a nurse or doctor
+   - Navigate to the Medications page
+   - Click on a medication to view its details
+   - Verify that you are navigated to the `/medications/:id` route
+   - Verify that the MedicationView component is rendered correctly
 
-2. **Access via Direct URL**:
-   - Navigate to `/fluid-balance`
-   - Verify that the Fluid Balance page loads correctly
+2. **Functionality Test**:
+   - Verify that the medication details are displayed correctly
+   - Check that all components (header, details, actions) are properly displayed
+   - Test the "Back to medications" link
+   - Test the Print, Delete, and Edit buttons (if applicable)
 
-3. **Functionality Testing**:
-   - Test recording fluid intake with different types, amounts, and timestamps
-   - Test recording fluid output with different types, amounts, and timestamps
-   - Verify that the history of fluid intake and output is displayed correctly
-   - Test the multilingual support by switching between English and Portuguese
+3. **Permission Test**:
+   - Log in as a user without the 'view_medications' permission
+   - Try to navigate directly to `/medications/:id`
+   - Verify that you are redirected to an unauthorized page or shown an appropriate error message
 
-### 3. Patient Profile Page
+### 3. Role Management Page
 
-1. **Access via Patient Detail Page**:
-   - Log in with any of the credentials above
-   - Navigate to the Patients page
-   - Click on a patient to view their details
-   - Click on "Edit profile" button
-   - Verify that the Patient Profile page loads correctly
+1. **Navigation Test**:
+   - Log in as an admin or system administrator
+   - Navigate to the Administration section
+   - Verify that "Role Management" appears in the Administration submenu
+   - Click on "Role Management"
+   - Verify that you are navigated to the `/admin/roles` route
+   - Verify that the RoleManagement component is rendered correctly
 
-2. **Access via Direct URL**:
-   - Navigate to `/patients/:id/profile` (replace `:id` with an actual patient ID)
-   - Verify that the Patient Profile page loads correctly
+2. **Functionality Test**:
+   - Verify that the role management interface loads correctly
+   - Check that the tabs (Roles and Function Assignment) are displayed
+   - Test switching between tabs
+   - Verify that the RolesList and RolePermissionMatrix components are rendered correctly
+   - Test the "Manage Function Blocks" and "Configure Function Blocks" links
 
-3. **Functionality Testing**:
-   - Test editing patient information (name, date of birth, gender, etc.)
-   - Test saving changes
-   - Verify that the changes are reflected in the patient detail page
-   - Test the multilingual support by switching between English and Portuguese
+3. **Permission Test**:
+   - Log in as a user without the 'manage_roles' permission
+   - Try to navigate directly to `/admin/roles`
+   - Verify that you are redirected to an unauthorized page or shown an appropriate error message
 
-## Verification Checklist
+## Troubleshooting
 
-Use this checklist to ensure all aspects of the reintegrated pages are working correctly:
+If you encounter any issues during testing, check the following:
 
-- [ ] Critical Results page is accessible via sidebar
-- [ ] Critical Results page is accessible via direct URL
-- [ ] Critical Results functionality works correctly
-- [ ] Fluid Balance page is accessible via sidebar
-- [ ] Fluid Balance page is accessible via direct URL
-- [ ] Fluid Balance functionality works correctly
-- [ ] Patient Profile page is accessible via Patient Detail page
-- [ ] Patient Profile page is accessible via direct URL
-- [ ] Patient Profile functionality works correctly
-- [ ] All pages respect permission checks
-- [ ] All pages support multilingual interface
+1. **Console Errors**: Open the browser's developer tools and check for any errors in the console.
+2. **Network Requests**: Check the network tab for any failed API requests.
+3. **Component Rendering**: Verify that all components are being rendered correctly.
+4. **Route Configuration**: Check that the routes are properly configured in the RouteConfig.ts file.
+5. **Sidebar Configuration**: Verify that the sidebar entries are correctly defined in the sidebarConfig.ts file.
+6. **Permissions**: Ensure that the necessary permissions are defined in the permissions.ts file.
+7. **Translations**: Check that the translation keys are properly defined in the translations.ts file.
 
 ## Reporting Issues
 
-If you encounter any issues during testing, please document them with the following information:
+If you encounter any issues that cannot be resolved through troubleshooting, please document them with the following information:
 
-1. Page/feature being tested
+1. The page or component where the issue occurs
 2. Steps to reproduce the issue
 3. Expected behavior
 4. Actual behavior
-5. Screenshots (if applicable)
-6. Browser and device information
+5. Any error messages or console output
+6. Screenshots (if applicable)
 
 ## Next Steps
 
-After successfully testing the reintegrated pages, proceed with the analysis and reintegration of the remaining orphaned pages following the same approach.
+After successful testing, consider the following next steps:
+
+1. Update documentation to reflect the reintegrated pages
+2. Implement any additional features or improvements identified during testing
+3. Continue with the reintegration of other orphaned pages following the same methodology

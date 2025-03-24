@@ -27,4 +27,8 @@ export const PERMISSIONS = {
   APPOINTMENTS_MANAGE: 'appointments:manage',
   SCHEDULE_VIEW: 'schedule:view',
   SCHEDULE_MANAGE: 'schedule:manage',
-};
+
+  VIEW_CRITICAL_RESULTS: 'view_critical_results',
+  VIEW_MEDICATIONS: 'view_medications',
+  MANAGE_ROLES: 'manage_roles',
+  ADMINISTER_MEDICATIONS: 'administer_medications',};

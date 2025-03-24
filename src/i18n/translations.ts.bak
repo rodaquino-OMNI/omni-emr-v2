@@ -39,7 +39,11 @@ export const translations: Translations = {
     manageSectors: "Manage Sectors",
     availableSectors: "Available Sectors",
     noSectorsAvailable: "No sectors available",
-    loading: "Loading..."
+    loading: "Loading...",
+    criticalResults: "Critical Results",
+
+    roleManagement: "Role Management",
+    medicationAdministration: "Medication Administration"
   },
   
   pt: {
@@ -65,6 +69,10 @@ export const translations: Translations = {
     manageSectors: "Gerenciar Setores",
     availableSectors: "Setores Disponíveis",
     noSectorsAvailable: "Nenhum setor disponível",
-    loading: "Carregando..."
+    loading: "Carregando...",
+    criticalResults: "Resultados Críticos",
+
+    roleManagement: "Gerenciamento de Funções",
+    medicationAdministration: "Administração de Medicamentos"
   }
 };
