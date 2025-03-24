@@ -45,6 +45,33 @@ export const coreRoutes: RouteDefinition[] = [
 export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
   'doctor': [
     {
+      path: '/visit-notes',
+      component: 'VisitNotes',
+      requiredPermission: 'view_records',
+      requireSector: true,
+      title: 'Visit Notes',
+      description: 'Record clinical visit notes',
+      icon: 'ClipboardCheck',
+    },
+    {
+      path: '/telemedicine',
+      component: 'Telemedicine',
+      requiredPermission: 'telemedicine',
+      requireSector: true,
+      title: 'Telemedicine',
+      description: 'Conduct virtual consultations',
+      icon: 'Video',
+    },
+    {
+      path: '/tasks/:id',
+      component: 'TaskDetail',
+      requiredPermission: 'tasks:view',
+      requireSector: true,
+      title: 'Task Detail',
+      description: 'View and manage task details',
+      icon: 'ListChecks',
+    },
+    {
       path: '/patients',
       component: 'Patients',
       requiredPermission: 'patients:view',

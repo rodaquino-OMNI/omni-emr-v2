@@ -44,7 +44,7 @@ export const sidebarItems: SidebarItem[] = [
   // Nurse-focused items - moved to top positions with higher priority for nurse role
   {
     name: 'Medication Administration',
-    path: '/medications',
+    path: '/medication-administration',
     icon: Pill,
     translationKey: 'medicationAdministration',
     permissionRequired: 'administer_medications',
