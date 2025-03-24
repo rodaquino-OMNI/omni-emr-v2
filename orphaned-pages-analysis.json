@@ -1,0 +1,553 @@
+{
+  "metadata": {
+    "totalPages": 25,
+    "analysisDate": "2025-03-24",
+    "pilotPages": ["CriticalResults", "FluidBalance", "PatientProfile"]
+  },
+  "categories": {
+    "clinicalWorkflow": {
+      "name": "Clinical Workflow Pages",
+      "description": "Pages related to clinical workflows and patient care",
+      "priority": "high",
+      "pages": [
+        {
+          "name": "CriticalResults",
+          "path": "src/pages/CriticalResults.tsx",
+          "description": "Displays and manages critical test results that require immediate attention",
+          "isPilot": true,
+          "status": "analyzed",
+          "functionality": {
+            "primary": "Displays critical test results requiring immediate clinical attention",
+            "features": [
+              "Filtering results by acknowledgment status (all/acknowledged/unacknowledged)",
+              "Viewing detailed information about critical results",
+              "Acknowledging critical results",
+              "Permission-based access control"
+            ]
+          },
+          "dependencies": [
+            {
+              "type": "component",
+              "name": "CriticalResultsList",
+              "path": "src/components/critical-results/CriticalResultsList.tsx"
+            },
+            {
+              "type": "component",
+              "name": "CriticalResultAlert",
+              "path": "src/components/critical-results/CriticalResultAlert.tsx"
+            },
+            {
+              "type": "component",
+              "name": "CriticalResultDetail",
+              "path": "src/components/critical-results/CriticalResultDetail.tsx"
+            },
+            {
+              "type": "hook",
+              "name": "useCriticalResults",
+              "path": "src/hooks/useCriticalResults.tsx"
+            },
+            {
+              "type": "hook",
+              "name": "useTranslation",
+              "path": "src/hooks/useTranslation.ts"
+            },
+            {
+              "type": "context",
+              "name": "AuthContext",
+              "path": "src/context/AuthContext.tsx"
+            },
+            {
+              "type": "utility",
+              "name": "hasPermission",
+              "path": "src/utils/permissions/roleChecks.ts"
+            }
+          ],
+          "permissions": ["view_critical_results"],
+          "dataRequirements": {
+            "entities": ["CriticalResult"],
+            "apis": ["fetchCriticalResults", "acknowledgeCriticalResult"]
+          },
+          "uiConsiderations": {
+            "layout": "Card-based layout with filtering controls",
+            "interactions": ["Filtering", "Viewing details", "Acknowledging results"],
+            "accessibility": "Uses semantic HTML and ARIA attributes"
+          },
+          "potentialRoutes": ["/critical-results"],
+          "reintegrationStrategy": {
+            "routeDefinition": {
+              "path": "/critical-results",
+              "component": "CriticalResults",
+              "requiredPermission": "view_critical_results",
+              "title": "Critical Results",
+              "icon": "AlertTriangle"
+            },
+            "sidebarPlacement": {
+              "priority": "high",
+              "section": "Clinical",
+              "icon": "AlertTriangle"
+            },
+            "functionBlock": "clinical_alerts"
+          },
+          "notes": "Critical for patient safety and clinical decision-making. Currently fully implemented but not properly referenced in routes."
+        },
+        {
+          "name": "EmergencyCare",
+          "path": "src/pages/EmergencyCare.tsx",
+          "description": "Manages emergency care workflows and triage",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/emergency-care"],
+          "notes": "Important for emergency department workflows"
+        },
+        {
+          "name": "FluidBalance",
+          "path": "src/pages/FluidBalance.tsx",
+          "description": "Tracks patient fluid intake and output",
+          "isPilot": true,
+          "status": "analyzed",
+          "functionality": {
+            "primary": "Tracks and manages patient fluid intake and output",
+            "features": [
+              "Recording fluid intake with type, amount, and timestamp",
+              "Recording fluid output with type, amount, and timestamp",
+              "Viewing history of fluid intake and output",
+              "Multilingual support (English and Portuguese)"
+            ]
+          },
+          "dependencies": [
+            {
+              "type": "component",
+              "name": "FluidIntakeForm",
+              "path": "src/components/fluid-balance/FluidIntakeForm.tsx"
+            },
+            {
+              "type": "component",
+              "name": "FluidIntakeHistory",
+              "path": "src/components/fluid-balance/FluidIntakeHistory.tsx"
+            },
+            {
+              "type": "component",
+              "name": "FluidOutputForm",
+              "path": "src/components/fluid-balance/FluidOutputForm.tsx"
+            },
+            {
+              "type": "component",
+              "name": "FluidOutputHistory",
+              "path": "src/components/fluid-balance/FluidOutputHistory.tsx"
+            },
+            {
+              "type": "hook",
+              "name": "useFluidIntakeForm",
+              "path": "src/hooks/useFluidIntakeForm.tsx"
+            },
+            {
+              "type": "hook",
+              "name": "useFluidOutputForm",
+              "path": "src/hooks/useFluidOutputForm.tsx"
+            },
+            {
+              "type": "hook",
+              "name": "useTranslation",
+              "path": "src/hooks/useTranslation.ts"
+            },
+            {
+              "type": "context",
+              "name": "AuthContext",
+              "path": "src/context/AuthContext.tsx"
+            },
+            {
+              "type": "utility",
+              "name": "fluidTypes",
+              "path": "src/utils/fluidTypes.ts"
+            }
+          ],
+          "permissions": [],
+          "dataRequirements": {
+            "entities": ["FluidIntake", "FluidOutput"],
+            "tables": ["fluid_intakes", "fluid_outputs"],
+            "apis": ["insertFluidIntake", "insertFluidOutput", "fetchFluidIntakes", "fetchFluidOutputs"]
+          },
+          "uiConsiderations": {
+            "layout": "Tabbed interface with forms and history views",
+            "interactions": ["Form submission", "Tab switching", "History viewing"],
+            "accessibility": "Uses semantic HTML and ARIA attributes",
+            "i18n": "Supports English and Portuguese"
+          },
+          "potentialRoutes": ["/fluid-balance", "/patients/:patientId/fluid-balance"],
+          "reintegrationStrategy": {
+            "routeDefinition": {
+              "path": "/fluid-balance",
+              "component": "FluidBalance",
+              "title": "Fluid Balance",
+              "icon": "Droplet"
+            },
+            "sidebarPlacement": {
+              "priority": "medium",
+              "section": "Patient Care",
+              "icon": "Droplet"
+            },
+            "functionBlock": "patient_monitoring"
+          },
+          "notes": "Important for patient care monitoring. Currently fully implemented but not properly referenced in routes. Would benefit from patient context integration rather than using a hardcoded patient ID."
+        },
+        {
+          "name": "TaskDetail",
+          "path": "src/pages/TaskDetail.tsx",
+          "description": "Displays detailed information about clinical tasks",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/tasks/:id"],
+          "notes": "Supports clinical task execution"
+        },
+        {
+          "name": "VisitNotes",
+          "path": "src/pages/VisitNotes.tsx",
+          "description": "Manages clinical notes for patient visits",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/visit-notes"],
+          "notes": "Important for clinical documentation"
+        },
+        {
+          "name": "PatientProfile",
+          "path": "src/pages/PatientProfile.tsx",
+          "description": "Displays comprehensive patient profile information",
+          "isPilot": true,
+          "status": "analyzed",
+          "functionality": {
+            "primary": "Displays and allows editing of patient profile information",
+            "features": [
+              "Viewing patient demographic information",
+              "Editing patient contact and demographic details",
+              "Updating patient information in the database",
+              "Multilingual support (English and Portuguese)"
+            ]
+          },
+          "dependencies": [
+            {
+              "type": "component",
+              "name": "PatientDetailHeader",
+              "path": "src/components/patients/PatientDetailHeader.tsx"
+            },
+            {
+              "type": "component",
+              "name": "PatientDetailLoader",
+              "path": "src/components/patients/detail/PatientDetailLoader.tsx"
+            },
+            {
+              "type": "hook",
+              "name": "usePatientData",
+              "path": "src/hooks/usePatientData.ts"
+            },
+            {
+              "type": "hook",
+              "name": "useTranslation",
+              "path": "src/hooks/useTranslation.ts"
+            },
+            {
+              "type": "component",
+              "name": "Header",
+              "path": "src/components/layout/Header.tsx"
+            },
+            {
+              "type": "component",
+              "name": "Sidebar",
+              "path": "src/components/layout/Sidebar.tsx"
+            },
+            {
+              "type": "library",
+              "name": "react-router-dom",
+              "features": ["useParams", "useNavigate", "Link"]
+            }
+          ],
+          "permissions": [],
+          "dataRequirements": {
+            "entities": ["Patient"],
+            "tables": ["patients"],
+            "apis": ["fetchPatient", "updatePatient"]
+          },
+          "uiConsiderations": {
+            "layout": "Form-based layout with patient header",
+            "interactions": ["Form input", "Form submission", "Navigation"],
+            "accessibility": "Uses semantic HTML and ARIA attributes",
+            "i18n": "Supports English and Portuguese"
+          },
+          "potentialRoutes": ["/patient-profile/:id", "/patients/:id/profile"],
+          "reintegrationStrategy": {
+            "routeDefinition": {
+              "path": "/patients/:id/profile",
+              "component": "PatientProfile",
+              "title": "Patient Profile",
+              "icon": "User"
+            },
+            "sidebarPlacement": {
+              "priority": "low",
+              "section": "Patient Management",
+              "icon": "User"
+            },
+            "functionBlock": "patient_management"
+          },
+          "notes": "Core to clinical workflows and patient information access. Currently fully implemented but not properly referenced in routes. The page is accessible from the PatientDetail page via the 'Edit profile' button."
+        },
+        {
+          "name": "MedicalHistory",
+          "path": "src/pages/MedicalHistory.tsx",
+          "description": "Displays patient medical history",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/medical-history/:patientId"],
+          "notes": "Important for clinical decision-making"
+        }
+      ]
+    },
+    "medicationRelated": {
+      "name": "Medication-Related Pages",
+      "description": "Pages related to medication management and administration",
+      "priority": "medium",
+      "pages": [
+        {
+          "name": "MedicationAdministration",
+          "path": "src/pages/MedicationAdministration.tsx",
+          "description": "Manages medication administration workflows",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/medication-administration"],
+          "notes": "Important for medication administration workflows"
+        },
+        {
+          "name": "MedicationView",
+          "path": "src/pages/MedicationView.tsx",
+          "description": "Displays detailed information about medications",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/medications/:id"],
+          "notes": "Supports medication management"
+        },
+        {
+          "name": "Telemedicine",
+          "path": "src/pages/Telemedicine.tsx",
+          "description": "Manages telemedicine consultations",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/telemedicine"],
+          "notes": "Supports remote prescribing and medication management"
+        }
+      ]
+    },
+    "administrative": {
+      "name": "Administrative Pages",
+      "description": "Pages related to system administration and management",
+      "priority": "medium",
+      "pages": [
+        {
+          "name": "FunctionBlocks",
+          "path": "src/pages/Admin/FunctionBlocks.tsx",
+          "description": "Manages system function blocks",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/admin/function-blocks"],
+          "notes": "Administrative functionality for system configuration"
+        },
+        {
+          "name": "RoleManagement",
+          "path": "src/pages/Admin/RoleManagement.tsx",
+          "description": "Manages user roles and permissions",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/admin/roles"],
+          "notes": "Administrative functionality for user management"
+        },
+        {
+          "name": "RxNormManagement",
+          "path": "src/pages/RxNormManagement.tsx",
+          "description": "Manages RxNorm medication terminology",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/admin/rxnorm"],
+          "notes": "Administrative functionality for medication terminology"
+        }
+      ]
+    },
+    "utility": {
+      "name": "Utility Pages",
+      "description": "Utility and support pages",
+      "priority": "low",
+      "pages": [
+        {
+          "name": "Help",
+          "path": "src/pages/Help.tsx",
+          "description": "Provides help and documentation",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/help"],
+          "notes": "Support page for users"
+        },
+        {
+          "name": "Index",
+          "path": "src/pages/Index.tsx",
+          "description": "Main entry point or landing page",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/"],
+          "notes": "May be redundant with Home page"
+        },
+        {
+          "name": "PageNotFound",
+          "path": "src/pages/PageNotFound.tsx",
+          "description": "404 error page",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["*"],
+          "notes": "Error handling page"
+        },
+        {
+          "name": "SectorSelection",
+          "path": "src/pages/SectorSelection.tsx",
+          "description": "Allows users to select hospital sector",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/sector-selection"],
+          "notes": "Utility page for navigation"
+        },
+        {
+          "name": "NotFound",
+          "path": "src/pages/NotFound.tsx",
+          "description": "Alternative 404 error page",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["*"],
+          "notes": "May be redundant with PageNotFound"
+        }
+      ]
+    },
+    "authentication": {
+      "name": "Authentication Pages",
+      "description": "Pages related to user authentication",
+      "priority": "low",
+      "pages": [
+        {
+          "name": "Register",
+          "path": "src/pages/Register.tsx",
+          "description": "User registration page",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/register"],
+          "notes": "Authentication workflow"
+        },
+        {
+          "name": "ResetPassword",
+          "path": "src/pages/ResetPassword.tsx",
+          "description": "Password reset page",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/reset-password"],
+          "notes": "Authentication workflow"
+        },
+        {
+          "name": "AuthCallback",
+          "path": "src/pages/AuthCallback.tsx",
+          "description": "Authentication callback handler",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/auth/callback"],
+          "notes": "Authentication workflow"
+        }
+      ]
+    },
+    "content": {
+      "name": "Content Pages",
+      "description": "Pages displaying various content and information",
+      "priority": "low",
+      "pages": [
+        {
+          "name": "Messages",
+          "path": "src/pages/Messages.tsx",
+          "description": "Displays user messages",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/messages"],
+          "notes": "Communication functionality"
+        },
+        {
+          "name": "Notifications",
+          "path": "src/pages/Notifications.tsx",
+          "description": "Displays user notifications",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/notifications"],
+          "notes": "Communication functionality"
+        },
+        {
+          "name": "RecordView",
+          "path": "src/pages/RecordView.tsx",
+          "description": "Displays detailed medical record",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/records/:id"],
+          "notes": "Content display page"
+        },
+        {
+          "name": "Records",
+          "path": "src/pages/Records.tsx",
+          "description": "Lists medical records",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/records"],
+          "notes": "Content listing page"
+        },
+        {
+          "name": "NewOrder",
+          "path": "src/pages/NewOrder.tsx",
+          "description": "Creates new medical orders",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/orders/new"],
+          "notes": "Content creation page"
+        },
+        {
+          "name": "HospitalWorkflows",
+          "path": "src/pages/HospitalWorkflows.tsx",
+          "description": "Manages hospital workflows",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/hospital-workflows"],
+          "notes": "Content management page"
+        },
+        {
+          "name": "Home",
+          "path": "src/pages/Home.tsx",
+          "description": "Home page",
+          "isPilot": false,
+          "status": "pending-analysis",
+          "dependencies": [],
+          "potentialRoutes": ["/home"],
+          "notes": "Main content page"
+        }
+      ]
+    }
+  }
+}

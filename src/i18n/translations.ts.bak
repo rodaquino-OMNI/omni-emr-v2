@@ -39,8 +39,7 @@ export const translations: Translations = {
     manageSectors: "Manage Sectors",
     availableSectors: "Available Sectors",
     noSectorsAvailable: "No sectors available",
-    loading: "Loading...",
-    criticalResults: "Critical Results"
+    loading: "Loading..."
   },
   
   pt: {
@@ -66,7 +65,6 @@ export const translations: Translations = {
     manageSectors: "Gerenciar Setores",
     availableSectors: "Setores Disponíveis",
     noSectorsAvailable: "Nenhum setor disponível",
-    loading: "Carregando...",
-    criticalResults: "Resultados Críticos"
+    loading: "Carregando..."
   }
 };

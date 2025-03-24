@@ -73,9 +73,12 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/admin",
+        "/admin"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -107,9 +110,13 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/appointments",
+        "/appointments",
+        "/appointments"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "patientVisitRegistration"
       ]
@@ -125,9 +132,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/auth/callback"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -156,9 +165,16 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/clinical-documentation",
+        "/clinical-documentation/:id/:patientId",
+        "/clinical-documentation",
+        "/clinical-documentation/:id/:patientId",
+        "/clinical-documentation",
+        "/clinical-documentation"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -194,9 +210,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/dashboard"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -279,9 +297,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -336,9 +356,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/login"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -429,9 +451,15 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/medications",
+        "/medications",
+        "/medications",
+        "/medications",
+        "/medications"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
@@ -485,9 +513,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "*"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -523,9 +553,13 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/orders",
+        "/orders",
+        "/orders"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -570,9 +604,14 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/patients/:id",
+        "/patients/:id",
+        "/patients/:id",
+        "/patients/:id"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -626,9 +665,16 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/patients",
+        "/patients",
+        "/patients",
+        "/patients",
+        "/patients",
+        "/patients"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -659,9 +705,13 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/prescribe-medication",
+        "/prescribe-medication",
+        "/prescribe-medication"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
@@ -686,9 +736,14 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/prescriptions/:id",
+        "/prescriptions/:id",
+        "/prescriptions/:id",
+        "/prescriptions/:id"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
@@ -710,9 +765,14 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/prescriptions",
+        "/prescriptions",
+        "/prescriptions",
+        "/prescriptions"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
@@ -860,9 +920,14 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/schedule",
+        "/schedule",
+        "/schedule",
+        "/schedule"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "patientVisitRegistration"
       ]
@@ -909,9 +974,11 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/settings"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -959,9 +1026,14 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/tasks",
+        "/tasks",
+        "/tasks",
+        "/tasks"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "clinicalTaskExecution"
       ]
@@ -998,9 +1070,13 @@
       "exports": [
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/unauthorized",
+        "/dashboard",
+        "/unauthorized"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": []
     },
     {
@@ -1059,9 +1135,14 @@
         "export",
         "export"
       ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
+      "referencedIn": [
+        "/vital-signs",
+        "/vital-signs",
+        "/vital-signs",
+        "/vital-signs"
+      ],
+      "isReferenced": true,
+      "potentiallyOrphaned": false,
       "clinicalWorkflows": [
         "clinicalTaskExecution"
       ]
@@ -1069,128 +1150,352 @@
   ],
   "routes": [
     {
-      "path": "/login",
-      "component": "Login /"
-    },
-    {
-      "path": "/register",
-      "component": "RegisterPage /"
-    },
-    {
-      "path": "/auth/callback",
-      "component": "AuthCallback /"
-    },
-    {
-      "path": "/login",
-      "component": "Suspense fallback={<Loading /"
-    },
-    {
-      "path": "/auth/callback",
-      "component": "Suspense fallback={<Loading /"
-    },
-    {
-      "path": "/",
-      "component": "Suspense fallback={<Loading /"
-    },
-    {
-      "path": "*",
-      "component": "Suspense fallback={<Loading /"
-    },
-    {
-      "path": "/login",
-      "component": "Suspense fallback={<Loading /"
-    },
-    {
-      "path": "/auth/callback",
-      "component": "Suspense fallback={<Loading /"
+      "path": "/dashboard",
+      "component": "Dashboard"
     },
     {
       "path": "/unauthorized",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Unauthorized"
+    },
+    {
+      "path": "/settings",
+      "component": "Settings"
+    },
+    {
+      "path": "/patients",
+      "component": "Patients"
+    },
+    {
+      "path": "/tasks",
+      "component": "Tasks"
+    },
+    {
+      "path": "/vital-signs",
+      "component": "VitalSigns"
+    },
+    {
+      "path": "/appointments",
+      "component": "Appointments"
+    },
+    {
+      "path": "/schedule",
+      "component": "Schedule"
+    },
+    {
+      "path": "/patients/:id",
+      "component": "PatientDetail"
+    },
+    {
+      "path": "/clinical-documentation",
+      "component": "ClinicalDocumentation"
+    },
+    {
+      "path": "/clinical-documentation/:id/:patientId",
+      "component": "ClinicalDocumentation"
+    },
+    {
+      "path": "/medications",
+      "component": "Medications"
+    },
+    {
+      "path": "/prescribe-medication",
+      "component": "PrescribeMedication"
+    },
+    {
+      "path": "/prescriptions",
+      "component": "Prescriptions"
+    },
+    {
+      "path": "/prescriptions/:id",
+      "component": "PrescriptionView"
+    },
+    {
+      "path": "/orders",
+      "component": "Orders"
+    },
+    {
+      "path": "/emergency/:patientId",
+      "component": "EmergencyTriageWorkflow"
+    },
+    {
+      "path": "/patients",
+      "component": "Patients"
+    },
+    {
+      "path": "/tasks",
+      "component": "Tasks"
+    },
+    {
+      "path": "/vital-signs",
+      "component": "VitalSigns"
+    },
+    {
+      "path": "/appointments",
+      "component": "Appointments"
+    },
+    {
+      "path": "/schedule",
+      "component": "Schedule"
+    },
+    {
+      "path": "/patients/:id",
+      "component": "PatientDetail"
+    },
+    {
+      "path": "/clinical-documentation",
+      "component": "ClinicalDocumentation"
+    },
+    {
+      "path": "/clinical-documentation/:id/:patientId",
+      "component": "ClinicalDocumentation"
+    },
+    {
+      "path": "/medications",
+      "component": "Medications"
+    },
+    {
+      "path": "/patients",
+      "component": "Patients"
+    },
+    {
+      "path": "/appointments",
+      "component": "Appointments"
+    },
+    {
+      "path": "/medications",
+      "component": "Medications"
+    },
+    {
+      "path": "/prescriptions",
+      "component": "Prescriptions"
+    },
+    {
+      "path": "/prescriptions/:id",
+      "component": "PrescriptionView"
+    },
+    {
+      "path": "/patients",
+      "component": "Patients"
+    },
+    {
+      "path": "/patients",
+      "component": "Patients"
+    },
+    {
+      "path": "/tasks",
+      "component": "Tasks"
+    },
+    {
+      "path": "/vital-signs",
+      "component": "VitalSigns"
+    },
+    {
+      "path": "/schedule",
+      "component": "Schedule"
+    },
+    {
+      "path": "/patients/:id",
+      "component": "PatientDetail"
+    },
+    {
+      "path": "/clinical-documentation",
+      "component": "ClinicalDocumentation"
+    },
+    {
+      "path": "/medications",
+      "component": "Medications"
+    },
+    {
+      "path": "/prescribe-medication",
+      "component": "PrescribeMedication"
+    },
+    {
+      "path": "/prescriptions",
+      "component": "Prescriptions"
+    },
+    {
+      "path": "/prescriptions/:id",
+      "component": "PrescriptionView"
+    },
+    {
+      "path": "/orders",
+      "component": "Orders"
+    },
+    {
+      "path": "/admin",
+      "component": "Admin"
+    },
+    {
+      "path": "/patients",
+      "component": "Patients"
+    },
+    {
+      "path": "/tasks",
+      "component": "Tasks"
+    },
+    {
+      "path": "/vital-signs",
+      "component": "VitalSigns"
+    },
+    {
+      "path": "/schedule",
+      "component": "Schedule"
+    },
+    {
+      "path": "/patients/:id",
+      "component": "PatientDetail"
+    },
+    {
+      "path": "/clinical-documentation",
+      "component": "ClinicalDocumentation"
+    },
+    {
+      "path": "/medications",
+      "component": "Medications"
+    },
+    {
+      "path": "/prescribe-medication",
+      "component": "PrescribeMedication"
+    },
+    {
+      "path": "/prescriptions",
+      "component": "Prescriptions"
+    },
+    {
+      "path": "/prescriptions/:id",
+      "component": "PrescriptionView"
+    },
+    {
+      "path": "/orders",
+      "component": "Orders"
+    },
+    {
+      "path": "/admin",
+      "component": "Admin"
+    },
+    {
+      "path": "/login",
+      "component": "Login"
+    },
+    {
+      "path": "/register",
+      "component": "RegisterPage"
+    },
+    {
+      "path": "/auth/callback",
+      "component": "AuthCallback"
+    },
+    {
+      "path": "/login",
+      "component": "Suspense"
+    },
+    {
+      "path": "/auth/callback",
+      "component": "Suspense"
     },
     {
       "path": "/",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
+    },
+    {
+      "path": "*",
+      "component": "Suspense"
+    },
+    {
+      "path": "/login",
+      "component": "Suspense"
+    },
+    {
+      "path": "/auth/callback",
+      "component": "Suspense"
+    },
+    {
+      "path": "/unauthorized",
+      "component": "Suspense"
+    },
+    {
+      "path": "/",
+      "component": "Suspense"
     },
     {
       "path": "dashboard",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "patients",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "patients/:id",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "patient-profile/:id",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "records",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "clinical-documentation",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "clinical-documentation/:id/:patientId",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "orders",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "medications",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "appointments",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "emergency/:patientId",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "settings",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "medications",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "prescribe-medication",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "prescriptions",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "prescriptions/:id",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "tasks",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "vital-signs",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "schedule",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "tasks",
-      "component": "Suspense fallback={<Loading /"
+      "component": "Suspense"
     },
     {
       "path": "/",
@@ -1198,27 +1503,27 @@
     },
     {
       "path": "/dashboard",
-      "component": "Unauthorized /"
+      "component": "Unauthorized"
     },
     {
       "path": "/",
-      "component": "Home /"
+      "component": "Home"
     },
     {
       "path": "/unauthorized",
-      "component": "Unauthorized /"
+      "component": "Unauthorized"
     },
     {
       "path": "*",
-      "component": "NotFound /"
+      "component": "NotFound"
     },
     {
       "path": "/translations/diagnostics",
-      "component": "TranslationDiagnostics /"
+      "component": "TranslationDiagnostics"
     },
     {
       "path": "/translations/admin",
-      "component": "MedicationTranslationsAdmin /"
+      "component": "MedicationTranslationsAdmin"
     }
   ],
   "orphanedPages": [
@@ -1278,112 +1583,6 @@
       "clinicalWorkflows": []
     },
     {
-      "path": "Admin.tsx",
-      "name": "Admin",
-      "imports": [
-        "react",
-        "@/components/ui/tabs",
-        "@/components/ui/card",
-        "@/hooks/useTranslation",
-        "@/context/AuthContext",
-        "@/hooks/usePermissions",
-        "@/components/admin/RolesList",
-        "@/components/admin/RolePermissionMatrix",
-        "@/components/admin/FunctionBlocksManager",
-        "@/components/auth/PendingApprovalList"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "Appointments.tsx",
-      "name": "Appointments",
-      "imports": [
-        "react",
-        "@tanstack/react-query",
-        "date-fns",
-        "lucide-react",
-        "@/components/ui/card",
-        "@/components/ui/button",
-        "@/components/ui/input",
-        "@/components/ui/tabs",
-        "@/components/ui/badge",
-        "@/components/ui/popover",
-        "@/components/ui/calendar",
-        "@/components/ui/select",
-        "@/components/ui/dialog",
-        "@/components/ui/label",
-        "@/components/ui/textarea",
-        "@/hooks/use-toast",
-        "@/hooks/useTranslation",
-        "@/components/layout/Header",
-        "@/components/layout/Sidebar",
-        "@/components/ui/loading-spinner",
-        "@/components/ErrorBoundary"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "patientVisitRegistration"
-      ]
-    },
-    {
-      "path": "AuthCallback.tsx",
-      "name": "AuthCallback",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "@/integrations/supabase/client"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "ClinicalDocumentation.tsx",
-      "name": "ClinicalDocumentation",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "@/context/AuthContext",
-        "@/hooks/useTranslation",
-        "@/components/ui/button",
-        "@/components/ui/textarea",
-        "@/components/ui/input",
-        "@/components/ui/card",
-        "@/components/ui/label",
-        "sonner",
-        "lucide-react",
-        "@/services/recordService",
-        "@/types/medicalRecordTypes",
-        "@/components/ui/select",
-        "@/components/ui/dialog",
-        "@/components/clinical-documentation/TemplateSelector",
-        "@tanstack/react-query",
-        "@/components/clinical-documentation/components/NoteSectionEditor"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
       "path": "CriticalResults.tsx",
       "name": "CriticalResults",
       "imports": [
@@ -1394,24 +1593,6 @@
         "@/components/ui/card",
         "@/context/AuthContext",
         "@/utils/permissions/roleChecks"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "Dashboard.tsx",
-      "name": "Dashboard",
-      "imports": [
-        "react",
-        "@/components/dashboard/RoleDashboardContainer",
-        "@/hooks/useTranslation",
-        "@/context/AuthContext",
-        "@/hooks/useSectorContext"
       ],
       "exports": [
         "export"
@@ -1487,26 +1668,6 @@
       "clinicalWorkflows": []
     },
     {
-      "path": "Home.tsx",
-      "name": "Home",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "lucide-react",
-        "@/components/ui/button",
-        "@/hooks/useTranslation",
-        "@/components/auth/LanguageToggle",
-        "@/context/AuthContext"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
       "path": "HospitalWorkflows.tsx",
       "name": "HospitalWorkflows",
       "imports": [
@@ -1536,24 +1697,6 @@
         "lucide-react",
         "../hooks/useTranslation",
         "@/components/common/TranslatedText"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "Login.tsx",
-      "name": "Login",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "../context/AuthContext",
-        "../utils/supabaseConnectivity",
-        "../components/auth/login/LoginContainer"
       ],
       "exports": [
         "export"
@@ -1625,40 +1768,6 @@
       ]
     },
     {
-      "path": "Medications.tsx",
-      "name": "Medications",
-      "imports": [
-        "react",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "../components/medications/MedicationsList",
-        "lucide-react",
-        "../hooks/useTranslation",
-        "@/components/ui/button",
-        "@/components/ui/tabs",
-        "@/components/ui/select",
-        "@/components/ui/sheet",
-        "@/components/ui/alert",
-        "@/components/ui/badge",
-        "@/components/ui/card",
-        "../components/medications/NewMedicationForm",
-        "../components/medications/drugInteractions/DrugInteractionChecker",
-        "../components/medications/reconciliation/MedicationReconciliation",
-        "../hooks/usePatient",
-        "@/context/AuthContext",
-        "@/utils/permissions/medicationManagement"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "prescriptionManagement"
-      ]
-    },
-    {
       "path": "Messages.tsx",
       "name": "Messages",
       "imports": [
@@ -1695,24 +1804,6 @@
       "clinicalWorkflows": []
     },
     {
-      "path": "NotFound.tsx",
-      "name": "NotFound",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "lucide-react",
-        "@/components/ui/button",
-        "@/hooks/useTranslation"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
       "path": "Notifications.tsx",
       "name": "Notifications",
       "imports": [
@@ -1732,62 +1823,12 @@
       "clinicalWorkflows": []
     },
     {
-      "path": "Orders.tsx",
-      "name": "Orders",
-      "imports": [
-        "react",
-        "@/components/ui/card",
-        "@/components/ui/button",
-        "@/types/orders",
-        "@/context/AuthContext",
-        "react-router-dom"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
       "path": "PageNotFound.tsx",
       "name": "PageNotFound",
       "imports": [
         "react",
         "@/components/ui/button",
         "react-router-dom"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "PatientDetail.tsx",
-      "name": "PatientDetail",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "@/components/layout/Header",
-        "@/components/layout/Sidebar",
-        "@/hooks/usePatientData",
-        "@/hooks/usePatientInsights",
-        "@/components/patients/hooks/usePatientPrescriptions",
-        "@/components/patients/detail/PatientDetailHeader",
-        "@/components/patients/detail/PatientDetailLoader",
-        "@/components/patients/PatientViewSelector",
-        "@/types/patientTypes",
-        "@/hooks/useSectorContext",
-        "@/components/ui/button",
-        "sonner",
-        "lucide-react",
-        "@/hooks/useTranslation",
-        "@/context/PatientContext",
-        "@/types/patient"
       ],
       "exports": [
         "export"
@@ -1822,122 +1863,6 @@
       "isReferenced": false,
       "potentiallyOrphaned": true,
       "clinicalWorkflows": []
-    },
-    {
-      "path": "Patients.tsx",
-      "name": "Patients",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "../components/patients/SectorPatientList",
-        "lucide-react",
-        "@/components/ui/button",
-        "@/components/ui/badge",
-        "@/components/ui/select",
-        "../hooks/useTranslation",
-        "@/hooks/useSectorContext",
-        "@/components/common/TranslatedText",
-        "@/components/ui/dropdown-menu",
-        "@/components/ui/LoadingOverlay",
-        "@/hooks/sector/useFilteredSectorPatients",
-        "@/components/patients/SectorPatientListPagination",
-        "sonner"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "PrescribeMedication.tsx",
-      "name": "PrescribeMedication",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "sonner",
-        "lucide-react",
-        "@/components/ui/button",
-        "@/components/ui/card",
-        "@/components/ui/input",
-        "@/components/ui/label",
-        "@/components/ui/textarea",
-        "@/components/ui/tabs",
-        "@/components/ui/select",
-        "@/components/ui/badge",
-        "@/components/ui/separator",
-        "@/components/ui/radio-group",
-        "@/components/ui/slider",
-        "@/components/ui/switch",
-        "@/hooks/useTranslation",
-        "@/context/AuthContext",
-        "@/components/medications/RxNormMedicationSelector",
-        "@/components/ui/alert"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "prescriptionManagement"
-      ]
-    },
-    {
-      "path": "PrescriptionView.tsx",
-      "name": "PrescriptionView",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "@/components/ui/card",
-        "@/components/ui/button",
-        "@/components/ui/badge",
-        "@/components/ui/tabs",
-        "@/components/ui/loading-spinner",
-        "lucide-react",
-        "date-fns",
-        "@/hooks/useTranslation",
-        "@/integrations/supabase/client",
-        "@/types/patient"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "prescriptionManagement"
-      ]
-    },
-    {
-      "path": "Prescriptions.tsx",
-      "name": "Prescriptions",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "@/components/ui/button",
-        "../context/AuthContext",
-        "../components/prescriptions",
-        "../services/prescriptionService",
-        "lucide-react"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "prescriptionManagement"
-      ]
     },
     {
       "path": "RecordView.tsx",
@@ -2060,36 +1985,6 @@
       "clinicalWorkflows": []
     },
     {
-      "path": "Schedule.tsx",
-      "name": "Schedule",
-      "imports": [
-        "react",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "lucide-react",
-        "@/components/ui/calendar",
-        "date-fns",
-        "@/lib/utils",
-        "@/components/ui/popover",
-        "@/components/ui/button",
-        "@/components/ui/input",
-        "@/components/ui/label",
-        "@/components/ui/textarea",
-        "@/components/ui/select",
-        "../hooks/useTranslation",
-        "sonner"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "patientVisitRegistration"
-      ]
-    },
-    {
       "path": "SectorSelection.tsx",
       "name": "SectorSelection",
       "imports": [
@@ -2105,28 +2000,6 @@
         "@/hooks/useSectorContext",
         "@/components/ui/empty-state",
         "@/components/sector/SectorSelectionSkeleton"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
-    },
-    {
-      "path": "Settings.tsx",
-      "name": "Settings",
-      "imports": [
-        "react",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "@/components/ui/tabs",
-        "../components/settings/ProfileSettings",
-        "../components/settings/SystemSettings",
-        "../components/settings/SecuritySettings",
-        "../components/settings/NotificationSettings",
-        "../hooks/useTranslation"
       ],
       "exports": [
         "export"
@@ -2162,33 +2035,6 @@
       ]
     },
     {
-      "path": "Tasks.tsx",
-      "name": "Tasks",
-      "imports": [
-        "react",
-        "@tanstack/react-query",
-        "@/hooks/use-toast",
-        "@/hooks/useTranslation",
-        "@/context/AuthContext",
-        "@/components/layout/Header",
-        "@/components/layout/Sidebar",
-        "@/components/tasks/card/TaskCardTypes",
-        "@/components/tasks/TaskCompletionForm",
-        "@/services/tasks",
-        "@/components/tasks/TaskPageHeader",
-        "@/components/tasks/TaskTabs"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "clinicalTaskExecution"
-      ]
-    },
-    {
       "path": "Telemedicine.tsx",
       "name": "Telemedicine",
       "imports": [
@@ -2209,21 +2055,6 @@
       "clinicalWorkflows": [
         "prescriptionManagement"
       ]
-    },
-    {
-      "path": "Unauthorized.tsx",
-      "name": "Unauthorized",
-      "imports": [
-        "react",
-        "@/components/auth/UnauthorizedAccessHandler"
-      ],
-      "exports": [
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": []
     },
     {
       "path": "VisitNotes.tsx",
@@ -2257,35 +2088,6 @@
       "potentiallyOrphaned": true,
       "clinicalWorkflows": [
         "patientVisitRegistration"
-      ]
-    },
-    {
-      "path": "VitalSigns.tsx",
-      "name": "VitalSigns",
-      "imports": [
-        "react",
-        "react-router-dom",
-        "../components/layout/Header",
-        "../components/layout/Sidebar",
-        "../hooks/useTranslation",
-        "@/components/ui/table",
-        "@/components/ui/button",
-        "lucide-react",
-        "@/components/patients/PatientVitals",
-        "@/integrations/supabase/client",
-        "@/hooks/useAsync",
-        "@/hooks/usePermissions",
-        "@/context/AuthContext"
-      ],
-      "exports": [
-        "export",
-        "export"
-      ],
-      "referencedIn": [],
-      "isReferenced": false,
-      "potentiallyOrphaned": true,
-      "clinicalWorkflows": [
-        "clinicalTaskExecution"
       ]
     }
   ],
@@ -2356,9 +2158,15 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/medications",
+          "/medications",
+          "/medications",
+          "/medications",
+          "/medications"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "prescriptionManagement"
         ]
@@ -2391,9 +2199,13 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/prescribe-medication",
+          "/prescribe-medication",
+          "/prescribe-medication"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "prescriptionManagement"
         ]
@@ -2418,9 +2230,14 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/prescriptions/:id",
+          "/prescriptions/:id",
+          "/prescriptions/:id",
+          "/prescriptions/:id"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "prescriptionManagement"
         ]
@@ -2442,9 +2259,14 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/prescriptions",
+          "/prescriptions",
+          "/prescriptions",
+          "/prescriptions"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "prescriptionManagement"
         ]
@@ -2544,9 +2366,14 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/tasks",
+          "/tasks",
+          "/tasks",
+          "/tasks"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "clinicalTaskExecution"
         ]
@@ -2573,9 +2400,14 @@
           "export",
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/vital-signs",
+          "/vital-signs",
+          "/vital-signs",
+          "/vital-signs"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "clinicalTaskExecution"
         ]
@@ -2611,9 +2443,13 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/appointments",
+          "/appointments",
+          "/appointments"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "patientVisitRegistration"
         ]
@@ -2641,9 +2477,14 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/schedule",
+          "/schedule",
+          "/schedule",
+          "/schedule"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": [
           "patientVisitRegistration"
         ]
@@ -2757,9 +2598,12 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/admin",
+          "/admin"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -2773,9 +2617,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/auth/callback"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -2804,9 +2650,16 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/clinical-documentation",
+          "/clinical-documentation/:id/:patientId",
+          "/clinical-documentation",
+          "/clinical-documentation/:id/:patientId",
+          "/clinical-documentation",
+          "/clinical-documentation"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -2842,9 +2695,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/dashboard"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -2901,9 +2756,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -2958,9 +2815,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/login"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -3035,9 +2894,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "*"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -3073,9 +2934,13 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/orders",
+          "/orders",
+          "/orders"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -3120,9 +2985,14 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/patients/:id",
+          "/patients/:id",
+          "/patients/:id",
+          "/patients/:id"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -3176,9 +3046,16 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/patients",
+          "/patients",
+          "/patients",
+          "/patients",
+          "/patients",
+          "/patients"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -3343,9 +3220,11 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/settings"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       },
       {
@@ -3358,9 +3237,13 @@
         "exports": [
           "export"
         ],
-        "referencedIn": [],
-        "isReferenced": false,
-        "potentiallyOrphaned": true,
+        "referencedIn": [
+          "/unauthorized",
+          "/dashboard",
+          "/unauthorized"
+        ],
+        "isReferenced": true,
+        "potentiallyOrphaned": false,
         "clinicalWorkflows": []
       }
     ]

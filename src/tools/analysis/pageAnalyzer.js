@@ -74,13 +74,34 @@ async function analyzePages() {
   console.log(`Pages directory: ${pagesDir}`);
   console.log(`Routes directory: ${routesDir}`);
   
+  // Validate directories exist
+  if (!fs.existsSync(pagesDir)) {
+    console.error(`Pages directory not found: ${pagesDir}`);
+    return null;
+  }
+
+  if (!fs.existsSync(routesDir)) {
+    console.error(`Routes directory not found: ${routesDir}`);
+    return null;
+  }
+  
   // Get all pages
   const pages = await getAllPages(pagesDir);
   console.log(`Found ${pages.length} pages`);
   
+  // Validate pages were found
+  if (pages.length === 0) {
+    console.warn('No pages found. Check the pages directory path and file patterns.');
+  }
+  
   // Get all routes
   const routes = await getAllRoutes(routesDir);
   console.log(`Found ${routes.length} routes`);
+  
+  // Validate routes were found
+  if (routes.length === 0) {
+    console.warn('No routes found. Check the routes directory path and file patterns.');
+  }
   
   // Check which pages are referenced in routes
   const pagesWithReferenceInfo = checkPageReferences(pages, routes);
@@ -202,21 +223,97 @@ async function getAllRoutes(routesDir) {
         const content = fs.readFileSync(fullPath, 'utf-8');
         
         try {
-          // Extract route definitions (simplified)
-          // In a real implementation, we would use a proper AST traversal
-          const routeMatches = content.match(/path:\s*['"]([^'"]+)['"]/g) || [];
-          const componentMatches = content.match(/component:\s*<([^>]+)>|element:\s*<([^>]+)>/g) || [];
-          
-          // For simplicity, we're just counting routes
-          for (let i = 0; i < routeMatches.length; i++) {
-            const pathMatch = routeMatches[i].match(/path:\s*['"]([^'"]+)['"]/);
-            const componentMatch = componentMatches[i]?.match(/component:\s*<([^>]+)>|element:\s*<([^>]+)>/);
+          // Special handling for RouteConfig.ts
+          if (fullPath.endsWith('RouteConfig.ts') || fullPath.endsWith('RouteConfig.js')) {
+            try {
+              const routeDefMatches = content.match(/path:\s*['"]([^'"]+)['"]\s*,\s*component:\s*['"]([^'"]+)['"]/g) || [];
+              
+              for (const match of routeDefMatches) {
+                const pathMatch = match.match(/path:\s*['"]([^'"]+)['"]/);
+                const componentMatch = match.match(/component:\s*['"]([^'"]+)['"]/);
+                
+                if (pathMatch && componentMatch) {
+                  routes.push({
+                    path: pathMatch[1],
+                    component: componentMatch[1].trim()
+                  });
+                }
+              }
+            } catch (error) {
+              console.error(`Error parsing RouteConfig at ${fullPath}:`, error);
+            }
+          } else if (fullPath.endsWith('index.tsx') || fullPath.endsWith('index.jsx')) {
+            // Special handling for index.tsx which uses lazy loading
+            try {
+              // Extract lazy loaded components
+              const lazyLoadMatches = content.match(/const\s+(\w+)\s*=\s*lazy\(\s*\(\)\s*=>\s*import\([^)]*['"]\.\.\/pages\/([^'"]+)['"]\)/g) || [];
+              
+              for (const match of lazyLoadMatches) {
+                const componentMatch = match.match(/const\s+(\w+)\s*=/);
+                const importMatch = match.match(/import\([^)]*['"]\.\.\/pages\/([^'"]+)['"]\)/);
+                
+                if (componentMatch && importMatch) {
+                  const componentName = componentMatch[1];
+                  const importPath = importMatch[1].replace(/\.tsx$|\.jsx$|\.ts$|\.js$/, '');
+                  
+                  // Find route paths that use this component
+                  const routeRegex = new RegExp(`path:\\s*['"]([^'"]+)['"][^}]*${componentName}`, 'g');
+                  const routeMatches = content.match(routeRegex) || [];
+                  
+                  for (const routeMatch of routeMatches) {
+                    const pathMatch = routeMatch.match(/path:\s*['"]([^'"]+)['"]/);
+                    if (pathMatch) {
+                      routes.push({
+                        path: pathMatch[1],
+                        component: importPath.split('/').pop() // Get the base name of the import path
+                      });
+                    }
+                  }
+                }
+              }
+              
+              // Also look for direct element references
+              const elementMatches = content.match(/element:\s*<([^>]+)>/g) || [];
+              const pathMatches = content.match(/path:\s*['"]([^'"]+)['"]/g) || [];
+              
+              for (let i = 0; i < Math.min(elementMatches.length, pathMatches.length); i++) {
+                const pathMatch = pathMatches[i].match(/path:\s*['"]([^'"]+)['"]/);
+                const elementMatch = elementMatches[i].match(/element:\s*<([^>]+)>/);
+                
+                if (pathMatch && elementMatch) {
+                  const componentName = elementMatch[1].split(' ')[0]; // Get the component name without props
+                  routes.push({
+                    path: pathMatch[1],
+                    component: componentName
+                  });
+                }
+              }
+            } catch (error) {
+              console.error(`Error parsing index.tsx at ${fullPath}:`, error);
+            }
+          } else {
+            // Extract route definitions (simplified)
+            // In a real implementation, we would use a proper AST traversal
+            const routeMatches = content.match(/path:\s*['"]([^'"]+)['"]/g) || [];
+            // Updated regex to match both JSX and string formats
+            const componentMatches = content.match(/component:\s*(?:<([^>]+)>|['"]([^'"]+)['"])|element:\s*(?:<([^>]+)>|['"]([^'"]+)['"])/g) || [];
             
-            if (pathMatch && componentMatch) {
-              routes.push({
-                path: pathMatch[1],
-                component: (componentMatch[1] || componentMatch[2]).trim()
-              });
+            console.log(`Found ${routeMatches.length} paths and ${componentMatches.length} components in ${fullPath}`);
+            
+            // For simplicity, we're just counting routes
+            for (let i = 0; i < routeMatches.length; i++) {
+              const pathMatch = routeMatches[i].match(/path:\s*['"]([^'"]+)['"]/);
+              const componentMatch = componentMatches[i]?.match(/component:\s*(?:<([^>]+)>|['"]([^'"]+)['"])|element:\s*(?:<([^>]+)>|['"]([^'"]+)['"])/);
+              
+              if (pathMatch && componentMatch) {
+                const component = componentMatch[1] || componentMatch[2] || componentMatch[3] || componentMatch[4];
+                // Clean up component name (remove props, etc.)
+                const cleanComponent = component.trim().split(' ')[0];
+                routes.push({
+                  path: pathMatch[1],
+                  component: cleanComponent
+                });
+              }
             }
           }
         } catch (error) {
@@ -237,28 +334,73 @@ async function getAllRoutes(routesDir) {
  * @returns {PageInfo[]} - Array of page info objects with reference information
  */
 function checkPageReferences(pages, routes) {
-  // Create a map of component names to pages
+  console.log('Starting page reference check...');
+  console.log(`Pages count: ${pages.length}, Routes count: ${routes.length}`);
+  
+  // Debug: Log all page names and route components
+  console.log('Page names:', pages.map(p => p.name));
+  console.log('Route components:', routes.map(r => r.component));
+  
+  // Create a map of component names to pages with multiple ways to match
   const pageMap = new Map();
   pages.forEach(page => {
+    // Standard mapping
     pageMap.set(page.name, page);
-  });
-  
-  // Check which pages are referenced in routes
-  routes.forEach(route => {
-    const componentName = route.component;
     
-    // Check if the component is a page
-    if (pageMap.has(componentName)) {
-      const page = pageMap.get(componentName);
-      page.referencedIn.push(route.path);
-      page.isReferenced = true;
+    // Case-insensitive mapping
+    pageMap.set(page.name.toLowerCase(), page);
+    
+    // Handle common variations (e.g., "PageNotFound" might be referenced as "NotFound")
+    if (page.name.endsWith('Page')) {
+      pageMap.set(page.name.replace(/Page$/, ''), page);
+    }
+    
+    // Handle potential path-based matching
+    const baseName = page.path.split('/').pop().replace(/\.(tsx|jsx|ts|js)$/, '');
+    if (baseName !== page.name) {
+      pageMap.set(baseName, page);
     }
   });
   
+  // Check which pages are referenced in routes
+  let matchCount = 0;
+  routes.forEach(route => {
+    const componentName = route.component;
+    console.log(`Checking route component: ${componentName}`);
+    
+    // Try exact match first
+    if (pageMap.has(componentName)) {
+      console.log(`✅ Found exact match for ${componentName}`);
+      const page = pageMap.get(componentName);
+      page.referencedIn.push(route.path);
+      page.isReferenced = true;
+      matchCount++;
+    }
+    // Try case-insensitive match
+    else if (pageMap.has(componentName.toLowerCase())) {
+      console.log(`✅ Found case-insensitive match for ${componentName}`);
+      const page = pageMap.get(componentName.toLowerCase());
+      page.referencedIn.push(route.path);
+      page.isReferenced = true;
+      matchCount++;
+    }
+    else {
+      console.log(`❌ No match found for ${componentName}`);
+    }
+  });
+  
+  console.log(`Found ${matchCount} matches out of ${routes.length} routes`);
+  
   // Mark pages as potentially orphaned if they are not referenced
+  let orphanedCount = 0;
   pages.forEach(page => {
     page.potentiallyOrphaned = !page.isReferenced;
+    if (page.potentiallyOrphaned) {
+      orphanedCount++;
+    }
   });
+  
+  console.log(`Identified ${orphanedCount} potentially orphaned pages out of ${pages.length} total pages`);
   
   return pages;
 }

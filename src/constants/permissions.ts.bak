@@ -27,5 +27,4 @@ export const PERMISSIONS = {
   APPOINTMENTS_MANAGE: 'appointments:manage',
   SCHEDULE_VIEW: 'schedule:view',
   SCHEDULE_MANAGE: 'schedule:manage',
-
-  VIEW_CRITICAL_RESULTS: 'view_critical_results',};
+};
