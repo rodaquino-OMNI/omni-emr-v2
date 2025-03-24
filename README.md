@@ -44,10 +44,10 @@ Streamlined communication across care teams:
 ## 📊 Project Statistics
 
 ### Database Statistics
-- **Total Tables**: 31 tables in the Supabase database
+- **Total Tables**: 35+ tables in the Supabase database
 - **Key Tables**: patients, observations, prescriptions, medications_inventory, clinical_notes
-- **Database Functions**: 41 defined PostgreSQL functions
-- **Triggers**: 24 database triggers for data integrity
+- **Database Functions**: 40+ defined PostgreSQL functions
+- **Triggers**: 25+ database triggers for data integrity
 
 ### Code Structure
 - **Components**: Approximately 250+ React components
