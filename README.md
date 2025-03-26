@@ -27,10 +27,13 @@ Designed with healthcare professionals in mind:
 
 Enterprise-grade security you can trust:
 - HIPAA & LGPD Compliant for both U.S. and Brazilian standards
+- Row Level Security (RLS) implemented at the database level
 - Role-based access controls with granular permissions
+- Sector-based access control for organizational units
 - Advanced audit logging for complete traceability
 - Multi-factor authentication for enhanced security
 - Session timeout controls for inactive users
+- Encryption for sensitive data at rest and in transit
 
 ### 💬 Communication Tools
 
@@ -44,15 +47,22 @@ Streamlined communication across care teams:
 
 ### Database Statistics
 - **Total Tables**: 35+ tables in the Supabase database
-- **Key Tables**: patients, observations, prescriptions, medications_inventory, clinical_notes
+- **Key Tables**: users, patients, appointments, visits, medications, prescriptions
+- **Authentication Tables**: users, permissions, user_permissions
+- **Clinical Tables**: vital_signs, clinical_notes, allergies
+- **Operational Tables**: tasks, messages, alerts, audit_logs
 - **Database Functions**: 40+ defined PostgreSQL functions
 - **Triggers**: 25+ database triggers for data integrity
+- **Indexes**: Extensive use of indexes for performance optimization
+- **Views**: Materialized views for performance (e.g., patient_latest_vitals)
 
 ### Code Structure
-- **Components**: Approximately 250+ React components
-- **Hooks**: 30+ custom hooks for various functionalities
-- **Services**: Multiple service layers for data access (RxNorm, patients, prescriptions)
+- **Components**: Approximately 250+ React components organized by domain/feature
+- **Hooks**: 67+ custom hooks for various functionalities
+- **Services**: 14+ service modules with multiple sub-services
 - **Utility Files**: Numerous utility functions for permissions, authentication, and data processing
+- **Total Source Files**: 923 files (95.9% TypeScript/JavaScript)
+- **Total Lines of Code**: 88,195 lines in src directory
 
 ### Medical System Features
 - **RxNorm Integration**: Complete medication database with translation support (English/Portuguese)
@@ -65,6 +75,11 @@ Streamlined communication across care teams:
 - **Caching**: Implementation of local and database caching for medication searches
 - **Translation Support**: Bilingual interface with complete language-switching capabilities
 - **Security Features**: MFA support, audit logging, and session timeout controls
+- **Optimization Techniques**:
+  - React.memo for pure components
+  - useMemo and useCallback for performance-critical sections
+  - Code splitting for optimized bundle size
+  - Virtualization for long lists
 
 ### Technical Highlights
 - Intelligent drug interaction detection system
@@ -72,6 +87,10 @@ Streamlined communication across care teams:
 - FHIR data model support for healthcare interoperability
 - Comprehensive audit logging for regulatory compliance
 - Fluid balance tracking for clinical care
+- Provider Pattern with React Context for global state management
+- Repository Pattern for data access abstraction
+- Component Composition for building complex UI from smaller parts
+- Role-Based Access Control with fine-grained permissions
 
 ## 🛠️ Developer Tools
 
@@ -106,7 +125,8 @@ node orphaned-pages-manager.js validate --verbose
 - A Supabase account and project
 - PostgreSQL knowledge for database management
 - Domain name (for production deployment)
-- SSL certificate (recommended for HIPAA compliance)
+- SSL certificate (required for HIPAA compliance)
+- Vitest for running tests (configured in the project)
 
 ### 1. Environment Setup
 
@@ -246,15 +266,40 @@ node orphaned-pages-manager.js validate --verbose
    - Consider server-side rendering for improved initial load times
    - Optimize bundle size with code splitting
 
+### 7. Testing Framework
+
+1. **Testing Tools**
+   - Vitest configured as the primary testing framework
+   - Testing utilities from @testing-library/react
+   - Test configuration in vitest.config.ts
+
+2. **Current Test Coverage**
+   - Unit tests for critical components
+   - Integration tests for key workflows
+   - Opportunity for expanded test coverage
+
+3. **Running Tests**
+   ```sh
+   # Run all tests
+   npm test
+   
+   # Run tests in watch mode
+   npm run test:watch
+   ```
+
 ## 💻 Technology Stack
 
 OmniCare is built with modern technologies:
 
 - **Frontend**: React, TypeScript, Vite
-- **UI**: Tailwind CSS, shadcn-ui components
-- **State Management**: React Context API, TanStack Query
+- **UI**: Tailwind CSS, shadcn-ui components, Radix UI (accessible primitives)
+- **State Management**: React Context API, TanStack Query (React Query)
 - **Authentication**: Supabase Auth
 - **Database**: PostgreSQL (via Supabase)
+- **Form Handling**: React Hook Form, Zod (schema validation)
+- **Data Visualization**: Recharts
+- **Utilities**: date-fns (date manipulation), crypto-js (encryption)
+- **Routing**: React Router with role-based access control
 
 ---
 
