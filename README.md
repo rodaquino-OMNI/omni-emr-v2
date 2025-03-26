@@ -57,12 +57,12 @@ Streamlined communication across care teams:
 - **Views**: Materialized views for performance (e.g., patient_latest_vitals)
 
 ### Code Structure
-- **Components**: Approximately 250+ React components organized by domain/feature
-- **Hooks**: 67+ custom hooks for various functionalities
-- **Services**: 14+ service modules with multiple sub-services
+- **Components**: 501 React components organized by domain/feature
+- **Hooks**: 72 custom hooks for various functionalities
+- **Services**: 69 service modules with multiple sub-services
 - **Utility Files**: Numerous utility functions for permissions, authentication, and data processing
-- **Total Source Files**: 923 files (95.9% TypeScript/JavaScript)
-- **Total Lines of Code**: 88,195 lines in src directory
+- **Total Source Files**: 1018 files (92.3% TypeScript/JavaScript)
+- **Total Lines of Code**: 88,493 lines in src directory
 
 ### Medical System Features
 - **RxNorm Integration**: Complete medication database with translation support (English/Portuguese)

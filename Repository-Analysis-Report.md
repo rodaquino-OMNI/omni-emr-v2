@@ -3,12 +3,12 @@
 ## 1. Code Metrics
 
 ### File and Component Statistics
-- **Total Source Files**: 923 files
-- **TypeScript/JavaScript Files**: 885 files (95.9%)
-- **Total Lines of Code**: 88,195 lines in src directory
-- **React Components**: Approximately 250+ components organized by domain/feature
-- **Custom Hooks**: 67+ custom hooks for various functionalities
-- **Services**: 14+ service modules with multiple sub-services
+- **Total Source Files**: 1018 files
+- **TypeScript/JavaScript Files**: 940 files (92.3%)
+- **Total Lines of Code**: 88,493 lines in src directory
+- **React Components**: 501 components organized by domain/feature
+- **Custom Hooks**: 72 custom hooks for various functionalities
+- **Services**: 69 service modules with multiple sub-services
 
 ### Directory Structure
 The codebase follows a well-organized domain-driven structure:
@@ -25,14 +25,14 @@ The codebase follows a well-organized domain-driven structure:
 
 ## 2. Language Distribution
 
-- **TypeScript React (.tsx)**: 566 files (61.3%)
-- **TypeScript (.ts)**: 295 files (32.0%)
-- **JavaScript (.js)**: 24 files (2.6%)
-- **Markdown (.md)**: 22 files (2.4%)
-- **JSON (.json)**: 14 files (1.5%)
-- **CSS (.css)**: 2 files (0.2%)
+- **TypeScript React (.tsx)**: 566 files (55.6%)
+- **TypeScript (.ts)**: 295 files (29.0%)
+- **JavaScript (.js)**: 79 files (7.8%)
+- **Markdown (.md)**: 24 files (2.4%)
+- **JSON (.json)**: 14 files (1.4%)
+- **CSS (.css)**: 3 files (0.3%)
 
-The codebase is predominantly TypeScript (93.3% combined), showing a strong commitment to type safety. JavaScript usage is minimal and likely for specific utility scripts or legacy code.
+The codebase is predominantly TypeScript (84.6% combined), showing a strong commitment to type safety. JavaScript usage has increased from previous analysis, suggesting more utility scripts or tools have been added.
 
 ### Primary Purpose by Language
 - **TypeScript (.ts)**: Core business logic, services, utilities, and type definitions
