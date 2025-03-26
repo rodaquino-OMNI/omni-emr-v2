@@ -43,7 +43,7 @@ export const translations: Translations = {
     criticalResults: "Critical Results",
 
     roleManagement: "Role Management",
-    medicationAdministration: "Medication Administration"
+    medicationAdministration: "Medication Administration",
 
     taskDetail: "Task Detail",
     visitNotes: "Visit Notes",  },
@@ -75,7 +75,7 @@ export const translations: Translations = {
     criticalResults: "Resultados Críticos",
 
     roleManagement: "Gerenciamento de Funções",
-    medicationAdministration: "Administração de Medicamentos"
+    medicationAdministration: "Administração de Medicamentos",
 
     visitNotes: "Notas de Consulta",
     taskDetail: "Detalhes da Tarefa",  }

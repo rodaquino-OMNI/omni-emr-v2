@@ -7,9 +7,15 @@ import SidebarContent from './SidebarContent';
 import { SidebarMobileToggle, SidebarCloseButton } from './SidebarToggle';
 
 const Sidebar = () => {
+  // Use actual mobile detection instead of forcing mobile view
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  
+  // Debug logging to help diagnose issues
+  useEffect(() => {
+    console.log('Sidebar state:', { isMobile, isOpen });
+  }, [isMobile, isOpen]);
   
   // Close the sidebar on mobile when route changes
   useEffect(() => {
@@ -19,24 +25,30 @@ const Sidebar = () => {
   }, [location.pathname, isMobile, isOpen]);
   
   const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+    const newState = !isOpen;
+    console.log('Toggling sidebar from', isOpen, 'to', newState);
+    setIsOpen(newState);
   };
   
   if (isMobile) {
+    // Mobile sidebar implementation
     return (
       <>
+        {/* Mobile toggle button */}
         <SidebarMobileToggle onClick={toggleSidebar} />
         
+        {/* Backdrop overlay when sidebar is open */}
         {isOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
             onClick={toggleSidebar}
           />
         )}
         
+        {/* Mobile sidebar */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-border shadow-lg transform transition-transform duration-200 ease-in-out lg:hidden",
+            "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-border shadow-lg transform transition-transform duration-200 ease-in-out",
             isOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
@@ -50,6 +62,7 @@ const Sidebar = () => {
     );
   }
   
+  // Desktop sidebar implementation
   return (
     <div className="hidden lg:flex lg:w-64 flex-col h-screen sticky top-0 border-r border-border bg-background z-10">
       <SidebarContent />

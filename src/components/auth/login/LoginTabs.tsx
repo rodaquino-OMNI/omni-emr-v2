@@ -83,12 +83,21 @@ const LoginTabs: React.FC<LoginTabsProps> = ({
   remainingLockoutTime = 0
 }) => {
   const handleTabChange = (value: string) => {
+    console.log('LoginTabs: Tab changed to', value);
+    console.log('LoginTabs: Current validation errors before tab change:', validationErrors);
+    
     if (setActiveView) {
       setActiveView(value as 'email' | 'phone' | 'social');
     }
+    
     if (clearEmailError) {
+      console.log('LoginTabs: Clearing email error');
       clearEmailError();
     }
+    
+    // Reset validation errors when changing tabs
+    console.log('LoginTabs: Resetting validation errors');
+    setValidationErrors({});
   };
 
   return (

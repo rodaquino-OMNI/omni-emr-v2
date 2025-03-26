@@ -2,24 +2,39 @@ import { useQuery } from '@tanstack/react-query';
 import { Patient } from '@/types/patient';
 import { supabase } from '@/integrations/supabase/client';
 import { PatientStatus } from '@/types/patientTypes';
+import { PostgrestError } from '@supabase/supabase-js';
 
 export const usePatientsByStatus = (sectorId?: string) => {
-  const fetchPatients = async () => {
-    let query = supabase
-      .from('patients')
-      .select('*');
-    
-    if (sectorId) {
-      query = query.eq('sector_id', sectorId);
+  const fetchPatients = async (): Promise<Patient[]> => {
+    try {
+      // Execute the query with proper type handling
+      let result;
+      
+      if (sectorId) {
+        result = await supabase
+          .from('patients')
+          .select('*')
+          .eq('sector_id', sectorId);
+      } else {
+        result = await supabase
+          .from('patients')
+          .select('*');
+      }
+      
+      const { data, error } = result;
+      
+      if (error) {
+        console.error('Error fetching patients:', error);
+        throw error;
+      }
+      
+      // Always return an array, even if data is null or undefined
+      return (data || []) as Patient[];
+    } catch (err) {
+      console.error('Error in fetchPatients:', err);
+      // Return empty array instead of undefined on error
+      return [] as Patient[];
     }
-    
-    const { data, error } = await query;
-    
-    if (error) {
-      throw error;
-    }
-    
-    return data as Patient[];
   };
 
   const { data, isLoading, error } = useQuery({

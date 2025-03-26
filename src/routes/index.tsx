@@ -275,5 +275,46 @@ export const routes: RouteObject[] = [
 ];
 
 export default function AppRouter() {
-  return <RouterProvider router={createBrowserRouter(routes)} />;
+  const [router, setRouter] = React.useState<ReturnType<typeof createBrowserRouter> | null>(null);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  React.useEffect(() => {
+    try {
+      // Create the router inside a try-catch block
+      const newRouter = createBrowserRouter(routes);
+      setRouter(newRouter);
+      console.log('Router created successfully');
+    } catch (err) {
+      // Log and handle the error
+      console.error('Error creating router:', err);
+      setError(err instanceof Error ? err : new Error('Unknown router error'));
+    }
+  }, []);
+
+  // If there was an error creating the router, show a fallback UI
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="bg-destructive/10 border border-destructive text-destructive p-4 rounded-md max-w-md w-full">
+          <h2 className="text-lg font-semibold mb-2">Router Error</h2>
+          <p className="mb-4">There was an error initializing the application routes.</p>
+          <p className="text-sm font-mono bg-background/50 p-2 rounded">{error.message}</p>
+          <button
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md"
+            onClick={() => window.location.reload()}
+          >
+            Reload Application
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show a loading state while the router is being created
+  if (!router) {
+    return <Loading />;
+  }
+
+  // Render the router once it's created successfully
+  return <RouterProvider router={router} />;
 }

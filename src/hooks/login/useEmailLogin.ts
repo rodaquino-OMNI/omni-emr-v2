@@ -46,9 +46,19 @@ export const useEmailLogin = (language: Languages) => {
     if (error) setError(null);
   }, [error]);
   
+  // Add debugging to track state changes
   useEffect(() => {
+    console.log('useEmailLogin: email changed:', email);
+    // Only clear error when email changes, not when password changes
     clearError();
-  }, [email, password, clearError]);
+  }, [email, clearError]);
+  
+  // Separate effect for password changes
+  useEffect(() => {
+    console.log('useEmailLogin: password changed:', password ? '(password provided)' : '(no password)');
+    // Only clear error when password changes, not when email changes
+    clearError();
+  }, [password, clearError]);
   
   const handleEmailSubmit = useCallback(async (e: React.FormEvent, validateForm: () => boolean): Promise<void> => {
     e.preventDefault();

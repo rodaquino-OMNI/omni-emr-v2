@@ -1,4 +1,3 @@
-
 # OmniCare
 
 ## A Revolutionary Healthcare Management System
@@ -73,6 +72,31 @@ Streamlined communication across care teams:
 - FHIR data model support for healthcare interoperability
 - Comprehensive audit logging for regulatory compliance
 - Fluid balance tracking for clinical care
+
+## 🛠️ Developer Tools
+
+### Orphaned Pages Management
+
+OmniCare includes a unified system for managing orphaned pages (pages that exist but are not properly referenced in the application's routing configuration):
+
+- **Unified Script**: `orphaned-pages-manager.js` provides a command-line interface for analyzing, reintegrating, and validating orphaned pages
+- **Modular Architecture**: The system is built with a modular architecture in `src/tools/orphaned-pages/`
+- **Comprehensive Documentation**: `Orphaned-Pages-Management.md` provides detailed information about the system
+
+#### Usage
+
+```bash
+# Analyze orphaned pages
+node orphaned-pages-manager.js analyze
+
+# Reintegrate pages by category
+node orphaned-pages-manager.js reintegrate --category=clinicalWorkflow
+
+# Validate integration status
+node orphaned-pages-manager.js validate --verbose
+```
+
+> Note: Legacy orphaned pages documentation and scripts have been archived in `archive/orphaned-pages/`
 
 ## 🚀 Production Deployment Guide
 

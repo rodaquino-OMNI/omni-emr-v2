@@ -131,6 +131,14 @@ const config: Config = {
 						transform: 'translateY(10px)',
 						opacity: '0'
 					}
+				},
+				'pulse-slow': {
+					'0%, 100%': {
+						opacity: '1'
+					},
+					'50%': {
+						opacity: '0.7'
+					}
 				}
 			},
 			animation: {
@@ -139,7 +147,8 @@ const config: Config = {
 				'fade-in': 'fade-in 0.2s ease-out',
 				'fade-out': 'fade-out 0.2s ease-out',
 				'slide-in': 'slide-in 0.2s ease-out',
-				'slide-out': 'slide-out 0.2s ease-out'
+				'slide-out': 'slide-out 0.2s ease-out',
+				'pulse-slow': 'pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			},
 			boxShadow: {
 				'glass': '0 4px 30px rgba(0, 0, 0, 0.1)',

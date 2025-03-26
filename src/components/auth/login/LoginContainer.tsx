@@ -81,11 +81,23 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
     console.log('LoginContainer: handleEmailFormSubmit called');
     console.log('LoginContainer: Email:', email);
     console.log('LoginContainer: Password:', password ? '(password provided)' : '(no password)');
+    console.log('LoginContainer: ValidationErrors:', validationErrors);
+    
     e.preventDefault();
-    if (validateEmailPassword(email, password, forgotPassword)) {
+    
+    // Create a local copy of the validation state to avoid race conditions
+    const isValid = validateEmailPassword(email, password, forgotPassword);
+    
+    if (isValid) {
       console.log('LoginContainer: Validation passed, calling handleEmailSubmit');
       try {
-        await handleEmailSubmit(e, () => validateEmailPassword(email, password, forgotPassword));
+        // Use a local validation function that doesn't modify state
+        const validateWithoutStateChange = () => {
+          console.log('LoginContainer: Running validation without state change');
+          return validateEmailPassword(email, password, forgotPassword);
+        };
+        
+        await handleEmailSubmit(e, validateWithoutStateChange);
         console.log('LoginContainer: handleEmailSubmit completed');
       } catch (error) {
         console.error('LoginContainer: Error in handleEmailSubmit:', error);
@@ -93,6 +105,7 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
     } else {
       console.log('LoginContainer: Validation failed');
     }
+    
     return Promise.resolve();
   };
   
@@ -116,7 +129,13 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
   
   // Reset validation errors when tab changes
   useEffect(() => {
-    setValidationErrors({});
+    console.log('LoginContainer: activeView changed to', activeView);
+    console.log('LoginContainer: Resetting validation errors');
+    
+    // Use a callback to ensure we're not depending on stale state
+    setValidationErrors(() => {
+      return {};
+    });
   }, [activeView, setValidationErrors]);
   
   return (
@@ -134,20 +153,52 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
           <LoginErrorAlert error={loginError} language={language} />
           <ApprovalPendingAlert pendingApproval={pendingApproval} language={language} />
           
+          {/* Add debugging to track props being passed to LoginTabs */}
+          {(() => {
+            console.log('LoginContainer: Rendering LoginTabs with props', {
+              activeView,
+              email,
+              password: password ? '(password provided)' : '(no password)',
+              validationErrors,
+              forgotPassword,
+              isEmailSubmitting,
+              isPhoneSubmitting,
+              verificationSent,
+              isLockedOut
+            });
+            return null;
+          })()}
+          
           <LoginTabs
             activeView={activeView}
+            setActiveView={(view) => {
+              console.log('LoginContainer: setActiveView called with', view);
+              setActiveView(view);
+            }}
             email={email}
-            setEmail={setEmail}
+            setEmail={(value) => {
+              console.log('LoginContainer: setEmail called with', value);
+              setEmail(value);
+            }}
             password={password}
-            setPassword={setPassword}
+            setPassword={(value) => {
+              console.log('LoginContainer: setPassword called with', value ? '(password provided)' : '(no password)');
+              setPassword(value);
+            }}
             handleEmailFormSubmit={handleEmailFormSubmit}
             isEmailSubmitting={isEmailSubmitting}
             validationErrors={validationErrors}
-            setValidationErrors={setValidationErrors}
+            setValidationErrors={(errors) => {
+              console.log('LoginContainer: setValidationErrors called with', errors);
+              setValidationErrors(errors);
+            }}
             language={language}
             t={t}
             forgotPassword={forgotPassword}
-            toggleForgotPassword={toggleForgotPassword}
+            toggleForgotPassword={() => {
+              console.log('LoginContainer: toggleForgotPassword called');
+              toggleForgotPassword();
+            }}
             
             phone={phone}
             setPhone={setPhone}
@@ -155,7 +206,10 @@ const LoginContainer: React.FC<LoginContainerProps> = ({ isSupabaseConnected = t
             setVerificationCode={setVerificationCode}
             handlePhoneFormSubmit={handlePhoneFormSubmit}
             handleVerifyFormSubmit={handleVerifyFormSubmit}
-            clearEmailError={clearEmailError}
+            clearEmailError={() => {
+              console.log('LoginContainer: clearEmailError called');
+              clearEmailError();
+            }}
             isPhoneSubmitting={isPhoneSubmitting}
             verificationSent={verificationSent}
             resetPhoneForm={resetPhoneForm}

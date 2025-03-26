@@ -241,6 +241,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
     }
   ],
   'nurse': [
+    // Patient-related routes
     {
       path: '/patients',
       component: 'Patients',
@@ -251,22 +252,10 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       icon: 'Users',
     },
     {
-      path: '/critical-results',
-      component: 'CriticalResults',
-      requiredPermission: 'view_critical_results',
+      path: '/patients/:id',
+      component: 'PatientDetail',
+      requiredPermission: 'patients:view',
       requireSector: true,
-      title: 'Critical Results',
-      description: 'View and manage critical test results',
-      icon: 'AlertTriangle',
-    },
-    {
-      path: '/fluid-balance',
-      component: 'FluidBalance',
-      requiredPermission: 'manage_fluid_balance',
-      requireSector: true,
-      title: 'Fluid Balance',
-      description: 'Track patient fluid intake and output',
-      icon: 'Droplet',
     },
     {
       path: '/patients/:id/profile',
@@ -274,30 +263,8 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       requiredPermission: 'patients:view',
       requireSector: true,
     },
-    {
-      path: '/critical-results',
-      component: 'CriticalResults',
-      requiredPermission: 'view_critical_results',
-      requireSector: true,
-      title: 'Critical Results',
-      description: 'View and manage critical test results',
-      icon: 'AlertTriangle',
-    },
-    {
-      path: '/fluid-balance',
-      component: 'FluidBalance',
-      requiredPermission: 'manage_fluid_balance',
-      requireSector: true,
-      title: 'Fluid Balance',
-      description: 'Track patient fluid intake and output',
-      icon: 'Droplet',
-    },
-    {
-      path: '/patients/:id/profile',
-      component: 'PatientProfile',
-      requiredPermission: 'patients:view',
-      requireSector: true,
-    },
+    
+    // Task management
     {
       path: '/tasks',
       component: 'Tasks',
@@ -307,6 +274,8 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       description: 'Manage tasks',
       icon: 'ListChecks',
     },
+    
+    // Clinical monitoring
     {
       path: '/vital-signs',
       component: 'VitalSigns',
@@ -316,6 +285,26 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       description: 'Monitor vital signs',
       icon: 'Activity',
     },
+    {
+      path: '/critical-results',
+      component: 'CriticalResults',
+      requiredPermission: 'view_critical_results',
+      requireSector: true,
+      title: 'Critical Results',
+      description: 'View and manage critical test results',
+      icon: 'AlertTriangle',
+    },
+    {
+      path: '/fluid-balance',
+      component: 'FluidBalance',
+      requiredPermission: 'manage_fluid_balance',
+      requireSector: true,
+      title: 'Fluid Balance',
+      description: 'Track patient fluid intake and output',
+      icon: 'Droplet',
+    },
+    
+    // Scheduling
     {
       path: '/appointments',
       component: 'Appointments',
@@ -334,12 +323,8 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       description: 'Manage schedule',
       icon: 'Clock',
     },
-    {
-      path: '/patients/:id',
-      component: 'PatientDetail',
-      requiredPermission: 'patients:view',
-      requireSector: true,
-    },
+    
+    // Documentation
     {
       path: '/clinical-documentation',
       component: 'ClinicalDocumentation',
@@ -355,6 +340,8 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       requiredPermission: 'notes:view',
       requireSector: true,
     },
+    
+    // Medication management
     {
       path: '/medications',
       component: 'Medications',
@@ -381,91 +368,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       title: 'Medication Details',
       description: 'View medication details',
       icon: 'Pill',
-    },,
-    {
-      path: '/medication-administration',
-      component: 'MedicationAdministration',
-      requiredPermission: 'administer_medications',
-      requireSector: true,
-      title: 'Medication Administration',
-      description: 'Administer medications to patients',
-      icon: 'Pill',
-    },
-    {
-      path: '/medications/:id',
-      component: 'MedicationView',
-      requiredPermission: 'view_medications',
-      requireSector: true,
-      title: 'Medication Details',
-      description: 'View medication details',
-      icon: 'Pill',
-    },,
-    {
-      path: '/medication-administration',
-      component: 'MedicationAdministration',
-      requiredPermission: 'administer_medications',
-      requireSector: true,
-      title: 'Medication Administration',
-      description: 'Administer medications to patients',
-      icon: 'Pill',
-    },
-    {
-      path: '/medications/:id',
-      component: 'MedicationView',
-      requiredPermission: 'view_medications',
-      requireSector: true,
-      title: 'Medication Details',
-      description: 'View medication details',
-      icon: 'Pill',
-    },,
-    {
-      path: '/critical-results',
-      component: 'CriticalResults',
-      requiredPermission: 'view_critical_results',
-      requireSector: true,
-      title: 'Critical Results',
-      description: 'View and manage critical test results',
-      icon: 'AlertTriangle',
-    },
-    {
-      path: '/fluid-balance',
-      component: 'FluidBalance',
-      requiredPermission: 'manage_fluid_balance',
-      requireSector: true,
-      title: 'Fluid Balance',
-      description: 'Track patient fluid intake and output',
-      icon: 'Droplet',
-    },
-    {
-      path: '/patients/:id/profile',
-      component: 'PatientProfile',
-      requiredPermission: 'patients:view',
-      requireSector: true,
-    },,
-    {
-      path: '/critical-results',
-      component: 'CriticalResults',
-      requiredPermission: 'view_critical_results',
-      requireSector: true,
-      title: 'Critical Results',
-      description: 'View and manage critical test results',
-      icon: 'AlertTriangle',
-    },
-    {
-      path: '/fluid-balance',
-      component: 'FluidBalance',
-      requiredPermission: 'manage_fluid_balance',
-      requireSector: true,
-      title: 'Fluid Balance',
-      description: 'Track patient fluid intake and output',
-      icon: 'Droplet',
-    },
-    {
-      path: '/patients/:id/profile',
-      component: 'PatientProfile',
-      requiredPermission: 'patients:view',
-      requireSector: true,
-    },
+    }
   ],
   'administrative': [
     {

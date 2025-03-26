@@ -6,7 +6,7 @@ import SidebarItem from './SidebarItem';
 import SidebarUserProfile from './SidebarUserProfile';
 import SidebarLogo from './SidebarLogo';
 import SidebarSectorSelector from './SidebarSectorSelector';
-import { Home, Users, Calendar, FileText, Package2, Settings, HelpCircle } from 'lucide-react';
+import { Home, Users, Calendar, FileText, Package2, Settings, HelpCircle, Droplet } from 'lucide-react';
 
 interface SidebarContentProps {
   onItemClick?: () => void;
@@ -48,7 +48,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onItemClick }) => {
           {
             label: t('clinicalDocumentation', 'Documentation'),
             icon: FileText,
-            to: '/documentation'
+            to: '/clinical-documentation'
           },
           {
             label: t('medications', 'Medications'),
@@ -70,9 +70,44 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ onItemClick }) => {
             to: '/tasks'
           },
           {
+            label: t('vitalSigns', 'Vital Signs'),
+            icon: Home,
+            to: '/vital-signs'
+          },
+          {
             label: t('medications', 'Medications'),
             icon: Package2,
             to: '/medications'
+          },
+          {
+            label: t('medicationAdministration', 'Med Administration'),
+            icon: Package2,
+            to: '/medication-administration'
+          },
+          {
+            label: t('clinicalDocumentation', 'Documentation'),
+            icon: FileText,
+            to: '/clinical-documentation'
+          },
+          {
+            label: t('criticalResults', 'Critical Results'),
+            icon: HelpCircle,
+            to: '/critical-results'
+          },
+          {
+            label: t('fluidBalance', 'Fluid Balance'),
+            icon: Droplet,
+            to: '/fluid-balance'
+          },
+          {
+            label: t('appointments', 'Appointments'),
+            icon: Calendar,
+            to: '/appointments'
+          },
+          {
+            label: t('schedule', 'Schedule'),
+            icon: Calendar,
+            to: '/schedule'
           }
         ];
       case 'admin':

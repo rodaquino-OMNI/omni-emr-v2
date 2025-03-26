@@ -46,6 +46,18 @@ const EmailLoginForm = ({
   remainingLockoutTime = 0
 }: EmailLoginFormProps) => {
   const [showDemoCredentials, setShowDemoCredentials] = useState<boolean>(false);
+  
+  // Add debugging to track component re-renders and prop changes
+  React.useEffect(() => {
+    console.log('EmailLoginForm: Component rendered with props', {
+      email,
+      password: password ? '(password provided)' : '(no password)',
+      validationErrors: JSON.stringify(validationErrors),
+      forgotPassword,
+      isSubmitting,
+      isLockedOut
+    });
+  });
 
   const toggleDemoCredentials = () => {
     setShowDemoCredentials(!showDemoCredentials);
@@ -65,6 +77,11 @@ const EmailLoginForm = ({
   return (
     <form onSubmit={(e) => {
       console.log('EmailLoginForm: Form submitted');
+      console.log('EmailLoginForm: Form state before submit:', {
+        email,
+        password: password ? '(password provided)' : '(no password)',
+        validationErrors: JSON.stringify(validationErrors)
+      });
       handleSubmit(e);
     }} className="space-y-4">
       {isLockedOut && (
@@ -104,12 +121,17 @@ const EmailLoginForm = ({
           value={email}
           onChange={(e) => {
             console.log('Email input changed:', e.target.value);
+            // Only update email state, don't touch validation errors yet
             setEmail(e.target.value);
+            
+            // Create a separate function to handle validation errors
+            // This prevents race conditions and isolates the state update
             if (validationErrors.email) {
-              setValidationErrors({
-                ...validationErrors,
-                email: ''
-              });
+              console.log('Clearing email validation error');
+              // Create a new object instead of spreading to avoid reference issues
+              const newValidationErrors = Object.assign({}, validationErrors);
+              newValidationErrors.email = '';
+              setValidationErrors(newValidationErrors);
             }
           }}
           disabled={isSubmitting || isLockedOut}
@@ -146,12 +168,18 @@ const EmailLoginForm = ({
             }`}
             value={password}
             onChange={(e) => {
+              console.log('Password input changed:', e.target.value.length > 0 ? '(password provided)' : '(no password)');
+              // Only update password state, don't touch validation errors yet
               setPassword(e.target.value);
+              
+              // Create a separate function to handle validation errors
+              // This prevents race conditions and isolates the state update
               if (validationErrors.password) {
-                setValidationErrors({
-                  ...validationErrors,
-                  password: ''
-                });
+                console.log('Clearing password validation error');
+                // Create a new object instead of spreading to avoid reference issues
+                const newValidationErrors = Object.assign({}, validationErrors);
+                newValidationErrors.password = '';
+                setValidationErrors(newValidationErrors);
               }
             }}
             disabled={isSubmitting || isLockedOut}

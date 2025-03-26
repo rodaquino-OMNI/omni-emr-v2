@@ -6,7 +6,7 @@ const mockUsers = [
     id: '1',
     email: 'admin@omnicare.com',
     name: 'Dr. John Smith',
-    role: 'doctor',
+    role: 'admin',
     permissions: ['all'],
     avatar_url: null,
     app_metadata: {},
@@ -36,10 +36,114 @@ const mockUsers = [
   },
   {
     id: '2',
+    email: 'doctor@omnicare.com',
+    name: 'Dr. Maria Rodriguez',
+    role: 'doctor',
+    permissions: [
+      // Patient-related permissions
+      'patient_data:view',
+      'patient_data:manage',
+      'patients:view',
+      
+      // Prescription-related permissions
+      'prescriptions:view',
+      'prescriptions:create',
+      'prescriptions:manage',
+      
+      // Medication-related permissions
+      'medications:view',
+      'medications:prescribe',
+      'view_medications',
+      'prescribe_medications',
+      'administer_medications',
+      
+      // Documentation-related permissions
+      'view_records',
+      'create_records',
+      'notes:view',
+      
+      // Task-related permissions
+      'tasks:view',
+      'tasks:manage',
+      
+      // Schedule-related permissions
+      'appointments:view',
+      'schedule:manage',
+      
+      // Other clinical permissions
+      'vitals:view',
+      'orders:view',
+      'emergency:view',
+      'telemedicine',
+      'sector:view'
+    ],
+    avatar_url: null,
+    app_metadata: {},
+    user_metadata: {
+      name: 'Dr. Maria Rodriguez',
+      organization: 'OmniCare Hospital',
+      approvalStatus: 'approved',
+      status: 'active',
+    },
+    created_at: '2023-01-01T00:00:00.000Z',
+    updated_at: '2023-01-01T00:00:00.000Z',
+    last_sign_in_at: '2025-03-21T00:00:00.000Z',
+    aud: 'authenticated',
+    confirmed_at: '2023-01-01T00:00:00.000Z',
+    recovery_sent_at: null,
+    confirmation_sent_at: null,
+    organization: 'OmniCare Hospital',
+    approvalStatus: 'approved',
+    status: 'active',
+    phoneNumber: null,
+    mfaEnabled: false,
+    createdAt: new Date('2023-01-01T00:00:00.000Z'),
+    lastLogin: new Date('2025-03-21T00:00:00.000Z'),
+    profileImageUrl: null,
+    country: 'Brazil',
+    insurance: null,
+  },
+  {
+    id: '3',
     email: 'nurse@omnicare.com',
     name: 'Emily Johnson',
     role: 'nurse',
-    permissions: ['dashboard:view', 'patients:view', 'patients:edit'],
+    permissions: [
+      // Patient-related permissions
+      'patient_data:view',
+      'patients:view',  // Added for patient routes
+      
+      // Task-related permissions
+      'tasks:view',
+      'tasks:manage',
+      
+      // Vital signs permissions
+      'vitals:view',
+      'vitals:record',
+      
+      // Medication-related permissions
+      'medications:view',
+      'medications:administer',
+      'view_medications',
+      'administer_medications',
+      
+      // Documentation permissions
+      'view_records',
+      'notes:view',  // Added for clinical documentation
+      
+      // Scheduling permissions
+      'appointments:view',  // Added for appointments
+      'schedule:manage',    // Added for schedule
+      
+      // Critical results permissions
+      'view_critical_results',  // Added for critical results
+      
+      // Fluid balance permissions
+      'manage_fluid_balance',
+      
+      // Other permissions
+      'sector:view'
+    ],
     avatar_url: null,
     app_metadata: {},
     user_metadata: {
@@ -129,6 +233,8 @@ export const mockPatients = [
 // Mock authentication service
 export const mockAuth = {
   login: async (email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> => {
+    console.log('Using mock login for:', email);
+    
     // Simple validation
     if (!email || !password) {
       return { success: false, error: 'Email and password are required' };
@@ -139,11 +245,18 @@ export const mockAuth = {
     
     // Check if user exists
     if (!user) {
+      console.log('Mock login failed: User not found');
       return { success: false, error: 'Invalid email or password' };
     }
     
     // In a real app, we would check the password hash
-    // For mock purposes, any password works
+    // For mock purposes, check if password is 'password123' for demo accounts
+    if (email.toLowerCase().endsWith('@omnicare.com') && password !== 'password123') {
+      console.log('Mock login failed: Invalid password for demo account');
+      return { success: false, error: 'Invalid email or password' };
+    }
+    
+    console.log('Mock login successful for:', email);
     return { success: true, user: user as User };
   },
   
@@ -154,8 +267,8 @@ export const mockAuth = {
   },
   
   getSession: async (): Promise<{ user: User | null }> => {
-    // For mock purposes, always return the admin user
-    return { user: mockUsers[0] as User };
+    // For mock purposes, return the doctor user (index 1) to enable prescription access
+    return { user: mockUsers[1] as User };
   },
   
   resetPassword: async (email: string): Promise<{ success: boolean; error?: string }> => {
@@ -316,14 +429,25 @@ export const mockSupabase = {
   auth: {
     getSession: async () => {
       console.log('Mock: Getting session');
-      return { data: { session: { user: mockUsers[0] } }, error: null };
+      // Return the doctor user (index 1) to enable prescription access
+      return { data: { session: { user: mockUsers[1] } }, error: null };
     },
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
       console.log('Mock: Signing in with password', { email });
       const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      
       if (!user) {
+        console.log('Mock: User not found');
         return { data: { user: null, session: null }, error: { message: 'Invalid email or password' } };
       }
+      
+      // Check password for demo accounts
+      if (email.toLowerCase().endsWith('@omnicare.com') && password !== 'password123') {
+        console.log('Mock: Invalid password for demo account');
+        return { data: { user: null, session: null }, error: { message: 'Invalid email or password' } };
+      }
+      
+      console.log('Mock: Login successful for', email);
       return { data: { user, session: { user } }, error: null };
     },
     signOut: async () => {
@@ -554,12 +678,38 @@ export const mockSupabase = {
   },
   rpc: (functionName: string, params?: any) => {
     console.log('Mock: Calling RPC function', functionName, params);
+    
     if (functionName === 'check_connection') {
       return { data: true, error: null };
     }
+    
     if (functionName === 'check_table_exists') {
       return { data: true, error: null };
     }
+    
+    // Handle user_has_permission RPC call
+    if (functionName === 'user_has_permission') {
+      const { p_user_id, p_permission_code } = params || {};
+      
+      // Find the user
+      const user = mockUsers.find(u => u.id === p_user_id);
+      
+      if (!user) {
+        return { data: false, error: null };
+      }
+      
+      // Admin role has all permissions
+      if (user.role === 'admin' || user.role === 'system_administrator') {
+        return { data: true, error: null };
+      }
+      
+      // Check if the user has the specific permission
+      const hasPermission = user.permissions.includes(p_permission_code) ||
+                           user.permissions.includes('all');
+      
+      return { data: hasPermission, error: null };
+    }
+    
     return { data: null, error: null };
   }
 };
