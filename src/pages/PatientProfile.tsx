@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/useTranslation';
 import PatientDetailHeader from '@/components/patients/PatientDetailHeader';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
+;
+;
 import { toast } from 'sonner';
 import { usePatientData } from '@/hooks/usePatientData';
 import PatientDetailLoader from '@/components/patients/detail/PatientDetailLoader';
@@ -108,11 +108,7 @@ const PatientProfile = () => {
   } as PatientType;
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-6xl mx-auto">
             <PatientDetailHeader 
               patient={patientForHeader} 
@@ -259,9 +255,7 @@ const PatientProfile = () => {
               </form>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
   );
 };
 

@@ -15,8 +15,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -471,114 +469,106 @@ const Appointments: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto">
-          <ErrorBoundary>
-            <div className="max-w-6xl mx-auto w-full">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <h1 className="text-2xl font-semibold flex items-center gap-2">
-                  <Calendar className="h-6 w-6 text-primary" />
-                  {t('appointments')}
-                </h1>
-                
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder={t('searchAppointments')}
-                      className="pl-8 w-full sm:w-[200px]"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="gap-1">
-                        <CalendarIcon className="h-4 w-4" />
-                        {selectedDate ? format(selectedDate, 'PPP') : t('selectDate')}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <CalendarComponent
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  
-                  <Button onClick={() => setIsNewAppointmentDialogOpen(true)} className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    {t('newAppointment')}
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1">
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle>{t('appointmentsList')}</CardTitle>
-                      <CardDescription>
-                        {filteredAppointments.length} {t('appointmentsFound')}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
-                        <TabsList className="grid grid-cols-4 mx-4 mb-2">
-                          <TabsTrigger value="today">{t('today')}</TabsTrigger>
-                          <TabsTrigger value="tomorrow">{t('tomorrow')}</TabsTrigger>
-                          <TabsTrigger value="week">{t('thisWeek')}</TabsTrigger>
-                          <TabsTrigger value="upcoming">{t('all')}</TabsTrigger>
-                        </TabsList>
-                        
-                        <div className="px-4 pb-4">
-                          {isLoading ? (
-                            <div className="flex justify-center py-8">
-                              <LoadingSpinner />
-                            </div>
-                          ) : (
-                            <AppointmentsList
-                              appointments={filteredAppointments}
-                              onSelect={handleAppointmentSelect}
-                              selectedId={selectedAppointment?.id}
-                            />
-                          )}
-                        </div>
-                      </Tabs>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <div className="lg:col-span-2">
-                  <Card className="h-full">
-                    <CardHeader>
-                      <CardTitle>
-                        {selectedAppointment ? t('appointmentDetails') : t('appointmentInformation')}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <AppointmentDetails
-                        appointment={selectedAppointment}
-                        onCancel={handleCancelAppointment}
-                        onEdit={() => toast({
-                          title: t('notImplemented'),
-                          description: t('featureComingSoon')
-                        })}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+    <>
+      <div className="max-w-6xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <h1 className="text-2xl font-semibold flex items-center gap-2">
+            <Calendar className="h-6 w-6 text-primary" />
+            {t('appointments')}
+          </h1>
+          
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder={t('searchAppointments')}
+                className="pl-8 w-full sm:w-[200px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-          </ErrorBoundary>
-        </main>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-1">
+                  <CalendarIcon className="h-4 w-4" />
+                  {selectedDate ? format(selectedDate, 'PPP') : t('selectDate')}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <CalendarComponent
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            
+            <Button onClick={() => setIsNewAppointmentDialogOpen(true)} className="gap-1">
+              <Plus className="h-4 w-4" />
+              {t('newAppointment')}
+            </Button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle>{t('appointmentsList')}</CardTitle>
+                <CardDescription>
+                  {filteredAppointments.length} {t('appointmentsFound')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid grid-cols-4 mx-4 mb-2">
+                    <TabsTrigger value="today">{t('today')}</TabsTrigger>
+                    <TabsTrigger value="tomorrow">{t('tomorrow')}</TabsTrigger>
+                    <TabsTrigger value="week">{t('thisWeek')}</TabsTrigger>
+                    <TabsTrigger value="upcoming">{t('all')}</TabsTrigger>
+                  </TabsList>
+                  
+                  <div className="px-4 pb-4">
+                    {isLoading ? (
+                      <div className="flex justify-center py-8">
+                        <LoadingSpinner />
+                      </div>
+                    ) : (
+                      <AppointmentsList
+                        appointments={filteredAppointments}
+                        onSelect={handleAppointmentSelect}
+                        selectedId={selectedAppointment?.id}
+                      />
+                    )}
+                  </div>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="lg:col-span-2">
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle>
+                  {selectedAppointment ? t('appointmentDetails') : t('appointmentInformation')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AppointmentDetails
+                  appointment={selectedAppointment}
+                  onCancel={handleCancelAppointment}
+                  onEdit={() => toast({
+                    title: t('notImplemented'),
+                    description: t('featureComingSoon')
+                  })}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
       
       <Dialog open={isNewAppointmentDialogOpen} onOpenChange={setIsNewAppointmentDialogOpen}>
@@ -595,7 +585,7 @@ const Appointments: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

@@ -1,20 +1,31 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocation } from 'react-router-dom';
 import SidebarContent from './SidebarContent';
 import { SidebarMobileToggle, SidebarCloseButton } from './SidebarToggle';
 
-const Sidebar = () => {
+const Sidebar: React.FC = () => {
   // Use actual mobile detection instead of forcing mobile view
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const renderCount = useRef(0);
   
   // Debug logging to help diagnose issues
   useEffect(() => {
-    console.log('Sidebar state:', { isMobile, isOpen });
+    renderCount.current += 1;
+    console.log(`[DEBUG] Sidebar rendered ${renderCount.current} times`, { 
+      isMobile, 
+      isOpen,
+      instanceId: Math.random().toString(36).substr(2, 9),
+      renderPath: new Error().stack
+    });
+  }, []);
+  
+  // Log state changes
+  useEffect(() => {
+    console.log('[DEBUG] Sidebar state changed:', { isMobile, isOpen });
   }, [isMobile, isOpen]);
   
   // Close the sidebar on mobile when route changes
@@ -26,7 +37,7 @@ const Sidebar = () => {
   
   const toggleSidebar = () => {
     const newState = !isOpen;
-    console.log('Toggling sidebar from', isOpen, 'to', newState);
+    console.log('[DEBUG] Toggling sidebar from', isOpen, 'to', newState);
     setIsOpen(newState);
   };
   

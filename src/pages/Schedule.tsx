@@ -1,7 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import { Calendar } from 'lucide-react';
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { format } from 'date-fns'
@@ -83,71 +81,63 @@ const SchedulePage = () => {
   }, [language]);
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
-          <div className="max-w-6xl mx-auto w-full">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <h1 className="text-2xl font-semibold">
-                {language === 'pt' ? 'Agendamentos' : 'Schedule'}
-              </h1>
-              <Button onClick={() => setIsNewAppointmentModalOpen(true)}>
-                {language === 'pt' ? '+ Novo Agendamento' : '+ New Appointment'}
-              </Button>
-            </div>
+    <div className="max-w-6xl mx-auto w-full">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-semibold">
+          {language === 'pt' ? 'Agendamentos' : 'Schedule'}
+        </h1>
+        <Button onClick={() => setIsNewAppointmentModalOpen(true)}>
+          {language === 'pt' ? '+ Novo Agendamento' : '+ New Appointment'}
+        </Button>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="border rounded-md p-4">
-                <h2 className="text-lg font-semibold mb-4">{language === 'pt' ? 'Calendário' : 'Calendar'}</h2>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>{language === 'pt' ? 'Selecionar data' : 'Select date'}</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent
-                      mode="single"
-                      selected={date}
-                      onSelect={handleDateSelect}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="border rounded-md p-4">
-                <h2 className="text-lg font-semibold mb-4">{language === 'pt' ? 'Agendamentos do Dia' : 'Today\'s Appointments'}</h2>
-                {appointments.length > 0 ? (
-                  <ul className="space-y-2">
-                    {appointments.map(appointment => (
-                      <li key={appointment.id} className="flex items-center justify-between border-b pb-2">
-                        <div>
-                          <div className="font-semibold">{appointment.time}</div>
-                          <div className="text-sm">{appointment.patient} - {appointment.type}</div>
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(appointment.id)}>
-                          {language === 'pt' ? 'Cancelar' : 'Cancel'}
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted-foreground">{language === 'pt' ? 'Nenhum agendamento para hoje.' : 'No appointments for today.'}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border rounded-md p-4">
+          <h2 className="text-lg font-semibold mb-4">{language === 'pt' ? 'Calendário' : 'Calendar'}</h2>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-[240px] justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
                 )}
-              </div>
-            </div>
-          </div>
-        </main>
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {date ? format(date, "PPP") : <span>{language === 'pt' ? 'Selecionar data' : 'Select date'}</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={date}
+                onSelect={handleDateSelect}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="border rounded-md p-4">
+          <h2 className="text-lg font-semibold mb-4">{language === 'pt' ? 'Agendamentos do Dia' : 'Today\'s Appointments'}</h2>
+          {appointments.length > 0 ? (
+            <ul className="space-y-2">
+              {appointments.map(appointment => (
+                <li key={appointment.id} className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <div className="font-semibold">{appointment.time}</div>
+                    <div className="text-sm">{appointment.patient} - {appointment.type}</div>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(appointment.id)}>
+                    {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground">{language === 'pt' ? 'Nenhum agendamento para hoje.' : 'No appointments for today.'}</p>
+          )}
+        </div>
       </div>
 
       {/* New Appointment Modal */}

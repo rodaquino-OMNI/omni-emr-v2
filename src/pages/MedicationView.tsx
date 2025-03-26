@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+;
+;
 import MedicationDetail from '../components/medications/MedicationDetail';
 import { ArrowLeft, Edit, Printer, Trash2 } from 'lucide-react';
 
@@ -14,11 +14,7 @@ const MedicationViewPage = () => {
   }
   
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -46,9 +42,7 @@ const MedicationViewPage = () => {
             
             <MedicationDetail medicationId={id} />
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
   );
 };
 

@@ -29,6 +29,19 @@ const Layout: React.FC = () => {
   // Determine if user should select a sector
   const isClinicalRole = user?.role && ['doctor', 'nurse', 'medical_staff'].includes(user.role);
   const shouldSelectSector = isClinicalRole && !selectedSector && !isLoading && sectors.length > 0;
+  console.log('[DEBUG] Layout component rendering with:', {
+    userRole: user?.role,
+    selectedSector: selectedSector?.name,
+    shouldSelectSector,
+    componentId: 'layout-wrapper'
+  });
+  // Log outside of JSX to avoid 'void' type error
+  console.log('[DEBUG] Layout rendering SidebarComponent');
+  
+  // Add diagnostic logs to help identify the issue
+  console.log('[DEBUG] Layout JSX structure check - about to render');
+  console.log('[DEBUG] HeaderComponent type:', typeof HeaderComponent);
+  console.log('[DEBUG] SidebarComponent type:', typeof SidebarComponent);
   
   return (
     <div className="min-h-screen flex bg-background">

@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Patient } from '@/types/patient';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,14 +43,45 @@ export const usePatientsByStatus = (sectorId?: string) => {
     queryFn: fetchPatients
   });
 
+  // Add debug logs for data fetching
+  useEffect(() => {
+    if (data) {
+      console.log('[DEBUG] usePatientsByStatus hook data:', {
+        totalPatients: data.length,
+        sectorId,
+        patientIds: data.map(p => p.id),
+        uniquePatientIds: [...new Set(data.map(p => p.id))].length,
+        hasDuplicates: data.length !== [...new Set(data.map(p => p.id))].length
+      });
+    }
+  }, [data, sectorId]);
+
   // Filter patients by status
-  const criticalPatients = data?.filter(p => 
+  // NOTE: These filters are not mutually exclusive - a patient could potentially
+  // appear in multiple lists if their status matches multiple criteria.
+  // Components using this hook should implement their own deduplication logic
+  // if they need to ensure patients only appear in one list, as done in DoctorDashboard.tsx
+  const criticalPatients = data?.filter(p =>
     p.status === 'critical' || p.status === 'hospital'
   ) || [];
   
-  const stablePatients = data?.filter(p => 
+  const stablePatients = data?.filter(p =>
     p.status === 'stable' || p.status === 'improving'
   ) || [];
+  
+  // Log filtered patients
+  useEffect(() => {
+    console.log('[DEBUG] Filtered patients:', {
+      criticalCount: criticalPatients.length,
+      stableCount: stablePatients.length,
+      criticalIds: criticalPatients.map(p => p.id),
+      stableIds: stablePatients.map(p => p.id),
+      // Check for patients that appear in both lists
+      patientsInBothLists: criticalPatients
+        .filter(cp => stablePatients.some(sp => sp.id === cp.id))
+        .map(p => p.id)
+    });
+  }, [criticalPatients, stablePatients]);
 
   return {
     data,

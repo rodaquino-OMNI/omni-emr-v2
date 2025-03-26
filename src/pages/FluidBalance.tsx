@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+;
+;
 import { useTranslation } from '../hooks/useTranslation';
 import FluidIntakeForm from '@/components/fluid-balance/FluidIntakeForm';
 import FluidIntakeHistory from '@/components/fluid-balance/FluidIntakeHistory';
@@ -30,11 +30,7 @@ const FluidBalance = () => {
   };
   
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-6xl mx-auto w-full">
             <h1 className="text-2xl font-semibold mb-6 flex items-center gap-2">
               <Droplet className="h-6 w-6 text-blue-500" />
@@ -82,9 +78,7 @@ const FluidBalance = () => {
               </Tabs>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
   );
 };
 

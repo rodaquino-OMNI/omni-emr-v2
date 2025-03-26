@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+;
+;
 import { useTranslation } from '../hooks/useTranslation';
 import VitalSignsForm from '@/components/visit-notes/VitalSignsForm';
 import VitalSignsView from '@/components/visit-notes/VitalSignsView';
@@ -123,11 +123,7 @@ const VisitNotes = () => {
   };
   
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-5xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-semibold">
@@ -428,9 +424,7 @@ const VisitNotes = () => {
               </Tabs>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
   );
 };
 

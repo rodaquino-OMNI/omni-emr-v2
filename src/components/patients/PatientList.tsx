@@ -7,15 +7,15 @@ import StatusBadge from '../ui/StatusBadge';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { PatientStatus } from '@/types/patientTypes';
+import { PatientStatus, mapToPatientStatus } from '@/types/patientTypes';
 
 type Patient = {
   id: string;
   name: string;
   age: number;
-  gender: 'male' | 'female';
+  gender: string; // Changed from 'male' | 'female' to string to be compatible with other Patient types
   room?: string;
-  status: PatientStatus;
+  status: PatientStatus | string;
   lastVisit?: string;
   nextAppointment?: string;
   image?: string;
@@ -28,6 +28,9 @@ type PatientListProps = {
   className?: string;
   statusFilter?: string;
   searchTerm?: string;
+  isLoading?: boolean;
+  error?: any;
+  emptyMessage?: string;
 };
 
 const mockPatients: Patient[] = [
@@ -95,11 +98,24 @@ const mockPatients: Patient[] = [
   },
 ];
 
-const PatientList = ({ limit, showViewAll, className, statusFilter = 'all', searchTerm = '' }: PatientListProps) => {
+const PatientList = ({
+  patients: providedPatients,
+  limit,
+  showViewAll,
+  className,
+  statusFilter = 'all',
+  searchTerm = '',
+  isLoading = false,
+  error = null,
+  emptyMessage = 'No patients found'
+}: PatientListProps) => {
   const { language } = useTranslation();
   
+  // Use provided patients or fall back to mock data
+  const sourcePatients = providedPatients || mockPatients;
+  
   // Filter patients based on status and search term
-  const filteredPatients = mockPatients.filter(patient => {
+  const filteredPatients = sourcePatients.filter(patient => {
     // Filter by status
     if (statusFilter !== 'all' && patient.status !== statusFilter) {
       return false;
@@ -116,11 +132,34 @@ const PatientList = ({ limit, showViewAll, className, statusFilter = 'all', sear
   // Limit the number of patients shown
   const patients = limit ? filteredPatients.slice(0, limit) : filteredPatients;
   
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">
+          {language === 'pt' ? 'Carregando...' : 'Loading...'}
+        </p>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">
+          {language === 'pt' ? 'Erro ao carregar pacientes' : 'Error loading patients'}
+        </p>
+      </div>
+    );
+  }
+  
+  // Show empty state
   if (patients.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground">
-          {language === 'pt' ? 'Nenhum paciente encontrado' : 'No patients found'}
+          {language === 'pt' ? emptyMessage.replace('No', 'Nenhum').replace('found', 'encontrado') : emptyMessage}
         </p>
       </div>
     );

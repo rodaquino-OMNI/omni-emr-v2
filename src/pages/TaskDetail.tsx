@@ -2,8 +2,8 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
+;
+;
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useTaskDetail } from '@/components/tasks/detail/useTaskDetail';
@@ -20,17 +20,11 @@ const TaskDetail = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex bg-background">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
-          <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
+      <div className="max-w-6xl mx-auto w-full">
             <div className="max-w-3xl mx-auto w-full">
               <div>Loading...</div>
             </div>
-          </main>
-        </div>
-      </div>
+          </div>
     );
   }
   

@@ -46,7 +46,8 @@ export const translations: Translations = {
     medicationAdministration: "Medication Administration",
 
     taskDetail: "Task Detail",
-    visitNotes: "Visit Notes",  },
+    visitNotes: "Visit Notes",
+  },
   
   pt: {
     ...commonTranslations.pt,
@@ -78,5 +79,6 @@ export const translations: Translations = {
     medicationAdministration: "Administração de Medicamentos",
 
     visitNotes: "Notas de Consulta",
-    taskDetail: "Detalhes da Tarefa",  }
+    taskDetail: "Detalhes da Tarefa"
+  }
 };

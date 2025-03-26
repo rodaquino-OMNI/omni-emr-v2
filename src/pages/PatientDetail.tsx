@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
+// Removed Sidebar and Header imports as they're already provided by the Layout component
 import { usePatientData } from '@/hooks/usePatientData';
 import { usePatientInsights } from '@/hooks/usePatientInsights';
 import { usePatientPrescriptions } from '@/components/patients/hooks/usePatientPrescriptions';
@@ -63,11 +62,7 @@ const PatientDetail = () => {
   
   // Error state for patient not found
   if (!patient) return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-6xl mx-auto w-full">
             <Button 
               variant="ghost" 
@@ -89,9 +84,7 @@ const PatientDetail = () => {
               </p>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
   );
   
   // Check for critical insights
@@ -119,11 +112,8 @@ const PatientDetail = () => {
   } as Patient;
   
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
+    <div className="max-w-6xl mx-auto w-full">
+      <div className="space-y-4">
           <div className="space-y-4 max-w-6xl mx-auto">
             {/* Patient header with back button */}
             <PatientDetailHeader
@@ -137,7 +127,6 @@ const PatientDetail = () => {
               <PatientViewSelector patientId={patientId} />
             </PatientProvider>
           </div>
-        </main>
       </div>
     </div>
   );

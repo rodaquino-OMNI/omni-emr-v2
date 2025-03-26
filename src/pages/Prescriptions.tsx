@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+;
+;
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../context/AuthContext';
 import { PrescriptionsList } from '../components/prescriptions';
@@ -42,11 +42,7 @@ const PrescriptionsPage = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
@@ -93,9 +89,7 @@ const PrescriptionsPage = () => {
               )}
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
   );
 };
 

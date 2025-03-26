@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+;
+;
 import RecordDetail from '../components/records/RecordDetail';
 import { ArrowLeft, Edit, Printer, Trash2, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -58,15 +58,11 @@ const RecordViewPage = () => {
   };
   
   if (!id) {
-    return <div>Record not found</div>;
+    return <div>Record not found;
   }
   
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto animate-fade-in">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">

@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+;
+;
 import { useTranslation } from '../hooks/useTranslation';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -56,11 +56,7 @@ const VitalSigns = () => {
   const { data: patients, isLoading } = useAsync<PatientData[]>(fetchPatients);
   
   return (
-    <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto">
+    <div className="max-w-6xl mx-auto w-full">
           <div className="max-w-6xl mx-auto w-full">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-semibold flex items-center gap-2">
@@ -168,9 +164,7 @@ const VitalSigns = () => {
               )}
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
   );
 };
 

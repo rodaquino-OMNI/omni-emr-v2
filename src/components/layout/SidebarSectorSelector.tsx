@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSectorContext } from '@/hooks/useSectorContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
@@ -15,6 +15,28 @@ const SidebarSectorSelector: React.FC = () => {
   const { sectors, selectedSector, selectSector, isLoading } = useSectorContext();
   const { t } = useTranslation();
 
+  // Add logging to track component lifecycle and state
+  useEffect(() => {
+    console.log('[DEBUG] SidebarSectorSelector mounted', {
+      sectorsCount: sectors.length,
+      selectedSector: selectedSector ? `${selectedSector.id} (${selectedSector.name})` : 'none',
+      isLoading
+    });
+    
+    return () => {
+      console.log('[DEBUG] SidebarSectorSelector unmounted');
+    };
+  }, []);
+  
+  // Log when sectors or selection changes
+  useEffect(() => {
+    console.log('[DEBUG] SidebarSectorSelector sectors/selection updated', {
+      sectorsCount: sectors.length,
+      selectedSector: selectedSector ? `${selectedSector.id} (${selectedSector.name})` : 'none',
+      isLoading
+    });
+  }, [sectors, selectedSector, isLoading]);
+
   // Always show the sector selector, even if loading or no sectors
   // This ensures users can see where to select a sector
   const showLoadingState = isLoading;
@@ -25,9 +47,20 @@ const SidebarSectorSelector: React.FC = () => {
   const highlightSelector = !selectedSector && showSelectorState;
 
   const handleSectorChange = (value: string) => {
-    const sector = sectors.find(s => s.id === value);
-    if (sector) {
-      selectSector(sector);
+    console.log('[DEBUG] Sector selection initiated', { sectorId: value });
+    try {
+      const sector = sectors.find(s => s.id === value);
+      console.log('[DEBUG] Found sector for selection:', sector);
+      
+      if (sector) {
+        selectSector(sector);
+        console.log('[DEBUG] Sector selection completed successfully');
+      } else {
+        console.error('[DEBUG] Sector not found for ID:', value);
+      }
+    } catch (error) {
+      console.error('[DEBUG] Error in handleSectorChange:', error);
+      throw error; // Re-throw to see the error in the console with stack trace
     }
   };
 

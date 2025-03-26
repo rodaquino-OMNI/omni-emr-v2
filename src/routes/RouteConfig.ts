@@ -519,8 +519,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       title: 'Medication Details',
       description: 'View medication details',
       icon: 'Pill',
-    },,
-    {
+    }, {
       path: '/admin/roles',
       component: 'Admin/RoleManagement',
       requiredPermission: 'manage_roles',
@@ -541,8 +540,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       title: 'Medication Details',
       description: 'View medication details',
       icon: 'Pill',
-    },,
-    {
+    }, {
       path: '/admin/roles',
       component: 'Admin/RoleManagement',
       requiredPermission: 'manage_roles',
@@ -563,8 +561,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       title: 'Medication Details',
       description: 'View medication details',
       icon: 'Pill',
-    },,
-    {
+    }, {
       path: '/critical-results',
       component: 'CriticalResults',
       title: 'Critical Results',
@@ -581,8 +578,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
     {
       path: '/patients/:id/profile',
       component: 'PatientProfile',
-    },,
-    {
+    }, {
       path: '/critical-results',
       component: 'CriticalResults',
       title: 'Critical Results',
@@ -702,8 +698,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       title: 'Medication Details',
       description: 'View medication details',
       icon: 'Pill',
-    },,
-    {
+    }, {
       path: '/admin/roles',
       component: 'Admin/RoleManagement',
       requiredPermission: 'manage_roles',
@@ -724,8 +719,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       title: 'Medication Details',
       description: 'View medication details',
       icon: 'Pill',
-    },,
-    {
+    }, {
       path: '/admin/roles',
       component: 'Admin/RoleManagement',
       requiredPermission: 'manage_roles',
@@ -746,8 +740,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
       title: 'Medication Details',
       description: 'View medication details',
       icon: 'Pill',
-    },,
-    {
+    }, {
       path: '/critical-results',
       component: 'CriticalResults',
       title: 'Critical Results',
@@ -764,8 +757,7 @@ export const roleSpecificRoutes: Record<UserRole, RouteDefinition[]> = {
     {
       path: '/patients/:id/profile',
       component: 'PatientProfile',
-    },,
-    {
+    }, {
       path: '/critical-results',
       component: 'CriticalResults',
       title: 'Critical Results',

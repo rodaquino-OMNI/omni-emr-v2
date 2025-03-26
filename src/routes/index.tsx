@@ -12,14 +12,15 @@ import RoleBasedRoutes from './RoleBasedRoutes';
 const TaskDetail = lazy(() => import('../pages/TaskDetail'));
 const Telemedicine = lazy(() => import('../pages/Telemedicine'));
 const VisitNotes = lazy(() => import('../pages/VisitNotes'));
+// Simplify the lazyLoad function to avoid syntax errors
 const lazyLoad = (componentPath: string) => {
+  // Handle paths with or without extensions
   const fullComponentPath = componentPath.endsWith('.js') || componentPath.endsWith('.tsx')
     ? `../pages/${componentPath}`
     : `../pages/${componentPath}.tsx`;
 
-  return lazy(() =>
-    import(/* @vite-ignore */ fullComponentPath).then(module => ({ default: module.default }))
-  );
+  // Use simple import pattern without .then() chain
+  return lazy(() => import(/* @vite-ignore */ fullComponentPath));
 };
 
 // Define lazy-loaded components
@@ -29,7 +30,8 @@ const Dashboard = lazy(() => import('../pages/Dashboard').then(module => ({ defa
 const Patients = lazy(() => import('../pages/Patients').then(module => ({ default: module.default })));
 const PatientDetail = lazy(() => import('../pages/PatientDetail').then(module => ({ default: module.default })));
 const PatientProfile = lazy(() => import('../pages/PatientProfile').then(module => ({ default: module.default })));
-const Records = lazy(() => import('../pages/Records').then(module => ({ default: module.default })));
+// Add explicit file extension to fix TypeScript module resolution
+const Records = lazy(() => import('../pages/Records.tsx').then(module => ({ default: module.default })));
 const ClinicalDocumentation = lazy(() => import('../pages/ClinicalDocumentation').then(module => ({ default: module.default })));
 const Orders = lazy(() => import('../pages/Orders').then(module => ({ default: module.default })));
 const Medications = lazy(() => import('../pages/Medications').then(module => ({ default: module.default })));
@@ -58,6 +60,7 @@ const createProtectedRoute = (routeDef: RouteDefinition): React.ReactNode => {
   return (
     <Route
       path={routeDef.path}
+      key={routeDef.path}
       element={
         <ProtectedRoute
           requiredPermission={routeDef.requiredPermission}
@@ -75,7 +78,6 @@ const createProtectedRoute = (routeDef: RouteDefinition): React.ReactNode => {
           </RoleBasedRoutes>
         </ProtectedRoute>
       }
-      key={routeDef.path}
     />
   );
 };
@@ -275,46 +277,5 @@ export const routes: RouteObject[] = [
 ];
 
 export default function AppRouter() {
-  const [router, setRouter] = React.useState<ReturnType<typeof createBrowserRouter> | null>(null);
-  const [error, setError] = React.useState<Error | null>(null);
-
-  React.useEffect(() => {
-    try {
-      // Create the router inside a try-catch block
-      const newRouter = createBrowserRouter(routes);
-      setRouter(newRouter);
-      console.log('Router created successfully');
-    } catch (err) {
-      // Log and handle the error
-      console.error('Error creating router:', err);
-      setError(err instanceof Error ? err : new Error('Unknown router error'));
-    }
-  }, []);
-
-  // If there was an error creating the router, show a fallback UI
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="bg-destructive/10 border border-destructive text-destructive p-4 rounded-md max-w-md w-full">
-          <h2 className="text-lg font-semibold mb-2">Router Error</h2>
-          <p className="mb-4">There was an error initializing the application routes.</p>
-          <p className="text-sm font-mono bg-background/50 p-2 rounded">{error.message}</p>
-          <button
-            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md"
-            onClick={() => window.location.reload()}
-          >
-            Reload Application
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Show a loading state while the router is being created
-  if (!router) {
-    return <Loading />;
-  }
-
-  // Render the router once it's created successfully
-  return <RouterProvider router={router} />;
+  return <RouterProvider router={createBrowserRouter(routes)} />;
 }

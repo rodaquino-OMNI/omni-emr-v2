@@ -45,21 +45,84 @@ export const SectorProvider: React.FC<SectorProviderProps> = ({ children }) => {
 
   // Select a sector and load its patients
   const selectSector = (sector: SectorType) => {
-    setSelectedSector(sector);
+    console.log('[DEBUG] selectSector called with:', JSON.stringify(sector, null, 2));
+    console.log('[DEBUG] Sector object type:', typeof sector);
+    console.log('[DEBUG] Sector object keys:', Object.keys(sector));
     
-    // Use secureStorage instead of regular localStorage for better security
-    secureStorage.setItem('selectedSector', sector);
-    
-    // Fetch patients for the selected sector
-    fetchPatients(sector.id);
-    
-    toast.success(
-      `Sector selected: ${sector.name}`,
-      { description: `You are now viewing patients in the ${sector.name} sector` }
-    );
-    
-    // Log sector selection for auditing (this could be expanded with more details)
-    console.log(`Sector selected: ${sector.name} (${sector.id})`);
+    try {
+      setSelectedSector(sector);
+      console.log('[DEBUG] setSelectedSector completed');
+      
+      // Use secureStorage instead of regular localStorage for better security
+      try {
+        console.log('[DEBUG] About to call secureStorage.setItem with sector:',
+          JSON.stringify(sector, null, 2));
+        
+        // Create a clean copy of the sector object to avoid potential circular references
+        const sectorForStorage = {
+          id: sector.id,
+          name: sector.name,
+          code: sector.code,
+          description: sector.description || '',
+          is_active: sector.is_active
+        };
+        
+        console.log('[DEBUG] Using sanitized sector object for storage:',
+          JSON.stringify(sectorForStorage, null, 2));
+        
+        secureStorage.setItem('selectedSector', sectorForStorage);
+        console.log('[DEBUG] secureStorage.setItem completed successfully');
+      } catch (storageError) {
+        console.error('[DEBUG] Error storing sector in secureStorage:', storageError);
+        console.error('[DEBUG] Error details:', storageError instanceof Error ? storageError.message : 'Unknown error');
+        console.error('[DEBUG] Error stack:', storageError instanceof Error ? storageError.stack : 'No stack available');
+        // Continue execution even if storage fails
+      }
+      
+      // Fetch patients for the selected sector
+      try {
+        console.log('[DEBUG] About to call fetchPatients with sector ID:', sector.id);
+        
+        // Wrap the fetchPatients call in a try-catch to get more detailed error information
+        const fetchPatientsPromise = fetchPatients(sector.id);
+        console.log('[DEBUG] fetchPatients call initiated');
+        
+        // Add a timeout to detect if fetchPatients is hanging
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('fetchPatients timeout after 5 seconds'));
+          }, 5000);
+        });
+        
+        // Race the fetchPatients promise against the timeout
+        Promise.race([fetchPatientsPromise, timeoutPromise])
+          .then(() => {
+            console.log('[DEBUG] fetchPatients completed successfully');
+          })
+          .catch((error) => {
+            console.error('[DEBUG] fetchPatients promise rejected:', error);
+            console.error('[DEBUG] Error details:', error instanceof Error ? error.message : 'Unknown error');
+            console.error('[DEBUG] Error stack:', error instanceof Error ? error.stack : 'No stack available');
+          });
+      } catch (fetchError) {
+        console.error('[DEBUG] Error in fetchPatients try-catch block:', fetchError);
+        console.error('[DEBUG] Error details:', fetchError instanceof Error ? fetchError.message : 'Unknown error');
+        console.error('[DEBUG] Error stack:', fetchError instanceof Error ? fetchError.stack : 'No stack available');
+        // Continue execution even if fetching patients fails
+      }
+      
+      toast.success(
+        `Sector selected: ${sector.name}`,
+        { description: `You are now viewing patients in the ${sector.name} sector` }
+      );
+      console.log('[DEBUG] Toast notification displayed');
+      
+      // Log sector selection for auditing (this could be expanded with more details)
+      console.log(`[INFO] Sector selected: ${sector.name} (${sector.id})`);
+    } catch (error) {
+      console.error('[DEBUG] Critical error in selectSector:', error);
+      toast.error('Failed to select sector. Please try again.');
+    }
   };
 
   // Initialize: fetch sectors and load previously selected sector

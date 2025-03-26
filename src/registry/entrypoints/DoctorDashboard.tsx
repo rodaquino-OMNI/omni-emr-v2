@@ -6,30 +6,79 @@ import { useSectorContext } from '@/hooks/useSectorContext';
 import PatientList from '@/components/patients/PatientList';
 import { PatientStatus } from '@/types/patientTypes';
 import { Patient as PatientCardType } from '@/components/patients/PatientCard';
+import { mapToPatientStatus } from '@/types/patientTypes';
 
 const DoctorDashboard: React.FC = () => {
   const { selectedSector } = useSectorContext();
   const { data, loading, error } = usePatientsByStatus(selectedSector?.id);
   
+  // Add debug logs for component rendering
+  React.useEffect(() => {
+    console.log('[DEBUG] DoctorDashboard rendering with:', {
+      componentId: 'doctor-dashboard',
+      selectedSector: selectedSector?.name,
+      patientsCount: data?.length || 0,
+      renderTime: new Date().toISOString()
+    });
+    
+    // Log patient status types to help diagnose type issues
+    if (data && data.length > 0) {
+      console.log('[DEBUG] Patient status types:', {
+        firstPatientStatus: data[0]?.status,
+        statusType: typeof data[0]?.status,
+        isValidEnum: ['active', 'inactive', 'discharged', 'critical', 'stable', 'hospital', 'home', 'improving'].includes(data[0]?.status)
+      });
+    }
+  }, [selectedSector, data]);
+  
   // Ensure patients have required properties with proper type handling
   const ensureRequiredProps = (patients: any[] = []): PatientCardType[] => {
-    return patients.map(patient => ({
-      ...patient,
-      name: patient.name || `${patient.first_name} ${patient.last_name}`,
-      mrn: patient.mrn || '',
-      age: patient.age || 0,
-      gender: patient.gender || '',  // Keep gender as string to match PatientCardType
-      status: patient.status || 'active'
-    })) as PatientCardType[];
+    return patients.map(patient => {
+      // Ensure status is properly mapped to a valid PatientStatus enum value
+      const mappedStatus = mapToPatientStatus(patient.status || 'active');
+      
+      return {
+        ...patient,
+        name: patient.name || `${patient.first_name} ${patient.last_name}`,
+        mrn: patient.mrn || '',
+        age: patient.age || 0,
+        gender: patient.gender || '',  // Keep gender as string to match PatientCardType
+        status: mappedStatus  // Use the mapped status to ensure type compatibility
+      };
+    }) as PatientCardType[];
   };
   
-  // Filter patients for doctor dashboard
-  const criticalPatients = ensureRequiredProps(
-    filterPatientsByStatus(data || [], ['critical', 'hospital'])
-  );
-  const stablePatients = ensureRequiredProps(
-    filterPatientsByStatus(data || [], ['stable', 'improving'])
-  );
+  // Implement mutually exclusive filtering to prevent duplication
+  const patientsByPriority = (patients: any[] = []) => {
+    // Create a copy of the array to avoid mutating the original
+    const patientsCopy = [...patients];
+    
+    // First, extract critical patients (highest priority)
+    const critical = patientsCopy.filter(p =>
+      p.status === 'critical' || p.status === 'hospital'
+    );
+    
+    // Get the IDs of critical patients
+    const criticalIds = critical.map(p => p.id);
+    
+    // Then get stable patients, excluding any that are already in the critical list
+    const stable = patientsCopy.filter(p =>
+      (p.status === 'stable' || p.status === 'improving') &&
+      !criticalIds.includes(p.id)
+    );
+    
+    return {
+      critical,
+      stable
+    };
+  };
+  
+  // Get patients with priority-based filtering to prevent duplication
+  const { critical, stable } = patientsByPriority(data);
+  
+  // Ensure patients have required properties
+  const criticalPatients = ensureRequiredProps(critical);
+  const stablePatients = ensureRequiredProps(stable);
 
   return (
     <div className="space-y-4">
